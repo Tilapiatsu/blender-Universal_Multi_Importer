@@ -1,10 +1,11 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy_extras.wm_utils.progress_report import ProgressReport
-import os
+import os, time
 from os import path
 import inspect
 from string import punctuation
+from .logger import LoggerProgress
 
 bl_info = {
 	"name" : "Universal Multi Importer",
@@ -16,8 +17,8 @@ bl_info = {
 	"category": "Import-Export"
 }
 
-# TODO : Need to implement the log system to better show progress ( as in Lineup Maker)
 # TODO : Need to show on screen info about the progress
+# TODO : add popup dialog box if file is not save
 # TODO : Need to expose the Post import process to let the user write the commands, reorder them, and delete them
 	# https://docs.blender.org/api/current/bpy.types.Operator.html?highlight=layout#bpy.types.Operator.layout
 	# https://docs.blender.org/api/current/bpy.types.UILayout.html
@@ -27,6 +28,7 @@ bl_info = {
 	# bpy.types.UILayout.template_search_preview ?
 	# bpy.types.UILayout.template_operator_search ?
 
+log = LoggerProgress('UMI')
 
 class TILA_compatible_formats(object):
 	
@@ -239,7 +241,7 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 				try:
 					setattr(self.format_handler.format_settings, k, getattr(self, k))
 				except AttributeError as e:
-					print("{}".format(e))
+					log.error("{}".format(e))
 
 		if context.scene.umi_settings.umi_last_setting_to_get:
 			context.scene.umi_settings.umi_ready_to_import = True
@@ -317,6 +319,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	all_parameters_imported = False
 	first_setting_to_import = True
 	format_to_import = []
+	import_complete = False
 	
 
 	def recurLayerCollection(self, layerColl, collName):
@@ -340,6 +343,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			context.scene.umi_settings.umi_last_setting_to_get = True
 		
 		context.scene.umi_settings.umi_current_format_setting_imported = False
+
 		# gather import setting from the user for each format selected
 		bpy.ops.import_scene.tila_universal_multi_importer_settings('INVOKE_DEFAULT', import_format=self.current_format[0])
 		self.first_setting_to_import = False
@@ -350,7 +354,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.revert_parameters(context)
 			self.stop_early = True
 
-			print('TILA : Import Canceled')
+			log.warning('Import Canceled')
+			bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
 			return {'CANCELLED'}
 
 		if event.type == 'TIMER':
@@ -366,6 +371,12 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			
 			# Import Loop
 			else:
+				if self.import_complete:
+					time.sleep(5)
+					bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
+					self.revert_parameters(context)
+					return {'FINISHED'}
+
 				if not self.processing and self.current_file_to_process is None and len(self.filepaths): # Import can start
 					self.next_file()
 					self.import_file(self.current_file_to_process)
@@ -374,11 +385,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				elif len(self.filepaths) == 0:
 					if self.save_file_after_import:
 						bpy.ops.wm.save_as_mainfile(filepath=self.current_blend_file, check_existing=False)
-					
-					self.revert_parameters(context)
 
-					print('TILA : Import Completed')
-					return {'FINISHED'}
+					log.complete_progress_importer()
+					self.import_complete = True
 
 		return {'PASS_THROUGH'}
 
@@ -388,7 +397,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		format_name = compatible_formats.get_format_from_extension(ext)[0]
 		format_module = getattr(bpy.types, module, None)
 		if format_module is None:
-			raise Exception("'{}' Module doesn't exist".format(module))
+			message = "'{}' Module doesn't exist".format(module)
+			log.error(message)
+			log.store_failure(message)
+			return
+			# raise Exception(message)
 
 		# Double \\ in the path causing error in the string
 		args = eval('self.{}_format.format_settings_dict'.format(format_name), {'self':self})
@@ -408,10 +421,17 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			arg_number -= 1
 			
 		command = 'bpy.ops.{}({})'.format(format_module.bl_idname, args_as_string)
-		exec(command, {'bpy':bpy})
+		
+		# Execute the import command
+		try:
+			exec(command, {'bpy':bpy})
+		except Exception as e:
+			log.error(e)
+			log.store_failure(e)
+			return
+			# raise Exception(e)
 
 	def import_file(self, filepath):
-		import time
 
 		if self.stop_early:
 			return
@@ -426,7 +446,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				self.processing = False
 				return
 		
-		print('TILA : Importing File {}/{} : {}'.format(self.current_file_number, self.number_of_file, filename))
+		log.info('Importing File {}/{} : {}'.format(self.current_file_number, self.number_of_file, filename))
 
 		if self.create_collection_per_file:
 			collection = bpy.data.collections.new(name=filename)
@@ -446,6 +466,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		time.sleep(.5)
 		self.progress += self.number_of_file/100
 		self.current_file_number += 1
+
+		message = 'File {} is imported successfully : {}'.format(self.current_file_number, filename)
+		log.success(message)
+		log.store_success(message)
+
 		self.current_file_to_process = None
 
 	def get_compatible_extensions(self):
@@ -466,11 +491,12 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.current_file_to_process = None
 		self.processing = False
 		self.first_setting_to_import = True
+		self.import_complete = False
 		context.scene.umi_settings.umi_last_setting_to_get = False
 		context.scene.umi_settings.umi_ready_to_import = False
 		context.scene.umi_settings.umi_current_format_setting_imported = False
 		context.window_manager.event_timer_remove(self._timer)
-
+		log.messages = []
 
 	def execute(self,context):
 		bpy.utils.unregister_class(TILA_umi_settings)
@@ -481,7 +507,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			exec('self.{}_format = TILA_umi_format_handler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'TILA_umi_format_handler':TILA_umi_format_handler, 'cont':context})
 
 		if not path.exists(self.current_blend_file):
-			print('Blender file not saved')
+			log.warning('Blender file not saved')
 			self.save_file_after_import = False
 			self.backup_file_after_import = False
 		else:
@@ -493,7 +519,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.filepaths.reverse()
 		self.number_of_file = len(self.filepaths)
 
-		print("{} compatible file(s) found".format(len(self.filepaths)))
+		log.info("{} compatible file(s) found".format(len(self.filepaths)))
+		log.separator()
 
 		self.view_layer = bpy.context.view_layer
 		self.root_collection = bpy.context.collection
@@ -502,6 +529,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		context.scene.umi_settings.umi_ready_to_import = False
 
 		self.store_format_to_import()
+
+		args = (context,)
+		self._handle = bpy.types.SpaceView3D.draw_handler_add(log.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
 
 		wm = context.window_manager
 		self._timer = wm.event_timer_add(0.1, window=context.window)
@@ -515,9 +545,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		wm = context.window_manager
 		wm.event_timer_remove(self._timer)
 
+# function to append the operator in the File>Import menu
 def menu_func_import(self, context):
 	self.layout.operator(TILA_umi.bl_idname, text="Universal Multi Importer")
 
+# function to register dynamically generated classes for each compatible formats
 def register_import_setting_class():
 	for f in compatible_formats.formats:
 		cl_name = 'TILA_umi_{}_settings'.format(f[1]['name'])
