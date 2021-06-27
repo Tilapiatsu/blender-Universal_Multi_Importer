@@ -597,8 +597,10 @@ class TILA_UL_umi_operator_list(bpy.types.UIList):
 		row = col.row(align=True)
 		row.alignment = 'RIGHT'
 
-		row.operator('scene.umi_edit_operator', text='', icon='GREASEPENCIL')
-		row.operator('scene.umi_remove_operator', text='', icon='PANEL_CLOSE')
+		row.operator('scene.umi_edit_operator', text='', icon='GREASEPENCIL').id = index
+		row.operator('scene.umi_duplicate_operator', text='', icon='PASTEDOWN').id = index
+		row.separator()
+		row.operator('scene.umi_remove_operator', text='', icon='PANEL_CLOSE').id = index
 
 
 # function to append the operator in the File>Import menu
@@ -623,6 +625,7 @@ classes = (
 	LM_UI_MoveOperator,
 	LM_UI_ClearOperators,
 	LM_UI_RemoveOperator,
+	LM_UI_DuplicateOperator,
 	LM_UI_EditOperator,
 	LM_UI_AddOperator
 )

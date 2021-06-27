@@ -52,17 +52,40 @@ class LM_UI_RemoveOperator(bpy.types.Operator):
 	bl_label = "Remove Selected Operator"
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Remove selected Operator."
+	
+	id : bpy.props.IntProperty(name="Operator ID", default=0)
 
 	@classmethod
 	def poll(cls, context):
 		return context.scene.umi_settings.umi_operators
 
 	def execute(self, context):
-		idx, operator, _ = get_operator(context)
+		_, operators, _ = get_operator(context)
 
-		operator.remove(idx)
+		operators.remove(self.id)
 
-		context.scene.umi_settings.umi_operator_idx = min(idx, len(context.scene.umi_settings.umi_operators) - 1)
+		context.scene.umi_settings.umi_operator_idx = min(self.id, len(context.scene.umi_settings.umi_operators) - 1)
+
+		return {'FINISHED'}
+
+class LM_UI_DuplicateOperator(bpy.types.Operator):
+	bl_idname = "scene.umi_duplicate_operator"
+	bl_label = "Duplicate Selected Operator"
+	bl_options = {'REGISTER', 'UNDO'}
+	bl_description = "Duplicate selected Operator."
+	
+	id : bpy.props.IntProperty(name="Operator ID", default=0)
+
+	@classmethod
+	def poll(cls, context):
+		return context.scene.umi_settings.umi_operators
+
+	def execute(self, context):
+		_, operators, _ = get_operator(context)
+
+		o = operators.add()
+		o.operator = operators[self.id].operator
+		operators.move(len(operators) - 1, self.id + 1)
 
 		return {'FINISHED'}
 
@@ -72,13 +95,23 @@ class LM_UI_EditOperator(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Edit current operator"
 
-	@classmethod
-	def poll(cls, context):
-		return context.scene.umi_settings.umi_operators
+	id : bpy.props.IntProperty(name="Operator ID", default=0)
+	operator : bpy.props.StringProperty(name="Operator Command", default="")
 
+	def draw(self, context):
+		layout = self.layout
+		col = layout.column()
+		col.prop(self, 'operator', text='Command')
+	
+	def invoke(self, context, event):
+		current_operator = context.scene.umi_settings.umi_operators[self.id]
+		self.operator = current_operator.operator
+		wm = context.window_manager
+		return wm.invoke_props_dialog(self)
+	
 	def execute(self, context):
-		context.scene.umi_settings.umi_operators.clear()
-
+		o = context.scene.umi_settings.umi_operators[self.id]
+		o.operator = self.operator
 		return {'FINISHED'}
 
 class LM_UI_AddOperator(bpy.types.Operator):
@@ -87,15 +120,12 @@ class LM_UI_AddOperator(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Add a new operator"
 
+	operator : bpy.props.StringProperty(name="Operator Command", default="")
+
 	def draw(self, context):
 		layout = self.layout
 		col = layout.column()
-		# self.operator = *(bpy.ops, "view_layer",
-		# 									scene, "view_layers",
-		# 									new="scene.view_layer_add",
-		# 									unlink="scene.view_layer_remove")
-		# print(self.operaor)
-		# print(dir(self.operator))
+		col.prop(self, 'operator', text='Command')
 
 	def invoke(self, context, event):
 		wm = context.window_manager
