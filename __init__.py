@@ -348,7 +348,13 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		col.label(text='Batch process imported files')
 
 		rows = len(context.scene.umi_settings.umi_operators) if len(context.scene.umi_settings.umi_operators) > 2 else 2
-		col.template_list('UL_UMI_operator_list', '', context.scene.umi_settings, 'umi_operators', context.scene.umi_settings, 'umi_operator_idx', rows=rows)
+		row = col.row()
+		row.template_list('UL_UMI_operator_list', '', context.scene.umi_settings, 'umi_operators', context.scene.umi_settings, 'umi_operator_idx', rows=rows)
+		col2 = row.column()
+		col2.operator('scene.umi_move_operator', text='', icon='TRIA_UP').direction = 'UP'
+		col2.operator('scene.umi_move_operator', text='', icon='TRIA_DOWN').direction = 'DOWN'
+		col2.separator()
+		col2.operator('scene.umi_clear_operators', text='', icon='TRASH')
 
 	def recurLayerCollection(self, layerColl, collName):
 		found = None
@@ -588,6 +594,12 @@ class TILA_UL_umi_operator_list(bpy.types.UIList):
 
 		row = col.row(align=True)
 		row.alignment = 'RIGHT'
+
+		row.operator('scene.umi_edit_operator', text='', icon='GREASEPENCIL')
+
+		row = col.row(align=True)
+		row.alignment = 'RIGHT'
+		row.operator('scene.umi_remove_operator', text='', icon='PANEL_CLOSE')
 
 
 # function to append the operator in the File>Import menu
