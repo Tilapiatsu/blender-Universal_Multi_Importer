@@ -349,8 +349,10 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 		rows = len(context.scene.umi_settings.umi_operators) if len(context.scene.umi_settings.umi_operators) > 2 else 2
 		row = col.row()
-		row.template_list('UL_UMI_operator_list', '', context.scene.umi_settings, 'umi_operators', context.scene.umi_settings, 'umi_operator_idx', rows=rows)
+		row.template_list('UMI_UL_operator_list', '', context.scene.umi_settings, 'umi_operators', context.scene.umi_settings, 'umi_operator_idx', rows=rows)
 		col2 = row.column()
+		col2.operator('scene.umi_add_operator', text='', icon='ADD')
+		col2.separator()
 		col2.operator('scene.umi_move_operator', text='', icon='TRIA_UP').direction = 'UP'
 		col2.operator('scene.umi_move_operator', text='', icon='TRIA_DOWN').direction = 'DOWN'
 		col2.separator()
@@ -581,7 +583,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			wm.event_timer_remove(self._timer)
 
 class TILA_UL_umi_operator_list(bpy.types.UIList):
-	bl_idname = "UL_UMI_operator_list"
+	bl_idname = "UMI_UL_operator_list"
 
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		scn = context.scene
@@ -596,9 +598,6 @@ class TILA_UL_umi_operator_list(bpy.types.UIList):
 		row.alignment = 'RIGHT'
 
 		row.operator('scene.umi_edit_operator', text='', icon='GREASEPENCIL')
-
-		row = col.row(align=True)
-		row.alignment = 'RIGHT'
 		row.operator('scene.umi_remove_operator', text='', icon='PANEL_CLOSE')
 
 
@@ -624,7 +623,8 @@ classes = (
 	LM_UI_MoveOperator,
 	LM_UI_ClearOperators,
 	LM_UI_RemoveOperator,
-	LM_UI_EditOperator
+	LM_UI_EditOperator,
+	LM_UI_AddOperator
 )
 
 def register():
