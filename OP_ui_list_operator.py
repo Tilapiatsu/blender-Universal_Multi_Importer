@@ -90,7 +90,12 @@ class LM_UI_AddOperator(bpy.types.Operator):
 	def draw(self, context):
 		layout = self.layout
 		col = layout.column()
-		self.operator = col.template_operator_search()
+		# self.operator = *(bpy.ops, "view_layer",
+		# 									scene, "view_layers",
+		# 									new="scene.view_layer_add",
+		# 									unlink="scene.view_layer_remove")
+		# print(self.operaor)
+		# print(dir(self.operator))
 
 	def invoke(self, context, event):
 		wm = context.window_manager
