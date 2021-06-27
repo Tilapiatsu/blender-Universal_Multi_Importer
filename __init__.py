@@ -6,6 +6,7 @@ from os import path
 import inspect
 from string import punctuation
 from .logger import LoggerProgress
+from .OP_ui_list_operator import *
 
 bl_info = {
 	"name" : "Universal Multi Importer",
@@ -17,7 +18,6 @@ bl_info = {
 	"category": "Import-Export"
 }
 
-# TODO : Need to show on screen info about the progress
 # TODO : add popup dialog box if file is not save
 # TODO : Need to expose the Post import process to let the user write the commands, reorder them, and delete them
 	# https://docs.blender.org/api/current/bpy.types.Operator.html?highlight=layout#bpy.types.Operator.layout
@@ -138,10 +138,15 @@ class TILA_format_class_creator(object):
 class TILA_umi_import_settings(bpy.types.PropertyGroup):
 	umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)
 
+class TILA_umi_operator(bpy.types.PropertyGroup):
+	operator : bpy.props.StringProperty(name='Operator', default='')
+
 class TILA_umi_scene_settings(bpy.types.PropertyGroup):
 	umi_ready_to_import : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_last_setting_to_get : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_current_format_setting_imported : bpy.props.BoolProperty(name='Current Format Settings Imported', default=False)
+	umi_operators : bpy.props.CollectionProperty(type = TILA_umi_operator)
+	umi_operator_idx : bpy.props.IntProperty()
 	umi_import_settings : bpy.props.PointerProperty(type=TILA_umi_import_settings)
 
 class TILA_umi_format_handler(object):
@@ -321,6 +326,29 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	format_to_import = []
 	import_complete = False
 	
+	def draw(self, context):
+		layout = self.layout
+		col = layout.column()
+		col.label(text='Import Settings')
+
+		col = layout.column()
+		col.prop(self, 'create_collection_per_file')
+		
+		col = layout.column()
+		col.prop(self, 'skip_already_imported_files')
+		if not self.create_collection_per_file:
+			col.active = False
+		
+		col = layout.column()
+		col.prop(self, 'backup_file_after_import')
+		col.prop(self, 'save_file_after_import')
+
+		col.separator()
+
+		col.label(text='Batch process imported files')
+
+		rows = len(context.scene.umi_settings.umi_operators) if len(context.scene.umi_settings.umi_operators) > 2 else 2
+		col.template_list('UL_UMI_operator_list', '', context.scene.umi_settings, 'umi_operators', context.scene.umi_settings, 'umi_operator_idx', rows=rows)
 
 	def recurLayerCollection(self, layerColl, collName):
 		found = None
@@ -542,8 +570,25 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.current_file_to_process = self.filepaths.pop()
 
 	def cancel(self, context):
-		wm = context.window_manager
-		wm.event_timer_remove(self._timer)
+		if self._timer is not None:
+			wm = context.window_manager
+			wm.event_timer_remove(self._timer)
+
+class TILA_UL_umi_operator_list(bpy.types.UIList):
+	bl_idname = "UL_UMI_operator_list"
+
+	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+		scn = context.scene
+
+		col = layout.column_flow(columns=2, align=True)
+
+		row = col.row(align=True)
+		row.alignment = 'LEFT'
+		row.label(text='{}'.format(item.operator))
+
+		row = col.row(align=True)
+		row.alignment = 'RIGHT'
+
 
 # function to append the operator in the File>Import menu
 def menu_func_import(self, context):
@@ -558,10 +603,16 @@ def register_import_setting_class():
 	TILA_umi_import_settings.umi_import_settings_registered = True
 
 classes = (
+	TILA_UL_umi_operator_list,
+	TILA_umi_operator,
 	TILA_umi_import_settings,
 	TILA_umi_scene_settings,
 	TILA_umi_settings,
-	TILA_umi
+	TILA_umi,
+	LM_UI_MoveOperator,
+	LM_UI_ClearOperators,
+	LM_UI_RemoveOperator,
+	LM_UI_EditOperator
 )
 
 def register():
