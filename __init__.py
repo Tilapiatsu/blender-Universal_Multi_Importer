@@ -7,6 +7,7 @@ import inspect
 from string import punctuation
 from .logger import LoggerProgress
 from .OP_ui_list_operator import *
+from .format_definition import FormatDefinition
 
 bl_info = {
 	"name" : "Universal Multi Importer",
@@ -25,16 +26,12 @@ bl_info = {
 	# bpy.types.UILayout.template_operator_search ?
 
 log = LoggerProgress('UMI')
+formats = [f for f in dir(FormatDefinition) if not f.startswith('__')]
 
 class TILA_compatible_formats(object):
+	for format in formats:
+		exec('{} = {}'.format(format, getattr(FormatDefinition, format)))
 	
-	obj = {'name' : 'obj',
-		   'ext' : '.obj',
-		   'module' : 'IMPORT_SCENE_OT_obj'}
-	fbx = {'name' : 'fbx',
-		   'ext' : '.fbx',
-		   'module' : 'IMPORT_SCENE_OT_fbx'}
-
 	def __init__(self):
 		self._extensions = None
 		self._modules = None
