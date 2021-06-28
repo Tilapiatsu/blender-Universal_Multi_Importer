@@ -83,6 +83,20 @@ class Logger(object):
 	def store_failure(self, failure):
 		self.failures.append(failure)
 
+	def clear_message(self):
+		self.messages = []
+	
+	def clear_success(self):
+		self.successes = []
+
+	def clear_failure(self):
+		self.failures = []
+	
+	def clear_all(self):
+		self.clear_message()
+		self.clear_success()
+		self.clear_failure()
+
 	def pretty(self, str):
 
 		p = self._pretty
