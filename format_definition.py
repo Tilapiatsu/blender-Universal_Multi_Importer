@@ -1,20 +1,31 @@
+import bpy
 
 class FormatDefinition(object):
 	obj = {'name' : 'obj',
 			'ext' : '.obj',
-			'module' : 'IMPORT_SCENE_OT_obj'}
+			'operator' : 'bpy.ops.import_scene.obj'}
 	fbx = {'name' : 'fbx',
 			'ext' : '.fbx',
-			'module' : 'IMPORT_SCENE_OT_fbx'}
+			'operator' : 'bpy.ops.import_scene.fbx'}
 	gltf = {'name' : 'gltf',
 			'ext' : '.gltf',
-			'module' : 'IMPORT_SCENE_OT_gltf'}
+			'operator' : 'bpy.ops.import_scene.gltf'}
 	x3d = {'name' : 'x3d',
 			'ext' : '.x3d',
-			'module' : 'IMPORT_SCENE_OT_x3d'}
+			'operator' : 'bpy.ops.import_scene.x3d'}
 	stl = {'name' : 'stl',
 			'ext' : '.stl',
-			'module' : 'IMPORT_MESH_OT_stl'}
+			'operator' : 'bpy.ops.import_mesh.stl'}
 	ply = {'name' : 'ply',
 			'ext' : '.ply',
-			'module' : 'IMPORT_MESH_OT_ply'}
+			'operator' : 'bpy.ops.import_mesh.ply'}
+	abc = {'name' : 'abc',
+			'ext' : '.abc',
+			'operator' : 'bpy.ops.wm.alembic_import'}
+	dae = {'name' : 'dae',
+			'ext' : '.dae',
+			'operator' : 'bpy.ops.wm.collada_import'}
+	svg = {'name' : 'svg',
+			'ext' : '.svg',
+			'operator' : 'bpy.ops.import_curve.svg'}
+

@@ -34,7 +34,7 @@ class TILA_compatible_formats(object):
 	
 	def __init__(self):
 		self._extensions = None
-		self._modules = None
+		self._operators = None
 		# automatically gather format
 		attributes = inspect.getmembers(TILA_compatible_formats, lambda a:not(inspect.isroutine(a)))
 		self.formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
@@ -51,14 +51,14 @@ class TILA_compatible_formats(object):
 		return self._extensions
 
 	@property
-	def modules(self):
-		if self._modules is None:
-			modules = []
+	def operators(self):
+		if self._operators is None:
+			operators = []
 			for f in self.formats:
 				if isinstance(f[1], dict):
-					modules.append(f[1]['module'])
-			self._modules = modules
-		return self._modules
+					operators.append(f[1]['operator'])
+			self._operators = operators
+		return self._operators
 
 	def get_format_from_extension(self, ext):
 		if ext.lower() not in self.extensions:
@@ -68,8 +68,8 @@ class TILA_compatible_formats(object):
 				if f[1]['ext'] == ext.lower():
 					return f
 
-	def get_module_from_extension(self, ext):
-		return self.get_format_from_extension(ext)[1]['module']
+	def get_operator_from_extension(self, ext):
+		return eval(self.get_format_from_extension(ext)[1]['operator'])
 
 compatible_formats = TILA_compatible_formats()
 
@@ -94,28 +94,19 @@ class TILA_format_class_creator(object):
 		return self._classes
 
 	def create_format_class(self, f):
-		format_module = getattr(bpy.types, f['module'], None)
-		if format_module is None:
-			raise Exception("Invalid module name passed")
-		format_annotations = getattr(format_module, "__annotations__", None)
+		format_operator = eval(f['operator'])
+		if format_operator is None:
+			raise Exception("Invalid operator name passed")
+		format_properties = list(format_operator.get_rna_type().properties)
 
 		# format_class = type('TILA_umi_' + f['name'] + '_settings', TILA_import_collection_property_creator.__bases__, dict(TILA_import_collection_property_creator.__dict__))
 		format_class = eval('TILA_umi_{}_settings'.format(f['name']))
-		key_to_delete = []
-		for k,v in format_annotations.items():
-			if 'options' in v.keywords.keys():
-				options = v.keywords['options']
-			else:
-				options = None
 
-			if options == {'HIDDEN'}:
-				key_to_delete.append(k)
+		for p in format_properties:
+			if p.is_hidden:
 				continue
 
-			format_class.__annotations__[k] = v
-
-		for k in key_to_delete:
-			del format_annotations[k]
+			format_class.__annotations__[p.name] = p
 		
 		format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
 		return format_class
@@ -457,11 +448,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	def import_command(self, filepath):
 		ext = os.path.splitext(filepath)[1]
-		module = compatible_formats.get_module_from_extension(ext)
+		operator = compatible_formats.get_operator_from_extension(ext)
 		format_name = compatible_formats.get_format_from_extension(ext)[0]
-		format_module = getattr(bpy.types, module, None)
-		if format_module is None:
-			message = "'{}' Module doesn't exist".format(module)
+		format_operator = getattr(bpy.types, operator, None)
+		if format_operator is None:
+			message = "'{}' Operator doesn't exist".format(operator)
 			log.error(message)
 			log.store_failure(message)
 			return
@@ -484,7 +475,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 			arg_number -= 1
 			
-		command = 'bpy.ops.{}({})'.format(format_module.bl_idname, args_as_string)
+		command = '{}({})'.format(format_operator, args_as_string)
 		
 		# Execute the import command
 		try:
