@@ -7,6 +7,7 @@ import inspect
 from string import punctuation
 from .logger import LoggerProgress
 from .OP_ui_list_operator import *
+from .format_definition import FormatDefinition
 
 bl_info = {
 	"name" : "Universal Multi Importer",
@@ -25,16 +26,12 @@ bl_info = {
 	# bpy.types.UILayout.template_operator_search ?
 
 log = LoggerProgress('UMI')
+formats = [f for f in dir(FormatDefinition) if not f.startswith('__')]
 
 class TILA_compatible_formats(object):
+	for format in formats:
+		exec('{} = {}'.format(format, getattr(FormatDefinition, format)))
 	
-	obj = {'name' : 'obj',
-		   'ext' : '.obj',
-		   'module' : 'IMPORT_SCENE_OT_obj'}
-	fbx = {'name' : 'fbx',
-		   'ext' : '.fbx',
-		   'module' : 'IMPORT_SCENE_OT_fbx'}
-
 	def __init__(self):
 		self._extensions = None
 		self._modules = None
@@ -305,13 +302,13 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
-	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', default=True)
-	backup_file_after_import : bpy.props.BoolProperty(name='Backup file after each import', default=True)
-	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', default=True)
-	save_file_after_import : bpy.props.BoolProperty(name='Save file after import', default=True)
-	ignore_post_process_errors : bpy.props.BoolProperty(name='Ignore Post Process Errors', default=True)
+	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=True)
+	backup_file_after_import : bpy.props.BoolProperty(name='Backup file after each import', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=True)
+	backup_step : bpy.props.IntProperty(name='Backup Step', description='Save file after X file imported', default=1, min=1, soft_max=50)
+	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=True)
+	save_file_after_import : bpy.props.BoolProperty(name='Save file after import', description='Save the original file when the entire import process is compete', default=True)
+	ignore_post_process_errors : bpy.props.BoolProperty(name='Ignore Post Process Errors', description='If any error occurs during prost processing of imported file, error will be ignore and the import process will continue', default=True)
 	
-
 	_timer = None
 	thread = None
 	progress = 0
@@ -323,22 +320,34 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	import_complete = False
 	canceled = False
 	end = False
+	current_backup_step = 0
 	
 	def draw(self, context):
 		layout = self.layout
 		col = layout.column()
 		col.label(text='Import Settings')
-
-		col = layout.column()
+		
 		col.prop(self, 'create_collection_per_file')
 		
-		col = layout.column()
-		col.prop(self, 'skip_already_imported_files')
-		if not self.create_collection_per_file:
-			col.active = False
+		if self.create_collection_per_file:
+			row = col.row()
+			split = row.split(factor=0.1, align=True)
+			split.label(text='')
+			split = split.split()
+			split.prop(self, 'skip_already_imported_files')
+
+		col.prop(self, 'backup_file_after_import')
+
+
+		if self.backup_file_after_import:
+			row = col.row()
+			split = row.split(factor=0.1, align=True)
+			split.label(text='')
+			split = split.split()
+			split.prop(self, 'backup_step')
+
 		
 		col = layout.column()
-		col.prop(self, 'backup_file_after_import')
 		col.prop(self, 'save_file_after_import')
 		col.prop(self, 'ignore_post_process_errors')
 		
@@ -369,7 +378,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	def postImportCommand(self):
 		# TODO : need to create a save/load preset for command list ( Macros ?)
-		log.info('Post process file : {}'.format(self.current_file_to_process))
+		log.info('Post process file : {}'.format(path.basename(self.current_file_to_process)))
 		for c in self.umi_settings.umi_operators:
 			c = c.operator
 			try:
@@ -393,9 +402,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.first_setting_to_import = False
 
 	def finish(self, context, canceled=False):
-		time.sleep(5)
 		bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
 		self.revert_parameters(context)
+		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 		if canceled:
 			return {'CANCELLED'}
 		else:
@@ -403,13 +412,16 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	def modal(self, context, event):
 		if self.end:
-			return self.finish(context, self.canceled)
+			if event.type in {'RET'}:
+				return self.finish(context, self.canceled)
+			return {'PASS_THROUGH'}
 
 		if event.type in {'RIGHTMOUSE', 'ESC'} or self.canceled:
 			log.error('Cancelling...')
 			self.cancel(context)
 
 			log.warning('Import Canceled')
+			log.info('Click "ENTER" to hide this text ...')
 			self.end = True
 
 		if event.type == 'TIMER':
@@ -424,7 +436,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					self.import_settings()
 			
 			elif self.import_complete:
+				log.info('Click "ENTER" to hide this text ...')
 				self.end = True
+
 			# Import Loop
 			else:
 				if not self.processing and self.current_file_to_process is None and len(self.filepaths): # Import can start
@@ -491,9 +505,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			if filename in bpy.data.collections:
 				self.current_file_to_process = None
 				self.processing = False
+				log.warning('File {} have already been imported, skiping file...'.format(filename))
 				return
 		
-		log.info('Importing File {}/{} : {}'.format(self.current_file_number, self.number_of_file, filename))
+		log.info('Importing file {}/{} - {}% : {}'.format(self.current_file_number, self.number_of_file, self.progress, filename))
+		self.current_backup_step += 1
 
 		if self.create_collection_per_file:
 			collection = bpy.data.collections.new(name=filename)
@@ -508,10 +524,13 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.postImportCommand()
 
 		if self.backup_file_after_import:
-			bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
+			if self.backup_step <= self.current_backup_step:
+				self.current_backup_step = 0
+				log.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
+				bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
 
 		# time.sleep(.5)
-		self.progress += self.number_of_file/100
+		self.progress += 100/self.number_of_file
 		
 
 		message = 'File {} is imported successfully : {}'.format(self.current_file_number, filename)
@@ -535,6 +554,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.all_parameters_imported = False
 		self.thread = None
 		self.progress = 0
+		self.current_backup_step = 0
 		self.current_file_to_process = None
 		self.processing = False
 		self.first_setting_to_import = True
@@ -558,9 +578,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		if not path.exists(self.current_blend_file):
 			log.warning('Blender file not saved')
 			self.save_file_after_import = False
-			self.backup_file_after_import = False
+			autosave = path.join(bpy.utils.user_resource(resource_type='AUTOSAVE', create=True), 'umi_autosave_' + time.strftime('%Y-%m-%d-%H-%M-%S') + '.blend')
 		else:
-			self.blend_backup_file = path.splitext(self.current_blend_file)[0] + "_bak" + path.splitext(self.current_blend_file)[1]
+			autosave = path.splitext(self.current_blend_file)[0] + "_bak" + path.splitext(self.current_blend_file)[1]
+
+		self.blend_backup_file = autosave
 		
 		compatible_extensions = self.get_compatible_extensions()
 		self.folder = (os.path.dirname(self.filepath))
@@ -591,6 +613,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		args = (context,)
 		self._handle = bpy.types.SpaceView3D.draw_handler_add(log.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
 
+		self.progress += 100/self.number_of_file
 		wm = context.window_manager
 		self._timer = wm.event_timer_add(0.1, window=context.window)
 		wm.modal_handler_add(self)
