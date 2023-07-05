@@ -62,14 +62,27 @@ class TILA_compatible_formats(object):
 
 	def get_format_from_extension(self, ext):
 		if ext.lower() not in self.extensions:
-			raise Exception("extension '{}' is not supported".format(ext))
+			# raise Exception("extension '{}' is not supported".format(ext))
+			message = f"extension '{ext}' is not supported"
+			log.error(message)
+			return None
 		else:
 			for f in self.formats:
 				if f[1]['ext'] == ext.lower():
 					return f
 
 	def get_operator_from_extension(self, ext):
-		return eval(self.get_format_from_extension(ext)[1]['operator'])
+		format = self.get_format_from_extension(ext)
+		if format is None:
+			return None
+		return eval(format[1]['operator'])
+	
+
+	def get_operator_name_from_extension(self, ext):
+		format = self.get_format_from_extension(ext)
+		if format is None:
+			return None
+		return format[1]['operator']
 
 compatible_formats = TILA_compatible_formats()
 
@@ -217,15 +230,9 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 	def execute(self, context):
 		# set the scene setting equal to the setting set by the user
 		for k,v in self.__class__.__annotations__.items():
-			if k in ['name']:
+			if getattr(v, 'is_hidden', False) or getattr(v, 'is_readonly', False):
 				continue
-			if 'options' in v.keywords.keys():
-				options = v.keywords['options']
-			else:
-				options = None
 
-			if options == {'HIDDEN'}:
-				continue
 			if k in dir(self.format_handler.format_settings):
 				try:
 					setattr(self.format_handler.format_settings, k, getattr(self, k))
@@ -246,14 +253,8 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 		self.format_handler = eval('TILA_umi_format_handler(import_format="{}", context=cont)'.format(self.import_format), {'self':self, 'TILA_umi_format_handler':TILA_umi_format_handler, 'cont':context})
 
 		for k,v in self.format_handler.format_annotations.items():
-			if 'options' in v.keywords.keys():
-				options = v.keywords['options']
-			else:
-				options = None
-
-			if options == {'HIDDEN'}:
+			if getattr(v, 'is_hidden', False) or getattr(v, 'is_readonly', False):
 				key_to_delete.append(k)
-				continue
 
 			if self.format_handler.format_is_imported: 
 				if k in dir(self.format_handler.import_setting):
@@ -448,43 +449,44 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	def import_command(self, filepath):
 		ext = os.path.splitext(filepath)[1]
-		operator = compatible_formats.get_operator_from_extension(ext)
+		operator = compatible_formats.get_operator_name_from_extension(ext)
 		format_name = compatible_formats.get_format_from_extension(ext)[0]
-		format_operator = getattr(bpy.types, operator, None)
-		if format_operator is None:
-			message = "'{}' Operator doesn't exist".format(operator)
+		if operator is None:
+			message = f"'{ext}' format is not supported"
 			log.error(message)
 			log.store_failure(message)
 			return
 			# raise Exception(message)
 
 		# Double \\ in the path causing error in the string
-		args = eval('self.{}_format.format_settings_dict'.format(format_name), {'self':self})
+		args = eval(f'self.{format_name}_format.format_settings_dict', {'self':self})
 		raw_path = filepath.replace('\\\\', punctuation[23])
-		args['filepath'] = '"{}"'.format(raw_path)
+		args['filepath'] = 'r"{}"'.format(raw_path)
 
 		args_as_string = ''
 		arg_number = len(args.keys())
 		for k,v in args.items():
-			if k in ['settings_imported']:
+			if k in ['settings_imported', 'name']:
 				arg_number -= 1
 				continue
-			args_as_string += ' {} = {}'.format(k, v)
+			args_as_string += ' {}={}'.format(k, v)
 			if arg_number >= 2:
 				args_as_string += ','
 
 			arg_number -= 1
 			
-		command = '{}({})'.format(format_operator, args_as_string)
+		command = '{}({})'.format(operator, args_as_string)
 		
 		# Execute the import command
 		try:
 			exec(command, {'bpy':bpy})
 		except Exception as e:
-			log.error(e)
-			log.store_failure(e)
-			return
+			log.error(str(e))
+			log.store_failurestr((e))
+			return False
 			# raise Exception(e)
+		
+		return True
 
 	def import_file(self, filepath):
 
@@ -510,24 +512,25 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			layer_col = self.recurLayerCollection(root_layer_col, collection.name)
 			self.view_layer.active_layer_collection = layer_col
 		
-		self.import_command(filepath=filepath)
+		succeeded = self.import_command(filepath=filepath)
 		
-		self.postImportCommand()
+		if succeeded:
 
-		if self.backup_file_after_import:
-			if self.backup_step <= self.current_backup_step:
-				self.current_backup_step = 0
-				log.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
-				bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
+			self.postImportCommand()
 
+			if self.backup_file_after_import:
+				if self.backup_step <= self.current_backup_step:
+					self.current_backup_step = 0
+					log.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
+					bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
+
+			message = 'File {} is imported successfully : {}'.format(self.current_file_number, filename)
+			self.current_file_number += 1
+			log.success(message)
+			log.store_success(message)
+		
 		# time.sleep(.5)
 		self.progress += 100/self.number_of_file
-		
-
-		message = 'File {} is imported successfully : {}'.format(self.current_file_number, filename)
-		self.current_file_number += 1
-		log.success(message)
-		log.store_success(message)
 
 		self.current_file_to_process = None
 
