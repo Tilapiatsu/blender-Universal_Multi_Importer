@@ -272,7 +272,7 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 
 		bpy.utils.unregister_class(TILA_umi_settings)
 		bpy.utils.register_class(TILA_umi_settings)
-		
+
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self)
 
@@ -282,8 +282,8 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 		if len(self.format_handler.format_annotations):
 			col.label(text='{} Import Settings'.format(self.format_handler.format_name))
 			col.separator()
-			for k in self.format_handler.format_settings.__annotations__.keys():
-				if not k in ['name']:
+			for k in self.__class__.__annotations__.keys():
+				if not k in ['name', 'settings_imported', 'import_format']:
 					col.prop(self, k)
 
 class TILA_umi(bpy.types.Operator, ImportHelper):
