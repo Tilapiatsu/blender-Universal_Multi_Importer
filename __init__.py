@@ -1,4 +1,5 @@
 import bpy
+from bpy.types import BoolProperty, StringProperty, IntProperty, FloatProperty
 from bpy_extras.io_utils import ImportHelper
 from bpy_extras.wm_utils.progress_report import ProgressReport
 import os, time
@@ -35,6 +36,7 @@ class TILA_compatible_formats(object):
 	def __init__(self):
 		self._extensions = None
 		self._operators = None
+		self._module = None
 		# automatically gather format
 		attributes = inspect.getmembers(TILA_compatible_formats, lambda a:not(inspect.isroutine(a)))
 		self.formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
@@ -59,6 +61,16 @@ class TILA_compatible_formats(object):
 					operators.append(f[1]['operator'])
 			self._operators = operators
 		return self._operators
+	
+	@property
+	def module(self):
+		if self._module is None:
+			module = []
+			for f in self.formats:
+				if isinstance(f[1], dict):
+					module.append(f[1]['operator'])
+			self._module = module
+		return self._operators
 
 	def get_format_from_extension(self, ext):
 		if ext.lower() not in self.extensions:
@@ -77,12 +89,17 @@ class TILA_compatible_formats(object):
 			return None
 		return eval(format[1]['operator'])
 	
-
 	def get_operator_name_from_extension(self, ext):
 		format = self.get_format_from_extension(ext)
 		if format is None:
 			return None
 		return format[1]['operator']
+	
+	def get_module_name_from_extension(self, ext):
+		format = self.get_format_from_extension(ext)
+		if format is None:
+			return None
+		return format[1]['module']
 
 compatible_formats = TILA_compatible_formats()
 
@@ -102,11 +119,45 @@ class TILA_format_class_creator(object):
 		if self._classes is None:
 			self._classes = []
 			for f in compatible_formats.formats:
-				self._classes.append(self.create_format_class(f[1]))
+				if 'module' in f[1].keys():
+					format_class = self.create_format_class_from_module(f[1])
+				else:
+					format_class = self.create_format_class_from_operator(f[1])
+
+				self._classes.append(format_class)
 
 		return self._classes
 
-	def create_format_class(self, f):
+	def create_format_class_from_module(self, f):
+		print(f'create class from module {f["module"]}')
+		format_module = getattr(bpy.types, f['module'], None)
+		if format_module is None:
+			raise Exception("Invalid module name passed")
+		format_annotations = getattr(format_module, "__annotations__", None)
+
+		# format_class = type('TILA_umi_' + f['name'] + '_settings', TILA_import_collection_property_creator.__bases__, dict(TILA_import_collection_property_creator.__dict__))
+		format_class = eval('TILA_umi_{}_settings'.format(f['name']))
+		key_to_delete = []
+		for k,v in format_annotations.items():
+			if 'options' in v.keywords.keys():
+				options = v.keywords['options']
+			else:
+				options = None
+
+			if options == {'HIDDEN'}:
+				key_to_delete.append(k)
+				continue
+
+			format_class.__annotations__[k] = v
+
+		for k in key_to_delete:
+			del format_annotations[k]
+		
+		format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
+		return format_class
+	
+	def create_format_class_from_operator(self, f):
+		print(f'create class from operator {f["operator"]}')
 		format_operator = eval(f['operator'])
 		if format_operator is None:
 			raise Exception("Invalid operator name passed")
@@ -115,11 +166,11 @@ class TILA_format_class_creator(object):
 		# format_class = type('TILA_umi_' + f['name'] + '_settings', TILA_import_collection_property_creator.__bases__, dict(TILA_import_collection_property_creator.__dict__))
 		format_class = eval('TILA_umi_{}_settings'.format(f['name']))
 
-		for p in format_properties:
-			if p.is_hidden:
-				continue
-
-			format_class.__annotations__[p.name] = p
+		for k,v in f['import_settings'].items():
+			print(k)
+			command = f'{v["type"]}(name={v["name"]}, default={v["default"]})'
+			print(command)
+			format_class.__annotations__[k] = eval(command)
 		
 		format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
 		return format_class
@@ -232,7 +283,7 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 		for k,v in self.__class__.__annotations__.items():
 			if getattr(v, 'is_hidden', False) or getattr(v, 'is_readonly', False):
 				continue
-
+			print(k)
 			if k in dir(self.format_handler.format_settings):
 				try:
 					setattr(self.format_handler.format_settings, k, getattr(self, k))
@@ -252,9 +303,27 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 		self.registered_annotations = []
 		self.format_handler = eval('TILA_umi_format_handler(import_format="{}", context=cont)'.format(self.import_format), {'self':self, 'TILA_umi_format_handler':TILA_umi_format_handler, 'cont':context})
 
+		# if 'import_settings' in self.format_handler.format:
+		# 	for s, t in self.format_handler.format['import_settings'].items():
+		# 		if self.format_handler.format_is_imported: 
+		# 			if s in dir(self.format_handler.import_setting):
+		# 				print(f"self.{s} = {t['type']}(name={t['name']}, default={t['default']})")
+		# 				prop = eval(f"{t['type']}(name={t['name']}, default={t['default']})", {'bpy':bpy, 'self':self})
+		# 				value = getattr(self.format_handler.import_setting, s)
+		# 				self.populate_property(s, prop)
+		# 			self.format_handler.format_settings.__annotations__[s] = prop
+		# 			self.registered_annotations.append(s)
+		# 		else:
+		# 			self.populate_property(s, prop)
+		# 			self.format_handler.format_settings.__annotations__[s] = prop
+		# 			self.registered_annotations.append(s)
+		# else:
 		for k,v in self.format_handler.format_annotations.items():
 			if getattr(v, 'is_hidden', False) or getattr(v, 'is_readonly', False):
 				key_to_delete.append(k)
+			
+			if k in self.format_handler.format['ignore']:
+				continue
 
 			if self.format_handler.format_is_imported: 
 				if k in dir(self.format_handler.import_setting):
@@ -476,7 +545,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			arg_number -= 1
 			
 		command = '{}({})'.format(operator, args_as_string)
-		
 		# Execute the import command
 		try:
 			exec(command, {'bpy':bpy})
