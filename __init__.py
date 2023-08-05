@@ -9,6 +9,9 @@ from string import punctuation
 from .logger import LoggerProgress
 from .OP_ui_list_operator import *
 from .format_definition import FormatDefinition
+import math
+from datetime import datetime
+import time
 
 bl_info = {
 	"name" : "Universal Multi Importer",
@@ -166,11 +169,12 @@ class TILA_format_class_creator(object):
 		# format_class = type('TILA_umi_' + f['name'] + '_settings', TILA_import_collection_property_creator.__bases__, dict(TILA_import_collection_property_creator.__dict__))
 		format_class = eval('TILA_umi_{}_settings'.format(f['name']))
 
-		for k,v in f['import_settings'].items():
-			print(k)
-			command = f'{v["type"]}(name={v["name"]}, default={v["default"]})'
-			print(command)
-			format_class.__annotations__[k] = eval(command)
+		if 'import_settings' in f.keys() :
+			for k,v in f['import_settings'].items():
+				print(k)
+				command = f'{v["type"]}(name={v["name"]}, default={v["default"]})'
+				print(command)
+				format_class.__annotations__[k] = eval(command)
 		
 		format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
 		return format_class
@@ -303,21 +307,6 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 		self.registered_annotations = []
 		self.format_handler = eval('TILA_umi_format_handler(import_format="{}", context=cont)'.format(self.import_format), {'self':self, 'TILA_umi_format_handler':TILA_umi_format_handler, 'cont':context})
 
-		# if 'import_settings' in self.format_handler.format:
-		# 	for s, t in self.format_handler.format['import_settings'].items():
-		# 		if self.format_handler.format_is_imported: 
-		# 			if s in dir(self.format_handler.import_setting):
-		# 				print(f"self.{s} = {t['type']}(name={t['name']}, default={t['default']})")
-		# 				prop = eval(f"{t['type']}(name={t['name']}, default={t['default']})", {'bpy':bpy, 'self':self})
-		# 				value = getattr(self.format_handler.import_setting, s)
-		# 				self.populate_property(s, prop)
-		# 			self.format_handler.format_settings.__annotations__[s] = prop
-		# 			self.registered_annotations.append(s)
-		# 		else:
-		# 			self.populate_property(s, prop)
-		# 			self.format_handler.format_settings.__annotations__[s] = prop
-		# 			self.registered_annotations.append(s)
-		# else:
 		for k,v in self.format_handler.format_annotations.items():
 			if getattr(v, 'is_hidden', False) or getattr(v, 'is_readonly', False):
 				key_to_delete.append(k)
@@ -343,7 +332,10 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 		bpy.utils.register_class(TILA_umi_settings)
 
 		wm = context.window_manager
-		return wm.invoke_props_dialog(self)
+		if len(self.format_handler.format_annotations)-2 > 0 :
+			return wm.invoke_props_dialog(self)
+		else:
+			return self.execute(context)
 
 	def draw(self, context):
 		layout = self.layout
@@ -364,12 +356,12 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
 	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=True)
-	backup_file_after_import : bpy.props.BoolProperty(name='Backup file after each import', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=True)
+	backup_file_after_import : bpy.props.BoolProperty(name='Backup file after each import', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
 	backup_step : bpy.props.IntProperty(name='Backup Step', description='Save file after X file imported', default=1, min=1, soft_max=50)
-	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=True)
-	save_file_after_import : bpy.props.BoolProperty(name='Save file after import', description='Save the original file when the entire import process is compete', default=True)
+	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
+	save_file_after_import : bpy.props.BoolProperty(name='Save file after import', description='Save the original file when the entire import process is compete', default=False)
 	ignore_post_process_errors : bpy.props.BoolProperty(name='Ignore Post Process Errors', description='If any error occurs during prost processing of imported file, error will be ignore and the import process will continue', default=True)
-	
+
 	_timer = None
 	thread = None
 	progress = 0
@@ -382,7 +374,27 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	canceled = False
 	end = False
 	current_backup_step = 0
+	counter = 0
+	wait_before_hiding = 5
+	counter_start_time = 0.0
+	counter_end_time = 0.0
+	delta = 0.0
+	previous_counter = 0
 	
+	def decrement_counter(self):
+		self.counter = self.counter + (self.counter_start_time - self.counter_end_time)*3000
+	
+	def store_delta_start(self):
+		self.counter_start_time = time.perf_counter()
+
+	def store_delta_end(self):
+		self.counter_end_time = time.perf_counter()
+
+	def log_enter_text(self):
+		log.info('-----------------------------------')
+		log.info('Click "ENTER" to hide this text ...')
+		log.info('-----------------------------------')
+
 	def draw(self, context):
 		layout = self.layout
 		col = layout.column()
@@ -472,20 +484,41 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			return {'FINISHED'}
 
 	def modal(self, context, event):
-		if self.end:
-			if event.type in {'RET'}:
-				return self.finish(context, self.canceled)
-			return {'PASS_THROUGH'}
-
 		if event.type in {'RIGHTMOUSE', 'ESC'} or self.canceled:
 			log.error('Cancelling...')
 			self.cancel(context)
 
 			log.warning('Import Canceled')
-			log.info('Click "ENTER" to hide this text ...')
+			self.log_enter_text()
+			self.counter = self.wait_before_hiding
 			self.end = True
 
 		if event.type == 'TIMER':
+			if self.end:
+				self.store_delta_start()
+
+				if self.counter == self.wait_before_hiding:
+					self.previous_counter = self.counter
+					self.store_delta_end()
+					
+				remaining_seconds = math.ceil(self.counter)
+
+				if remaining_seconds < self.previous_counter:
+					log.info(f'Hidding in {remaining_seconds}s ...')
+					self.previous_counter = remaining_seconds
+
+				if self.counter <= 0:
+					return self.finish(context, self.canceled)
+				
+				if event.type in {'RET'}:
+					return self.finish(context, self.canceled)
+				
+				self.previous_counter = remaining_seconds
+				self.store_delta_end()
+				self.decrement_counter()
+				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+				return {'PASS_THROUGH'}
+		
 			# Loop through all import format settings
 			if not self.umi_settings.umi_ready_to_import:
 				if not self.first_setting_to_import:
@@ -497,7 +530,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					self.import_settings()
 			
 			elif self.import_complete:
-				log.info('Click "ENTER" to hide this text ...')
+				self.log_enter_text()
+				self.counter = self.wait_before_hiding
 				self.end = True
 
 			# Import Loop
@@ -722,6 +756,7 @@ def register_import_setting_class():
 		exec('TILA_umi_import_settings.__annotations__["{}_import_settings"] = bpy.props.PointerProperty(type={})'.format(f[1]['name'], cl_name), {'bpy': bpy, 'TILA_umi_import_settings':TILA_umi_import_settings, cl_name:cl})
 	TILA_umi_import_settings.umi_import_settings_registered = True
 
+
 classes = (
 	TILA_UL_umi_operator_list,
 	TILA_umi_operator,
@@ -736,6 +771,7 @@ classes = (
 	LM_UI_EditOperator,
 	LM_UI_AddOperator
 )
+
 
 def register():
 	parser = TILA_format_class_creator()
