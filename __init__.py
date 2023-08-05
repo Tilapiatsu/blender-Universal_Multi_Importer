@@ -51,7 +51,7 @@ class TILA_compatible_formats(object):
 			extensions = []
 			for f in self.formats:
 				if isinstance(f[1], dict):
-					extensions.append(f[1]['ext'])
+					extensions = extensions + f[1]['ext']
 			self._extensions = extensions
 		return self._extensions
 
@@ -71,9 +71,9 @@ class TILA_compatible_formats(object):
 			module = []
 			for f in self.formats:
 				if isinstance(f[1], dict):
-					module.append(f[1]['operator'])
+					module.append(f[1]['module'])
 			self._module = module
-		return self._operators
+		return self._module
 
 	def get_format_from_extension(self, ext):
 		if ext.lower() not in self.extensions:
@@ -83,26 +83,18 @@ class TILA_compatible_formats(object):
 			return None
 		else:
 			for f in self.formats:
-				if f[1]['ext'] == ext.lower():
-					return f
-
-	def get_operator_from_extension(self, ext):
-		format = self.get_format_from_extension(ext)
-		if format is None:
-			return None
-		return eval(format[1]['operator'])
+				if  ext.lower() in f[1]['ext']:
+					return f[1]
 	
 	def get_operator_name_from_extension(self, ext):
 		format = self.get_format_from_extension(ext)
 		if format is None:
 			return None
-		return format[1]['operator']
-	
-	def get_module_name_from_extension(self, ext):
-		format = self.get_format_from_extension(ext)
-		if format is None:
-			return None
-		return format[1]['module']
+		formats = {}
+		for k,v in format['operator'].items():
+			formats[k] = v
+		
+		return formats
 
 compatible_formats = TILA_compatible_formats()
 
@@ -160,21 +152,18 @@ class TILA_format_class_creator(object):
 		return format_class
 	
 	def create_format_class_from_operator(self, f):
-		print(f'create class from operator {f["operator"]}')
-		format_operator = eval(f['operator'])
-		if format_operator is None:
-			raise Exception("Invalid operator name passed")
-		format_properties = list(format_operator.get_rna_type().properties)
-
-		# format_class = type('TILA_umi_' + f['name'] + '_settings', TILA_import_collection_property_creator.__bases__, dict(TILA_import_collection_property_creator.__dict__))
 		format_class = eval('TILA_umi_{}_settings'.format(f['name']))
 
 		if 'import_settings' in f.keys() :
-			for k,v in f['import_settings'].items():
-				print(k)
-				command = f'{v["type"]}(name={v["name"]}, default={v["default"]})'
-				print(command)
-				format_class.__annotations__[k] = eval(command)
+			for g in f['import_settings']:
+				for k,v in g[1].items():
+					print(k)
+					if 'enum_items' in v.keys():
+						command = f'{v["type"]}(name={v["name"]}, default={v["default"]}, items={v["enum_items"]})'
+					else:
+						command = f'{v["type"]}(name={v["name"]}, default={v["default"]})'
+					print(command)
+					format_class.__annotations__[k] = eval(command)
 		
 		format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
 		return format_class
@@ -361,6 +350,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
 	save_file_after_import : bpy.props.BoolProperty(name='Save file after import', description='Save the original file when the entire import process is compete', default=False)
 	ignore_post_process_errors : bpy.props.BoolProperty(name='Ignore Post Process Errors', description='If any error occurs during prost processing of imported file, error will be ignore and the import process will continue', default=True)
+	import_svg_as_grease_pencil : bpy.props.BoolProperty(name='Import SVG as Grease Pencil', description='SVG file will be imported as grease Pencil instead of curve objects', default=False)
 
 	_timer = None
 	thread = None
@@ -423,6 +413,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		col = layout.column()
 		col.prop(self, 'save_file_after_import')
 		col.prop(self, 'ignore_post_process_errors')
+		# col.prop(self, 'import_svg_as_grease_pencil')
 		
 
 		col.separator()
@@ -471,7 +462,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.umi_settings.umi_current_format_setting_imported = False
 
 		# gather import setting from the user for each format selected
-		bpy.ops.import_scene.tila_universal_multi_importer_settings('INVOKE_DEFAULT', import_format=self.current_format[0])
+		bpy.ops.import_scene.tila_universal_multi_importer_settings('INVOKE_DEFAULT', import_format=self.current_format['name'])
 		self.first_setting_to_import = False
 
 	def finish(self, context, canceled=False):
@@ -552,17 +543,26 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	def import_command(self, filepath):
 		ext = os.path.splitext(filepath)[1]
-		operator = compatible_formats.get_operator_name_from_extension(ext)
-		format_name = compatible_formats.get_format_from_extension(ext)[0]
-		if operator is None:
+		operators = compatible_formats.get_operator_name_from_extension(ext)
+		format_names = compatible_formats.get_format_from_extension(ext)['name']
+		if operators is None:
 			message = f"'{ext}' format is not supported"
 			log.error(message)
 			log.store_failure(message)
 			return
 			# raise Exception(message)
 
+		if len(operators) == 1:
+			operators = operators['default']
+		else:
+			if ext == '.svg':
+				if self.import_svg_as_grease_pencil:
+					operators = operators['grease_pencil']
+				else:
+					operators = operators['default']
+
 		# Double \\ in the path causing error in the string
-		args = eval(f'self.{format_name}_format.format_settings_dict', {'self':self})
+		args = eval(f'self.{format_names}_format.format_settings_dict', {'self':self})
 		raw_path = filepath.replace('\\\\', punctuation[23])
 		args['filepath'] = 'r"{}"'.format(raw_path)
 
@@ -578,13 +578,14 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 			arg_number -= 1
 			
-		command = '{}({})'.format(operator, args_as_string)
+		command = '{}({})'.format(operators, args_as_string)
+		print(command)
 		# Execute the import command
 		try:
 			exec(command, {'bpy':bpy})
 		except Exception as e:
 			log.error(str(e))
-			log.store_failurestr((e))
+			log.store_failure(str(e))
 			return False
 			# raise Exception(e)
 		
