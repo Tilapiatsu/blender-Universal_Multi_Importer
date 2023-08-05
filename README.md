@@ -22,8 +22,8 @@ With this addon, you can now import multiple files of different formats from the
 | Settings | Description |
 | ----------- | ----------- |
 | Create collection per file | Each imported file will be placed in a new collection named like the file |
-| Skip already imported files | if a file have already been imported, the import is skipped for this file, this option is only available if "Create collection per file" is Enable |
-| Backup file after each import | A backup file is saved after each "Backup Step" file is imported |
+| Skip already imported files | if a file have already been imported, the import is skipped for this file, this option is only available if "`Create collection per file`" is Enable |
+| Backup file after each import | A backup file is saved after each "`Backup Step`" file is imported |
 | Backup Step | The number of file that is imported before saving a backup |
 | Save file after import | At the end of the imprort process, save the current file |
 | Ignore Post Process Errors | Batch Processing imported files can cause error. Enabling this will continue the import of the following files even if an error occurs. Otherwise, the import process will stop |
