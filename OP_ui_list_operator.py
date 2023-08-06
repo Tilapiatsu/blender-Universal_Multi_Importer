@@ -1,4 +1,5 @@
 import bpy
+from bpy_extras.io_utils import ImportHelper, ExportHelper
 
 def get_operator(context):
 	idx = context.scene.umi_settings.umi_operator_idx
@@ -121,6 +122,79 @@ class LM_UI_AddOperator(bpy.types.Operator):
 	bl_description = "Add a new operator"
 
 	operator : bpy.props.StringProperty(name="Operator Command", default="")
+
+	def draw(self, context):
+		layout = self.layout
+		col = layout.column()
+		col.prop(self, 'operator', text='Command')
+
+	def invoke(self, context, event):
+		wm = context.window_manager
+		return wm.invoke_props_dialog(self, width=900)
+
+	def execute(self, context):
+		o = context.scene.umi_settings.umi_operators.add()
+		o.operator = self.operator
+		return {'FINISHED'}
+	
+
+class LM_UI_SavePresetOperator(bpy.types.Operator, ExportHelper):
+	bl_idname = "scene.umi_save_preset_operator"
+	bl_label = "Save Preset"
+	bl_options = {'REGISTER', 'UNDO'}
+	bl_description = "Save a preset of the current operator list to a preset file on your disk"
+	
+	filepath: bpy.props.StringProperty(
+		name="File Path",
+		description="Filepath used for exporting the file",
+		maxlen=1024,
+		subtype='FILE_PATH',
+	)
+	check_existing: bpy.props.BoolProperty(
+		name="Check Existing",
+		description="Check and warn on overwriting existing files",
+		default=True,
+		options={'HIDDEN'},
+	)
+
+	check_extension = True
+	filename_ext = '.umipreset'
+	
+	def invoke(self, context, event):
+		# return wm.invoke_props_dialog(self, width=900)
+		import os
+		if not self.filepath:
+			blend_filepath = context.blend_data.filepath
+			if not blend_filepath:
+				blend_filepath = "untitled"
+			else:
+				blend_filepath = os.path.splitext(blend_filepath)[0]
+
+			self.filepath = blend_filepath + self.filename_ext
+
+		context.window_manager.fileselect_add(self)
+		return {'RUNNING_MODAL'}
+
+
+	# def draw(self, context):
+	# 	layout = self.layout
+	# 	col = layout.column()
+	# 	col.prop(self, 'operator', text='Command')
+
+	def execute(self, context):
+		print('Saving preset')
+		return {'FINISHED'}
+	
+
+class LM_UI_LoadPresetOperator(bpy.types.Operator, ImportHelper):
+	bl_idname = "scene.umi_load_preset_operator"
+	bl_label = "Load Preset"
+	bl_options = {'REGISTER', 'UNDO'}
+	bl_description = "Load a preset and add the commands at the end of the current list"
+
+	operator : bpy.props.StringProperty(name="Operator Command", default="")
+
+	filename_ext = '.umipreset'
 
 	def draw(self, context):
 		layout = self.layout

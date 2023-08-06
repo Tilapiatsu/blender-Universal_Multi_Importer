@@ -468,6 +468,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		row = col.row()
 		row.template_list('UMI_UL_operator_list', '', context.scene.umi_settings, 'umi_operators', context.scene.umi_settings, 'umi_operator_idx', rows=rows)
 		col2 = row.column()
+		col2.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW')
+		col2.operator('scene.umi_load_preset_operator', text='', icon='FILE_FOLDER')
+		col2.separator()
 		col2.operator('scene.umi_add_operator', text='', icon='ADD')
 		col2.separator()
 		col2.operator('scene.umi_move_operator', text='', icon='TRIA_UP').direction = 'UP'
@@ -669,7 +672,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		succeeded = self.import_command(filepath=filepath)
 		
 		if succeeded:
-			
 			self.post_import_command()
 
 			message = 'File {} is imported successfully : {}'.format(self.current_file_number, filename)
