@@ -333,6 +333,53 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 				if not k in ['name', 'settings_imported', 'import_format']:
 					col.prop(self, k)
 
+class TILA_umi_command_batcher(bpy.types.Operator):
+	bl_idname = "object.tila_umi_command_batcher"
+	bl_label = "Command Batcher"
+	bl_options = {'REGISTER'}
+	operator_list : bpy.props.CollectionProperty(type=TILA_umi_operator)
+	
+	finished = False
+	current_command = None
+	def invoke(self, context, event):
+
+		self.operator_to_process = [o.operator for o in self.operator_list]
+
+		wm = context.window_manager
+		self._timer = wm.event_timer_add(0.1, window=context.window)
+		wm.modal_handler_add(self)
+		return {'RUNNING_MODAL'}
+	
+	def revert_parameters(self, context):
+		self.finished = False
+		context.window_manager.event_timer_remove(self._timer)
+
+	def finish(self, context):
+		self.revert_parameters(context)
+		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+		return {'FINISHED'}
+		
+	def modal(self, context, event):
+		if self.finished:
+			return self.finish(context)
+
+		if self.current_command is None and len(self.operator_to_process):
+			self.current_command = self.operator_to_process.pop()
+
+		if self.current_command is None and not len(self.operator_to_process):
+			self.finished = True
+
+		else:
+			try:
+				log.info(f'Executing command : "{self.current_command}"')
+				exec(self.current_command, {'bpy':bpy})
+			except Exception as e:
+				log.error('Post Import Command "{}" is not valid - {}'.format(self.current_command, e)) 
+			self.current_command = None
+		
+		return {'PASS_THROUGH'}
+
+
 class TILA_umi(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.tila_universal_multi_importer"
 	bl_label = "Import ALL"
@@ -438,17 +485,22 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				return found
 
 	def post_import_command(self):
+		operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
+		if len(operator_list):
+			
+			bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', operator_list=operator_list)
+
 		# TODO : need to create a save/load preset for command list ( Macros ?)
-		log.info('Post process file : {}'.format(path.basename(self.current_file_to_process)))
-		for c in self.umi_settings.umi_operators:
-			c = c.operator
-			try:
-				log.info('Executing command : "{}"'.format(c))
-				exec(c, {'bpy':bpy})	
-			except Exception as e:
-				log.error('Post Import Command "{}" is not valid - {}'.format(c, e))
-				if not self.ignore_post_process_errors:
-					self.canceled = True
+		# log.info('Post process file : {}'.format(path.basename(self.current_file_to_process)))
+		# for c in self.umi_settings.umi_operators:
+		# 	c = c.operator
+		# 	try:
+		# 		log.info('Executing command : "{}"'.format(c))
+		# 		exec(c, {'bpy':bpy})	
+		# 	except Exception as e:
+		# 		log.error('Post Import Command "{}" is not valid - {}'.format(c, e))
+		# 		if not self.ignore_post_process_errors:
+		# 			self.canceled = True
 
 	def import_settings(self):
 		self.current_format = self.format_to_import.pop()
@@ -617,8 +669,14 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		succeeded = self.import_command(filepath=filepath)
 		
 		if succeeded:
-
+			
 			self.post_import_command()
+
+			message = 'File {} is imported successfully : {}'.format(self.current_file_number, filename)
+			self.current_file_number += 1
+			log.success(message)
+			log.store_success(message)
+
 
 			if self.backup_file_after_import:
 				if self.backup_step <= self.current_backup_step:
@@ -626,10 +684,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					log.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
 					bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
 
-			message = 'File {} is imported successfully : {}'.format(self.current_file_number, filename)
-			self.current_file_number += 1
-			log.success(message)
-			log.store_success(message)
 		
 		# time.sleep(.5)
 		self.progress += 100/self.number_of_file
@@ -762,6 +816,7 @@ classes = (
 	TILA_umi_import_settings,
 	TILA_umi_scene_settings,
 	TILA_umi_settings,
+	TILA_umi_command_batcher,
 	TILA_umi,
 	LM_UI_MoveOperator,
 	LM_UI_ClearOperators,
