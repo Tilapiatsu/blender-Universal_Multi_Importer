@@ -157,12 +157,10 @@ class TILA_format_class_creator(object):
 		if 'import_settings' in f.keys() :
 			for g in f['import_settings']:
 				for k,v in g[1].items():
-					print(k)
 					if 'enum_items' in v.keys():
 						command = f'{v["type"]}(name={v["name"]}, default={v["default"]}, items={v["enum_items"]})'
 					else:
 						command = f'{v["type"]}(name={v["name"]}, default={v["default"]})'
-					print(command)
 					format_class.__annotations__[k] = eval(command)
 		
 		format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
@@ -276,7 +274,6 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 		for k,v in self.__class__.__annotations__.items():
 			if getattr(v, 'is_hidden', False) or getattr(v, 'is_readonly', False):
 				continue
-			print(k)
 			if k in dir(self.format_handler.format_settings):
 				try:
 					setattr(self.format_handler.format_settings, k, getattr(self, k))
@@ -475,7 +472,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			return {'FINISHED'}
 
 	def modal(self, context, event):
-		if event.type in {'RIGHTMOUSE', 'ESC'} or self.canceled:
+		if event.type in {'RIGHTMOUSE', 'ESC'}:
 			log.error('Cancelling...')
 			self.cancel(context)
 
@@ -579,7 +576,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			arg_number -= 1
 			
 		command = '{}({})'.format(operators, args_as_string)
-		print(command)
 		# Execute the import command
 		try:
 			exec(command, {'bpy':bpy})
