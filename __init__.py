@@ -369,7 +369,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	previous_counter = 0
 	
 	def decrement_counter(self):
-		self.counter = self.counter + (self.counter_start_time - self.counter_end_time)*3000
+		self.counter = self.counter + (self.counter_start_time - self.counter_end_time)*1000
 	
 	def store_delta_start(self):
 		self.counter_start_time = time.perf_counter()
@@ -428,16 +428,16 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		col2.separator()
 		col2.operator('scene.umi_clear_operators', text='', icon='TRASH')
 
-	def recurLayerCollection(self, layerColl, collName):
+	def recur_layer_collection(self, layer_coll, coll_name):
 		found = None
-		if (layerColl.name == collName):
-			return layerColl
-		for layer in layerColl.children:
-			found = self.recurLayerCollection(layer, collName)
+		if (layer_coll.name == coll_name):
+			return layer_coll
+		for layer in layer_coll.children:
+			found = self.recur_layer_collection(layer, coll_name)
 			if found:
 				return found
 
-	def postImportCommand(self):
+	def post_import_command(self):
 		# TODO : need to create a save/load preset for command list ( Macros ?)
 		log.info('Post process file : {}'.format(path.basename(self.current_file_to_process)))
 		for c in self.umi_settings.umi_operators:
@@ -481,32 +481,35 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.counter = self.wait_before_hiding
 			self.end = True
 
-		if event.type == 'TIMER':
-			if self.end:
-				self.store_delta_start()
-
-				if self.counter == self.wait_before_hiding:
-					self.previous_counter = self.counter
-					self.store_delta_end()
-					
-				remaining_seconds = math.ceil(self.counter)
-
-				if remaining_seconds < self.previous_counter:
-					log.info(f'Hidding in {remaining_seconds}s ...')
-					self.previous_counter = remaining_seconds
-
-				if self.counter <= 0:
-					return self.finish(context, self.canceled)
-				
-				if event.type in {'RET'}:
-					return self.finish(context, self.canceled)
-				
-				self.previous_counter = remaining_seconds
-				self.store_delta_end()
-				self.decrement_counter()
-				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-				return {'PASS_THROUGH'}
+		if self.end and event.type in {'RET'}:
+			return self.finish(context, self.canceled)
 		
+		if self.end:
+			self.store_delta_start()
+
+			if self.counter == self.wait_before_hiding:
+				self.previous_counter = self.counter
+				self.store_delta_end()
+				
+			remaining_seconds = math.ceil(self.counter)
+
+			if remaining_seconds < self.previous_counter:
+				log.info(f'Hidding in {remaining_seconds}s ...')
+				self.previous_counter = remaining_seconds
+
+			if self.counter <= 0:
+				return self.finish(context, self.canceled)
+			
+			if event.type in {'RET'}:
+				return self.finish(context, self.canceled)
+			
+			self.previous_counter = remaining_seconds
+			self.store_delta_end()
+			self.decrement_counter()
+			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+			return {'PASS_THROUGH'}
+		
+		if event.type == 'TIMER':
 			# Loop through all import format settings
 			if not self.umi_settings.umi_ready_to_import:
 				if not self.first_setting_to_import:
@@ -608,14 +611,14 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.root_collection.children.link(collection)
 			
 			root_layer_col = self.view_layer.layer_collection    
-			layer_col = self.recurLayerCollection(root_layer_col, collection.name)
+			layer_col = self.recur_layer_collection(root_layer_col, collection.name)
 			self.view_layer.active_layer_collection = layer_col
 		
 		succeeded = self.import_command(filepath=filepath)
 		
 		if succeeded:
 
-			self.postImportCommand()
+			self.post_import_command()
 
 			if self.backup_file_after_import:
 				if self.backup_step <= self.current_backup_step:
