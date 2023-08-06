@@ -10,7 +10,6 @@ from .logger import LoggerProgress
 from .OP_ui_list_operator import *
 from .format_definition import FormatDefinition
 import math
-from datetime import datetime
 import time
 
 bl_info = {
@@ -461,15 +460,17 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		
 
 		col.separator()
-
-		col.label(text='Batch process imported files')
+		row = col.row()
+		row.label(text='Batch process imported files')
+		row.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW')
+		row.operator('scene.umi_load_preset_operator', text='', icon='FILE_FOLDER')
 
 		rows = len(context.scene.umi_settings.umi_operators) if len(context.scene.umi_settings.umi_operators) > 2 else 2
 		row = col.row()
 		row.template_list('UMI_UL_operator_list', '', context.scene.umi_settings, 'umi_operators', context.scene.umi_settings, 'umi_operator_idx', rows=rows)
 		col2 = row.column()
-		col2.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW')
-		col2.operator('scene.umi_load_preset_operator', text='', icon='FILE_FOLDER')
+		# col2.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW')
+		# col2.operator('scene.umi_load_preset_operator', text='', icon='FILE_FOLDER')
 		col2.separator()
 		col2.operator('scene.umi_add_operator', text='', icon='ADD')
 		col2.separator()
@@ -825,7 +826,9 @@ classes = (
 	LM_UI_RemoveOperator,
 	LM_UI_DuplicateOperator,
 	LM_UI_EditOperator,
-	LM_UI_AddOperator
+	LM_UI_AddOperator,
+	LM_UI_SavePresetOperator,
+	LM_UI_LoadPresetOperator
 )
 
 
