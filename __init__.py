@@ -127,7 +127,7 @@ class TILA_format_class_creator(object):
 		print(f'create class from module {f["module"]}')
 		format_module = getattr(bpy.types, f['module'], None)
 		if format_module is None:
-			raise Exception("Invalid module name passed")
+			raise Exception(f"Invalid module name passed : {f['module']}")
 		format_annotations = getattr(format_module, "__annotations__", None)
 
 		# format_class = type('TILA_umi_' + f['name'] + '_settings', TILA_import_collection_property_creator.__bases__, dict(TILA_import_collection_property_creator.__dict__))
@@ -600,7 +600,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				log.warning('File {} have already been imported, skiping file...'.format(filename))
 				return
 		
-		log.info('Importing file {}/{} - {}% : {}'.format(self.current_file_number, self.number_of_file, self.progress, filename))
+		log.info('Importing file {}/{} - {}% : {}'.format(self.current_file_number, self.number_of_file, round(self.progress,2), filename))
 		self.current_backup_step += 1
 
 		if self.create_collection_per_file:
@@ -726,13 +726,12 @@ class TILA_UL_umi_operator_list(bpy.types.UIList):
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		scn = context.scene
 
-		col = layout.column_flow(columns=2, align=True)
-
-		row = col.row(align=True)
+		grid = layout.grid_flow(columns=2, align=True, even_columns=False)
+		row = grid.row()
 		row.alignment = 'LEFT'
-		row.label(text='{}'.format(item.operator))
+		row.label(text=f'{item.operator}')
 
-		row = col.row(align=True)
+		row = grid.row(align=True)
 		row.alignment = 'RIGHT'
 
 		row.operator('scene.umi_edit_operator', text='', icon='GREASEPENCIL').id = index

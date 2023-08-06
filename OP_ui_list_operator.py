@@ -107,7 +107,7 @@ class LM_UI_EditOperator(bpy.types.Operator):
 		current_operator = context.scene.umi_settings.umi_operators[self.id]
 		self.operator = current_operator.operator
 		wm = context.window_manager
-		return wm.invoke_props_dialog(self)
+		return wm.invoke_props_dialog(self, width=900)
 	
 	def execute(self, context):
 		o = context.scene.umi_settings.umi_operators[self.id]
@@ -129,7 +129,7 @@ class LM_UI_AddOperator(bpy.types.Operator):
 
 	def invoke(self, context, event):
 		wm = context.window_manager
-		return wm.invoke_props_dialog(self)
+		return wm.invoke_props_dialog(self, width=900)
 
 	def execute(self, context):
 		o = context.scene.umi_settings.umi_operators.add()
