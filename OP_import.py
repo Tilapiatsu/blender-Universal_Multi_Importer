@@ -6,6 +6,7 @@ from os import path
 import math
 from string import punctuation
 from .format_handler import TILA_umi_format_handler
+from .OP_command_batcher import draw_command_batcher
 
 
 class TILA_umi_settings(bpy.types.Operator, ImportHelper):
@@ -171,41 +172,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		col.prop(self, 'ignore_post_process_errors')
 		# col.prop(self, 'import_svg_as_grease_pencil')
 		
-		col.separator()
-		box = col.box()
-		row = box.row()
-		row.label(text='Batch process imported files')
-
-		rows = len(context.scene.umi_settings.umi_operators) if len(context.scene.umi_settings.umi_operators) > 2 else 2
-		row = box.row()
-		row.template_list('UMI_UL_operator_list', '', context.scene.umi_settings, 'umi_operators', context.scene.umi_settings, 'umi_operator_idx', rows=rows)
-		col2 = row.column()
-		
-		col2.separator()
-		
-		col2.operator('scene.umi_add_operator', text='', icon='ADD')
-		col2.separator()
-		col2.operator('scene.umi_move_operator', text='', icon='TRIA_UP').direction = 'UP'
-		col2.operator('scene.umi_move_operator', text='', icon='TRIA_DOWN').direction = 'DOWN'
-		col2.separator()
-		col2.operator('scene.umi_clear_operators', text='', icon='TRASH')
-
-
-		box = col.box()
-		row = box.row()
-		row.label(text='Batch Process Presets')
-
-		rows = len(context.scene.umi_settings.umi_presets) if len(context.scene.umi_settings.umi_presets) > 2 else 2
-		row = box.row()
-		row.template_list('UMI_UL_preset_list', '', context.scene.umi_settings, 'umi_presets', context.scene.umi_settings, 'umi_preset_idx', rows=rows)
-		col2 = row.column()
-		col2.separator()
-		col2.operator('scene.umi_add_preset', text='', icon='ADD')
-		col2.separator()
-		col2.operator('scene.umi_move_preset', text='', icon='TRIA_UP').direction = 'UP'
-		col2.operator('scene.umi_move_preset', text='', icon='TRIA_DOWN').direction = 'DOWN'
-		col2.separator()
-		col2.operator('scene.umi_clear_presets', text='', icon='TRASH')
+		draw_command_batcher(self, context)
 
 	def recur_layer_collection(self, layer_coll, coll_name):
 		found = None
