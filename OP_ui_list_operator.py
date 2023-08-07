@@ -202,18 +202,25 @@ class LM_UI_RemovePreset(bpy.types.Operator):
 	bl_idname = "scene.umi_remove_preset"
 	bl_label = "Remove Selected Preset"
 	bl_options = {'REGISTER', 'UNDO'}
-	bl_description = "Remove selected Preset."
+	bl_description = "Remove Selected Preset PERMANENTLY ?"
 	
 	id : bpy.props.IntProperty(name="Preset ID", default=0)
 
 	@classmethod
 	def poll(cls, context):
 		return len(context.scene.umi_settings.umi_presets)
+	
+	def invoke(self, context, event):
+		wm = context.window_manager
+		return wm.invoke_confirm(self, event)
+		
 
 	def execute(self, context):
-		_, presets, _ = get_presets(context)
+		_, self.presets, self.item = get_presets(context)
+		if os.path.isfile(self.item.path):
+			os.remove(self.item.path)
 
-		presets.remove(self.id)
+		self.presets.remove(self.id)
 
 		context.scene.umi_settings.umi_preset_idx = min(self.id, len(context.scene.umi_settings.umi_presets) - 1)
 
@@ -264,7 +271,10 @@ class LM_UI_EditPreset(bpy.types.Operator):
 	def execute(self, context):
 		o = context.scene.umi_settings.umi_presets[self.id]
 		o.name = self.name
+		old_name = o.path
 		o.path = os.path.join(PRESET_FOLDER, self.name + '.umipreset')
+
+		os.rename(old_name, o.path)
 		return {'FINISHED'}
 	
 
@@ -276,6 +286,7 @@ class LM_UI_AddPreset(bpy.types.Operator):
 	bl_description = "Add a new operator"
 
 	name : bpy.props.StringProperty(name="Preset name", default="")
+	from_list : bpy.props.BoolProperty(name="From List", default=True)
 
 	def draw(self, context):
 		layout = self.layout
@@ -284,12 +295,14 @@ class LM_UI_AddPreset(bpy.types.Operator):
 
 	def invoke(self, context, event):
 		wm = context.window_manager
-		return wm.invoke_props_dialog(self, width=900)
+		return wm.invoke_props_dialog(self, width=500)
 
 	def execute(self, context):
 		o = context.scene.umi_settings.umi_presets.add()
 		o.name = self.name
 		o.path = os.path.join(PRESET_FOLDER, self.name + '.umipreset')
+		if self.from_list:
+			bpy.ops.scene.umi_save_preset_operator(filepath=o.path)
 		return {'FINISHED'}
 
 
@@ -343,6 +356,6 @@ class LM_UI_LoadPresetList(bpy.types.Operator):
 			bpy.ops.scene.umi_clear_presets('INVOKE_DEFAULT')
 
 		for p in presets:
-			bpy.ops.scene.umi_add_preset('EXEC_DEFAULT', name=os.path.splitext(p)[0])
+			bpy.ops.scene.umi_add_preset('EXEC_DEFAULT', name=os.path.splitext(p)[0], from_list=False)
 
 		return {'FINISHED'}

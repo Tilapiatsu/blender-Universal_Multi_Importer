@@ -495,16 +495,16 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		row = box.row()
 		row.label(text='Batch Process Presets')
 		
-		if len(context.scene.umi_settings.umi_presets):
-			row.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW').filepath = context.scene.umi_settings.umi_presets[context.scene.umi_settings.umi_preset_idx].path
-			row.operator('scene.umi_load_preset_operator', text='', icon='FILE_FOLDER').filepath = context.scene.umi_settings.umi_presets[context.scene.umi_settings.umi_preset_idx].path
-		else:
-			col = row.column()
-			col.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW')
-			col.enabled = False
-			col = row.column()
-			col.operator('scene.umi_load_preset_operator', text='', icon='TRIA_UP')
-			col.enabled = False
+		# if len(context.scene.umi_settings.umi_presets):
+		# 	row.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW').filepath = context.scene.umi_settings.umi_presets[context.scene.umi_settings.umi_preset_idx].path
+		# 	row.operator('scene.umi_load_preset_operator', text='', icon='FILE_FOLDER').filepath = context.scene.umi_settings.umi_presets[context.scene.umi_settings.umi_preset_idx].path
+		# else:
+		# 	col = row.column()
+		# 	col.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW')
+		# 	col.enabled = False
+		# 	col = row.column()
+		# 	col.operator('scene.umi_load_preset_operator', text='', icon='TRIA_UP')
+		# 	col.enabled = False
 
 		rows = len(context.scene.umi_settings.umi_presets) if len(context.scene.umi_settings.umi_presets) > 2 else 2
 		row = box.row()
@@ -819,13 +819,14 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			wm = context.window_manager
 			wm.event_timer_remove(self._timer)
 
+
 class TILA_UL_umi_operator_list(bpy.types.UIList):
 	bl_idname = "UMI_UL_operator_list"
 
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		scn = context.scene
 
-		grid = layout.grid_flow(columns=2, align=True, even_columns=False)
+		grid = layout.grid_flow(columns=2, align=True, even_columns=True)
 		row = grid.row()
 		row.alignment = 'LEFT'
 		row.label(text=f'{item.operator}')
@@ -844,7 +845,7 @@ class TILA_UL_umi_preset_list(bpy.types.UIList):
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		scn = context.scene
 
-		grid = layout.grid_flow(columns=2, align=True, even_columns=False)
+		grid = layout.grid_flow(columns=2, align=True, even_columns=True)
 		row = grid.row()
 		row.alignment = 'LEFT'
 		row.label(text=f'{item.name}')
