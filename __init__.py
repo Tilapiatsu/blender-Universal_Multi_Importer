@@ -11,6 +11,7 @@ from .OP_ui_list_operator import *
 from .format_definition import FormatDefinition
 import math
 import time
+from .constant import PRESET_FOLDER
 
 bl_info = {
 	"name" : "Universal Multi Importer",
@@ -179,12 +180,18 @@ class TILA_umi_import_settings(bpy.types.PropertyGroup):
 class TILA_umi_operator(bpy.types.PropertyGroup):
 	operator : bpy.props.StringProperty(name='Operator', default='')
 
+class TILA_umi_preset(bpy.types.PropertyGroup):
+	name : bpy.props.StringProperty(name='Name')
+	path : bpy.props.StringProperty(name='File Path', default='', subtype='FILE_PATH')
+
 class TILA_umi_scene_settings(bpy.types.PropertyGroup):
 	umi_ready_to_import : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_last_setting_to_get : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_current_format_setting_imported : bpy.props.BoolProperty(name='Current Format Settings Imported', default=False)
 	umi_operators : bpy.props.CollectionProperty(type = TILA_umi_operator)
 	umi_operator_idx : bpy.props.IntProperty()
+	umi_presets : bpy.props.CollectionProperty(type = TILA_umi_preset)
+	umi_preset_idx : bpy.props.IntProperty()
 	umi_import_settings : bpy.props.PointerProperty(type=TILA_umi_import_settings)
 
 class TILA_umi_format_handler(object):
@@ -413,7 +420,12 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	counter_end_time = 0.0
 	delta = 0.0
 	previous_counter = 0
-	
+
+	def invoke(self, context, event):
+		bpy.ops.scene.umi_load_preset_list()
+		context.window_manager.fileselect_add(self)
+		return {'RUNNING_MODAL'}
+
 	def decrement_counter(self):
 		self.counter = self.counter + (self.counter_start_time - self.counter_end_time)*1000
 	
@@ -460,13 +472,12 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		
 
 		col.separator()
-		row = col.row()
+		box = col.box()
+		row = box.row()
 		row.label(text='Batch process imported files')
-		row.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW')
-		row.operator('scene.umi_load_preset_operator', text='', icon='FILE_FOLDER')
 
 		rows = len(context.scene.umi_settings.umi_operators) if len(context.scene.umi_settings.umi_operators) > 2 else 2
-		row = col.row()
+		row = box.row()
 		row.template_list('UMI_UL_operator_list', '', context.scene.umi_settings, 'umi_operators', context.scene.umi_settings, 'umi_operator_idx', rows=rows)
 		col2 = row.column()
 		# col2.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW')
@@ -478,6 +489,34 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		col2.operator('scene.umi_move_operator', text='', icon='TRIA_DOWN').direction = 'DOWN'
 		col2.separator()
 		col2.operator('scene.umi_clear_operators', text='', icon='TRASH')
+
+
+		box = col.box()
+		row = box.row()
+		row.label(text='Batch Process Presets')
+		
+		if len(context.scene.umi_settings.umi_presets):
+			row.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW').filepath = context.scene.umi_settings.umi_presets[context.scene.umi_settings.umi_preset_idx].path
+			row.operator('scene.umi_load_preset_operator', text='', icon='FILE_FOLDER').filepath = context.scene.umi_settings.umi_presets[context.scene.umi_settings.umi_preset_idx].path
+		else:
+			col = row.column()
+			col.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW')
+			col.enabled = False
+			col = row.column()
+			col.operator('scene.umi_load_preset_operator', text='', icon='TRIA_UP')
+			col.enabled = False
+
+		rows = len(context.scene.umi_settings.umi_presets) if len(context.scene.umi_settings.umi_presets) > 2 else 2
+		row = box.row()
+		row.template_list('UMI_UL_preset_list', '', context.scene.umi_settings, 'umi_presets', context.scene.umi_settings, 'umi_preset_idx', rows=rows)
+		col2 = row.column()
+		col2.separator()
+		col2.operator('scene.umi_add_preset', text='', icon='ADD')
+		col2.separator()
+		col2.operator('scene.umi_move_preset', text='', icon='TRIA_UP').direction = 'UP'
+		col2.operator('scene.umi_move_preset', text='', icon='TRIA_DOWN').direction = 'DOWN'
+		col2.separator()
+		col2.operator('scene.umi_clear_presets', text='', icon='TRASH')
 
 	def recur_layer_collection(self, layer_coll, coll_name):
 		found = None
@@ -799,6 +838,28 @@ class TILA_UL_umi_operator_list(bpy.types.UIList):
 		row.separator()
 		row.operator('scene.umi_remove_operator', text='', icon='PANEL_CLOSE').id = index
 
+class TILA_UL_umi_preset_list(bpy.types.UIList):
+	bl_idname = "UMI_UL_preset_list"
+
+	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+		scn = context.scene
+
+		grid = layout.grid_flow(columns=2, align=True, even_columns=False)
+		row = grid.row()
+		row.alignment = 'LEFT'
+		row.label(text=f'{item.name}')
+
+		row = grid.row(align=True)
+		row.alignment = 'RIGHT'
+
+		row.operator('scene.umi_edit_preset', text='', icon='GREASEPENCIL').id = index
+		row.operator('scene.umi_duplicate_preset', text='', icon='PASTEDOWN').id = index
+		row.separator()
+		row.operator('scene.umi_load_preset_operator', text='', icon='TRIA_UP').filepath = item.path
+		row.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW').filepath = item.path
+		row.separator()
+		row.operator('scene.umi_remove_preset', text='', icon='PANEL_CLOSE').id = index
+
 
 # function to append the operator in the File>Import menu
 def menu_func_import(self, context):
@@ -815,7 +876,9 @@ def register_import_setting_class():
 
 classes = (
 	TILA_UL_umi_operator_list,
+	TILA_UL_umi_preset_list,
 	TILA_umi_operator,
+	TILA_umi_preset,
 	TILA_umi_import_settings,
 	TILA_umi_scene_settings,
 	TILA_umi_settings,
@@ -827,7 +890,14 @@ classes = (
 	LM_UI_DuplicateOperator,
 	LM_UI_EditOperator,
 	LM_UI_AddOperator,
+	LM_UI_MovePreset,
+	LM_UI_ClearPresets,
+	LM_UI_RemovePreset,
+	LM_UI_DuplicatePreset,
+	LM_UI_EditPreset,
+	LM_UI_AddPreset,
 	LM_UI_SavePresetOperator,
+	LM_UI_LoadPresetList,
 	LM_UI_LoadPresetOperator
 )
 
