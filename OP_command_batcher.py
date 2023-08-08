@@ -1,8 +1,6 @@
 import bpy
 from .constant import LOG
 from .property_group import TILA_umi_operator
-from .OP_ui_list_operators import *
-from .OP_ui_list_preset import *
 
 def draw_command_batcher(self, context):
 	layout = self.layout
@@ -59,14 +57,15 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		
 		self.operator_to_process = [o.operator for o in self.operator_list]
 
-		wm = context.window_manager
+		
 		if self.show_dialog:
+			bpy.ops.scene.umi_load_preset_list()
+			
+			wm = context.window_manager
 			return wm.invoke_props_dialog(self, width=900)
-	
-		self._timer = wm.event_timer_add(0.1, window=context.window)
-		wm.modal_handler_add(self)
-		return {'RUNNING_MODAL'}
-	
+		
+		return self.execute(context)
+
 	def revert_parameters(self, context):
 		self.finished = False
 		context.window_manager.event_timer_remove(self._timer)
@@ -96,6 +95,13 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			self.current_command = None
 		
 		return {'PASS_THROUGH'}
+	
+	def execute(self, context):
+		wm = context.window_manager
+		self._timer = wm.event_timer_add(0.1, window=context.window)
+		wm.modal_handler_add(self)
+
+		return {'RUNNING_MODAL'}
 	
 	def draw(self, context):
 		draw_command_batcher(self, context)
