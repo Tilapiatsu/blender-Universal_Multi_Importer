@@ -117,7 +117,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		if self.end and event.type in {'RET'}:
 			return self.finish(context, self.canceled)
 		
-		if self.end:
+		if self.show_dialog and self.end:
 			self.store_delta_start()
 
 			if self.counter == self.wait_before_hiding:
@@ -143,12 +143,12 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			return {'PASS_THROUGH'}
 		
 		if event.type == 'TIMER':
-			if self.show_dialog:
-				if not self.processing and self.current_object_to_process is None and len(self.objects_to_process): # Process can start
-					self.next_object()
-				elif self.current_object_to_process is None and len(self.objects_to_process):
-					self.processing = False
-				elif len(self.objects_to_process) == 0:
+			if not self.processing and self.current_object_to_process is None and len(self.objects_to_process): # Process can start
+				self.next_object()
+			elif self.current_object_to_process is None and len(self.objects_to_process):
+				self.processing = False
+			elif len(self.objects_to_process) == 0:
+				if self.show_dialog:
 					LOG.complete_progress_importer()
 					self.end = True
 					self.counter = self.wait_before_hiding
@@ -177,8 +177,9 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		return {'PASS_THROUGH'}
 	
 	def execute(self, context):
+		self.objects_to_process = [o for o in bpy.context.selected_objects]
+
 		if self.show_dialog:
-			self.objects_to_process = [o for o in bpy.context.selected_objects]
 			self.next_object()
 
 			args = (context,)
@@ -214,8 +215,9 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 
 	def next_object(self):
 		self.current_object_to_process = self.objects_to_process.pop()
-		LOG.separator()
-		LOG.info(f'Processing {self.current_object_to_process.name}')
+		if self.show_dialog:
+			LOG.separator()
+			LOG.info(f'Processing {self.current_object_to_process.name}')
 		bpy.ops.object.select_all(action='DESELECT')
 		bpy.data.objects[self.current_object_to_process.name].select_set(True)
 		self.fill_operator_to_process()
