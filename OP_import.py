@@ -211,11 +211,10 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			return {'FINISHED'}
 
 	def modal(self, context, event):
-		if event.type in {'RIGHTMOUSE', 'ESC'}:
+		if not self.end and event.type in {'RIGHTMOUSE', 'ESC'}:
 			LOG.error('Cancelling...')
 			self.cancel(context)
 
-			LOG.warning('Import Canceled')
 			self.log_enter_text()
 			self.counter = self.wait_before_hiding
 			self.end = True
@@ -330,7 +329,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		return True
 
 	def import_file(self, filepath):
-
 		self.processing = True
 
 		filename = path.basename(path.splitext(filepath)[0])
@@ -445,7 +443,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		context.scene.umi_settings.umi_ready_to_import = False
 
 		self.store_formats_to_import()
-		
+
 		args = (context,)
 		self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
 
