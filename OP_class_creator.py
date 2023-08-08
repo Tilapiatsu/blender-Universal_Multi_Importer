@@ -49,6 +49,7 @@ class TILA_format_class_creator(object):
 		return format_class
 	
 	def create_format_class_from_operator(self, f):
+		print(f'create class from operator {f["operator"]["default"]}')
 		exec('from .constant import TILA_umi_{}_settings'.format(f['name']))
 		format_class = eval('TILA_umi_{}_settings'.format(f['name']))
 

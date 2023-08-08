@@ -50,7 +50,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 	bl_options = {'REGISTER'}
 
 	operator_list : bpy.props.CollectionProperty(type=TILA_umi_operator)
-	show_dialog : bpy.props.CollectionProperty(name='show_dialog', default=False) 
+	show_dialog : bpy.props.BoolProperty(name='show_dialog', default=False) 
 	
 	finished = False
 	current_command = None

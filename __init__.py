@@ -1,6 +1,6 @@
 import bpy
 from .OP_ui_list_operators import *
-from .constant import COMPATIBLE_FORMATS, register_import_setting_class
+from .constant import register_import_setting_class
 from.property_group import *
 from .OP_import import *
 from .OP_class_creator import TILA_format_class_creator
@@ -23,8 +23,13 @@ bl_info = {
 
 # function to append the operator in the File>Import menu
 def menu_func_import(self, context):
-	self.layout.operator(TILA_umi.bl_idname, text="Universal Multi Importer")
+	self.layout.operator(TILA_umi.bl_idname, text="Universal Multi Importer", icon='LONGDISPLAY')
 
+# function to append the operator in the File>Import menu
+def menu_func_object(self, context):
+	self.layout.separator()
+	op = self.layout.operator(TILA_umi_command_batcher.bl_idname, text="Command Batcher", icon='SHORTDISPLAY')
+	op.show_dialog = True
 
 classes = (
 	TILA_UL_umi_operator_list,
@@ -64,6 +69,7 @@ def register():
 	
 	bpy.types.Scene.umi_settings = bpy.props.PointerProperty(type=TILA_umi_scene_settings)
 	bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
+	bpy.types.VIEW3D_MT_object.append(menu_func_object)
 
 def unregister():
 	for cls in reversed(classes):
@@ -72,6 +78,7 @@ def unregister():
 	parser.unregister_compatible_formats()
 	del bpy.types.Scene.umi_settings
 	bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
+	bpy.types.VIEW3D_MT_object.remove(menu_func_object)
 
 if __name__ == "__main__":
 	register()
