@@ -112,7 +112,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	processing = False
 	all_parameters_imported = False
 	first_setting_to_import = True
-	format_to_import = []
+	formats_to_import = []
 	import_complete = False
 	canceled = False
 	end = False
@@ -190,9 +190,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', operator_list=operator_list)
 
 	def import_settings(self):
-		self.current_format = self.format_to_import.pop()
+		self.current_format = self.formats_to_import.pop()
 
-		if len(self.format_to_import) == 0:
+		if len(self.formats_to_import) == 0:
 			self.umi_settings.umi_last_setting_to_get = True
 		
 		self.umi_settings.umi_current_format_setting_imported = False
@@ -379,14 +379,14 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	def get_compatible_extensions(self):
 		return COMPATIBLE_FORMATS.extensions
 
-	def store_format_to_import(self):
+	def store_formats_to_import(self):
 		for f in self.filepaths:
 			format = COMPATIBLE_FORMATS.get_format_from_extension(path.splitext(f)[1])
-			if format not in self.format_to_import:
-				self.format_to_import.append(format)
+			if format not in self.formats_to_import:
+				self.formats_to_import.append(format)
 
 	def revert_parameters(self, context):
-		self.format_to_import = []
+		self.formats_to_import = []
 		self.all_parameters_imported = False
 		self.thread = None
 		self.progress = 0
@@ -444,8 +444,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 		context.scene.umi_settings.umi_ready_to_import = False
 
-		self.store_format_to_import()
-
+		self.store_formats_to_import()
+		
 		args = (context,)
 		self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
 
