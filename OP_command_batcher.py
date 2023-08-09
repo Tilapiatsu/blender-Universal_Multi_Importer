@@ -49,7 +49,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 	bl_options = {'REGISTER'}
 
 	operator_list : bpy.props.CollectionProperty(type=TILA_umi_operator)
-	show_dialog : bpy.props.BoolProperty(name='show_dialog', default=False) 
+	importer_mode : bpy.props.BoolProperty(name='Importer_mode', default=False) 
 	
 	finished = False
 	current_command = None
@@ -87,7 +87,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		LOG.info('-----------------------------------')
 	
 	def invoke(self, context, event):
-		if self.show_dialog:
+		if not self.importer_mode:
 			bpy.ops.scene.umi_load_preset_list()
 			
 			wm = context.window_manager
@@ -96,7 +96,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		return self.execute(context)
 
 	def finish(self, context, canceled=False):
-		if self.show_dialog:
+		if not self.importer_mode:
 			bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
 		self.revert_parameters(context)
 		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
@@ -114,10 +114,11 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			self.counter = self.wait_before_hiding
 			self.end = True
 
+
 		if self.end and event.type in {'RET'}:
 			return self.finish(context, self.canceled)
 		
-		if self.show_dialog and self.end:
+		if not self.importer_mode and self.end:
 			self.store_delta_start()
 
 			if self.counter == self.wait_before_hiding:
@@ -148,7 +149,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			elif self.current_object_to_process is None and len(self.objects_to_process):
 				self.processing = False
 			elif len(self.objects_to_process) == 0:
-				if self.show_dialog:
+				if not self.importer_mode:
 					LOG.complete_progress_importer()
 					self.end = True
 					self.counter = self.wait_before_hiding
@@ -161,7 +162,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 
 			if self.current_command is None and not len(self.operators_to_process):
 				self.current_object_to_process = None
-				if not self.show_dialog:
+				if self.importer_mode:
 					self.finished = True
 
 			else:
@@ -179,7 +180,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 	def execute(self, context):
 		self.objects_to_process = [o for o in bpy.context.selected_objects]
 
-		if self.show_dialog:
+		if not self.importer_mode:
 			self.next_object()
 
 			args = (context,)
@@ -205,7 +206,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.canceled = False
 		self.end = False
 		context.window_manager.event_timer_remove(self._timer)
-		if self.show_dialog:
+		if not self.importer_mode:
 			LOG.clear_all()
 
 	def cancel(self, context):
@@ -215,10 +216,9 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 
 	def next_object(self):
 		self.current_object_to_process = self.objects_to_process.pop()
-		if self.show_dialog:
+		if not self.importer_mode:
 			LOG.separator()
 			LOG.info(f'Processing {self.current_object_to_process.name}')
 		bpy.ops.object.select_all(action='DESELECT')
 		bpy.data.objects[self.current_object_to_process.name].select_set(True)
 		self.fill_operator_to_process()
-		# bpy.context.view_layer.objects.active = self.current_object_to_process

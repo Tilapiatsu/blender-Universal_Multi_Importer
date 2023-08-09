@@ -187,7 +187,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
 		if len(operator_list):
 			
-			bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', operator_list=operator_list)
+			bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', operator_list=operator_list, importer_mode=True)
 
 	def import_settings(self):
 		self.current_format = self.formats_to_import.pop()

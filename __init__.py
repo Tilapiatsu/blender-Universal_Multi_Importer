@@ -29,7 +29,7 @@ def menu_func_import(self, context):
 def menu_func_object(self, context):
 	self.layout.separator()
 	op = self.layout.operator(TILA_umi_command_batcher.bl_idname, text="Command Batcher", icon='SHORTDISPLAY')
-	op.show_dialog = True
+	op.importer_mode = False
 
 classes = (
 	TILA_UL_umi_operator_list,
