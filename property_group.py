@@ -17,6 +17,7 @@ class TILA_umi_preset(bpy.types.PropertyGroup):
 class TILA_umi_scene_settings(bpy.types.PropertyGroup):
 	umi_ready_to_import : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_last_setting_to_get : bpy.props.BoolProperty(name='Ready to Import', default=False)
+	umi_batcher_is_processing : bpy.props.BoolProperty(name="Is Batcher Processing", default=False)
 	umi_current_format_setting_imported : bpy.props.BoolProperty(name='Current Format Settings Imported', default=False)
 	umi_operators : bpy.props.CollectionProperty(type = TILA_umi_operator)
 	umi_operator_idx : bpy.props.IntProperty()

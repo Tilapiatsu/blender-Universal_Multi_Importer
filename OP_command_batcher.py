@@ -100,6 +100,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
 		self.revert_parameters(context)
 		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+		bpy.context.scene.umi_settings.umi_batcher_is_processing = False
 		if canceled:
 			return {'CANCELLED'}
 		else:

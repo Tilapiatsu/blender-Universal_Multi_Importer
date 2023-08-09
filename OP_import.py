@@ -108,7 +108,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	_timer = None
 	thread = None
 	progress = 0
-	current_file_to_process = None
+	current_file_to_import = None
+	importing = False
 	processing = False
 	all_parameters_imported = False
 	first_setting_to_import = True
@@ -125,6 +126,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	previous_counter = 0
 
 	def invoke(self, context, event):
+		bpy.context.scene.umi_settings.umi_batcher_is_processing = False
 		bpy.ops.scene.umi_load_preset_list()
 		context.window_manager.fileselect_add(self)
 		return {'RUNNING_MODAL'}
@@ -183,11 +185,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			if found:
 				return found
 
-	def post_import_command(self):
-		operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
-		if len(operator_list):
-			
-			bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', operator_list=operator_list, importer_mode=True)
+	def post_import_command(self, context, object, operator_list):
+		LOG.info(f'Processing {object.name} ...')
+		bpy.ops.object.select_all(action='DESELECT')
+		bpy.data.objects[object.name].select_set(True)
+		bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', operator_list=operator_list, importer_mode=True)
 
 	def import_settings(self):
 		self.current_format = self.formats_to_import.pop()
@@ -265,17 +267,53 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 			# Import Loop
 			else:
-				if not self.processing and self.current_file_to_process is None and len(self.filepaths): # Import can start
-					self.next_file()
-					self.import_file(self.current_file_to_process)
-				elif self.current_file_to_process is None and len(self.filepaths):
-					self.processing = False
-				elif len(self.filepaths) == 0:
-					if self.save_file_after_import:
-						bpy.ops.wm.save_as_mainfile(filepath=self.current_blend_file, check_existing=False)
+				
+				if not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and self.current_file_to_import is None: # Import and Processing done
+					message = f'File {self.current_file_number} is imported successfully : {self.current_filename}'
+					LOG.success(message)
+					LOG.store_success(message)
 
-					LOG.complete_progress_importer()
-					self.import_complete = True
+					if self.backup_file_after_import:
+						if self.backup_step <= self.current_backup_step:
+							self.current_backup_step = 0
+							LOG.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
+							bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
+
+					self.progress += 100/self.number_of_file
+					self.current_file_to_import = None
+
+					if len(self.filepaths):
+						self.next_file()
+					else:
+						if self.save_file_after_import:
+							bpy.ops.wm.save_as_mainfile(filepath=self.current_blend_file, check_existing=False)
+
+						LOG.complete_progress_importer()
+						self.import_complete = True
+
+				elif len(self.objects_to_process): # Processing current object
+					self.current_object_to_process = self.objects_to_process.pop()
+					self.post_import_command(context, self.current_object_to_process, self.operator_list)
+					self.current_object_to_process = None
+
+				elif bpy.context.scene.umi_settings.umi_batcher_is_processing: # wait if post processing in progress
+					return {'PASS_THROUGH'}
+				
+				elif self.importing and self.import_succedeed: # Post Import Processing 
+					if len(self.operator_list):
+						self.objects_to_process = [o for o in context.selected_objects]
+						self.processing = True
+					self.importing = False
+
+				elif self.current_file_to_import is None and len(self.filepaths):
+					self.next_file()
+
+				elif not self.importing and self.current_file_to_import: # Import can start
+					self.import_succedeed = self.import_file(self.current_file_to_import, context)
+					self.current_file_to_import = None
+				elif self.current_file_to_import is None and len(self.filepaths):
+					self.importing = False
+					
 
 		return {'PASS_THROUGH'}
 
@@ -328,51 +366,50 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		
 		return True
 
-	def import_file(self, filepath):
-		self.processing = True
+	def import_file(self, filepath, context):
+		self.importing = True
 
-		filename = path.basename(path.splitext(filepath)[0])
+		self.current_filename = path.basename(path.splitext(filepath)[0])
 
 		if self.skip_already_imported_files:
-			if filename in bpy.data.collections:
-				self.current_file_to_process = None
-				self.processing = False
-				LOG.warning('File {} have already been imported, skiping file...'.format(filename))
+			if self.current_filename in bpy.data.collections:
+				self.current_file_to_import = None
+				self.importing = False
+				LOG.warning('File {} have already been imported, skiping file...'.format(self.current_filename))
 				return
 		
-		LOG.info('Importing file {}/{} - {}% : {}'.format(self.current_file_number, self.number_of_file, round(self.progress,2), filename))
+		LOG.info('Importing file {}/{} - {}% : {}'.format(self.current_file_number, self.number_of_file, round(self.progress,2), self.current_filename))
 		self.current_backup_step += 1
 
 		if self.create_collection_per_file:
-			collection = bpy.data.collections.new(name=filename)
+			collection = bpy.data.collections.new(name=self.current_filename)
 			self.root_collection.children.link(collection)
 			
 			root_layer_col = self.view_layer.layer_collection    
 			layer_col = self.recur_layer_collection(root_layer_col, collection.name)
 			self.view_layer.active_layer_collection = layer_col
 		
-		succeeded = self.import_command(filepath=filepath)
+		return self.import_command(filepath=filepath)
+		# if succeeded:
+		# 	self.post_import_command(context)
+
+		# 	message = 'File {} is imported successfully : {}'.format(self.current_file_number, filename)
+		# 	self.current_file_number += 1
+		# 	LOG.success(message)
+		# 	LOG.store_success(message)
+
+
+		# 	if self.backup_file_after_import:
+		# 		if self.backup_step <= self.current_backup_step:
+		# 			self.current_backup_step = 0
+		# 			LOG.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
+		# 			bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
+
 		
-		if succeeded:
-			self.post_import_command()
+		# # time.sleep(.5)
+		# self.progress += 100/self.number_of_file
 
-			message = 'File {} is imported successfully : {}'.format(self.current_file_number, filename)
-			self.current_file_number += 1
-			LOG.success(message)
-			LOG.store_success(message)
-
-
-			if self.backup_file_after_import:
-				if self.backup_step <= self.current_backup_step:
-					self.current_backup_step = 0
-					LOG.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
-					bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
-
-		
-		# time.sleep(.5)
-		self.progress += 100/self.number_of_file
-
-		self.current_file_to_process = None
+		# self.current_file_to_import = None
 
 	def get_compatible_extensions(self):
 		return COMPATIBLE_FORMATS.extensions
@@ -389,8 +426,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.thread = None
 		self.progress = 0
 		self.current_backup_step = 0
-		self.current_file_to_process = None
-		self.processing = False
+		self.current_file_to_import = None
+		self.importing = False
 		self.first_setting_to_import = True
 		self.import_complete = False
 		self.canceled = False
@@ -436,13 +473,16 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 		self.view_layer = bpy.context.view_layer
 		self.root_collection = bpy.context.collection
-		self.current_file_number = 1
+		self.current_file_number = 0
 
 		self.umi_settings = context.scene.umi_settings
 
 		context.scene.umi_settings.umi_ready_to_import = False
 
 		self.store_formats_to_import()
+		self.objects_to_process = []
+		self.current_object_to_process = None
+		self.operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
 
 		args = (context,)
 		self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
@@ -454,7 +494,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		return {'RUNNING_MODAL'}
 	
 	def next_file(self):
-		self.current_file_to_process = self.filepaths.pop()
+		self.current_file_to_import = self.filepaths.pop()
+		self.current_file_number += 1
 
 	def cancel(self, context):
 		if self._timer is not None:
