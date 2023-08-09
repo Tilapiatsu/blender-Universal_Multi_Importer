@@ -38,11 +38,16 @@ class Logger(object):
 		self.color = bpy.context.preferences.themes['Default'].view_3d.object_selected
 		self.fontsize = 12
 
-	def info(self, message, skip_prefix=False):
+	def info(self, message, skip_prefix=False, color=None):
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : INFO - '.format(self.context) + message
-		self.messages.append({'message':message, 'color':self.color})
+		
+		if color is not None:
+			self.messages.append({'message':message, 'color':Color(color)})
+		else:
+			self.messages.append({'message':message, 'color':self.color})
+			
 		logging.info(message)
 	
 	def success(self, message, skip_prefix=False):

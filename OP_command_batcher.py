@@ -167,19 +167,25 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 					self.finished = True
 
 			else:
-				try:
-					LOG.info(f'Executing command : "{self.current_command}"')
+				try: # Executing command
+					self.progress += 100 / self.number_of_operations_to_perform
+					self.current_operation_number += 1
+					
+					LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=(0.95, 0.71, 0.10))
 					bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 					exec(self.current_command, {'bpy':bpy})
 				except Exception as e:
-					LOG.error('Post Import Command "{}" is not valid - {}'.format(self.current_command, e)) 
-					
+					LOG.error('Post Import Command "{}" is not valid - {}'.format(self.current_command, e))
+				
 				self.current_command = None
 
 		return {'PASS_THROUGH'}
 	
 	def execute(self, context):
 		self.objects_to_process = [o for o in bpy.context.selected_objects]
+		self.progress = 0
+		self.number_of_operations_to_perform = 0
+		self.current_operation_number = 0
 
 		if not self.importer_mode:
 			self.next_object()
@@ -190,6 +196,12 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			operator_list = self.operator_list
 			self.operators_to_process = [o.operator for o in operator_list]
 			self.operators_to_process.reverse()
+
+		number_of_operations = len(self.operators_to_process)
+		number_of_objects = len(self.objects_to_process)
+
+		self.number_of_operations_to_perform = number_of_operations * number_of_objects
+
 
 		wm = context.window_manager
 		self._timer = wm.event_timer_add(0.1, window=context.window)
