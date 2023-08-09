@@ -279,7 +279,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 							LOG.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
 							bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
 
-					self.progress += 100/self.number_of_files
+					self.progress += 100/self.number_of_operations
 					self.current_file_to_import = None
 
 					if len(self.filepaths):
@@ -445,6 +445,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 		self.filepaths.reverse()
 		self.number_of_files = len(self.filepaths)
+		self.number_of_commands = len(bpy.context.scene.umi_settings.umi_operators)
+		self.number_of_operations = self.number_of_files * self.number_of_commands
 
 		LOG.info("{} compatible file(s) found".format(len(self.filepaths)))
 		LOG.separator()
@@ -465,7 +467,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		args = (context,)
 		self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
 
-		self.progress += 100/self.number_of_files
+		self.progress += 100/self.number_of_operations
 		wm = context.window_manager
 		self._timer = wm.event_timer_add(0.1, window=context.window)
 		wm.modal_handler_add(self)
