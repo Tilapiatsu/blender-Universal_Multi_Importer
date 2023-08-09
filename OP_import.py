@@ -326,7 +326,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			LOG.error(message)
 			LOG.store_failure(message)
 			return
-			# raise Exception(message)
 
 		if len(operators) == 1:
 			operators = operators['default']
@@ -390,26 +389,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.view_layer.active_layer_collection = layer_col
 		
 		return self.import_command(filepath=filepath)
-		# if succeeded:
-		# 	self.post_import_command(context)
-
-		# 	message = 'File {} is imported successfully : {}'.format(self.current_file_number, filename)
-		# 	self.current_file_number += 1
-		# 	LOG.success(message)
-		# 	LOG.store_success(message)
-
-
-		# 	if self.backup_file_after_import:
-		# 		if self.backup_step <= self.current_backup_step:
-		# 			self.current_backup_step = 0
-		# 			LOG.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
-		# 			bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
-
-		
-		# # time.sleep(.5)
-		# self.progress += 100/self.number_of_file
-
-		# self.current_file_to_import = None
 
 	def get_compatible_extensions(self):
 		return COMPATIBLE_FORMATS.extensions
