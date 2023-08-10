@@ -447,7 +447,10 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.filepaths.reverse()
 		self.number_of_files = len(self.filepaths)
 		self.number_of_commands = len(bpy.context.scene.umi_settings.umi_operators)
-		self.number_of_operations = self.number_of_files * self.number_of_commands
+		if self.number_of_commands > 0:
+		    self.number_of_operations = self.number_of_files * self.number_of_commands
+		else:
+			self.number_of_operations = self.number_of_files
 
 		LOG.info("{} compatible file(s) found".format(len(self.filepaths)))
 		LOG.separator()
