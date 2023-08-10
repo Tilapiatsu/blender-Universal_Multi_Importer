@@ -50,12 +50,15 @@ class Logger(object):
 			
 		logging.info(message)
 	
-	def success(self, message, skip_prefix=False):
+	def success(self, message, skip_prefix=False, show_message=True):
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : SUCCESS - '.format(self.context) + message
+			
 		self.messages.append({'message':message, 'color':color_mult(self.color,  Color((0.5, 1.0, 0.5)))})
-		logging.info(message)
+		
+		if show_message :
+			logging.info(message)
 
 	def debug(self, message, skip_prefix=False):
 		self.set_basic_config()
@@ -161,11 +164,13 @@ class LoggerProgress(Logger):
 		self.info('----------------------------- Importing File "{}" -----------------------------'.format(file_name))
 		self.info('----------------------------------------------------------' + pretty)
 
-	def complete_progress_importer(self):
+	def complete_progress_importer(self, show_successes = True):
 		self.separator()
 
-		self.info('Import Completed with {} success and {} failure'.format(len(self.successes), len(self.failures)))
-		for s in self.successes:
-			self.success('{}'.format(s))
+		self.info('Completed with {} success and {} failure'.format(len(self.successes), len(self.failures)))
+		
+		if show_successes:
+			for s in self.successes:
+				self.success('{}'.format(s))
 		for f in self.failures:
 			self.error('{}'.format(f))

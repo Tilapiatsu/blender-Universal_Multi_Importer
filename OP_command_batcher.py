@@ -1,6 +1,6 @@
 import bpy
 import time, math
-from .constant import LOG
+from .constant import LOG, SUCCESS_COLOR
 from .property_group import TILA_umi_operator
 from .preferences import get_prefs
 
@@ -85,6 +85,13 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		LOG.info('-----------------------------------')
 		LOG.info('Click [ESC] to Cancel and hide this text ...')
 		LOG.info('-----------------------------------')
+		
+	def log_end_text(self):
+		LOG.info('-----------------------------------')
+		# TODO : Make sure it t's written "successfully" only at the end and not when it is cancelled
+		LOG.info('Batch Process completed successfully !', color=SUCCESS_COLOR)
+		LOG.info('Click [ESC] to hide this text ...')
+		LOG.info('-----------------------------------')
 	
 	def invoke(self, context, event):
 		if not self.importer_mode:
@@ -118,6 +125,10 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			return {'PASS_THROUGH'}
 		
 		if not self.importer_mode and self.end:
+			if self.import_completed:
+				self.log_end_text()
+				self.import_completed = False
+
 			if self.auto_hide_text_when_finished:
 				self.store_delta_start()
 
@@ -153,7 +164,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 				self.processing = False
 			elif len(self.objects_to_process) == 0:
 				if not self.importer_mode:
-					LOG.complete_progress_importer()
+					LOG.complete_progress_importer(show_successes=False)
 					self.end = True
 					self.counter = self.wait_before_hiding
 
@@ -165,6 +176,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 
 			if self.current_command is None and not len(self.operators_to_process):
 				self.current_object_to_process = None
+				self.import_completed = True
 				if self.importer_mode:
 					self.finished = True
 
@@ -176,8 +188,11 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 					LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=(0.95, 0.91, 0.10))
 					bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 					exec(self.current_command, {'bpy':bpy})
+					LOG.store_success('Command executed successfully')
 				except Exception as e:
-					LOG.error('Post Import Command "{}" is not valid - {}'.format(self.current_command, e))
+					message = 'Command "{}" is not valid - {}'.format(self.current_command, e)
+					LOG.error(message)
+					LOG.store_failure(message)
 				
 				self.current_command = None
 
@@ -187,11 +202,11 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.preferences = get_prefs()
 		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
 		self.wait_before_hiding = self.preferences.wait_before_hiding
-		self.resume = False
+		self.import_completed = False
 
 		self.objects_to_process = [o for o in bpy.context.selected_objects]
 		if not len(self.objects_to_process):
-			self.report({'ERROR_INVALID_INPUT'}, 'UMI : You have to select at least one object.')
+			self.report({'ERROR_INVALID_INPUT'}, 'UMI : You need to select at least one object.')
 			return {'CANCELLED'}
 		
 		if not self.importer_mode and not len(bpy.context.scene.umi_settings.umi_operators):
@@ -230,7 +245,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.process_complete = False
 		self.canceled = False
 		self.end = False
-		self.resume = False
+		self.import_completed = False
 		context.window_manager.event_timer_remove(self._timer)
 		if not self.importer_mode:
 			LOG.clear_all()

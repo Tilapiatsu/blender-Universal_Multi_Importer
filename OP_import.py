@@ -1,5 +1,5 @@
 import bpy
-from .constant import LOG, COMPATIBLE_FORMATS
+from .constant import LOG, COMPATIBLE_FORMATS, SUCCESS_COLOR
 from bpy_extras.io_utils import ImportHelper
 import os, time
 from os import path
@@ -145,6 +145,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		LOG.info('Click [ESC] to Cancel and hide this text ...')
 		LOG.info('-----------------------------------')
 	
+	def log_end_text(self):
+		LOG.info('-----------------------------------')
+		LOG.info('Import completed successfully !', color=SUCCESS_COLOR)
+		LOG.info('Click [ESC] to hide this text ...')
+		LOG.info('-----------------------------------')
 
 	def draw(self, context):
 		layout = self.layout
@@ -214,7 +219,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			return {'FINISHED'}
 
 	def modal(self, context, event):
-		if not self.end and event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
+		if not self.end and event.type in {'ESC'} and event.value == 'PRESS':
 			LOG.error('Cancelling...')
 			self.cancel(context)
 
@@ -263,7 +268,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					self.import_settings()
 			
 			elif self.import_complete:
-				self.log_esc_text()
+				self.log_end_text()
 				self.counter = self.wait_before_hiding
 				self.end = True
 
