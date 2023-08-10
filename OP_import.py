@@ -279,6 +279,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 							LOG.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
 							bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
 
+					LOG.separator()
 					self.progress += 100/self.number_of_operations
 					self.current_file_to_import = None
 

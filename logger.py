@@ -37,7 +37,7 @@ class Logger(object):
 
 		self.color = bpy.context.preferences.themes['Default'].view_3d.object_selected
 		self.fontsize = 12
-
+	
 	def info(self, message, skip_prefix=False, color=None):
 		self.set_basic_config()
 		if not skip_prefix:
@@ -119,6 +119,8 @@ class Logger(object):
 	def draw_callback_px(self, context):
 
 		font_id = 0  # XXX, need to find out how best to get this.
+
+
 		
 		# draw some text
 		blf.size(font_id, self.fontsize, 72)
@@ -128,6 +130,24 @@ class Logger(object):
 			blf.position(font_id, self.fontsize, pos, 0)
 			blf.draw(font_id, m['message'])
 			pos += self.fontsize + 3
+		
+		for area in bpy.context.screen.areas:
+			if area.type == 'VIEW_3D':
+				self.view3d = area
+				break
+		else:
+			self.view3d = None
+
+		if self.view3d is None:
+			offset = 1500
+		else:
+			offset = self.view3d.width - 100
+
+		blf.color(font_id, self.color.r,self.color.g,self.color.b, 0.5)
+		blf.position(font_id, offset, self.fontsize, 0)
+		blf.draw(font_id, '[Esc] to Cancel')
+	
+
 
 class LoggerProgress(Logger):
 	def __init__(self, context='ROOT'):

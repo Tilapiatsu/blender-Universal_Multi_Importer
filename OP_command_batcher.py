@@ -183,6 +183,14 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 	
 	def execute(self, context):
 		self.objects_to_process = [o for o in bpy.context.selected_objects]
+		if not len(self.objects_to_process):
+			self.report({'ERROR_INVALID_INPUT'}, 'UMI : You have to select at least one object.')
+			return {'CANCELLED'}
+		
+		if not self.importer_mode and not len(bpy.context.scene.umi_settings.umi_operators):
+			self.report({'ERROR_INVALID_INPUT'}, 'UMI : You need to add at least one command.')
+			return {'CANCELLED'}
+		
 		self.progress = 0
 		self.number_of_operations_to_perform = 0
 		self.current_operation_number = 0
@@ -201,7 +209,6 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		number_of_objects = len(self.objects_to_process)
 
 		self.number_of_operations_to_perform = number_of_operations * number_of_objects
-
 
 		wm = context.window_manager
 		self._timer = wm.event_timer_add(0.1, window=context.window)
