@@ -16,7 +16,7 @@ def get_operator(context):
 	return idx, operators, active
 
 
-class LM_UI_MoveOperator(bpy.types.Operator):
+class UMI_UI_MoveOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_move_operator"
 	bl_label = "Move Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -42,7 +42,7 @@ class LM_UI_MoveOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class LM_UI_ClearOperators(bpy.types.Operator):
+class UMI_UI_ClearOperators(bpy.types.Operator):
 	bl_idname = "scene.umi_clear_operators"
 	bl_label = "Clear All Operators"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -58,7 +58,7 @@ class LM_UI_ClearOperators(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class LM_UI_RemoveOperator(bpy.types.Operator):
+class UMI_UI_RemoveOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_remove_operator"
 	bl_label = "Remove Selected Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -80,7 +80,7 @@ class LM_UI_RemoveOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class LM_UI_DuplicateOperator(bpy.types.Operator):
+class UMI_UI_DuplicateOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_duplicate_operator"
 	bl_label = "Duplicate Selected Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -102,7 +102,7 @@ class LM_UI_DuplicateOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class LM_UI_EditOperator(bpy.types.Operator):
+class UMI_UI_EditOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_edit_operator"
 	bl_label = "Edit Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -128,7 +128,7 @@ class LM_UI_EditOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class LM_UI_AddOperator(bpy.types.Operator):
+class UMI_UI_AddOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_add_operator"
 	bl_label = "Add Operator"
 	bl_options = {'REGISTER', 'UNDO'}

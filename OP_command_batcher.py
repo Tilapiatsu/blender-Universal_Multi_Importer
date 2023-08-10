@@ -2,6 +2,7 @@ import bpy
 import time, math
 from .constant import LOG
 from .property_group import TILA_umi_operator
+from .preferences import get_prefs
 
 def draw_command_batcher(self, context):
 	layout = self.layout
@@ -59,7 +60,6 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 	canceled = False
 	end = False
 	counter = 0
-	wait_before_hiding = 5
 	counter_start_time = 0.0
 	counter_end_time = 0.0
 	delta = 0.0
@@ -81,9 +81,9 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 	def store_delta_end(self):
 		self.counter_end_time = time.perf_counter()
 
-	def log_enter_text(self):
+	def log_esc_text(self):
 		LOG.info('-----------------------------------')
-		LOG.info('Click "ENTER" to hide this text ...')
+		LOG.info('Click [ESC] to Cancel and hide this text ...')
 		LOG.info('-----------------------------------')
 	
 	def invoke(self, context, event):
@@ -107,43 +107,45 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			return {'FINISHED'}
 		
 	def modal(self, context, event):
-		if not self.end and event.type in {'RIGHTMOUSE', 'ESC'}:
-			LOG.error('Cancelling...')
+		if not self.end and event.type in {'ESC'} and event.value == 'PRESS':
+			LOG.info('Pausing...')
 			self.cancel(context)
 
-			self.log_enter_text()
+			self.log_esc_text()
 			self.counter = self.wait_before_hiding
 			self.end = True
-
-
-		if self.end and event.type in {'RET'}:
-			return self.finish(context, self.canceled)
-		
-		if not self.importer_mode and self.end:
-			self.store_delta_start()
-
-			if self.counter == self.wait_before_hiding:
-				self.previous_counter = self.counter
-				self.store_delta_end()
-				
-			remaining_seconds = math.ceil(self.counter)
-
-			if remaining_seconds < self.previous_counter:
-				LOG.info(f'Hidding in {remaining_seconds}s ...')
-				self.previous_counter = remaining_seconds
-
-			if self.counter <= 0:
-				return self.finish(context, self.canceled)
-			
-			if event.type in {'RET'}:
-				return self.finish(context, self.canceled)
-			
-			self.previous_counter = remaining_seconds
-			self.store_delta_end()
-			self.decrement_counter()
-			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+			self.pause = True
 			return {'PASS_THROUGH'}
 		
+		if not self.importer_mode and self.end:
+			if self.auto_hide_text_when_finished:
+				self.store_delta_start()
+
+				if self.counter == self.wait_before_hiding:
+					self.previous_counter = self.counter
+					self.store_delta_end()
+					
+				remaining_seconds = math.ceil(self.counter)
+
+				if remaining_seconds < self.previous_counter:
+					LOG.info(f'Hidding in {remaining_seconds}s ...')
+					self.previous_counter = remaining_seconds
+
+				if self.counter <= 0:
+					return self.finish(context, self.canceled)
+			
+			if event.type in {'ESC'} and event.value == 'PRESS':
+				return self.finish(context, self.canceled)
+			
+			if self.auto_hide_text_when_finished:
+				self.previous_counter = remaining_seconds
+				self.store_delta_end()
+				self.decrement_counter()
+				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+
+			return {'PASS_THROUGH'}
+		
+
 		if event.type == 'TIMER':
 			if not self.processing and self.current_object_to_process is None and len(self.objects_to_process): # Process can start
 				self.next_object()
@@ -171,7 +173,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 					self.progress += 100 / self.number_of_operations_to_perform
 					self.current_operation_number += 1
 					
-					LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=(0.95, 0.71, 0.10))
+					LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=(0.95, 0.91, 0.10))
 					bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 					exec(self.current_command, {'bpy':bpy})
 				except Exception as e:
@@ -182,6 +184,11 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		return {'PASS_THROUGH'}
 	
 	def execute(self, context):
+		self.preferences = get_prefs()
+		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
+		self.wait_before_hiding = self.preferences.wait_before_hiding
+		self.resume = False
+
 		self.objects_to_process = [o for o in bpy.context.selected_objects]
 		if not len(self.objects_to_process):
 			self.report({'ERROR_INVALID_INPUT'}, 'UMI : You have to select at least one object.')
@@ -210,9 +217,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 
 		self.number_of_operations_to_perform = number_of_operations * number_of_objects
 
-		wm = context.window_manager
-		self._timer = wm.event_timer_add(0.1, window=context.window)
-		wm.modal_handler_add(self)
+		self.register_timer(context)
 		return {'RUNNING_MODAL'}
 	
 	def draw(self, context):
@@ -225,6 +230,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.process_complete = False
 		self.canceled = False
 		self.end = False
+		self.resume = False
 		context.window_manager.event_timer_remove(self._timer)
 		if not self.importer_mode:
 			LOG.clear_all()
@@ -233,6 +239,12 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		if self._timer is not None:
 			wm = context.window_manager
 			wm.event_timer_remove(self._timer)
+	
+	def register_timer(self, context):
+		wm = context.window_manager
+		self._timer = wm.event_timer_add(0.1, window=context.window)
+		wm.modal_handler_add(self)
+		
 
 	def next_object(self):
 		self.current_object_to_process = self.objects_to_process.pop()

@@ -8,6 +8,7 @@ from .UI_list import *
 from .OP_command_batcher import *
 from .OP_ui_list_operators import *
 from .OP_ui_list_preset import *
+from .preferences import *
 
 
 bl_info = {
@@ -41,21 +42,22 @@ classes = (
 	TILA_umi_settings,
 	TILA_umi_command_batcher,
 	TILA_umi,
-	LM_UI_MoveOperator,
-	LM_UI_ClearOperators,
-	LM_UI_RemoveOperator,
-	LM_UI_DuplicateOperator,
-	LM_UI_EditOperator,
-	LM_UI_AddOperator,
-	LM_UI_MovePreset,
-	LM_UI_ClearPresets,
-	LM_UI_RemovePreset,
-	LM_UI_DuplicatePreset,
-	LM_UI_EditPreset,
-	LM_UI_AddPreset,
-	LM_UI_SavePresetOperator,
-	LM_UI_LoadPresetList,
-	LM_UI_LoadPresetOperator
+	UMI_UI_MoveOperator,
+	UMI_UI_ClearOperators,
+	UMI_UI_RemoveOperator,
+	UMI_UI_DuplicateOperator,
+	UMI_UI_EditOperator,
+	UMI_UI_AddOperator,
+	UMI_UI_MovePreset,
+	UMI_UI_ClearPresets,
+	UMI_UI_RemovePreset,
+	UMI_UI_DuplicatePreset,
+	UMI_UI_EditPreset,
+	UMI_UI_AddPreset,
+	UMI_UI_SavePresetOperator,
+	UMI_UI_LoadPresetList,
+	UMI_UI_LoadPresetOperator,
+	UMI_Preferences
 )
 
 

@@ -7,6 +7,7 @@ import math
 from string import punctuation
 from .format_handler import TILA_umi_format_handler
 from .OP_command_batcher import draw_command_batcher
+from .preferences import get_prefs
 
 
 class TILA_umi_settings(bpy.types.Operator, ImportHelper):
@@ -119,7 +120,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	end = False
 	current_backup_step = 0
 	counter = 0
-	wait_before_hiding = 5
 	counter_start_time = 0.0
 	counter_end_time = 0.0
 	delta = 0.0
@@ -140,10 +140,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	def store_delta_end(self):
 		self.counter_end_time = time.perf_counter()
 
-	def log_enter_text(self):
+	def log_esc_text(self):
 		LOG.info('-----------------------------------')
-		LOG.info('Click "ENTER" to hide this text ...')
+		LOG.info('Click [ESC] to Cancel and hide this text ...')
 		LOG.info('-----------------------------------')
+	
 
 	def draw(self, context):
 		layout = self.layout
@@ -213,40 +214,41 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			return {'FINISHED'}
 
 	def modal(self, context, event):
-		if not self.end and event.type in {'RIGHTMOUSE', 'ESC'}:
+		if not self.end and event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
 			LOG.error('Cancelling...')
 			self.cancel(context)
 
-			self.log_enter_text()
+			self.log_esc_text()
 			self.counter = self.wait_before_hiding
 			self.end = True
-
-		if self.end and event.type in {'RET'}:
-			return self.finish(context, self.canceled)
+			return {'PASS_THROUGH'}
 		
 		if self.end:
-			self.store_delta_start()
+			if self.auto_hide_text_when_finished:
+				self.store_delta_start()
 
-			if self.counter == self.wait_before_hiding:
-				self.previous_counter = self.counter
-				self.store_delta_end()
-				
-			remaining_seconds = math.ceil(self.counter)
+				if self.counter == self.wait_before_hiding:
+					self.previous_counter = self.counter
+					self.store_delta_end()
+					
+				remaining_seconds = math.ceil(self.counter)
 
-			if remaining_seconds < self.previous_counter:
-				LOG.info(f'Hidding in {remaining_seconds}s ...')
+				if remaining_seconds < self.previous_counter:
+					LOG.info(f'Hidding in {remaining_seconds}s ...')
+					self.previous_counter = remaining_seconds
+
+				if self.counter <= 0:
+					return self.finish(context, self.canceled)
+			
+			if event.type in {'ESC'} and event.value == 'PRESS':
+				return self.finish(context, self.canceled)
+			
+			if self.auto_hide_text_when_finished:
 				self.previous_counter = remaining_seconds
+				self.store_delta_end()
+				self.decrement_counter()
+				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
-			if self.counter <= 0:
-				return self.finish(context, self.canceled)
-			
-			if event.type in {'RET'}:
-				return self.finish(context, self.canceled)
-			
-			self.previous_counter = remaining_seconds
-			self.store_delta_end()
-			self.decrement_counter()
-			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 			return {'PASS_THROUGH'}
 		
 		if event.type == 'TIMER':
@@ -261,7 +263,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					self.import_settings()
 			
 			elif self.import_complete:
-				self.log_enter_text()
+				self.log_esc_text()
 				self.counter = self.wait_before_hiding
 				self.end = True
 
@@ -421,6 +423,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		bpy.utils.unregister_class(TILA_umi_settings)
 		bpy.utils.register_class(TILA_umi_settings)
 		self.current_blend_file = bpy.data.filepath
+		self.preferences = get_prefs()
+		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
+		self.wait_before_hiding = self.preferences.wait_before_hiding
 
 		for f in COMPATIBLE_FORMATS.formats:
 			exec('self.{}_format = TILA_umi_format_handler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'TILA_umi_format_handler':TILA_umi_format_handler, 'cont':context})
@@ -448,7 +453,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.number_of_files = len(self.filepaths)
 		self.number_of_commands = len(bpy.context.scene.umi_settings.umi_operators)
 		if self.number_of_commands > 0:
-		    self.number_of_operations = self.number_of_files * self.number_of_commands
+			self.number_of_operations = self.number_of_files * self.number_of_commands
 		else:
 			self.number_of_operations = self.number_of_files
 
