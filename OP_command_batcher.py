@@ -1,6 +1,6 @@
 import bpy
 import time, math
-from .constant import LOG, SUCCESS_COLOR
+from .constant import LOG, SUCCESS_COLOR, CANCELLED_COLOR
 from .property_group import TILA_umi_operator
 from .preferences import get_prefs
 
@@ -85,13 +85,18 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		LOG.info('-----------------------------------')
 		LOG.info('Click [ESC] to Cancel and hide this text ...')
 		LOG.info('-----------------------------------')
+		self.end_text_written = True
 		
 	def log_end_text(self):
 		LOG.info('-----------------------------------')
-		# TODO : Make sure it t's written "successfully" only at the end and not when it is cancelled
-		LOG.info('Batch Process completed successfully !', color=SUCCESS_COLOR)
+		if self.canceled:
+			LOG.info('Batch Process cancelled !', color=CANCELLED_COLOR)
+		else:
+			LOG.info('Batch Process completed successfully !', color=SUCCESS_COLOR)
+			LOG.esc_message = '[Esc] to Hide'
 		LOG.info('Click [ESC] to hide this text ...')
 		LOG.info('-----------------------------------')
+		self.end_text_written = True
 	
 	def invoke(self, context, event):
 		if not self.importer_mode:
@@ -115,19 +120,18 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		
 	def modal(self, context, event):
 		if not self.end and event.type in {'ESC'} and event.value == 'PRESS':
-			LOG.info('Pausing...')
+			if not self.importer_mode:
+				LOG.error('Cancelling...')
 			self.cancel(context)
 
-			self.log_esc_text()
 			self.counter = self.wait_before_hiding
 			self.end = True
-			self.pause = True
 			return {'PASS_THROUGH'}
 		
 		if not self.importer_mode and self.end:
-			if self.import_completed:
+			
+			if not self.end_text_written:
 				self.log_end_text()
-				self.import_completed = False
 
 			if self.auto_hide_text_when_finished:
 				self.store_delta_start()
@@ -137,7 +141,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 					self.store_delta_end()
 					
 				remaining_seconds = math.ceil(self.counter)
-
+				
 				if remaining_seconds < self.previous_counter:
 					LOG.info(f'Hidding in {remaining_seconds}s ...')
 					self.previous_counter = remaining_seconds
@@ -176,7 +180,6 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 
 			if self.current_command is None and not len(self.operators_to_process):
 				self.current_object_to_process = None
-				self.import_completed = True
 				if self.importer_mode:
 					self.finished = True
 
@@ -202,7 +205,10 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.preferences = get_prefs()
 		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
 		self.wait_before_hiding = self.preferences.wait_before_hiding
-		self.import_completed = False
+		self.completed = False
+		self.succeedeed = False
+		self.end_text_written = False
+		LOG.esc_message = '[Esc] to Cancel'
 
 		self.objects_to_process = [o for o in bpy.context.selected_objects]
 		if not len(self.objects_to_process):
@@ -233,6 +239,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.number_of_operations_to_perform = number_of_operations * number_of_objects
 
 		self.register_timer(context)
+		bpy.context.scene.umi_settings.umi_batcher_is_processing = True
 		return {'RUNNING_MODAL'}
 	
 	def draw(self, context):
@@ -245,12 +252,14 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.process_complete = False
 		self.canceled = False
 		self.end = False
-		self.import_completed = False
+		self.completed = False
+		self.end_text_written = False
 		context.window_manager.event_timer_remove(self._timer)
 		if not self.importer_mode:
 			LOG.clear_all()
 
 	def cancel(self, context):
+		self.canceled = True
 		if self._timer is not None:
 			wm = context.window_manager
 			wm.event_timer_remove(self._timer)

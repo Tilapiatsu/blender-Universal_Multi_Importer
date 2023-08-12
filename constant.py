@@ -9,6 +9,8 @@ from .property_group import TILA_umi_import_settings
 PRESET_FOLDER = os.path.join(os.path.dirname(__file__), 'Preset')
 LOG = LoggerProgress('UMI')
 FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('__')]
+SUCCESS_COLOR = (0.1, 1.0, 0.1)
+CANCELLED_COLOR = (1.0, 0.4, 0.1)
 
 
 class TILA_compatible_formats(object):
@@ -18,8 +20,7 @@ class TILA_compatible_formats(object):
 	def __init__(self):
 		self._extensions = None
 		self._operators = None
-		self._module = None
-		
+		self._module = None		
 		# automatically gather format
 		attributes = inspect.getmembers(TILA_compatible_formats, lambda a:not(inspect.isroutine(a)))
 		self.formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]

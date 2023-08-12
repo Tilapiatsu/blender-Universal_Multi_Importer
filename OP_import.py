@@ -1,5 +1,5 @@
 import bpy
-from .constant import LOG, COMPATIBLE_FORMATS, SUCCESS_COLOR
+from .constant import LOG, COMPATIBLE_FORMATS, SUCCESS_COLOR, CANCELLED_COLOR
 from bpy_extras.io_utils import ImportHelper
 import os, time
 from os import path
@@ -17,6 +17,7 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 	bl_region_type = "UI"
 
 	import_format : bpy.props.StringProperty(name='Import Format', default="", options={'HIDDEN'},)
+	
 	
 	def unregister_annotations(self):
 		for a in self.registered_annotations:
@@ -117,7 +118,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	formats_to_import = []
 	import_complete = False
 	canceled = False
-	end = False
+	import_complete = False
 	current_backup_step = 0
 	counter = 0
 	counter_start_time = 0.0
@@ -139,17 +140,17 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	def store_delta_end(self):
 		self.counter_end_time = time.perf_counter()
-
-	def log_esc_text(self):
-		LOG.info('-----------------------------------')
-		LOG.info('Click [ESC] to Cancel and hide this text ...')
-		LOG.info('-----------------------------------')
 	
 	def log_end_text(self):
 		LOG.info('-----------------------------------')
-		LOG.info('Import completed successfully !', color=SUCCESS_COLOR)
+		if self.import_complete:
+			LOG.info('Batch Import completed successfully !', color=SUCCESS_COLOR)
+			LOG.esc_message = '[Esc] to Hide'
+		else:
+			LOG.info('Batch Import cancelled !', color=CANCELLED_COLOR)
 		LOG.info('Click [ESC] to hide this text ...')
 		LOG.info('-----------------------------------')
+		self.end_text_written = True
 
 	def draw(self, context):
 		layout = self.layout
@@ -219,16 +220,16 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			return {'FINISHED'}
 
 	def modal(self, context, event):
-		if not self.end and event.type in {'ESC'} and event.value == 'PRESS':
+		if not self.import_complete and event.type in {'ESC'} and event.value == 'PRESS':
 			LOG.error('Cancelling...')
 			self.cancel(context)
 
-			self.log_esc_text()
+			self.log_end_text()
 			self.counter = self.wait_before_hiding
-			self.end = True
+			self.import_complete = True
 			return {'PASS_THROUGH'}
 		
-		if self.end:
+		if self.import_complete:
 			if self.auto_hide_text_when_finished:
 				self.store_delta_start()
 
@@ -267,15 +268,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				else:
 					self.import_settings()
 			
-			elif self.import_complete:
-				self.log_end_text()
-				self.counter = self.wait_before_hiding
-				self.end = True
-
 			# Import Loop
 			else:
-				
-				if not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and self.current_file_to_import is None: # Import and Processing done
+				if bpy.context.scene.umi_settings.umi_batcher_is_processing: # wait if post processing in progress
+					return {'PASS_THROUGH'}
+				elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and self.current_file_to_import is None: # Import and Processing done
 					message = f'File {self.current_file_number} is imported successfully : {self.current_filename}'
 					LOG.success(message)
 					LOG.store_success(message)
@@ -286,26 +283,26 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 							LOG.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
 							bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
 
-					LOG.separator()
 					self.progress += 100/self.number_of_operations
 					self.current_file_to_import = None
 
 					if len(self.filepaths):
 						self.next_file()
+						LOG.separator()
 					else:
 						if self.save_file_after_import:
 							bpy.ops.wm.save_as_mainfile(filepath=self.current_blend_file, check_existing=False)
-
-						LOG.complete_progress_importer()
+						LOG.separator()
+						LOG.complete_progress_importer(show_successes=False)
 						self.import_complete = True
+						self.log_end_text()
+						self.counter = self.wait_before_hiding
 
 				elif len(self.objects_to_process): # Processing current object
 					self.current_object_to_process = self.objects_to_process.pop()
 					self.post_import_command(context, self.current_object_to_process, self.operator_list)
 					self.current_object_to_process = None
 
-				elif bpy.context.scene.umi_settings.umi_batcher_is_processing: # wait if post processing in progress
-					return {'PASS_THROUGH'}
 				
 				elif self.importing and self.import_succedeed: # Post Import Processing 
 					if len(self.operator_list):
@@ -417,7 +414,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.first_setting_to_import = True
 		self.import_complete = False
 		self.canceled = False
-		self.end = False
+		self.import_complete = False
 		self.umi_settings.umi_last_setting_to_get = False
 		self.umi_settings.umi_ready_to_import = False
 		self.umi_settings.umi_current_format_setting_imported = False
@@ -431,6 +428,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.preferences = get_prefs()
 		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
 		self.wait_before_hiding = self.preferences.wait_before_hiding
+		self.processing = False
 
 		for f in COMPATIBLE_FORMATS.formats:
 			exec('self.{}_format = TILA_umi_format_handler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'TILA_umi_format_handler':TILA_umi_format_handler, 'cont':context})
@@ -492,6 +490,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.current_file_number += 1
 
 	def cancel(self, context):
+		self.canceled = True
 		if self._timer is not None:
 			wm = context.window_manager
 			wm.event_timer_remove(self._timer)
