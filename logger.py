@@ -33,11 +33,21 @@ class Logger(object):
 		self.failures = []
 		self.messages = []
 		self.esc_message = ''
+		self.scroll_offset = 0
+		self.completed = False
+		self.show_log = True
 
 		self._pretty = '---------------------'
 
 		self.color = bpy.context.preferences.themes['Default'].view_3d.object_selected
 		self.fontsize = 12
+	
+	def revert_parameters(self):
+		self.scroll_offset = 0
+		self.completed = False
+		self.successes = []
+		self.failures = []
+		self.messages = []
 	
 	def info(self, message, skip_prefix=False, color=None):
 		self.set_basic_config()
@@ -121,7 +131,10 @@ class Logger(object):
 		self.info('', True)
 
 	def draw_callback_px(self, context):
-
+		# TODO : How to make sure the log is automatically hidden when you load a new blend file ?
+		if not self.show_log:
+			return
+		
 		font_id = 0  # XXX, need to find out how best to get this.
 
 
@@ -129,11 +142,12 @@ class Logger(object):
 		# draw some text
 		blf.size(font_id, self.fontsize, 72)
 		pos = 30
+		line_width = self.fontsize + 3
 		for m in reversed(self.messages):
 			blf.color(font_id, m['color'].r, m['color'].g, m['color'].b, 0.5)
-			blf.position(font_id, self.fontsize, pos, 0)
+			blf.position(font_id, self.fontsize, pos + self.scroll_offset, 0)
 			blf.draw(font_id, m['message'])
-			pos += self.fontsize + 3
+			pos += line_width
 		
 		for area in bpy.context.screen.areas:
 			if area.type == 'VIEW_3D':
@@ -150,6 +164,9 @@ class Logger(object):
 		blf.color(font_id, self.color.r,self.color.g,self.color.b, 0.5)
 		blf.position(font_id, offset, self.fontsize, 0)
 		blf.draw(font_id, self.esc_message)
+		if self.completed:
+			blf.position(font_id, offset -150, self.fontsize + line_width, 0)
+			blf.draw(font_id, "[CTRL] + [SCROLL_WHEEL] to parse Log")
 	
 
 

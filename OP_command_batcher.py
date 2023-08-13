@@ -1,6 +1,6 @@
 import bpy
 import time, math
-from .constant import LOG, SUCCESS_COLOR, CANCELLED_COLOR
+from .constant import LOG, SUCCESS_COLOR, CANCELLED_COLOR, SCROLL_OFFSET_INCREMENT
 from .property_group import TILA_umi_operator
 from .preferences import get_prefs
 
@@ -80,12 +80,6 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 
 	def store_delta_end(self):
 		self.counter_end_time = time.perf_counter()
-
-	def log_esc_text(self):
-		LOG.info('-----------------------------------')
-		LOG.info('Click [ESC] to Cancel and hide this text ...')
-		LOG.info('-----------------------------------')
-		self.end_text_written = True
 		
 	def log_end_text(self):
 		LOG.info('-----------------------------------')
@@ -97,6 +91,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		LOG.info('Click [ESC] to hide this text ...')
 		LOG.info('-----------------------------------')
 		self.end_text_written = True
+		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 	
 	def invoke(self, context, event):
 		if not self.importer_mode:
@@ -126,13 +121,24 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 
 			self.counter = self.wait_before_hiding
 			self.end = True
+			LOG.completed = True
 			return {'PASS_THROUGH'}
 		
 		if not self.importer_mode and self.end:
 			
 			if not self.end_text_written:
 				self.log_end_text()
+				LOG.completed = True
 
+			if event.type in {'WHEELUPMOUSE'} and event.ctrl:
+				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT
+				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+				return {'PASS_THROUGH'}
+			elif event.type in {'WHEELDOWNMOUSE'} and event.ctrl:
+				LOG.scroll_offset += SCROLL_OFFSET_INCREMENT
+				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+				return {'PASS_THROUGH'}
+			
 			if self.auto_hide_text_when_finished:
 				self.store_delta_start()
 
@@ -164,13 +170,15 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		if event.type == 'TIMER':
 			if not self.processing and self.current_object_to_process is None and len(self.objects_to_process): # Process can start
 				self.next_object()
+
 			elif self.current_object_to_process is None and len(self.objects_to_process):
 				self.processing = False
-			elif len(self.objects_to_process) == 0:
+
+			elif self.current_object_to_process is None and len(self.objects_to_process) == 0:
 				if not self.importer_mode:
 					LOG.complete_progress_importer(show_successes=False)
-					self.end = True
 					self.counter = self.wait_before_hiding
+				self.end = True
 
 			if self.finished:
 				return self.finish(context)
@@ -209,6 +217,10 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.succeedeed = False
 		self.end_text_written = False
 		LOG.esc_message = '[Esc] to Cancel'
+		LOG.show_log = self.preferences.show_log_on_3d_view
+
+		if not self.importer_mode:
+			LOG.revert_parameters()
 
 		self.objects_to_process = [o for o in bpy.context.selected_objects]
 		if not len(self.objects_to_process):
@@ -257,6 +269,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		context.window_manager.event_timer_remove(self._timer)
 		if not self.importer_mode:
 			LOG.clear_all()
+			LOG.revert_parameters()
 
 	def cancel(self, context):
 		self.canceled = True

@@ -1,5 +1,5 @@
 import bpy
-from .constant import LOG, COMPATIBLE_FORMATS, SUCCESS_COLOR, CANCELLED_COLOR
+from .constant import LOG, COMPATIBLE_FORMATS, SUCCESS_COLOR, CANCELLED_COLOR, SCROLL_OFFSET_INCREMENT
 from bpy_extras.io_utils import ImportHelper
 import os, time
 from os import path
@@ -151,6 +151,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		LOG.info('Click [ESC] to hide this text ...')
 		LOG.info('-----------------------------------')
 		self.end_text_written = True
+		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 	def draw(self, context):
 		layout = self.layout
@@ -227,9 +228,18 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.log_end_text()
 			self.counter = self.wait_before_hiding
 			self.import_complete = True
+			LOG.completed = True
 			return {'PASS_THROUGH'}
 		
 		if self.import_complete:
+			if event.type in {'WHEELUPMOUSE'} and event.ctrl:
+				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT
+				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+				return {'PASS_THROUGH'}
+			elif event.type in {'WHEELDOWNMOUSE'} and event.ctrl:
+				LOG.scroll_offset += SCROLL_OFFSET_INCREMENT
+				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+				return {'PASS_THROUGH'}
 			if self.auto_hide_text_when_finished:
 				self.store_delta_start()
 
@@ -292,9 +302,10 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					else:
 						if self.save_file_after_import:
 							bpy.ops.wm.save_as_mainfile(filepath=self.current_blend_file, check_existing=False)
-						LOG.separator()
+						# LOG.separator()
 						LOG.complete_progress_importer(show_successes=False)
 						self.import_complete = True
+						LOG.completed = True
 						self.log_end_text()
 						self.counter = self.wait_before_hiding
 
@@ -419,6 +430,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.umi_settings.umi_ready_to_import = False
 		self.umi_settings.umi_current_format_setting_imported = False
 		context.window_manager.event_timer_remove(self._timer)
+		LOG.revert_parameters()
 		LOG.clear_all()
 	
 	def execute(self,context):
@@ -429,6 +441,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
 		self.wait_before_hiding = self.preferences.wait_before_hiding
 		self.processing = False
+		LOG.revert_parameters()
+		LOG.show_log = self.preferences.show_log_on_3d_view
+		LOG.esc_message = '[Esc] to Cancel'
 
 		for f in COMPATIBLE_FORMATS.formats:
 			exec('self.{}_format = TILA_umi_format_handler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'TILA_umi_format_handler':TILA_umi_format_handler, 'cont':context})
