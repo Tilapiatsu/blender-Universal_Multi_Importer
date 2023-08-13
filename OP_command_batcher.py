@@ -122,13 +122,14 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			self.counter = self.wait_before_hiding
 			self.end = True
 			LOG.completed = True
-			return {'PASS_THROUGH'}
+			return {'RUNNING_MODAL'}
 		
 		if not self.importer_mode and self.end:
-			
+
 			if not self.end_text_written:
 				self.log_end_text()
 				LOG.completed = True
+				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 			if event.type in {'WHEELUPMOUSE'} and event.ctrl:
 				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT
@@ -164,8 +165,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 				self.decrement_counter()
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
-			return {'PASS_THROUGH'}
-		
+			return {'RUNNING_MODAL'}
 
 		if event.type == 'TIMER':
 			if not self.processing and self.current_object_to_process is None and len(self.objects_to_process): # Process can start

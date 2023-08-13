@@ -229,7 +229,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.counter = self.wait_before_hiding
 			self.import_complete = True
 			LOG.completed = True
-			return {'PASS_THROUGH'}
+			return {'RUNNING_MODAL'}
 		
 		if self.import_complete:
 			if event.type in {'WHEELUPMOUSE'} and event.ctrl:
@@ -240,6 +240,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				LOG.scroll_offset += SCROLL_OFFSET_INCREMENT
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				return {'PASS_THROUGH'}
+			
 			if self.auto_hide_text_when_finished:
 				self.store_delta_start()
 
@@ -265,7 +266,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				self.decrement_counter()
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
-			return {'PASS_THROUGH'}
+			return {'RUNNING_MODAL'}
 		
 		if event.type == 'TIMER':
 			# Loop through all import format settings
@@ -308,12 +309,12 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 						LOG.completed = True
 						self.log_end_text()
 						self.counter = self.wait_before_hiding
+						bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 				elif len(self.objects_to_process): # Processing current object
 					self.current_object_to_process = self.objects_to_process.pop()
 					self.post_import_command(context, self.current_object_to_process, self.operator_list)
 					self.current_object_to_process = None
-
 				
 				elif self.importing and self.import_succedeed: # Post Import Processing 
 					if len(self.operator_list):
