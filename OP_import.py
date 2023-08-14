@@ -99,7 +99,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
-	import_files_per_batch : bpy.props.IntProperty(name="Import X Number of files at the simultaniously", default=1)
+	import_files_per_batch : bpy.props.IntProperty(name="Number of files to Import simultaniously", default=1)
 	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=True)
 	backup_file_after_import : bpy.props.BoolProperty(name='Backup file after each import', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
 	backup_step : bpy.props.IntProperty(name='Backup Step', description='Save file after X file imported', default=1, min=1, soft_max=50)
@@ -294,7 +294,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and self.current_files_to_import == []: # Import and Processing done
 					i=0
 					for name in self.current_filenames:
-						message = f'File {self.current_file_number - self.import_files_per_batch + i} is imported successfully : {name}'
+						message = f'File {self.current_file_number - self.import_files_per_batch + i + 1} is imported successfully : {name}'
 						LOG.success(message)
 						LOG.store_success(message)
 						i += 1
@@ -409,7 +409,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					return
 				
 			self.progress += 100/self.number_of_operations
-			LOG.info('Importing file {}/{} - {}% : {}'.format(self.current_file_number - self.import_files_per_batch + i, self.number_of_files, round(self.progress,2), name), color=(0.13, 0.69, 0.72))
+			LOG.info('Importing file {}/{} - {}% : {}'.format(self.current_file_number - self.import_files_per_batch + i + 1, self.number_of_files, round(self.progress,2), name), color=(0.13, 0.69, 0.72))
 			self.current_backup_step += 1
 
 			if self.create_collection_per_file:
@@ -495,10 +495,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.filepaths.reverse()
 		self.number_of_files = len(self.filepaths)
 		self.number_of_commands = len(bpy.context.scene.umi_settings.umi_operators)
-		if self.number_of_commands > 0:
-			self.number_of_operations = self.number_of_files * self.number_of_commands
-		else:
-			self.number_of_operations = self.number_of_files
+		self.number_of_operations = self.number_of_files
 
 		LOG.info("{} compatible file(s) found".format(len(self.filepaths)))
 		LOG.separator()
@@ -519,7 +516,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		args = (context,)
 		self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
 
-		self.progress += 100/self.number_of_operations
+		# self.progress += 100/self.number_of_operations
 		wm = context.window_manager
 		self._timer = wm.event_timer_add(0.1, window=context.window)
 		wm.modal_handler_add(self)
