@@ -88,6 +88,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		else:
 			LOG.info('Batch Process completed successfully !', color=SUCCESS_COLOR)
 			LOG.esc_message = '[Esc] to Hide'
+			LOG.message_offset = 4
 		LOG.info('Click [ESC] to hide this text ...')
 		LOG.info('-----------------------------------')
 		self.end_text_written = True
@@ -114,7 +115,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			return {'FINISHED'}
 		
 	def modal(self, context, event):
-		if not self.end and event.type in {'ESC'} and event.value == 'PRESS':
+		if not self.importer_mode and not self.end and event.type in {'ESC'} and event.value == 'PRESS':
 			if not self.importer_mode:
 				LOG.error('Cancelling...')
 			self.cancel(context)
@@ -217,6 +218,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.succeedeed = False
 		self.end_text_written = False
 		LOG.esc_message = '[Esc] to Cancel'
+		LOG.message_offset = 15
 		LOG.show_log = self.preferences.show_log_on_3d_view
 
 		if not self.importer_mode:

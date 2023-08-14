@@ -33,6 +33,7 @@ class Logger(object):
 		self.failures = []
 		self.messages = []
 		self.esc_message = ''
+		self.message_offset = 0
 		self.scroll_offset = 0
 		self.completed = False
 		self.show_log = True
@@ -131,14 +132,11 @@ class Logger(object):
 		self.info('', True)
 
 	def draw_callback_px(self, context):
-		# TODO : How to make sure the log is automatically hidden when you load a new blend file ?
 		if not self.show_log:
 			return
 		
 		font_id = 0  # XXX, need to find out how best to get this.
 
-
-		
 		# draw some text
 		blf.size(font_id, self.fontsize, 72)
 		pos = 30
@@ -159,14 +157,17 @@ class Logger(object):
 		if self.view3d is None:
 			offset = 1500
 		else:
-			offset = self.view3d.width - 100
+			offset = self.view3d.width - 85
 
+        # [ESC]
 		blf.color(font_id, self.color.r,self.color.g,self.color.b, 0.5)
-		blf.position(font_id, offset, self.fontsize, 0)
+		blf.position(font_id, offset - self.message_offset, self.fontsize, 0)
 		blf.draw(font_id, self.esc_message)
+		# [SCROLL]
 		if self.completed:
-			blf.position(font_id, offset -150, self.fontsize + line_width, 0)
-			blf.draw(font_id, "[CTRL] + [SCROLL_WHEEL] to parse Log")
+			message = "[CTRL] + [SCROLL_WHEEL] to parse Log"
+			blf.position(font_id, offset -155, self.fontsize + line_width, 0)
+			blf.draw(font_id, message)
 	
 
 
