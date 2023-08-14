@@ -183,6 +183,8 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 				if not self.importer_mode:
 					LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2))
 					self.counter = self.wait_before_hiding
+				else:
+					self.finished = True
 				self.end = True
 
 			if self.finished:
@@ -193,8 +195,6 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 
 			if self.current_command is None and not len(self.operators_to_process):
 				self.current_object_to_process = None
-				if self.importer_mode:
-					self.finished = True
 
 			else:
 				try: # Executing command
@@ -294,7 +294,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.current_object_to_process = self.objects_to_process.pop()
 		if not self.importer_mode:
 			LOG.separator()
-			LOG.info(f'Processing {self.current_object_to_process.name}')
+		LOG.info(f'Processing {self.current_object_to_process.name}')
 		bpy.ops.object.select_all(action='DESELECT')
 		bpy.data.objects[self.current_object_to_process.name].select_set(True)
 		self.fill_operator_to_process()
