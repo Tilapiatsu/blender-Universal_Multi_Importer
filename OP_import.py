@@ -146,6 +146,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		if self.import_complete:
 			LOG.info('Batch Import completed successfully !', color=SUCCESS_COLOR)
 			LOG.esc_message = '[Esc] to Hide'
+			LOG.message_offset = 4
 		else:
 			LOG.info('Batch Import cancelled !', color=CANCELLED_COLOR)
 		LOG.info('Click [ESC] to hide this text ...')
@@ -232,6 +233,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			return {'RUNNING_MODAL'}
 		
 		if self.import_complete:
+			if not self.show_scroll_text:
+				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+				self.show_scroll_text = True
 			if event.type in {'WHEELUPMOUSE'} and event.ctrl:
 				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
@@ -442,9 +446,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
 		self.wait_before_hiding = self.preferences.wait_before_hiding
 		self.processing = False
+		self.show_scroll_text = False
 		LOG.revert_parameters()
 		LOG.show_log = self.preferences.show_log_on_3d_view
 		LOG.esc_message = '[Esc] to Cancel'
+		LOG.message_offset = 15
 
 		for f in COMPATIBLE_FORMATS.formats:
 			exec('self.{}_format = TILA_umi_format_handler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'TILA_umi_format_handler':TILA_umi_format_handler, 'cont':context})
