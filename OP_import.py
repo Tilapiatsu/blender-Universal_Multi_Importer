@@ -285,6 +285,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			
 			# Import Loop
 			else:
+				if self.start_time == 0:
+					self.start_time = time.perf_counter()
 				if bpy.context.scene.umi_settings.umi_batcher_is_processing: # wait if post processing in progress
 					return {'PASS_THROUGH'}
 				elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and self.current_file_to_import is None: # Import and Processing done
@@ -308,7 +310,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 						if self.save_file_after_import:
 							bpy.ops.wm.save_as_mainfile(filepath=self.current_blend_file, check_existing=False)
 						# LOG.separator()
-						LOG.complete_progress_importer(show_successes=False)
+						LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2))
 						self.import_complete = True
 						LOG.completed = True
 						self.log_end_text()
@@ -447,6 +449,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.wait_before_hiding = self.preferences.wait_before_hiding
 		self.processing = False
 		self.show_scroll_text = False
+		self.start_time = 0
 		LOG.revert_parameters()
 		LOG.show_log = self.preferences.show_log_on_3d_view
 		LOG.esc_message = '[Esc] to Cancel'

@@ -115,6 +115,8 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			return {'FINISHED'}
 		
 	def modal(self, context, event):
+		if self.start_time == 0 :
+			self.start_time = time.perf_counter()
 		if not self.importer_mode and not self.end and event.type in {'ESC'} and event.value == 'PRESS':
 			if not self.importer_mode:
 				LOG.error('Cancelling...')
@@ -169,6 +171,8 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			return {'RUNNING_MODAL'}
 
 		if event.type == 'TIMER':
+			if self.start_time == 0:
+				self.start_time = time.perf_counter()
 			if not self.processing and self.current_object_to_process is None and len(self.objects_to_process): # Process can start
 				self.next_object()
 
@@ -177,7 +181,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 
 			elif self.current_object_to_process is None and len(self.objects_to_process) == 0:
 				if not self.importer_mode:
-					LOG.complete_progress_importer(show_successes=False)
+					LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2))
 					self.counter = self.wait_before_hiding
 				self.end = True
 
@@ -217,6 +221,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.completed = False
 		self.succeedeed = False
 		self.end_text_written = False
+		self.start_time = 0
 		LOG.esc_message = '[Esc] to Cancel'
 		LOG.message_offset = 15
 		LOG.show_log = self.preferences.show_log_on_3d_view

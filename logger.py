@@ -159,7 +159,7 @@ class Logger(object):
 		else:
 			offset = self.view3d.width - 85
 
-        # [ESC]
+		# [ESC]
 		blf.color(font_id, self.color.r,self.color.g,self.color.b, 0.5)
 		blf.position(font_id, offset - self.message_offset, self.fontsize, 0)
 		blf.draw(font_id, self.esc_message)
@@ -183,10 +183,13 @@ class LoggerProgress(Logger):
 		self.info('----------------------------- Importing File "{}" -----------------------------'.format(file_name))
 		self.info('----------------------------------------------------------' + pretty)
 
-	def complete_progress_importer(self, show_successes = True):
+	def complete_progress_importer(self, duration=0, show_successes = True):
 		self.separator()
 
-		self.info('Completed with {} success and {} failure'.format(len(self.successes), len(self.failures)))
+		if duration > 0:
+			self.info(f'Completed with {len(self.successes)} success and {len(self.failures)} failure in {duration}s')
+		else:
+			self.info(f'Completed with {len(self.successes)} success and {len(self.failures)} failure')
 		
 		if show_successes:
 			for s in self.successes:
