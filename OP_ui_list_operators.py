@@ -51,6 +51,10 @@ class UMI_UI_ClearOperators(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		return len(context.scene.umi_settings.umi_operators)
+	
+	def invoke(self, context, event):
+		wm = context.window_manager
+		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
 		context.scene.umi_settings.umi_operators.clear()
@@ -69,6 +73,10 @@ class UMI_UI_RemoveOperator(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		return context.scene.umi_settings.umi_operators
+	
+	def invoke(self, context, event):
+		wm = context.window_manager
+		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
 		_, operators, _ = get_operator(context)

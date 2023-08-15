@@ -99,8 +99,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
-	import_files_per_batch : bpy.props.IntProperty(name="Number of files to Import simultaniously", default=1)
-	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=True)
+	import_simultaneously_count : bpy.props.IntProperty(name="Import Simultaneously", default=20, min=1)
+	max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="If the total number of filesize", default=15, min=0)
+	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=False)
 	backup_file_after_import : bpy.props.BoolProperty(name='Backup file after each import', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
 	backup_step : bpy.props.IntProperty(name='Backup Step', description='Save file after X file imported', default=1, min=1, soft_max=50)
 	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
@@ -160,30 +161,36 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		col = layout.column()
 		col.label(text='Import Settings')
 		
-		col.prop(self, 'import_files_per_batch')
-		col.prop(self, 'create_collection_per_file')
-		
+		import_count = col.box()
+		import_count.label(text='File Count')
+		import_count.prop(self, 'import_simultaneously_count')
+		import_count.prop(self, 'max_batch_size')
+
+		settings = col.box()
+		settings.label(text='Settings')
+		settings.prop(self, 'ignore_post_process_errors')
+		settings.prop(self, 'save_file_after_import')
+		# settings.prop(self, 'import_svg_as_grease_pencil')
+		settings.prop(self, 'create_collection_per_file')
 		if self.create_collection_per_file:
-			row = col.row()
+			row = settings.row()
 			split = row.split(factor=0.1, align=True)
 			split.label(text='')
 			split = split.split()
 			split.prop(self, 'skip_already_imported_files')
 
-		col.prop(self, 'backup_file_after_import')
+
+		backup = col.box()
+		backup.label(text='Backup')
+		backup.prop(self, 'backup_file_after_import')
 
 		if self.backup_file_after_import:
-			row = col.row()
+			row = backup.row()
 			split = row.split(factor=0.1, align=True)
 			split.label(text='')
 			split = split.split()
 			split.prop(self, 'backup_step')
-
-		
-		col = layout.column()
-		col.prop(self, 'save_file_after_import')
-		col.prop(self, 'ignore_post_process_errors')
-		# col.prop(self, 'import_svg_as_grease_pencil')
+			
 		
 		draw_command_batcher(self, context)
 
@@ -287,14 +294,16 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			
 			# Import Loop
 			else:
-				if self.start_time == 0:
+				if self.start_time == 0: #INIT Counter
 					self.start_time = time.perf_counter()
+
 				if bpy.context.scene.umi_settings.umi_batcher_is_processing: # wait if post processing in progress
 					return {'PASS_THROUGH'}
+				
 				elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and self.current_files_to_import == []: # Import and Processing done
 					i=0
 					for name in self.current_filenames:
-						message = f'File {self.current_file_number - self.import_files_per_batch + i + 1} is imported successfully : {name}'
+						message = f'File {i + 1} is imported successfully : {name}'
 						LOG.success(message)
 						LOG.store_success(message)
 						i += 1
@@ -308,13 +317,14 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					self.current_files_to_import = []
 
 					if len(self.filepaths):
-						self.next_file()
 						LOG.separator()
+						self.next_file()
+						LOG.info(f'Current batch size : {round(self.current_batch_size, 2)}MB')
 					else:
 						if self.save_file_after_import:
 							bpy.ops.wm.save_as_mainfile(filepath=self.current_blend_file, check_existing=False)
-						# LOG.separator()
-						LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2))
+
+						LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2), size=self.total_imported_size)
 						self.import_complete = True
 						LOG.completed = True
 						self.log_end_text()
@@ -322,7 +332,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 						bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 				elif len(self.objects_to_process): # Processing current object
-					# self.current_object_to_process = self.objects_to_process.pop()
 					self.post_import_command(self.objects_to_process, self.operator_list)
 					self.objects_to_process = []
 				
@@ -333,14 +342,26 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 				elif self.current_files_to_import == [] and len(self.filepaths):
 					self.next_file()
+					LOG.info(f'Current batch size : {round(self.current_batch_size, 2)}MB')
 
 				elif not self.importing and len(self.current_files_to_import): # Import can start
-					self.import_succedeed = self.import_file(context, self.current_files_to_import)
+					self.import_succedeed = self.import_files(context, self.current_files_to_import)
 					self.current_files_to_import = []
+
 				elif self.current_files_to_import == [] and len(self.filepaths):
 					self.importing = False
 
 		return {'PASS_THROUGH'}
+	
+	# from : https://www.digitalocean.com/community/tutorials/how-to-get-file-size-in-python
+	def get_filesize(self, file_path):
+		file_stats = os.stat(file_path)
+
+		# print(file_path)
+		# print(f'File Size in Bytes is {file_path.st_size}')
+		filesize = file_stats.st_size / (1024 * 1024)
+		# print(f'File Size in MegaBytes is {filesize}')
+		return filesize
 
 	def import_command(self, context, filepath,):
 		ext = os.path.splitext(filepath)[1]
@@ -392,11 +413,14 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.objects_to_process = self.objects_to_process + [o for o in context.selected_objects]
 		return True
 
-	def import_file(self, context, filepath):
+	def update_progress(self):
+			self.progress += 100/self.number_of_operations
+		
+	def import_files(self, context, filepaths):
 		self.importing = True
 		success = True
 		i = 0
-		for f in filepath:
+		for f in filepaths:
 			name = path.basename(path.splitext(f)[0])
 			name = path.basename(name)
 			self.current_filenames.append(path.basename(name))
@@ -407,9 +431,10 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					self.importing = False
 					LOG.warning('File {} have already been imported, skiping file...'.format(name))
 					return
-				
-			self.progress += 100/self.number_of_operations
-			LOG.info('Importing file {}/{} - {}% : {}'.format(self.current_file_number - self.import_files_per_batch + i + 1, self.number_of_files, round(self.progress,2), name), color=(0.13, 0.69, 0.72))
+			
+			
+			self.update_progress()
+			LOG.info('Importing file {}/{} - {}% : {}'.format(i + 1 , self.number_of_files, round(self.progress,2), name), color=(0.13, 0.69, 0.72))
 			self.current_backup_step += 1
 
 			if self.create_collection_per_file:
@@ -465,6 +490,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.processing = False
 		self.show_scroll_text = False
 		self.start_time = 0
+		self.total_imported_size = 0
 		LOG.revert_parameters()
 		LOG.show_log = self.preferences.show_log_on_3d_view
 		LOG.esc_message = '[Esc] to Cancel'
@@ -516,7 +542,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		args = (context,)
 		self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
 
-		# self.progress += 100/self.number_of_operations
 		wm = context.window_manager
 		self._timer = wm.event_timer_add(0.1, window=context.window)
 		wm.modal_handler_add(self)
@@ -525,12 +550,31 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	def next_file(self):
 		self.current_files_to_import = []
 		self.current_filenames = []
-		for f in range(self.import_files_per_batch):
+		self.current_batch_size = 0
+		for f in range(self.import_simultaneously_count):
 			if not len(self.filepaths):
 				return
+			index = len(self.filepaths) - 1
+			filepath = self.filepaths[index]
+			current_file_size = self.get_filesize(filepath)
+			self.current_batch_size += current_file_size
+			self.total_imported_size += current_file_size
+
+			if self.max_batch_size:
+				if self.current_batch_size > self.max_batch_size:
+					if len(self.current_files_to_import):
+						self.current_batch_size -= current_file_size
+						self.total_imported_size -= current_file_size
+						return
+					
+					self.current_files_to_import.append(self.filepaths.pop())
+					self.current_file_number += 1
+					return
+				
 			self.current_files_to_import.append(self.filepaths.pop())
 			self.current_file_number += 1
-
+			
+		
 	def cancel(self, context):
 		self.canceled = True
 		if self._timer is not None:

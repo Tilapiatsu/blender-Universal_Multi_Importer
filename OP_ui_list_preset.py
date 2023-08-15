@@ -46,6 +46,10 @@ class UMI_UI_ClearPresets(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		return len(context.scene.umi_settings.umi_presets)
+	
+	def invoke(self, context, event):
+		wm = context.window_manager
+		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
 		context.scene.umi_settings.umi_presets.clear()
@@ -170,6 +174,12 @@ class UMI_UI_SavePresetOperator(bpy.types.Operator):
 
 	filepath: bpy.props.StringProperty(name='Filepath', default='', subtype="FILE_PATH") 
 
+	def invoke(self, context, event):
+		if os.path.exists(self.filepath):
+			wm = context.window_manager
+			return wm.invoke_confirm(self, event)
+		
+		self.execute(context)
 
 	def execute(self, context):
 		print(f'Saving preset : {os.path.basename(self.filepath)}')
