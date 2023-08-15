@@ -68,7 +68,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 	current_object_to_process = None
 
 	def fill_operator_to_process(self):
-		operator_list = [{'name':'operator', 'operator': o.operator} for o in bpy.context.scene.umi_settings.umi_operators]
+		operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
 		self.operators_to_process = [o['operator'] for o in operator_list]
 		self.operators_to_process.reverse()
 
@@ -108,7 +108,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
 		self.revert_parameters(context)
 		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-		bpy.context.scene.umi_settings.umi_batcher_is_processing = False
+		self.umi_settings.umi_batcher_is_processing = False
 		if canceled:
 			return {'CANCELLED'}
 		else:
@@ -225,6 +225,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		LOG.esc_message = '[Esc] to Cancel'
 		LOG.message_offset = 15
 		LOG.show_log = self.preferences.show_log_on_3d_view
+		self.umi_settings = context.scene.umi_settings
 
 		if not self.importer_mode:
 			LOG.revert_parameters()
@@ -234,7 +235,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			self.report({'ERROR_INVALID_INPUT'}, 'UMI : You need to select at least one object.')
 			return {'CANCELLED'}
 		
-		if not self.importer_mode and not len(bpy.context.scene.umi_settings.umi_operators):
+		if not self.importer_mode and not len(self.umi_settings.umi_operators):
 			self.report({'ERROR_INVALID_INPUT'}, 'UMI : You need to add at least one command.')
 			return {'CANCELLED'}
 		
@@ -258,7 +259,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.number_of_operations_to_perform = number_of_operations * number_of_objects
 
 		self.register_timer(context)
-		bpy.context.scene.umi_settings.umi_batcher_is_processing = True
+		self.umi_settings.umi_batcher_is_processing = True
 		return {'RUNNING_MODAL'}
 	
 	def draw(self, context):
@@ -289,11 +290,15 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self._timer = wm.event_timer_add(0.1, window=context.window)
 		wm.modal_handler_add(self)
 		
-
 	def next_object(self):
-		self.current_object_to_process = self.objects_to_process.pop()
-		if not self.importer_mode:
+		if self.importer_mode:
+			if self.umi_settings.umi_import_settings.umi_import_cancelled:
+				self.canceled = True
+				return
+		else:
 			LOG.separator()
+			
+		self.current_object_to_process = self.objects_to_process.pop()
 		LOG.info(f'Processing {self.current_object_to_process.name}')
 		bpy.ops.object.select_all(action='DESELECT')
 		bpy.data.objects[self.current_object_to_process.name].select_set(True)

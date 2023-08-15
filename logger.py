@@ -163,6 +163,7 @@ class Logger(object):
 		blf.color(font_id, self.color.r,self.color.g,self.color.b, 0.5)
 		blf.position(font_id, offset - self.message_offset, self.fontsize, 0)
 		blf.draw(font_id, self.esc_message)
+		
 		# [SCROLL]
 		if self.completed:
 			message = "[CTRL] + [SCROLL_WHEEL] to parse Log"

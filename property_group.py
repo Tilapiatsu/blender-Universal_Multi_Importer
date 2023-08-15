@@ -6,6 +6,7 @@ class TILA_import_settings_creator(bpy.types.PropertyGroup):
 
 class TILA_umi_import_settings(bpy.types.PropertyGroup):
 	umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)
+	umi_import_cancelled : bpy.props.BoolProperty(name='Import settings registered', default=False)
 
 class TILA_umi_operator(bpy.types.PropertyGroup):
 	operator : bpy.props.StringProperty(name='Operator', default='')

@@ -27,6 +27,7 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 		self.__class__.__annotations__[property_name] = property_value
 
 	def execute(self, context):
+		self.umi_settings = context.scene.umi_settings
 		# set the scene setting equal to the setting set by the user
 		for k,v in self.__class__.__annotations__.items():
 			if getattr(v, 'is_hidden', False) or getattr(v, 'is_readonly', False):
@@ -37,10 +38,10 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 				except AttributeError as e:
 					LOG.error("{}".format(e))
 
-		if context.scene.umi_settings.umi_last_setting_to_get:
-			context.scene.umi_settings.umi_ready_to_import = True
+		if self.umi_settings.umi_last_setting_to_get:
+			self.umi_settings.umi_ready_to_import = True
 
-		context.scene.umi_settings.umi_current_format_setting_imported = True
+		self.umi_settings.umi_current_format_setting_imported = True
 		self.unregister_annotations()
 
 		return {'FINISHED'}
@@ -99,14 +100,14 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
-	import_simultaneously_count : bpy.props.IntProperty(name="Import Simultaneously", default=20, min=1)
-	max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="If the total number of filesize", default=15, min=0)
+	import_simultaneously_count : bpy.props.IntProperty(name="Import Simultaneously (files)", default=20, min=1, description='Maximum number of file to import simultaneously')
+	max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="Max size per import batch. An import batch represents the number of files imported simultaneously", default=15, min=0)
 	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=False)
-	backup_file_after_import : bpy.props.BoolProperty(name='Backup file after each import', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
-	backup_step : bpy.props.IntProperty(name='Backup Step', description='Save file after X file imported', default=1, min=1, soft_max=50)
+	backup_file_after_import : bpy.props.BoolProperty(name='Backup file', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
+	backup_step : bpy.props.IntProperty(name='Backup Step (file)', description='Backup file after X file(s) imported', default=1, min=1, soft_max=50)
 	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
 	save_file_after_import : bpy.props.BoolProperty(name='Save file after import', description='Save the original file when the entire import process is compete', default=False)
-	ignore_post_process_errors : bpy.props.BoolProperty(name='Ignore Post Process Errors', description='If any error occurs during prost processing of imported file, error will be ignore and the import process will continue', default=True)
+	ignore_post_process_errors : bpy.props.BoolProperty(name='Ignore Post Process Errors', description='If any error occurs during post processing of imported file(s), error(s) will be ignore and the import process will continue to the next operation', default=True)
 	import_svg_as_grease_pencil : bpy.props.BoolProperty(name='Import SVG as Grease Pencil', description='SVG file will be imported as grease Pencil instead of curve objects', default=False)
 
 	_timer = None
@@ -151,6 +152,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			LOG.message_offset = 4
 		else:
 			LOG.info('Batch Import cancelled !', color=CANCELLED_COLOR)
+			
 		LOG.info('Click [ESC] to hide this text ...')
 		LOG.info('-----------------------------------')
 		self.end_text_written = True
@@ -172,6 +174,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		settings.prop(self, 'save_file_after_import')
 		# settings.prop(self, 'import_svg_as_grease_pencil')
 		settings.prop(self, 'create_collection_per_file')
+		
 		if self.create_collection_per_file:
 			row = settings.row()
 			split = row.split(factor=0.1, align=True)
@@ -239,6 +242,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.counter = self.wait_before_hiding
 			self.import_complete = True
 			LOG.completed = True
+			self.umi_settings.umi_import_settings.umi_import_cancelled = True
 			return {'RUNNING_MODAL'}
 		
 		if self.import_complete:
@@ -491,6 +495,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.show_scroll_text = False
 		self.start_time = 0
 		self.total_imported_size = 0
+		self.umi_settings = context.scene.umi_settings
+		self.umi_settings.umi_import_settings.umi_import_cancelled = False
 		LOG.revert_parameters()
 		LOG.show_log = self.preferences.show_log_on_3d_view
 		LOG.esc_message = '[Esc] to Cancel'
@@ -520,7 +526,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 		self.filepaths.reverse()
 		self.number_of_files = len(self.filepaths)
-		self.number_of_commands = len(bpy.context.scene.umi_settings.umi_operators)
+		self.number_of_commands = len(self.umi_settings.umi_operators)
 		self.number_of_operations = self.number_of_files
 
 		LOG.info("{} compatible file(s) found".format(len(self.filepaths)))
@@ -530,9 +536,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.root_collection = bpy.context.collection
 		self.current_file_number = 0
 
-		self.umi_settings = context.scene.umi_settings
 
-		context.scene.umi_settings.umi_ready_to_import = False
+		self.umi_settings.umi_ready_to_import = False
 
 		self.store_formats_to_import()
 		self.objects_to_process = []
