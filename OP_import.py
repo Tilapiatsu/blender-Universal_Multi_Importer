@@ -100,7 +100,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
-	import_simultaneously_count : bpy.props.IntProperty(name="Import Simultaneously (files)", default=50, min=1, description='Maximum number of file to import simultaneously')
+	import_simultaneously_count : bpy.props.IntProperty(name="Max Import Simultaneously (files)", default=50, min=1, description='Maximum number of file to import simultaneously')
 	max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="Max size per import batch. An import batch represents the number of files imported simultaneously", default=15, min=0)
 	minimize_batch_number : bpy.props.BoolProperty(name="Minimize batch number", description="Try to pack files per batch in a way to be as close as possible to the Max batch size, and then minimize the number of import batches", default=True)
 	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=False)
@@ -168,11 +168,12 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		import_count.label(text='File Count')
 		import_count.prop(self, 'import_simultaneously_count')
 		import_count.prop(self, 'max_batch_size')
+		if self.max_batch_size:
+			import_count.prop(self, 'minimize_batch_number')
 
 		settings = col.box()
 		settings.label(text='Settings')
 		settings.prop(self, 'ignore_post_process_errors')
-		settings.prop(self, 'minimize_batch_number')
 		settings.prop(self, 'save_file_after_import')
 		# settings.prop(self, 'import_svg_as_grease_pencil')
 		settings.prop(self, 'create_collection_per_file')
@@ -308,8 +309,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				
 				elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and self.current_files_to_import == []: # Import and Processing done
 					i=0
-					for name in self.current_filenames:
-						message = f'File {i + 1} is imported successfully : {name}'
+					for filename in self.current_filenames:
+						message = f'File {i + 1} is imported successfully : {filename}'
 						LOG.success(message)
 						LOG.store_success(message)
 						i += 1
@@ -350,7 +351,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				elif self.current_files_to_import == [] and len(self.filepaths):
 					self.next_file()
 					LOG.info(f'Starting Batch n°{self.batch_number}')
-					LOG.info(f'Current batch size : {round(self.current_batch_size, 2)}MB')
+					LOG.info(f'Batch size : {round(self.current_batch_size, 2)}MB')
 
 				elif not self.importing and len(self.current_files_to_import): # Import can start
 					self.import_succedeed = self.import_files(context, self.current_files_to_import)
@@ -435,26 +436,28 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.importing = True
 		success = True
 		for f in filepaths:
-			name = path.basename(path.splitext(f)[0])
+			filename = path.basename(f)
+			name = (path.splitext(f)[0])
 			name = path.basename(name)
-			self.current_filenames.append(path.basename(name))
+			self.current_filenames.append(path.basename(filename))
 
 			if self.skip_already_imported_files:
-				if name in bpy.data.collections:
+				if filename in bpy.data.collections:
 					self.current_files_to_import = []
 					self.importing = False
-					LOG.warning('File {} have already been imported, skiping file...'.format(name))
+					LOG.warning(f'File {filename} have already been imported, skiping file...')
 					return
 			
-			self.total_imported_size += self.get_filesize(f)
+			current_file_size = self.get_filesize(f)
+			self.total_imported_size += current_file_size
 			self.update_progress()
 
-			LOG.info('Importing file {}/{} - {}% : {}'.format(len(self.imported_files) + 1 , self.number_of_files, round(self.progress,2), name), color=(0.13, 0.69, 0.72))
+			LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=(0.13, 0.69, 0.72))
 			self.current_backup_step += 1
 			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 			if self.create_collection_per_file:
-				collection = bpy.data.collections.new(name=name)
+				collection = bpy.data.collections.new(name=filename)
 				self.root_collection.children.link(collection)
 				
 				root_layer_col = self.view_layer.layer_collection    
