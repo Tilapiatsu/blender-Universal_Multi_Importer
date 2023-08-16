@@ -241,7 +241,9 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		
 		self.progress = 0
 		self.number_of_operations_to_perform = 0
+		self.number_of_object_to_process = len(self.objects_to_process)
 		self.current_operation_number = 0
+		self.current_object_number = 0
 
 		if not self.importer_mode:
 			self.next_object()
@@ -299,7 +301,10 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 			LOG.separator()
 			
 		self.current_object_to_process = self.objects_to_process.pop()
-		LOG.info(f'Processing {self.current_object_to_process.name}')
+		self.current_object_number += 1
+		self.object_progress = round(self.current_object_number * 100 / self.number_of_object_to_process, 2)
+		
+		LOG.info(f'Processing object {self.current_object_number}/{self.number_of_object_to_process} - {self.object_progress}% : {self.current_object_to_process.name}')
 		bpy.ops.object.select_all(action='DESELECT')
 		bpy.data.objects[self.current_object_to_process.name].select_set(True)
 		self.fill_operator_to_process()

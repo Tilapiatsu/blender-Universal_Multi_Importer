@@ -219,7 +219,7 @@ class UMI_UI_LoadPresetList(bpy.types.Operator):
 	def execute(self, context):
 		presets = [f for f in os.listdir(PRESET_FOLDER) if os.path.splitext(f)[1].lower() == '.umipreset']
 		if len(bpy.context.scene.umi_settings.umi_presets):
-			bpy.ops.scene.umi_clear_presets('INVOKE_DEFAULT')
+			bpy.ops.scene.umi_clear_presets('EXEC_DEFAULT')
 
 		for p in presets:
 			bpy.ops.scene.umi_add_preset('EXEC_DEFAULT', name=os.path.splitext(p)[0], from_list=False)

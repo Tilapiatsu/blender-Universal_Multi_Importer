@@ -184,10 +184,11 @@ class LoggerProgress(Logger):
 		self.info('----------------------------- Importing File "{}" -----------------------------'.format(file_name))
 		self.info('----------------------------------------------------------' + pretty)
 
-	def complete_progress_importer(self, duration=0, show_successes=True, size=0):
+	def complete_progress_importer(self, duration=0, show_successes=True, size=0, batch_count=0):
 		self.separator()
 
-		self.info(f'Completed with {len(self.successes)} success(es) and {len(self.failures)} failure(s), {round(size, 2)}MB in {duration}s')
+		self.info(f'Completed with {len(self.successes)} success(es) and {len(self.failures)} failure(s)')
+		self.info(f'{round(size, 2)}MB | {duration}s | {batch_count} batches')
 		
 		if show_successes:
 			for s in self.successes:
