@@ -13,7 +13,7 @@ You can also batch process imported files right after import with custom macros
 | ----------- | 
 | obj |
 | fbx |
-| glt |
+| glb |
 | x3d |
 | stl |
 | ply |

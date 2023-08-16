@@ -541,7 +541,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.report({'ERROR'}, message)
 			return {'CANCELLED'}
 
-		if self.minimize_batch_number:
+		if self.max_batch_size and self.minimize_batch_number:
 			# Sorting filepaths per Filesize for optimization
 			self.filepaths = self.sort_per_filesize(self.filepaths)
 
@@ -622,7 +622,6 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		
 		return None
 
-
 	def next_file(self):
 		self.current_files_to_import = []
 		self.current_filenames = []
@@ -651,8 +650,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.filepaths.remove(next_file)
 			self.current_files_to_import.append(next_file)
 			self.current_file_number += 1
-
-			
+		
 	def cancel(self, context):
 		self.canceled = True
 		if self._timer is not None:
