@@ -308,12 +308,12 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					return {'PASS_THROUGH'}
 				
 				elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and self.current_files_to_import == []: # Import and Processing done
-					i=0
+					i=len(self.current_filenames)
 					for filename in self.current_filenames:
-						message = f'File {i + 1} is imported successfully : {filename}'
+						message = f'File {len(self.imported_files) - i + 1} is imported successfully : {filename}'
 						LOG.success(message)
 						LOG.store_success(message)
-						i += 1
+						i -= 1
 
 					if self.backup_file_after_import:
 						if self.backup_step <= self.current_backup_step:
@@ -326,7 +326,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					if len(self.filepaths):
 						LOG.separator()
 						self.next_file()
-						LOG.info(f'Starting Batch n°{self.batch_number}')
+						LOG.info(f'Starting Batch n°{self.batch_number} with {len(self.current_files_to_import)} files')
 						LOG.info(f'Batch size : {round(self.current_batch_size, 2)}MB')
 					else:
 						if self.save_file_after_import:
@@ -350,7 +350,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 				elif self.current_files_to_import == [] and len(self.filepaths):
 					self.next_file()
-					LOG.info(f'Starting Batch n°{self.batch_number}')
+					LOG.info(f'Starting Batch n°{self.batch_number} with {len(self.current_files_to_import)} files')
 					LOG.info(f'Batch size : {round(self.current_batch_size, 2)}MB')
 
 				elif not self.importing and len(self.current_files_to_import): # Import can start

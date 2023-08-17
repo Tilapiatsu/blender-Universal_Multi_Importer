@@ -188,8 +188,13 @@ class LoggerProgress(Logger):
 		self.separator()
 
 		self.info(f'Completed with {len(self.successes)} success(es) and {len(self.failures)} failure(s)')
-		self.info(f'{round(size, 2)}MB | {duration}s | {batch_count} batches')
+		stats = f'{duration}s'
+		if size:
+			stats += f' | {round(size, 2)}MB'
+		if batch_count:
+			stats += f' | {batch_count} batches'
 		
+		self.info(stats)
 		if show_successes:
 			for s in self.successes:
 				self.success('{}'.format(s))
