@@ -66,6 +66,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 	previous_counter = 0
 	objects_to_process = []
 	current_object_to_process = None
+	_timer = None
 
 	def fill_operator_to_process(self):
 		operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]

@@ -11,7 +11,7 @@ def get_operator(context):
 	idx = context.scene.umi_settings.umi_operator_idx
 	operators = context.scene.umi_settings.umi_operators
 
-	active = operators[idx] if operators else None
+	active = operators[idx] if len(operators) else None
 
 	return idx, operators, active
 
