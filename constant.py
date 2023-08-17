@@ -12,6 +12,7 @@ FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('__')]
 SUCCESS_COLOR = (0.1, 1.0, 0.1)
 CANCELLED_COLOR = (1.0, 0.4, 0.1)
 SCROLL_OFFSET_INCREMENT = 50
+UMIPRESET_EXTENSION = '.umipreset'
 
 
 class TILA_compatible_formats(object):

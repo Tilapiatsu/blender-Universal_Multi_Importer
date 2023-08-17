@@ -1,6 +1,6 @@
 import bpy
-import os
-from .constant import PRESET_FOLDER
+import os, shutil
+from .constant import PRESET_FOLDER, UMIPRESET_EXTENSION
 
 def get_presets(context):
 	idx = context.scene.umi_settings.umi_preset_idx
@@ -76,9 +76,9 @@ class UMI_UI_RemovePreset(bpy.types.Operator):
 
 	def execute(self, context):
 		_, self.presets, self.item = get_presets(context)
-		if os.path.isfile(self.item.path):
-			os.remove(self.item.path)
-
+		if os.path.isfile(self.presets[self.id].path):
+			os.remove(self.presets[self.id].path)
+			
 		self.presets.remove(self.id)
 
 		context.scene.umi_settings.umi_preset_idx = min(self.id, len(context.scene.umi_settings.umi_presets) - 1)
@@ -93,7 +93,69 @@ class UMI_UI_DuplicatePreset(bpy.types.Operator):
 	bl_description = "Duplicate selected Preset."
 	
 	id : bpy.props.IntProperty(name="Preset ID", default=0)
+	
+	def get_unique_name(self, name, name_list, separator='_', is_path=False):
+		def name_exists(name_list_splited, suffix):
+			exists = False
+			for n in name_list_splited:
+				if basename == n[0] and new_suffix == n[1][1:3]:
+					suffix = separator +  new_suffix
+					exists = True
+					break
+			else:
+				suffix = separator +  new_suffix
+			return exists, suffix
+		
+		if is_path:
+			extension_size = len(UMIPRESET_EXTENSION)
+		else:
+			extension_size = 0
+			
+		basename = name[0:-3-extension_size]
+		suffix = name[-3-extension_size:]
+		name_list_basenames = [n[0:-3-extension_size] for n in name_list]
+		name_list_suffixes = [n[-3-extension_size:] for n in name_list]
+		name_list_splited = list(zip(name_list_basenames, name_list_suffixes))
+		same_name_found = True
 
+		while(same_name_found):
+			if suffix[0] == separator and suffix[1:3].isnumeric():
+				new_suffix = int(suffix[2:3]) + 1
+				new_suffix = f'{new_suffix:02}'
+				
+				exist, suffix = name_exists(name_list_splited, suffix)
+
+				if exist:
+					continue
+						
+				if is_path:
+					new_name = name[0:-3-extension_size] + separator + new_suffix + UMIPRESET_EXTENSION
+				else:
+					new_name = basename + separator + new_suffix
+				same_name_found = False
+
+			elif is_path:
+				basename = name
+				new_suffix = '01'
+				exist, _ = name_exists(name_list_splited, new_suffix)
+				if exist:
+					suffix = '_02'
+					continue
+
+				new_name = name[0:-extension_size] + separator + new_suffix + UMIPRESET_EXTENSION
+			else:
+				basename = name
+				new_suffix = '01'
+				exist, _ = name_exists(name_list_splited, new_suffix)
+				if exist:
+					suffix = '_02'
+					continue
+
+				new_name = name + separator + new_suffix
+			same_name_found = False
+
+		return new_name
+	
 	@classmethod
 	def poll(cls, context):
 		return len(context.scene.umi_settings.umi_presets)
@@ -101,9 +163,14 @@ class UMI_UI_DuplicatePreset(bpy.types.Operator):
 	def execute(self, context):
 		_, presets, _ = get_presets(context)
 
+		name_list = [p.name for p in presets]
+		path_list = [p.path for p in presets]
+
 		o = presets.add()
-		o.name = presets[self.id].name
-		o.path = presets[self.id].path
+		o.name = self.get_unique_name(presets[self.id].name, name_list=name_list)
+		o.path = self.get_unique_name(presets[self.id].path, name_list=path_list, is_path=True)
+		# bpy.ops.scene.umi_save_preset_operator('EXEC_DEFAULT', filepath=os.path.join(PRESET_FOLDER, o.name) + UMIPRESET_EXTENSION)
+		shutil.copy(presets[self.id].path, o.path)
 		presets.move(len(presets) - 1, self.id + 1)
 
 		return {'FINISHED'}
@@ -133,7 +200,7 @@ class UMI_UI_EditPreset(bpy.types.Operator):
 		o = context.scene.umi_settings.umi_presets[self.id]
 		o.name = self.name
 		old_name = o.path
-		o.path = os.path.join(PRESET_FOLDER, self.name + '.umipreset')
+		o.path = os.path.join(PRESET_FOLDER, self.name + UMIPRESET_EXTENSION)
 
 		os.rename(old_name, o.path)
 		return {'FINISHED'}	
@@ -160,7 +227,7 @@ class UMI_UI_AddPreset(bpy.types.Operator):
 	def execute(self, context):
 		o = context.scene.umi_settings.umi_presets.add()
 		o.name = self.name
-		o.path = os.path.join(PRESET_FOLDER, self.name + '.umipreset')
+		o.path = os.path.join(PRESET_FOLDER, self.name + UMIPRESET_EXTENSION)
 		if self.from_list:
 			bpy.ops.scene.umi_save_preset_operator(filepath=o.path)
 		return {'FINISHED'}
@@ -217,7 +284,7 @@ class UMI_UI_LoadPresetList(bpy.types.Operator):
 	bl_description = "Load the list of all presets saved on disks"
 
 	def execute(self, context):
-		presets = [f for f in os.listdir(PRESET_FOLDER) if os.path.splitext(f)[1].lower() == '.umipreset']
+		presets = [f for f in os.listdir(PRESET_FOLDER) if os.path.splitext(f)[1].lower() == UMIPRESET_EXTENSION]
 		if len(bpy.context.scene.umi_settings.umi_presets):
 			bpy.ops.scene.umi_clear_presets('EXEC_DEFAULT')
 
