@@ -105,7 +105,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	minimize_batch_number : bpy.props.BoolProperty(name="Minimize batch number", description="Try to pack files per batch in a way to be as close as possible to the Max batch size, and then minimize the number of import batches", default=True)
 	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=False)
 	backup_file_after_import : bpy.props.BoolProperty(name='Backup file', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
-	backup_step : bpy.props.IntProperty(name='Backup Step (file)', description='Backup file after X file(s) imported', default=1, min=1, soft_max=50)
+	backup_step : bpy.props.FloatProperty(name='Backup Step (MB)', description='Backup file after X file(s) imported', default=100, min=1)
 	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
 	save_file_after_import : bpy.props.BoolProperty(name='Save file after import', description='Save the original file when the entire import process is compete', default=False)
 	ignore_post_process_errors : bpy.props.BoolProperty(name='Ignore Post Process Errors', description='If any error occurs during post processing of imported file(s), error(s) will be ignore and the import process will continue to the next operation', default=True)
@@ -453,7 +453,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.update_progress()
 
 			LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=(0.13, 0.69, 0.72))
-			self.current_backup_step += 1
+			self.current_backup_step += current_file_size
 			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 			if self.create_collection_per_file:
