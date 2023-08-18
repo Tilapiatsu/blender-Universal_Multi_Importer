@@ -290,7 +290,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 	
 	def register_timer(self, context):
 		wm = context.window_manager
-		self._timer = wm.event_timer_add(0.1, window=context.window)
+		self._timer = wm.event_timer_add(0.01, window=context.window)
 		wm.modal_handler_add(self)
 		
 	def next_object(self):

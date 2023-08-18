@@ -569,7 +569,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
 
 		wm = context.window_manager
-		self._timer = wm.event_timer_add(0.1, window=context.window)
+		self._timer = wm.event_timer_add(0.01, window=context.window)
 		wm.modal_handler_add(self)
 		return {'RUNNING_MODAL'}
 	

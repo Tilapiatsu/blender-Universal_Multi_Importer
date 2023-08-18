@@ -192,7 +192,7 @@ class LoggerProgress(Logger):
 		if size:
 			stats += f' | {round(size, 2)}MB'
 		if batch_count:
-			stats += f' | {batch_count} batches'
+			stats += f' | {batch_count} batche(s)'
 		
 		self.info(stats)
 		if show_successes:
