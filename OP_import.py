@@ -100,8 +100,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
-	import_simultaneously_count : bpy.props.IntProperty(name="Max Import Simultaneously (files)", default=50, min=1, description='Maximum number of file to import simultaneously')
-	max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="Max size per import batch. An import batch represents the number of files imported simultaneously", default=15, min=0)
+	import_simultaneously_count : bpy.props.IntProperty(name="Max Import Simultaneously (files)", default=200, min=1, description='Maximum number of file to import simultaneously')
+	max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="Max size per import batch. An import batch represents the number of files imported simultaneously", default=20, min=0)
 	minimize_batch_number : bpy.props.BoolProperty(name="Minimize batch number", description="Try to pack files per batch in a way to be as close as possible to the Max batch size, and then minimize the number of import batches", default=True)
 	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=False)
 	backup_file_after_import : bpy.props.BoolProperty(name='Backup file', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
