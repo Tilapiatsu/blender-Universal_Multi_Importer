@@ -10,7 +10,7 @@ def draw_command_batcher(self, context):
 	
 	box = col.box()
 	row = box.row()
-	row.label(text='Batch process imported files')
+	row.label(text='Command Batcher Operators')
 
 	rows = len(context.scene.umi_settings.umi_operators) if len(context.scene.umi_settings.umi_operators) > 2 else 2
 	row = box.row()
@@ -29,7 +29,7 @@ def draw_command_batcher(self, context):
 
 	box = col.box()
 	row = box.row()
-	row.label(text='Batch Process Presets')
+	row.label(text='Command Batcher Presets')
 
 	rows = len(context.scene.umi_settings.umi_presets) if len(context.scene.umi_settings.umi_presets) > 2 else 2
 	row = box.row()
