@@ -1,5 +1,5 @@
 import bpy
-from .constant import LOG, COMPATIBLE_FORMATS, SUCCESS_COLOR, CANCELLED_COLOR, SCROLL_OFFSET_INCREMENT
+from .constant import LOG, COMPATIBLE_FORMATS, SUCCESS_COLOR, CANCELLED_COLOR, ERROR_COLOR, SCROLL_OFFSET_INCREMENT
 from bpy_extras.io_utils import ImportHelper
 import os, time
 from os import path
@@ -95,7 +95,7 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 class TILA_umi(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.tila_universal_multi_importer"
 	bl_label = "Import ALL"
-	bl_options = {'REGISTER', 'INTERNAL'}
+	bl_options = {'REGISTER', 'INTERNAL', 'PRESET'}
 	bl_region_type = "UI"
 
 	# Selected files
@@ -148,9 +148,14 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 	def log_end_text(self):
 		LOG.info('-----------------------------------')
 		if self.import_complete:
-			LOG.info('Batch Import completed successfully !', color=SUCCESS_COLOR)
-			LOG.esc_message = '[Esc] to Hide'
-			LOG.message_offset = 4
+			if False in self.files_succeeded:
+				LOG.info('Batch Import completed with errors !', color=ERROR_COLOR)
+				LOG.esc_message = '[Esc] to Hide'
+				LOG.message_offset = 4
+			else:
+				LOG.info('Batch Import completed successfully !', color=SUCCESS_COLOR)
+				LOG.esc_message = '[Esc] to Hide'
+				LOG.message_offset = 4
 		else:
 			LOG.info('Batch Import cancelled !', color=CANCELLED_COLOR)
 			
@@ -252,6 +257,11 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			if not self.show_scroll_text:
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				self.show_scroll_text = True
+				
+			if event.type in {'WHEELUPMOUSE'} and event.ctrl and event.shift:
+				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT * 9
+			elif event.type in {'WHEELDOWNMOUSE'} and event.ctrl and event.shift:
+				LOG.scroll_offset += SCROLL_OFFSET_INCREMENT * 9
 			if event.type in {'WHEELUPMOUSE'} and event.ctrl:
 				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
@@ -310,9 +320,16 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and self.current_files_to_import == []: # Import and Processing done
 					i=len(self.current_filenames)
 					for filename in self.current_filenames:
-						message = f'File {len(self.imported_files) - i + 1} is imported successfully : {filename}'
-						LOG.success(message)
-						LOG.store_success(message)
+						index = len(self.imported_files) - i
+						if len(self.files_succeeded) and self.files_succeeded[index]:
+							message = f'File {index + 1} is imported successfully : {filename}'
+							LOG.success(message)
+							LOG.store_success(message)
+						else:
+							message = f'File {index + 1} is NOT imported correctly : {filename}'
+							LOG.error(message)
+							# LOG.store_failure(message)
+						
 						i -= 1
 
 					if self.backup_file_after_import:
@@ -343,9 +360,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					self.post_import_command(self.objects_to_process, self.operator_list)
 					self.objects_to_process = []
 				
-				elif self.importing and self.import_succedeed: # Post Import Processing 
-					if len(self.operator_list):
-						self.processing = True
+				elif self.importing and self.current_batch_imported: # Post Import Processing 
 					self.importing = False
 
 				elif self.current_files_to_import == [] and len(self.filepaths):
@@ -354,7 +369,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 					LOG.info(f'Batch size : {round(self.current_batch_size, 2)}MB')
 
 				elif not self.importing and len(self.current_files_to_import): # Import can start
-					self.import_succedeed = self.import_files(context, self.current_files_to_import)
+					self.files_succeeded += self.import_files(context, self.current_files_to_import)
 					self.current_files_to_import = []
 
 				elif self.current_files_to_import == [] and len(self.filepaths):
@@ -380,6 +395,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		return size
 
 	def import_command(self, context, filepath,):
+		success = True
 		ext = os.path.splitext(filepath)[1]
 		operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)
 		format_names = COMPATIBLE_FORMATS.get_format_from_extension(ext)['name']
@@ -422,19 +438,20 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		except Exception as e:
 			LOG.error(str(e))
 			LOG.store_failure(str(e))
-			return False
+			success = False
 			# raise Exception(e)
 
 		if len(self.operator_list):
-			self.objects_to_process = self.objects_to_process + [o for o in context.selected_objects]
-		return True
+			if success:
+				self.objects_to_process = self.objects_to_process + [o for o in context.selected_objects]
+		return success
 
 	def update_progress(self):
 			self.progress = (self.total_imported_size * 100) / self.total_import_size
 		
 	def import_files(self, context, filepaths):
 		self.importing = True
-		success = True
+		success = []
 		for f in filepaths:
 			filename = path.basename(f)
 			name = (path.splitext(f)[0])
@@ -465,9 +482,12 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				root_layer_col = self.view_layer.layer_collection    
 				layer_col = self.recur_layer_collection(root_layer_col, collection.name)
 				self.view_layer.active_layer_collection = layer_col
-		
-			success = success and self.import_command(context, filepath=f)
+
+			succeeded = self.import_command(context, filepath=f)
+			success.append(succeeded)
 			self.imported_files.append(f)
+
+		self.current_batch_imported = True
 		return success
 
 	def get_compatible_extensions(self):
@@ -488,9 +508,10 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.current_files_to_import = []
 		self.importing = False
 		self.first_setting_to_import = True
-		self.import_complete = False
 		self.canceled = False
 		self.import_complete = False
+		self.current_batch_imported = False
+		self.files_succeeded = []
 		self.umi_settings.umi_last_setting_to_get = False
 		self.umi_settings.umi_ready_to_import = False
 		self.umi_settings.umi_current_format_setting_imported = False
@@ -510,11 +531,12 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.current_filenames = []
 		self.imported_files = []
 		self.operation_processed = 0
-		self.processing = False
 		self.show_scroll_text = False
 		self.start_time = 0
 		self.batch_number = 0
 		self.total_imported_size = 0
+		self.current_batch_imported = False
+		self.files_succeeded = []
 		self.umi_settings = context.scene.umi_settings
 		self.umi_settings.umi_import_settings.umi_import_cancelled = False
 		LOG.revert_parameters()

@@ -1,6 +1,6 @@
 import bpy
 import time, math
-from .constant import LOG, SUCCESS_COLOR, CANCELLED_COLOR, SCROLL_OFFSET_INCREMENT
+from .constant import LOG, SUCCESS_COLOR, CANCELLED_COLOR, ERROR_COLOR, SCROLL_OFFSET_INCREMENT
 from .property_group import TILA_umi_operator
 from .preferences import get_prefs
 
@@ -87,9 +87,14 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		if self.canceled:
 			LOG.info('Batch Process cancelled !', color=CANCELLED_COLOR)
 		else:
-			LOG.info('Batch Process completed successfully !', color=SUCCESS_COLOR)
-			LOG.esc_message = '[Esc] to Hide'
-			LOG.message_offset = 4
+			if False in self.process_succeeded:
+				LOG.info('Batch Process completed with errors !', color=ERROR_COLOR)
+				LOG.esc_message = '[Esc] to Hide'
+				LOG.message_offset = 4
+			else:
+				LOG.info('Batch Process completed successfully !', color=SUCCESS_COLOR)
+				LOG.esc_message = '[Esc] to Hide'
+				LOG.message_offset = 4
 		LOG.info('Click [ESC] to hide this text ...')
 		LOG.info('-----------------------------------')
 		self.end_text_written = True
@@ -134,7 +139,11 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 				self.log_end_text()
 				LOG.completed = True
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-
+			
+			if event.type in {'WHEELUPMOUSE'} and event.ctrl and event.shift:
+				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT * 9
+			elif event.type in {'WHEELDOWNMOUSE'} and event.ctrl and event.shift:
+				LOG.scroll_offset += SCROLL_OFFSET_INCREMENT * 9
 			if event.type in {'WHEELUPMOUSE'} and event.ctrl:
 				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
@@ -206,10 +215,12 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 					bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 					exec(self.current_command, {'bpy':bpy})
 					LOG.store_success('Command executed successfully')
+					self.process_succeeded.append(True)
 				except Exception as e:
 					message = 'Command "{}" is not valid - {}'.format(self.current_command, e)
 					LOG.error(message)
 					LOG.store_failure(message)
+					self.process_succeeded.append(False)
 				
 				self.current_command = None
 
@@ -223,6 +234,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.succeedeed = False
 		self.end_text_written = False
 		self.start_time = 0
+		self.process_succeeded = []
 		LOG.esc_message = '[Esc] to Cancel'
 		LOG.message_offset = 15
 		LOG.show_log = self.preferences.show_log_on_3d_view
@@ -277,6 +289,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		self.end = False
 		self.completed = False
 		self.end_text_written = False
+		self.process_succeeded = []
 		context.window_manager.event_timer_remove(self._timer)
 		if not self.importer_mode:
 			LOG.clear_all()

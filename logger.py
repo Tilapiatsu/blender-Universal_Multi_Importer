@@ -168,9 +168,11 @@ class Logger(object):
 		# [SCROLL]
 		if self.completed:
 			message = "[CTRL] + [SCROLL_WHEEL] to parse Log"
-			blf.position(font_id, offset -155, self.fontsize + line_width, 0)
+			blf.position(font_id, offset -155, self.fontsize + line_width * 2, 0)
 			blf.draw(font_id, message)
-	
+			message = "[CTRL] + [SHIFT] + [SCROLL_WHEEL] to parse Log Faster"
+			blf.position(font_id, offset -250, self.fontsize + line_width, 0)
+			blf.draw(font_id, message)
 
 
 class LoggerProgress(Logger):
