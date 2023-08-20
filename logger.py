@@ -141,6 +141,7 @@ class Logger(object):
 		blf.size(font_id, self.fontsize, 72)
 		pos = 30
 		line_width = self.fontsize + 3
+		
 		for m in reversed(self.messages):
 			blf.color(font_id, m['color'].r, m['color'].g, m['color'].b, 0.5)
 			blf.position(font_id, self.fontsize, pos + self.scroll_offset, 0)

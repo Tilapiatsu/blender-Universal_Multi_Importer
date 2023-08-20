@@ -454,7 +454,9 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 
 			LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=(0.13, 0.69, 0.72))
 			self.current_backup_step += current_file_size
-			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+			
+			if self.force_refresh_viewport_after_each_import:
+				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 			if self.create_collection_per_file:
 				collection = bpy.data.collections.new(name=filename)
@@ -503,6 +505,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		self.preferences = get_prefs()
 		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
 		self.wait_before_hiding = self.preferences.wait_before_hiding
+		self.force_refresh_viewport_after_each_import = self.preferences.force_refresh_viewport_after_each_import
 		self.current_files_to_import = []
 		self.current_filenames = []
 		self.imported_files = []
