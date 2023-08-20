@@ -10,7 +10,7 @@ class TILA_UL_umi_operator_list(bpy.types.UIList):
 		grid = layout.grid_flow(columns=2, align=True, even_columns=True)
 		row = grid.row()
 		row.alignment = 'LEFT'
-		row.label(text=f'{item.operator}')
+		row.label(text=f'{index + 1} : {item.operator}')
 
 		row = grid.row(align=True)
 		row.alignment = 'RIGHT'
