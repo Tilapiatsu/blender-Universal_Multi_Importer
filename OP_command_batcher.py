@@ -217,7 +217,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 					LOG.store_success('Command executed successfully')
 					self.process_succeeded.append(True)
 				except Exception as e:
-					message = 'Command "{}" is not valid - {}'.format(self.current_command, e)
+					message = f'{context.selected_objects[0].name} : Command "{self.current_command}" is not valid - {e}'
 					LOG.error(message)
 					LOG.store_failure(message)
 					self.process_succeeded.append(False)
