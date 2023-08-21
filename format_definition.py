@@ -12,7 +12,7 @@ class FormatDefinition(object):
 			'module' : 'IMPORT_SCENE_OT_fbx',
 			'ignore': ['files', 'directory']}
 	gltf = {'name' : 'gltf',
-			'ext' : ['.gltf'],
+			'ext' : ['.glb', '.gltf'],
 			'operator' : {'default':'bpy.ops.import_scene.gltf'},
 			'module' : 'IMPORT_SCENE_OT_gltf',
 			'ignore': ['files', 'directory']}
