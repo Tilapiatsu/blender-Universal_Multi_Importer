@@ -2,10 +2,13 @@
 ### Import any number of suported formats
 With this addon, you can import multiple files of different formats from the same import dialog. Just click on `File`>`Import`>`Universal Multi Importer`, select the files and clic on `Import ALL`,  and the addon will take care of using the proper import command.
 
-### Progressive import
-This addon also allows you to progressively import each files and see the viewport updating live, prevent the windows to freeze for many seconds. It is also designed to import big data sets with ease, making the import process more stable and predictable.
+### Interactive Import
+This addon also allows you to progressively import each files and see the viewport updating live, preventing the windows to freeze for many seconds. It is also designed to import big set of files with ease, making the import process more stable and predictable.
 
-### Command Batcher
+# Command Batcher
+Just select any objects in your scene, then clic on `Object`>`Command Batcher` and you will be able to process all selected files with the python commands that you inputed.
+
+### Import and Batch
 You can also batch process imported files right after import with custom macros
 
 # Supported Formats
@@ -43,6 +46,3 @@ You can also batch process imported files right after import with custom macros
 | **Command Batcher** ||
 | Batch Process Imported Files | You create a macro like pyhon commands list. These commands will be executed in a row to all the imported objects after each importes batch.<br><br> It will process in that order :<br> - Import Batch 1<br>-  Run all batch commands in order<br>-  Repeat for next Batches...  <br><br>For exemple, if you add this command "`bpy.ops.transform.translate(value=(10, 0, 0))`", each imported file will be translated 10 meters away on positive X axis <br><br> Please note how the commands are written with `bpy.ops` and all parameters in parentheses <br> You can't create variable, for loops or if statements. Just commands that blender will execute|
 | Batch Process Preset | You can save any list of commands from `batch process Imported files` to a preset that will be saved on disk. Here you can manage the presets: <br>- Creating preset<br>- Loading Preset <br>- Removing Preset<br>- Renaming Preset|
-
-# Standalone Batch Processor
-You can be use in a standalone mode. Just select any objects in your scene, then clic on `Object`>`Command Batcher` and you will be able to process all selected files with the selected commands
