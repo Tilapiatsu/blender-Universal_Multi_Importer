@@ -1,6 +1,23 @@
 import bpy
 from .constant import COMPATIBLE_FORMATS
 
+### from https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
+# class BaseClass(object):
+#     def __init__(self, classtype):
+#         self._type = classtype
+
+# def ClassFactory(name, argnames, BaseClass=BaseClass):
+#     def __init__(self, **kwargs):
+#         for key, value in kwargs.items():
+#             # here, the argnames variable is the one passed to the
+#             # ClassFactory call
+#             if key not in argnames:
+#                 raise TypeError("Argument %s not valid for %s" 
+#                     % (key, self.__class__.__name__))
+#             setattr(self, key, value)
+#         BaseClass.__init__(self, name[:-len("Class")])
+#     newclass = type(name, (BaseClass,),{"__init__": __init__})
+#     return newclass
 
 class TILA_format_class_creator(object):
 	def __init__(self):
