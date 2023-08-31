@@ -41,7 +41,8 @@ class TILA_format_class_creator(object):
 		print(f'create class from module {f["module"]}')
 		format_module = getattr(bpy.types, f['module'], None)
 		if format_module is None:
-			raise Exception(f"Invalid module name passed : {f['module']}")
+			print(f"Invalid module name passed : {f['module']}\nOr importer addon is disable")
+			return None
 		format_annotations = getattr(format_module, "__annotations__", None)
 		
 		exec('from .constant import TILA_umi_{}_settings'.format(f['name']))
@@ -84,8 +85,12 @@ class TILA_format_class_creator(object):
 
 	def register_compatible_formats(self):
 		for c in self.compatible_formats_class:
+			if c is None:
+				continue
 			bpy.utils.register_class(c)
 	
 	def unregister_compatible_formats(self):
 		for c in reversed(self.compatible_formats_class):
+			if c is None:
+				continue
 			bpy.utils.unregister_class(c)
