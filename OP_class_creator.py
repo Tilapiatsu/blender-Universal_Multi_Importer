@@ -87,10 +87,16 @@ class TILA_format_class_creator(object):
 		for c in self.compatible_formats_class:
 			if c is None:
 				continue
-			bpy.utils.register_class(c)
+			try:
+				bpy.utils.register_class(c)
+			except ValueError:
+				pass
 	
 	def unregister_compatible_formats(self):
 		for c in reversed(self.compatible_formats_class):
 			if c is None:
 				continue
-			bpy.utils.unregister_class(c)
+			try:
+				bpy.utils.unregister_class(c)
+			except ValueError:
+				pass
