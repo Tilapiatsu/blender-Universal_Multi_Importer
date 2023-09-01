@@ -75,10 +75,11 @@ def register():
 	bpy.types.VIEW3D_MT_object.append(menu_func_object)
 
 def unregister():
-	for cls in reversed(classes):
-		bpy.utils.unregister_class(cls)
 	parser = TILA_format_class_creator()
 	parser.unregister_compatible_formats()
+	
+	for cls in reversed(classes):
+		bpy.utils.unregister_class(cls)
 	del bpy.types.Scene.umi_settings
 	bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
 	bpy.types.VIEW3D_MT_object.remove(menu_func_object)
