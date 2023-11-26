@@ -1,20 +1,19 @@
 import os
 import bpy
-from .logger import LoggerProgress
+from .logger import Logger
 from .format_definition import FormatDefinition
 import inspect
 from .property_group import TILA_umi_import_settings
 
 
 PRESET_FOLDER = os.path.join(os.path.dirname(__file__), 'Preset')
-LOG = LoggerProgress('UMI')
+LOG = Logger('UMI')
 FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('__')]
 SUCCESS_COLOR = (0.1, 1.0, 0.1)
 CANCELLED_COLOR = (1.0, 0.4, 0.1)
 ERROR_COLOR = (1.0, 0.1, 0.1)
 SCROLL_OFFSET_INCREMENT = 50
 UMIPRESET_EXTENSION = '.umipreset'
-
 
 class TILA_compatible_formats(object):
 	for format in FORMATS:
