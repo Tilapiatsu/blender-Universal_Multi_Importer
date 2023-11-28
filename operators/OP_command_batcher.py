@@ -1,8 +1,8 @@
 import bpy
 import time, math
-from .constant import LOG, SUCCESS_COLOR, CANCELLED_COLOR, ERROR_COLOR, SCROLL_OFFSET_INCREMENT
-from .property_group import TILA_umi_operator
-from .preferences import get_prefs
+from ..formats.properties import PG_Operator
+from ..logger import LOG, LoggerColors
+from ..preferences import get_prefs
 
 def draw_command_batcher(self, context):
 	layout = self.layout
@@ -44,12 +44,12 @@ def draw_command_batcher(self, context):
 	col2.operator('scene.umi_clear_presets', text='', icon='TRASH')
 	
 
-class TILA_umi_command_batcher(bpy.types.Operator):
+class CommandBatcher(bpy.types.Operator):
 	bl_idname = "object.tila_umi_command_batcher"
 	bl_label = "Command Batcher"
 	bl_options = {'REGISTER'}
 
-	operator_list : bpy.props.CollectionProperty(type=TILA_umi_operator)
+	operator_list : bpy.props.CollectionProperty(type=PG_Operator)
 	importer_mode : bpy.props.BoolProperty(name='Importer_mode', default=False) 
 	
 	finished = False
@@ -85,14 +85,14 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 	def log_end_text(self):
 		LOG.info('-----------------------------------')
 		if self.canceled:
-			LOG.info('Batch Process cancelled !', color=CANCELLED_COLOR)
+			LOG.info('Batch Process cancelled !', color=LoggerColors.CANCELLED_COLOR)
 		else:
 			if False in self.process_succeeded:
-				LOG.info('Batch Process completed with errors !', color=ERROR_COLOR)
+				LOG.info('Batch Process completed with errors !', color=LoggerColors.ERROR_COLOR)
 				LOG.esc_message = '[Esc] to Hide'
 				LOG.message_offset = 4
 			else:
-				LOG.info('Batch Process completed successfully !', color=SUCCESS_COLOR)
+				LOG.info('Batch Process completed successfully !', color=LoggerColors.SUCCESS_COLOR)
 				LOG.esc_message = '[Esc] to Hide'
 				LOG.message_offset = 4
 		LOG.info('Click [ESC] to hide this text ...')
@@ -141,15 +141,15 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 			
 			if event.type in {'WHEELUPMOUSE'} and event.ctrl and event.shift:
-				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT * 9
+				LOG.scroll(up=True, multiplier=9)
 			elif event.type in {'WHEELDOWNMOUSE'} and event.ctrl and event.shift:
-				LOG.scroll_offset += SCROLL_OFFSET_INCREMENT * 9
+				LOG.scroll(up=False, multiplier=9)
 			if event.type in {'WHEELUPMOUSE'} and event.ctrl:
-				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT
+				LOG.scroll(up=True)
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				return {'PASS_THROUGH'}
 			elif event.type in {'WHEELDOWNMOUSE'} and event.ctrl:
-				LOG.scroll_offset += SCROLL_OFFSET_INCREMENT
+				LOG.scroll(up=False)
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				return {'PASS_THROUGH'}
 			
@@ -211,7 +211,7 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 					self.progress += 100 / self.number_of_operations_to_perform
 					self.current_operation_number += 1
 					
-					LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=(0.95, 0.91, 0.10))
+					LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=LoggerColors.COMMAND_COLOR)
 					bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 					exec(self.current_command, {'bpy':bpy})
 					LOG.store_success('Command executed successfully')
@@ -322,3 +322,19 @@ class TILA_umi_command_batcher(bpy.types.Operator):
 		bpy.ops.object.select_all(action='DESELECT')
 		bpy.data.objects[self.current_object_to_process.name].select_set(True)
 		self.fill_operator_to_process()
+
+classes = (CommandBatcher,)
+
+def register():
+	from bpy.utils import register_class
+	for cls in classes:
+		register_class(cls)
+
+
+def unregister():
+	from bpy.utils import unregister_class
+	for cls in reversed(classes):
+		unregister_class(cls)
+
+if __name__ == "__main__":
+	register()

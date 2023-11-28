@@ -1,11 +1,10 @@
 import bpy
-import os, sys
-from .constant import PRESET_FOLDER
-
+import os
+from .operators_const import PRESET_FOLDER
 
 if not os.path.exists(PRESET_FOLDER):
-	print(f'UMI : Creating Preset Folder : {PRESET_FOLDER}')
-	os.mkdir(PRESET_FOLDER)
+		print(f'UMI : Creating Preset Folder : {PRESET_FOLDER}')
+		os.mkdir(PRESET_FOLDER)
 
 def get_operator(context):
 	idx = context.scene.umi_settings.umi_operator_idx
@@ -16,7 +15,7 @@ def get_operator(context):
 	return idx, operators, active
 
 
-class UMI_UI_MoveOperator(bpy.types.Operator):
+class UI_MoveOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_move_operator"
 	bl_label = "Move Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -42,7 +41,7 @@ class UMI_UI_MoveOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UMI_UI_ClearOperators(bpy.types.Operator):
+class UI_ClearOperators(bpy.types.Operator):
 	bl_idname = "scene.umi_clear_operators"
 	bl_label = "Clear All Operators"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -62,7 +61,7 @@ class UMI_UI_ClearOperators(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UMI_UI_RemoveOperator(bpy.types.Operator):
+class UI_RemoveOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_remove_operator"
 	bl_label = "Remove Selected Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -88,7 +87,7 @@ class UMI_UI_RemoveOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UMI_UI_DuplicateOperator(bpy.types.Operator):
+class UI_DuplicateOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_duplicate_operator"
 	bl_label = "Duplicate Selected Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -110,7 +109,7 @@ class UMI_UI_DuplicateOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UMI_UI_EditOperator(bpy.types.Operator):
+class UI_EditOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_edit_operator"
 	bl_label = "Edit Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -136,7 +135,7 @@ class UMI_UI_EditOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UMI_UI_AddOperator(bpy.types.Operator):
+class UI_AddOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_add_operator"
 	bl_label = "Add Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -157,3 +156,25 @@ class UMI_UI_AddOperator(bpy.types.Operator):
 		o = context.scene.umi_settings.umi_operators.add()
 		o.operator = self.operator
 		return {'FINISHED'}
+	
+
+classes = ( UI_MoveOperator, 
+			UI_ClearOperators, 
+			UI_RemoveOperator, 
+			UI_DuplicateOperator,
+			UI_EditOperator,
+			UI_AddOperator)
+
+def register():
+	from bpy.utils import register_class
+	for cls in classes:
+		register_class(cls)
+
+
+def unregister():
+	from bpy.utils import unregister_class
+	for cls in reversed(classes):
+		unregister_class(cls)
+
+if __name__ == "__main__":
+	register()

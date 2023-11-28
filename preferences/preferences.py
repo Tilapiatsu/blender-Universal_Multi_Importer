@@ -1,12 +1,12 @@
 import bpy
-import os
+from .. import ADDON_PACKAGE
 
 
 def get_prefs():
-    return bpy.context.preferences.addons['universal_multi_importer'].preferences
+    return bpy.context.preferences.addons[ADDON_PACKAGE].preferences
 
-class UMI_Preferences(bpy.types.AddonPreferences):
-    bl_idname = __package__
+class Preferences(bpy.types.AddonPreferences):
+    bl_idname = ADDON_PACKAGE
 
     show_log_on_3d_view : bpy.props.BoolProperty(name="Show Log on 3D View", default=True)
     auto_hide_text_when_finished : bpy.props.BoolProperty(name="Auto Hide Text When Finished", default=False)
@@ -26,4 +26,17 @@ class UMI_Preferences(bpy.types.AddonPreferences):
         box.prop(self, 'force_refresh_viewport_after_each_import')
 
 
+classes = (Preferences,)
 
+def register():
+	from bpy.utils import register_class
+	for cls in classes:
+		register_class(cls)
+
+def unregister():
+	from bpy.utils import unregister_class
+	for cls in reversed(classes):
+		unregister_class(cls)
+
+if __name__ == "__main__":
+	register()

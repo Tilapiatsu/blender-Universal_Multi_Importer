@@ -1,16 +1,16 @@
 import bpy
-from .constant import LOG, COMPATIBLE_FORMATS, SUCCESS_COLOR, CANCELLED_COLOR, ERROR_COLOR, SCROLL_OFFSET_INCREMENT
 from bpy_extras.io_utils import ImportHelper
 import os, time
 from os import path
 import math
 from string import punctuation
-from .format_handler import TILA_umi_format_handler
+from ..formats import FormatHandler, COMPATIBLE_FORMATS
 from .OP_command_batcher import draw_command_batcher
-from .preferences import get_prefs
+from ..preferences import get_prefs
+from ..logger import LOG, LoggerColors
 
 
-class TILA_umi_settings(bpy.types.Operator, ImportHelper):
+class UMI_Settings(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.tila_universal_multi_importer_settings"
 	bl_label = "Import ALL"
 	bl_options = {'REGISTER', 'INTERNAL'}
@@ -49,7 +49,7 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 	def invoke(self, context, event):
 		key_to_delete = []
 		self.registered_annotations = []
-		self.format_handler = eval('TILA_umi_format_handler(import_format="{}", context=cont)'.format(self.import_format), {'self':self, 'TILA_umi_format_handler':TILA_umi_format_handler, 'cont':context})
+		self.format_handler = eval('FormatHandler(import_format="{}", context=cont)'.format(self.import_format), {'self':self, 'FormatHandler':FormatHandler, 'cont':context})
 
 		for k,v in self.format_handler.format_annotations.items():
 			if getattr(v, 'is_hidden', False) or getattr(v, 'is_readonly', False):
@@ -72,8 +72,8 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 		for k in key_to_delete:
 			del self.format_handler.format_annotations[k]
 
-		bpy.utils.unregister_class(TILA_umi_settings)
-		bpy.utils.register_class(TILA_umi_settings)
+		bpy.utils.unregister_class(UMI_Settings)
+		bpy.utils.register_class(UMI_Settings)
 
 		wm = context.window_manager
 		if len(self.format_handler.format_annotations)-2 > 0 :
@@ -92,7 +92,7 @@ class TILA_umi_settings(bpy.types.Operator, ImportHelper):
 					col.prop(self, k)
 
 
-class TILA_umi(bpy.types.Operator, ImportHelper):
+class UMI(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.tila_universal_multi_importer"
 	bl_label = "Import ALL"
 	bl_options = {'REGISTER', 'INTERNAL', 'PRESET'}
@@ -149,15 +149,15 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		LOG.info('-----------------------------------')
 		if self.import_complete:
 			if False in self.files_succeeded:
-				LOG.info('Batch Import completed with errors !', color=ERROR_COLOR)
+				LOG.info('Batch Import completed with errors !', color=LoggerColors.ERROR_COLOR)
 				LOG.esc_message = '[Esc] to Hide'
 				LOG.message_offset = 4
 			else:
-				LOG.info('Batch Import completed successfully !', color=SUCCESS_COLOR)
+				LOG.info('Batch Import completed successfully !', color=LoggerColors.SUCCESS_COLOR)
 				LOG.esc_message = '[Esc] to Hide'
 				LOG.message_offset = 4
 		else:
-			LOG.info('Batch Import cancelled !', color=CANCELLED_COLOR)
+			LOG.info('Batch Import cancelled !', color=LoggerColors.CANCELLED_COLOR)
 			
 		LOG.info('Click [ESC] to hide this text ...')
 		LOG.info('-----------------------------------')
@@ -259,15 +259,15 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 				self.show_scroll_text = True
 				
 			if event.type in {'WHEELUPMOUSE'} and event.ctrl and event.shift:
-				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT * 9
+				LOG.scroll(up=True, multiplier=9)
 			elif event.type in {'WHEELDOWNMOUSE'} and event.ctrl and event.shift:
-				LOG.scroll_offset += SCROLL_OFFSET_INCREMENT * 9
+				LOG.scroll(up=False, multiplier=9)
 			if event.type in {'WHEELUPMOUSE'} and event.ctrl:
-				LOG.scroll_offset -= SCROLL_OFFSET_INCREMENT
+				LOG.scroll(up=True)
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				return {'PASS_THROUGH'}
 			elif event.type in {'WHEELDOWNMOUSE'} and event.ctrl:
-				LOG.scroll_offset += SCROLL_OFFSET_INCREMENT
+				LOG.scroll(up=False)
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				return {'PASS_THROUGH'}
 			
@@ -469,7 +469,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 			self.total_imported_size += current_file_size
 			self.update_progress()
 
-			LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=(0.13, 0.69, 0.72))
+			LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=LoggerColors.IMPORT_COLOR)
 			self.current_backup_step += current_file_size
 			
 			if self.force_refresh_viewport_after_each_import:
@@ -520,8 +520,8 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		LOG.clear_all()
 	
 	def execute(self,context):
-		bpy.utils.unregister_class(TILA_umi_settings)
-		bpy.utils.register_class(TILA_umi_settings)
+		bpy.utils.unregister_class(UMI_Settings)
+		bpy.utils.register_class(UMI_Settings)
 		self.current_blend_file = bpy.data.filepath
 		self.preferences = get_prefs()
 		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
@@ -545,7 +545,7 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		LOG.message_offset = 15
 
 		for f in COMPATIBLE_FORMATS.formats:
-			exec('self.{}_format = TILA_umi_format_handler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'TILA_umi_format_handler':TILA_umi_format_handler, 'cont':context})
+			exec('self.{}_format = FormatHandler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'FormatHandler':FormatHandler, 'cont':context})
 
 		if not path.exists(self.current_blend_file):
 			LOG.warning('Blender file not saved')
@@ -681,3 +681,20 @@ class TILA_umi(bpy.types.Operator, ImportHelper):
 		if self._timer is not None:
 			wm = context.window_manager
 			wm.event_timer_remove(self._timer)
+
+
+classes = (UMI_Settings, UMI)
+
+def register():
+	from bpy.utils import register_class
+	for cls in classes:
+		register_class(cls)
+
+
+def unregister():
+	from bpy.utils import unregister_class
+	for cls in reversed(classes):
+		unregister_class(cls)
+
+if __name__ == "__main__":
+	register()

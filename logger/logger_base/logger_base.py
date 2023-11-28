@@ -1,6 +1,7 @@
 import bpy, os, logging, tempfile
 from os import path
 from mathutils import Color
+from .logger_const import LoggerColors
 
 def get_log_file():
 	try:
@@ -18,7 +19,7 @@ def get_log_file():
 def color_mult(c1, c2):
 	return Color((c1.r * c2.r, c1.g * c2.g, c1.b * c2.b))
 
-class Logger(object):
+class Logger():
 	def __init__(self, context='ROOT'):
 		self.context = context
 		self.module_name = os.path.basename(os.path.dirname(os.path.realpath(__file__))).capitalize
@@ -30,11 +31,6 @@ class Logger(object):
 		self.successes = []
 		self.failures = []
 		self.messages = []
-		self.esc_message = ''
-		self.message_offset = 0
-		self.scroll_offset = 0
-		self.completed = False
-		self.show_log = True
 
 		self._pretty = '---------------------'
 
@@ -42,8 +38,6 @@ class Logger(object):
 		self.fontsize = 12
 	
 	def revert_parameters(self):
-		self.scroll_offset = 0
-		self.completed = False
 		self.successes = []
 		self.failures = []
 		self.messages = []

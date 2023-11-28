@@ -1,6 +1,6 @@
 import bpy
 import os, shutil
-from .constant import PRESET_FOLDER, UMIPRESET_EXTENSION
+from .operators_const import PRESET_FOLDER, UMIPRESET_EXTENSION
 
 def get_presets(context):
 	idx = context.scene.umi_settings.umi_preset_idx
@@ -11,7 +11,7 @@ def get_presets(context):
 	return idx, presets, active
 
 
-class UMI_UI_MovePreset(bpy.types.Operator):
+class UI_MovePreset(bpy.types.Operator):
 	bl_idname = "scene.umi_move_preset"
 	bl_label = "Move Preset"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -37,7 +37,7 @@ class UMI_UI_MovePreset(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UMI_UI_ClearPresets(bpy.types.Operator):
+class UI_ClearPresets(bpy.types.Operator):
 	bl_idname = "scene.umi_clear_presets"
 	bl_label = "Clear All Presets"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -57,7 +57,7 @@ class UMI_UI_ClearPresets(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UMI_UI_RemovePreset(bpy.types.Operator):
+class UI_RemovePreset(bpy.types.Operator):
 	bl_idname = "scene.umi_remove_preset"
 	bl_label = "Remove Selected Preset"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -86,7 +86,7 @@ class UMI_UI_RemovePreset(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UMI_UI_DuplicatePreset(bpy.types.Operator):
+class UI_DuplicatePreset(bpy.types.Operator):
 	bl_idname = "scene.umi_duplicate_preset"
 	bl_label = "Duplicate Selected Preset"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -176,7 +176,7 @@ class UMI_UI_DuplicatePreset(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UMI_UI_EditPreset(bpy.types.Operator):
+class UI_EditPreset(bpy.types.Operator):
 	bl_idname = "scene.umi_edit_preset"
 	bl_label = "Edit Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -206,7 +206,7 @@ class UMI_UI_EditPreset(bpy.types.Operator):
 		return {'FINISHED'}	
 
 
-class UMI_UI_AddPreset(bpy.types.Operator):
+class UI_AddPreset(bpy.types.Operator):
 	bl_idname = "scene.umi_add_preset"
 	bl_label = "Add Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -233,7 +233,7 @@ class UMI_UI_AddPreset(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UMI_UI_SavePresetOperator(bpy.types.Operator):
+class UI_SavePresetOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_save_preset_operator"
 	bl_label = "Save Preset"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -259,7 +259,7 @@ class UMI_UI_SavePresetOperator(bpy.types.Operator):
 		return {'FINISHED'}
 	
 
-class UMI_UI_LoadPresetOperator(bpy.types.Operator):
+class UI_LoadPresetOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_load_preset_operator"
 	bl_label = "Load Preset"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -277,7 +277,7 @@ class UMI_UI_LoadPresetOperator(bpy.types.Operator):
 		return {'FINISHED'}
 	
 
-class UMI_UI_LoadPresetList(bpy.types.Operator):
+class UI_LoadPresetList(bpy.types.Operator):
 	bl_idname = "scene.umi_load_preset_list"
 	bl_label = "Load Preset"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -292,3 +292,28 @@ class UMI_UI_LoadPresetList(bpy.types.Operator):
 			bpy.ops.scene.umi_add_preset('EXEC_DEFAULT', name=os.path.splitext(p)[0], from_list=False)
 
 		return {'FINISHED'}
+	
+
+classes = ( UI_MovePreset, 
+            UI_ClearPresets, 
+            UI_RemovePreset, 
+            UI_DuplicatePreset,
+            UI_EditPreset,
+            UI_AddPreset,
+			UI_SavePresetOperator,
+			UI_LoadPresetOperator,
+			UI_LoadPresetList)
+
+def register():
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+
+
+def unregister():
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+
+if __name__ == "__main__":
+    register()

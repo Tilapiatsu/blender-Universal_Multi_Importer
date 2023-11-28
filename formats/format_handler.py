@@ -1,8 +1,7 @@
 import bpy
-from .constant import COMPATIBLE_FORMATS
+from . import COMPATIBLE_FORMATS
 
-
-class TILA_umi_format_handler(object):
+class FormatHandler():
 	import_format : bpy.props.StringProperty(name='Import Format', default="", options={'HIDDEN'},)
 
 	def __init__(self, import_format, context):
@@ -32,7 +31,7 @@ class TILA_umi_format_handler(object):
 	@property
 	def format_class(self):
 		if self._format_class is None:
-			self._format_class = eval('TILA_umi_{}_settings'.format(self.format_name))
+			self._format_class = eval('UMI_{}_settings'.format(self.format_name))
 		
 		return self._format_class
 

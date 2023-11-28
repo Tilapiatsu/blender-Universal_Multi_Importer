@@ -1,6 +1,6 @@
-from .blender_version import BVERSION
+from ..blender_version import BVERSION
 
-class FormatDefinition(object):
+class FormatDefinition():
 	if BVERSION >= 4.0:
 		obj = {'name' : 'obj',
 				'ext' : ['.obj'],
@@ -158,5 +158,4 @@ class FormatDefinition(object):
 								{"import_textures_mode": {'type':'bpy.props.EnumProperty', 'name':'"Import Textures"', 'default':'"IMPORT_PACK"', 'enum_items':[("IMPORT_NONE", "None", ""), ("IMPORT_PACK", "Packed", ""), ("IMPORT_COPY", "Copy", "")]},
 								"import_textures_dir": {'type':'bpy.props.StringProperty', 'name':'"Textures Directory"', 'default':'"//textures/"'},
 								"tex_name_collision_mode": {'type':'bpy.props.EnumProperty', 'name':'"File Name Collision"', 'default':'"USE_EXISTING"', 'enum_items':[("USE_EXISTING", "Use Existing", ""), ("OVERWRITE", "Overwrite Existing", "")]}}]]
-				}
-
+				                }

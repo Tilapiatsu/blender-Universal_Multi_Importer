@@ -1,5 +1,5 @@
 import bpy
-from .constant import COMPATIBLE_FORMATS
+from . import COMPATIBLE_FORMATS
 
 ### from https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
 # class BaseClass(object):
@@ -19,7 +19,7 @@ from .constant import COMPATIBLE_FORMATS
 #     newclass = type(name, (BaseClass,),{"__init__": __init__})
 #     return newclass
 
-class TILA_format_class_creator(object):
+class FormatClassCreator():
 	def __init__(self):
 		self._classes = None
 
@@ -45,8 +45,8 @@ class TILA_format_class_creator(object):
 			return None
 		format_annotations = getattr(format_module, "__annotations__", None)
 		
-		exec('from .constant import TILA_umi_{}_settings'.format(f['name']))
-		format_class = eval('TILA_umi_{}_settings'.format(f['name']))
+		exec('from . import UMI_{}_settings'.format(f['name']))
+		format_class = eval('UMI_{}_settings'.format(f['name']))
 		key_to_delete = []
 		for k,v in format_annotations.items():
 			if 'options' in v.keywords.keys():
@@ -68,8 +68,8 @@ class TILA_format_class_creator(object):
 	
 	def create_format_class_from_operator(self, f):
 		print(f'create class from operator {f["operator"]["default"]}')
-		exec('from .constant import TILA_umi_{}_settings'.format(f['name']))
-		format_class = eval('TILA_umi_{}_settings'.format(f['name']))
+		exec('from . import UMI_{}_settings'.format(f['name']))
+		format_class = eval('UMI_{}_settings'.format(f['name']))
 
 		if 'import_settings' in f.keys() :
 			for g in f['import_settings']:

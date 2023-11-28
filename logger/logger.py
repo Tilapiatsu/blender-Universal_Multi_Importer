@@ -1,12 +1,26 @@
 import bpy
 import blf
-from .logger_base import Logger
+from .logger_base import Logger, SCROLL_OFFSET_INCREMENT
 from ..blender_version import BVERSION
 
 class LoggerProgress(Logger):
 	def __init__(self, context='ROOT'):
 		super(LoggerProgress, self).__init__(context)
+		self.esc_message = ''
+		self.message_offset = 0
+		self.scroll_offset = 0
+		self.completed = False
+		self.show_log = True
 		
+	def revert_parameters(self):
+		super(LoggerProgress, self).revert_parameters()
+		self.scroll_offset = 0
+		self.completed = False
+	
+	def scroll(self, up=True, multiplier=1.0):
+		sign = -1.0 if up else 1.0
+		self.scroll_offset += sign * SCROLL_OFFSET_INCREMENT * multiplier
+
 	def draw_callback_px(self, context):
 		if not self.show_log and not self.completed:
 			return

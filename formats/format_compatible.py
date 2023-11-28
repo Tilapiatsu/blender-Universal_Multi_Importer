@@ -1,21 +1,9 @@
-import os
-import bpy
-from .logger import Logger
 from .format_definition import FormatDefinition
+from . import FORMATS
+from ..logger import LOG
 import inspect
-from .property_group import TILA_umi_import_settings
 
-
-PRESET_FOLDER = os.path.join(os.path.dirname(__file__), 'Preset')
-LOG = Logger('UMI')
-FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('__')]
-SUCCESS_COLOR = (0.1, 1.0, 0.1)
-CANCELLED_COLOR = (1.0, 0.4, 0.1)
-ERROR_COLOR = (1.0, 0.1, 0.1)
-SCROLL_OFFSET_INCREMENT = 50
-UMIPRESET_EXTENSION = '.umipreset'
-
-class TILA_compatible_formats(object):
+class CompatibleFormats():
 	for format in FORMATS:
 		exec('{} = {}'.format(format, getattr(FormatDefinition, format)))
 	
@@ -24,7 +12,7 @@ class TILA_compatible_formats(object):
 		self._operators = None
 		self._module = None		
 		# automatically gather format
-		attributes = inspect.getmembers(TILA_compatible_formats, lambda a:not(inspect.isroutine(a)))
+		attributes = inspect.getmembers(CompatibleFormats, lambda a:not(inspect.isroutine(a)))
 		self.formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
 
 
@@ -78,19 +66,3 @@ class TILA_compatible_formats(object):
 			formats[k] = v
 		
 		return formats
-
-
-COMPATIBLE_FORMATS = TILA_compatible_formats()
-
-# function to register dynamically generated classes for each compatible formats
-def register_import_setting_class():
-	for f in COMPATIBLE_FORMATS.formats:
-		cl_name = 'TILA_umi_{}_settings'.format(f[1]['name'])
-		cl = eval(cl_name)
-		exec('TILA_umi_import_settings.__annotations__["{}_import_settings"] = bpy.props.PointerProperty(type={})'.format(f[1]['name'], cl_name), {'bpy': bpy, 'TILA_umi_import_settings':TILA_umi_import_settings, cl_name:cl})
-		
-	TILA_umi_import_settings.umi_import_settings_registered = True
-	
-
-for f in COMPATIBLE_FORMATS.formats:
-	exec(f'class TILA_umi_{f[1]["name"]}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[1]["name"]}")')
