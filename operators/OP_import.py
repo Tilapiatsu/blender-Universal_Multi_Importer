@@ -10,9 +10,9 @@ from ..preferences import get_prefs
 from ..logger import LOG, LoggerColors
 
 
-class UMI_Settings(bpy.types.Operator, ImportHelper):
+class UMI_Settings(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_settings"
-	bl_label = "Import ALL"
+	bl_label = "Import Settings"
 	bl_options = {'REGISTER', 'INTERNAL'}
 	bl_region_type = "UI"
 
@@ -90,7 +90,47 @@ class UMI_Settings(bpy.types.Operator, ImportHelper):
 			for k in self.__class__.__annotations__.keys():
 				if not k in ['name', 'settings_imported', 'import_format']:
 					col.prop(self, k)
+	
+	def cancel(self, context):
+		self.execute(context)
 
+
+class UMI_FileSelection(bpy.types.Operator):
+	bl_idname = "import_scene.tila_universal_multi_importer_file_selection"
+	bl_label = "File Selection"
+	bl_options = {'REGISTER', 'INTERNAL'}
+	bl_region_type = "UI"
+
+
+	def invoke(self, context, event):
+		self.umi_settings = context.scene.umi_settings
+		self.umi_settings.umi_file_selection_started = True
+		wm = context.window_manager
+		return wm.invoke_props_dialog(self, width=900)
+
+	def execute(self, context):
+		self.umi_settings.umi_file_selection_done = True
+		return {'FINISHED'}
+
+	def draw(self, context):
+		layout = self.layout
+		row = layout.row()
+
+		rows = min(len(self.umi_settings.umi_file_selection) if len(self.umi_settings.umi_file_selection) > 2 else 2, 40)
+		row = layout.row()
+		row.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
+		col2 = row.column()
+		col2.separator()
+		col2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT').mode = 'SELECT_ALL'
+		col2.operator('scene.umi_select_file', text='', icon='CHECKBOX_DEHLT').mode = 'DESELECT_ALL'
+		# col2.separator()
+		# col2.operator('scene.umi_move_preset', text='', icon='TRIA_UP').direction = 'UP'
+		# col2.operator('scene.umi_move_preset', text='', icon='TRIA_DOWN').direction = 'DOWN'
+		# col2.separator()
+		# col2.operator('scene.umi_clear_presets', text='', icon='TRASH')
+		
+	def cancel(self, context):
+		self.execute(context)
 
 class UMI(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.tila_universal_multi_importer"
@@ -110,6 +150,10 @@ class UMI(bpy.types.Operator, ImportHelper):
 	save_file_after_import : bpy.props.BoolProperty(name='Save file after import', description='Save the original file when the entire import process is compete', default=False)
 	ignore_post_process_errors : bpy.props.BoolProperty(name='Ignore Post Process Errors', description='If any error occurs during post processing of imported file(s), error(s) will be ignore and the import process will continue to the next operation', default=True)
 	import_svg_as_grease_pencil : bpy.props.BoolProperty(name='Import SVG as Grease Pencil', description='SVG file will be imported as grease Pencil instead of curve objects', default=False)
+	recursion_depth : bpy.props.IntProperty(name='Recursion Depth', default=0, min=0, description='How many Subfolders will be used to search for compatible files to import.\n/!\ WARNING : A too big number may result of a huge number of files to import and may cause instability')
+	# Support Folder selection
+	filter_folder: bpy.props.BoolProperty(name = 'Import Directory', default = False, options = {"HIDDEN"})
+	directory: bpy.props.StringProperty(name="Outdir Path")
 
 	_timer = None
 	thread = None
@@ -129,6 +173,26 @@ class UMI(bpy.types.Operator, ImportHelper):
 	counter_end_time = 0.0
 	delta = 0.0
 	previous_counter = 0
+
+	@property
+	def filepaths(self):
+		if self._filepaths is None:
+			compatible_extensions = self.compatible_extensions
+			
+			if self.filter_folder:
+				self._filepaths = self.get_compatible_files_in_folder(self.directory, recursion_depth=self.recursion_depth)
+			else:
+				self._filepaths = [path.join(self.directory, f.name) for f in self.files if path.splitext(f.name)[1].lower() in compatible_extensions]
+		
+		return self._filepaths
+	
+	@filepaths.setter
+	def filepaths(self, value):
+		self._filepaths = value
+	
+	@property
+	def compatible_extensions(self):
+		return COMPATIBLE_FORMATS.extensions
 
 	def invoke(self, context, event):
 		bpy.context.scene.umi_settings.umi_batcher_is_processing = False
@@ -171,6 +235,8 @@ class UMI(bpy.types.Operator, ImportHelper):
 		
 		import_count = col.box()
 		import_count.label(text='File Count')
+		if self.filter_folder:
+			import_count.prop(self, 'recursion_depth')
 		import_count.prop(self, 'import_simultaneously_count')
 		import_count.prop(self, 'max_batch_size')
 		if self.max_batch_size:
@@ -231,6 +297,16 @@ class UMI(bpy.types.Operator, ImportHelper):
 		# gather import setting from the user for each format selected
 		bpy.ops.import_scene.tila_universal_multi_importer_settings('INVOKE_DEFAULT', import_format=self.current_format['name'])
 		self.first_setting_to_import = False
+
+	def select_files(self):
+		for f in self.filepaths:
+			filepath = self.umi_settings.umi_file_selection.add()
+			filepath.name = f
+			filepath.path = f
+			filesize = round(self.get_filesize(f), 2)
+			filepath.size = filesize
+
+		bpy.ops.import_scene.tila_universal_multi_importer_file_selection('INVOKE_DEFAULT')
 
 	def finish(self, context, canceled=False):
 		bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
@@ -299,6 +375,20 @@ class UMI(bpy.types.Operator, ImportHelper):
 			return {'RUNNING_MODAL'}
 		
 		if event.type == 'TIMER':
+			# Select files if in folder mode
+			if self.filter_folder and not self.umi_settings.umi_file_selection_done:
+				if not self.umi_settings.umi_file_selection_started:
+					self.select_files()
+				return {'PASS_THROUGH'}
+			# File Selection is approved and fed into self.filepaths
+			elif self.filter_folder and self.umi_settings.umi_file_selection_done and self.umi_settings.umi_file_selection_started:
+				self.filepaths = [f.path for f in self.umi_settings.umi_file_selection if f.check]
+				self.store_formats_to_import()
+				LOG.info(f'{len(self.filepaths)}  files selected')
+				LOG.separator()
+				self.umi_settings.umi_file_selection.clear()
+				self.umi_settings.umi_file_selection_started = False
+
 			# Loop through all import format settings
 			if not self.umi_settings.umi_ready_to_import:
 				if not self.first_setting_to_import:
@@ -490,8 +580,18 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.current_batch_imported = True
 		return success
 
-	def get_compatible_extensions(self):
-		return COMPATIBLE_FORMATS.extensions
+	def get_compatible_files_in_folder(self, folder_path, recursion_depth=0):
+		compatible_files = []
+		for f in os.listdir(folder_path):
+			filepath = path.join(folder_path, f)
+			if path.isfile(filepath):
+				if path.splitext(f)[1] in self.compatible_extensions:
+					compatible_files.append(filepath)
+			elif path.isdir(filepath):
+				if recursion_depth > 0:
+					compatible_files = compatible_files + self.get_compatible_files_in_folder(filepath, recursion_depth-1)
+
+		return compatible_files
 
 	def store_formats_to_import(self):
 		for f in self.filepaths:
@@ -519,9 +619,10 @@ class UMI(bpy.types.Operator, ImportHelper):
 		LOG.revert_parameters()
 		LOG.clear_all()
 	
-	def execute(self,context):
+	def init_importer(self, context):
 		bpy.utils.unregister_class(UMI_Settings)
 		bpy.utils.register_class(UMI_Settings)
+		self._filepaths = None
 		self.current_blend_file = bpy.data.filepath
 		self.preferences = get_prefs()
 		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
@@ -539,10 +640,16 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.files_succeeded = []
 		self.umi_settings = context.scene.umi_settings
 		self.umi_settings.umi_import_settings.umi_import_cancelled = False
+		self.umi_settings.umi_file_selection.clear()
+		self.umi_settings.umi_file_selection_started = False
+		self.umi_settings.umi_file_selection_done = False
 		LOG.revert_parameters()
 		LOG.show_log = self.preferences.show_log_on_3d_view
 		LOG.esc_message = '[Esc] to Cancel'
 		LOG.message_offset = 15
+
+	def execute(self,context):
+		self.init_importer(context)
 
 		for f in COMPATIBLE_FORMATS.formats:
 			exec('self.{}_format = FormatHandler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'FormatHandler':FormatHandler, 'cont':context})
@@ -556,10 +663,6 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 		self.blend_backup_file = autosave
 		
-		compatible_extensions = self.get_compatible_extensions()
-		self.folder = (os.path.dirname(self.filepath))
-		self.filepaths = [path.join(self.folder, f.name) for f in self.files if path.splitext(f.name)[1].lower() in compatible_extensions]
-
 		if not len(self.filepaths):
 			message = "No compatible file selected"
 			LOG.error(message)
@@ -582,10 +685,12 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.root_collection = bpy.context.collection
 		self.current_file_number = 0
 
-
 		self.umi_settings.umi_ready_to_import = False
 
-		self.store_formats_to_import()
+		# If in File mode Store Format to import now. If in folder mode, formats will be stored after file selection
+		if not self.filter_folder:
+			self.store_formats_to_import()
+
 		self.objects_to_process = []
 		self.current_object_to_process = None
 		self.operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
@@ -597,7 +702,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self._timer = wm.event_timer_add(0.01, window=context.window)
 		wm.modal_handler_add(self)
 		return {'RUNNING_MODAL'}
-	
+
 	def sort_zipped_list(self, zipped):
 		sorted_filepaths = []
 		i = 0
@@ -682,16 +787,25 @@ class UMI(bpy.types.Operator, ImportHelper):
 			wm = context.window_manager
 			wm.event_timer_remove(self._timer)
 
+# function to append the operator in the File>Import menu
+def menu_func_import(self, context):
+	op = self.layout.operator(UMI.bl_idname, text="Universal Multi Importer Files", icon='LONGDISPLAY')
+	op.filter_folder = False
+	op = self.layout.operator(UMI.bl_idname, text="Universal Multi Importer Folders", icon='FILEBROWSER')
+	op.filter_folder = True
 
-classes = (UMI_Settings, UMI)
+classes = (UMI_Settings, UMI_FileSelection, UMI)
 
 def register():
 	from bpy.utils import register_class
 	for cls in classes:
 		register_class(cls)
-
+		
+	bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
 
 def unregister():
+	bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
+
 	from bpy.utils import unregister_class
 	for cls in reversed(classes):
 		unregister_class(cls)

@@ -323,15 +323,25 @@ class CommandBatcher(bpy.types.Operator):
 		bpy.data.objects[self.current_object_to_process.name].select_set(True)
 		self.fill_operator_to_process()
 
+# function to append the operator in the File>Import menu
+def menu_func_object(self, context):
+	self.layout.separator()
+	op = self.layout.operator(CommandBatcher.bl_idname, text="Command Batcher", icon='SHORTDISPLAY')
+	op.importer_mode = False
+
 classes = (CommandBatcher,)
 
 def register():
 	from bpy.utils import register_class
 	for cls in classes:
 		register_class(cls)
+	
+	bpy.types.VIEW3D_MT_object.append(menu_func_object)
 
 
 def unregister():
+	bpy.types.VIEW3D_MT_object.remove(menu_func_object)
+	
 	from bpy.utils import unregister_class
 	for cls in reversed(classes):
 		unregister_class(cls)

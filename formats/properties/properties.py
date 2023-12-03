@@ -13,16 +13,26 @@ class PG_Operator(bpy.types.PropertyGroup):
 class PG_Preset(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Name')
 	path : bpy.props.StringProperty(name='File Path', default='', subtype='FILE_PATH')
+	
+class PG_FilePathSelection(bpy.types.PropertyGroup):
+	name : bpy.props.StringProperty(name='Name')
+	path : bpy.props.StringProperty(name='File Path', default='', subtype='FILE_PATH')
+	check : bpy.props.BoolProperty(name='Check', default=True)
+	size : bpy.props.FloatProperty(name='FileSize', default=0.0)
 
 class PG_SceneSettings(bpy.types.PropertyGroup):
 	umi_ready_to_import : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_last_setting_to_get : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_batcher_is_processing : bpy.props.BoolProperty(name="Is Batcher Processing", default=False)
 	umi_current_format_setting_imported : bpy.props.BoolProperty(name='Current Format Settings Imported', default=False)
+	umi_file_selection_started : bpy.props.BoolProperty(name='File selection_started', default=False)
+	umi_file_selection_done : bpy.props.BoolProperty(name='File Selected', default=False)
 	umi_operators : bpy.props.CollectionProperty(type = PG_Operator)
 	umi_operator_idx : bpy.props.IntProperty()
 	umi_presets : bpy.props.CollectionProperty(type = PG_Preset)
 	umi_preset_idx : bpy.props.IntProperty()
+	umi_file_selection : bpy.props.CollectionProperty(type = PG_FilePathSelection)
+	umi_file_selection_idx : bpy.props.IntProperty()
 	umi_import_settings : bpy.props.PointerProperty(type=PG_ImportSettings)
 
 class UMI_UL_OperatorList(bpy.types.UIList):
@@ -65,14 +75,31 @@ class UMI_UL_PresetList(bpy.types.UIList):
 		row.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW').filepath = item.path
 		row.separator()
 		row.operator('scene.umi_remove_preset', text='', icon='PANEL_CLOSE').id = index
+		
+class UMI_UL_FileSelectionList(bpy.types.UIList):
+	bl_idname = "UMI_UL_file_selection_list"
+
+	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+		scn = context.scene
+
+		# grid = layout.grid_flow(columns=3, align=True, even_columns=True)
+		row = layout.row(align=True)
+		row.alignment = 'LEFT'
+		row.prop(item, 'check', text='')
+		row.label(text=f'{item.path}')
+		row = layout.row(align=True)
+		row.alignment = 'RIGHT'
+		row.label(text=f'{round(item.size, 2)} MB')
 
 classes = (PG_ImportSettings, 
 		   PG_ImportSettingsCreator, 
 		   PG_Operator, 
-		   PG_Preset, 
+		   PG_Preset,
+		   PG_FilePathSelection,
 		   PG_SceneSettings, 
 		   UMI_UL_OperatorList, 
-		   UMI_UL_PresetList)
+		   UMI_UL_PresetList,
+		   UMI_UL_FileSelectionList)
 
 def register():
 	from bpy.utils import register_class
