@@ -1,5 +1,15 @@
 from ..blender_version import BVERSION
 
+def axis():
+    return [
+        ("X", "X", "X"),
+        ("Y", "Y", "Y"),
+        ("Z", "Z", "Z"),
+        ("NEGATIVE_X", "-X", "-X"),
+        ("NEGATIVE_Y", "-Y", "-Y"),
+        ("NEGATIVE_Z", "-Z", "-Z")
+    ]
+
 class FormatDefinition():
 	if BVERSION >= 4.0:
 		obj = {'name' : 'obj',
@@ -9,12 +19,12 @@ class FormatDefinition():
 				'import_settings': [['Transform',
 									{"global_scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0},
 									"clamp_size" : {'type':'bpy.props.FloatProperty', 'name':'"Clamp Bounding Box"', 'default':1.0},
-									"forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"NEGATIVE_Z"', 'enum_items':[("X", "X", ""), ("Y", "Y", ""), ("Z", "Z", ""), ("NEGATIVE_X", "-X", ""), ("NEGATIVE_Y", "-Y", ""), ("NEGATIVE_Z", "-Z", "")]},
-									"up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Y"', 'enum_items':[("X", "X", ""), ("Y", "Y", ""), ("Z", "Z", ""), ("NEGATIVE_X", "-X", ""), ("NEGATIVE_Y", "-Y", ""), ("NEGATIVE_Z", "-Z", "")]}}],
+									"forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"NEGATIVE_Z"', 'enum_items':axis()},
+									"up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Y"', 'enum_items':axis()}}],
 
 									['Options',
-									{"use_split_object": {'type':'bpy.props.BoolProperty', 'name':'"Split By Object"', 'default':True},
-									"use_split_group": {'type':'bpy.props.BoolProperty', 'name':'"Split By Group"', 'default':False},
+									{"use_split_objects": {'type':'bpy.props.BoolProperty', 'name':'"Split By Object"', 'default':True},
+									"use_split_groups": {'type':'bpy.props.BoolProperty', 'name':'"Split By Group"', 'default':False},
 									"import_vertex_groups": {'type':'bpy.props.BoolProperty', 'name':'"Vertex Groups"', 'default':False},
 									"validate_meshes": {'type':'bpy.props.BoolProperty', 'name':'"Validate Meshes"', 'default':False}
 									}]]}
@@ -25,12 +35,12 @@ class FormatDefinition():
 				'import_settings': [['Transform',
 									{"global_scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0},
 									"use_scene_unit": {'type':'bpy.props.BoolProperty', 'name':'"Scene Unit"', 'default':False},
-									"forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"Y"', 'enum_items':[("X", "X", ""), ("Y", "Y", ""), ("Z", "Z", ""), ("NEGATIVE_X", "-X", ""), ("NEGATIVE_Y", "-Y", ""), ("NEGATIVE_Z", "-Z", "")]},
-									"up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Z"', 'enum_items':[("X", "X", ""), ("Y", "Y", ""), ("Z", "Z", ""), ("NEGATIVE_X", "-X", ""), ("NEGATIVE_Y", "-Y", ""), ("NEGATIVE_Z", "-Z", "")]}}],
+									"forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"Y"', 'enum_items':axis()},
+									"up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Z"', 'enum_items':axis()}}],
 
 									['Options',
 									{"merge_verts": {'type':'bpy.props.BoolProperty', 'name':'"Merge Verticies"', 'default':False},
-									"import_color" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"SRGB"', 'enum_items':[("SRGB", "sRGB", ""), ("LINEAR", "Linear", ""), ("NONE", "None", "")]}
+									"import_colors" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"SRGB"', 'enum_items':[("SRGB", "sRGB", ""), ("LINEAR", "Linear", ""), ("NONE", "None", "")]}
 									}]]}
 	else:
 		obj = {	'name' : 'obj',
