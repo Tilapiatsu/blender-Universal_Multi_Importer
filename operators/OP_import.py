@@ -384,6 +384,12 @@ class UMI(bpy.types.Operator, ImportHelper):
 			elif self.filter_folder and self.umi_settings.umi_file_selection_done and self.umi_settings.umi_file_selection_started:
 				self.filepaths = [f.path for f in self.umi_settings.umi_file_selection if f.check]
 				self.store_formats_to_import()
+
+				if not len (self.formats_to_import):
+					self.cancel(context)
+					self.finish(context, canceled=True)
+					return {'CANCELLED'}
+				
 				LOG.info(f'{len(self.filepaths)}  files selected')
 				LOG.separator()
 				self.umi_settings.umi_file_selection.clear()
