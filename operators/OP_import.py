@@ -201,7 +201,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 	backup_step : bpy.props.FloatProperty(name='Backup Step (MB)', description='Backup file after X file(s) imported', default=100, min=1)
 	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
 	save_file_after_import : bpy.props.BoolProperty(name='Save file after import', description='Save the original file when the entire import process is compete', default=False)
-	ignore_post_process_errors : bpy.props.BoolProperty(name='Ignore Post Process Errors', description='If any error occurs during post processing of imported file(s), error(s) will be ignore and the import process will continue to the next operation', default=True)
+	ignore_command_batcher_errors : bpy.props.BoolProperty(name='Ignore Command Batcher Errors', description='If any error(s) occurs during processing of Command Batcher, error(s) will be ignore and the import process will continue to the next operation', default=True)
 	import_svg_as_grease_pencil : bpy.props.BoolProperty(name='Import SVG as Grease Pencil', description='SVG file will be imported as grease Pencil instead of curve objects', default=False)
 	recursion_depth : bpy.props.IntProperty(name='Recursion Depth', default=0, min=0, description='How many Subfolders will be used to search for compatible files to import.\n/!\ WARNING : A too big number may result of a huge number of files to import and may cause instability')
 	# Support Folder selection
@@ -297,7 +297,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 		settings = col.box()
 		settings.label(text='Settings')
-		settings.prop(self, 'ignore_post_process_errors')
+		settings.prop(self, 'ignore_command_batcher_errors')
 		settings.prop(self, 'save_file_after_import')
 		# settings.prop(self, 'import_svg_as_grease_pencil')
 		settings.prop(self, 'create_collection_per_file')
