@@ -114,20 +114,72 @@ class UMI_FileSelection(bpy.types.Operator):
 
 	def draw(self, context):
 		layout = self.layout
-		row = layout.row()
+		col1 = layout.column()
 
+		row1 = col1.row(align=True)
+		# col2.ui_units_x = 2
+		# row1.alignment = 'LEFT'
+		row1.separator()
+		
+		box = row1.box()
+		box.label(text='All')
+		row2 = box.row(align=True)
+		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT')
+		op.action = 'SELECT'
+		op.mode = "ALL"
+		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_DEHLT')
+		op.action = 'DESELECT'
+		op.mode = "ALL"
+		
+		row1.separator()
+		
+		box = row1.box()
+		box.label(text='Ext')
+		row2 = box.row(align=True)
+		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
+		op.action = 'SELECT'
+		op.mode = "EXTENSION"
+		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_DEHLT')
+		op.action = 'DESELECT'
+		op.mode = "EXTENSION"
+		row2.separator()
+		row2.prop(self.umi_settings, 'umi_file_extension_selection', text='')
+
+		row1.separator()
+		
+		box = row1.box()
+		box.label(text='Size')
+		row2 = box.row(align=True)
+		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
+		op.action = 'SELECT'
+		op.mode = "SIZE"
+		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_DEHLT')
+		op.action = 'DESELECT'
+		op.mode = "SIZE"
+		row2.separator()
+		row2.prop(self.umi_settings, 'umi_file_size_min_selection')
+		row2.prop(self.umi_settings, 'umi_file_size_max_selection')
+
+		row1.separator()
+		
+		box = row1.box()
+		box.label(text='Name')
+		row2 = box.row(align=True)
+		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
+		op.action = 'SELECT'
+		op.mode = "NAME"
+		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_DEHLT')
+		op.action = 'DESELECT'
+		op.mode = "NAME"
+		row2.separator()
+		row2.prop(self.umi_settings, 'umi_file_name_selection', text='')
+		row2.prop(self.umi_settings, 'umi_file_name_case_sensitive_selection', text='', icon='SYNTAX_OFF')
+		row2.prop(self.umi_settings, 'umi_file_name_include_folder_selection', text='', icon='FILEBROWSER')
+		
+		
 		rows = min(len(self.umi_settings.umi_file_selection) if len(self.umi_settings.umi_file_selection) > 2 else 2, 40)
-		row = layout.row()
-		row.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
-		col2 = row.column()
-		col2.separator()
-		col2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT').mode = 'SELECT_ALL'
-		col2.operator('scene.umi_select_file', text='', icon='CHECKBOX_DEHLT').mode = 'DESELECT_ALL'
-		# col2.separator()
-		# col2.operator('scene.umi_move_preset', text='', icon='TRIA_UP').direction = 'UP'
-		# col2.operator('scene.umi_move_preset', text='', icon='TRIA_DOWN').direction = 'DOWN'
-		# col2.separator()
-		# col2.operator('scene.umi_clear_presets', text='', icon='TRASH')
+		col1.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
+
 		
 	def cancel(self, context):
 		self.execute(context)
@@ -137,6 +189,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 	bl_label = "Import ALL"
 	bl_options = {'REGISTER', 'INTERNAL', 'PRESET'}
 	bl_region_type = "UI"
+	bl_description = 'Import multiple files of different formats from the same import dialog. You can also scan folders and subfolders to import everything inside.'
 
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
@@ -319,7 +372,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 	def modal(self, context, event):
 		if not self.import_complete and event.type in {'ESC'} and event.value == 'PRESS':
-			LOG.error('Cancelling...')
+			LOG.warning('Cancelling...')
 			self.cancel(context)
 
 			self.log_end_text()
@@ -380,15 +433,14 @@ class UMI(bpy.types.Operator, ImportHelper):
 				if not self.umi_settings.umi_file_selection_started:
 					self.select_files()
 				return {'PASS_THROUGH'}
+			
 			# File Selection is approved and fed into self.filepaths
 			elif self.filter_folder and self.umi_settings.umi_file_selection_done and self.umi_settings.umi_file_selection_started:
 				self.filepaths = [f.path for f in self.umi_settings.umi_file_selection if f.check]
 				self.store_formats_to_import()
 
 				if not len (self.formats_to_import):
-					self.cancel(context)
-					self.finish(context, canceled=True)
-					return {'CANCELLED'}
+					return self.cancel_finish(context)
 				
 				LOG.info(f'{len(self.filepaths)}  files selected')
 				LOG.separator()
@@ -792,6 +844,10 @@ class UMI(bpy.types.Operator, ImportHelper):
 		if self._timer is not None:
 			wm = context.window_manager
 			wm.event_timer_remove(self._timer)
+
+	def cancel_finish(self, context):
+		self.cancel(context)
+		return self.finish(context, canceled=True)
 
 # function to append the operator in the File>Import menu
 def menu_func_import(self, context):

@@ -1,5 +1,6 @@
 import bpy
-
+from .. import COMPATIBLE_FORMATS
+		
 class PG_ImportSettings(bpy.types.PropertyGroup):
 	umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)
 	umi_import_cancelled : bpy.props.BoolProperty(name='Import settings registered', default=False)
@@ -34,6 +35,12 @@ class PG_SceneSettings(bpy.types.PropertyGroup):
 	umi_file_selection : bpy.props.CollectionProperty(type = PG_FilePathSelection)
 	umi_file_selection_idx : bpy.props.IntProperty()
 	umi_import_settings : bpy.props.PointerProperty(type=PG_ImportSettings)
+	umi_file_extension_selection : bpy.props.EnumProperty(name='ext', items=[(e, e, '') for e in COMPATIBLE_FORMATS.extensions])
+	umi_file_size_min_selection : bpy.props.FloatProperty( min=0, name='min (Mb)', default=0.0)
+	umi_file_size_max_selection : bpy.props.FloatProperty( min=0, name='max (Mb)', default=1.0)
+	umi_file_name_selection : bpy.props.StringProperty(name='name', default='')
+	umi_file_name_case_sensitive_selection : bpy.props.BoolProperty(name='Case Sensitive', default=True)
+	umi_file_name_include_folder_selection : bpy.props.BoolProperty(name='Include Folder', default=False)
 
 class UMI_UL_OperatorList(bpy.types.UIList):
 	bl_idname = "UMI_UL_operator_list"

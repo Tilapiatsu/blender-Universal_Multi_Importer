@@ -125,7 +125,7 @@ class CommandBatcher(bpy.types.Operator):
 			self.start_time = time.perf_counter()
 		if not self.importer_mode and not self.end and event.type in {'ESC'} and event.value == 'PRESS':
 			if not self.importer_mode:
-				LOG.error('Cancelling...')
+				LOG.warning('Cancelling...')
 			self.cancel(context)
 
 			self.counter = self.wait_before_hiding

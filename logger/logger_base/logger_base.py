@@ -75,14 +75,14 @@ class Logger():
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : WARNING - '.format(self.context) + message
-		self.messages.append({'message':message, 'color':color_mult(self.color,  Color((1.0, 1.0, 0.5)))})
+		self.messages.append({'message':message, 'color': Color(LoggerColors.WARNING_COLOR)})
 		logging.warning(message)
 
 	def error(self, message, skip_prefix=False):
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : ERROR - '.format(self.context) + message
-		self.messages.append({'message':message, 'color':color_mult(self.color,  Color((1.0, 0.5, 0.5)))})
+		self.messages.append({'message':message, 'color': Color(LoggerColors.ERROR_COLOR)})
 		logging.error(message)
 
 	def set_basic_config(self):
