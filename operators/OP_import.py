@@ -94,7 +94,6 @@ class UMI_Settings(bpy.types.Operator):
 	def cancel(self, context):
 		self.execute(context)
 
-
 class UMI_FileSelection(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_file_selection"
 	bl_label = "File Selection"
@@ -253,6 +252,11 @@ class UMI(bpy.types.Operator, ImportHelper):
 		context.window_manager.fileselect_add(self)
 		return {'RUNNING_MODAL'}
 
+	def init_progress(self):
+		self.number_of_files = len(self.filepaths)
+		self.number_of_operations = self.number_of_files
+		self.total_import_size = self.get_total_size(self.filepaths)
+		
 	def decrement_counter(self):
 		self.counter = self.counter + (self.counter_start_time - self.counter_end_time)*1000
 	
@@ -356,7 +360,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			filepath = self.umi_settings.umi_file_selection.add()
 			filepath.name = f
 			filepath.path = f
-			filesize = round(self.get_filesize(f), 2)
+			filesize = self.get_filesize(f)
 			filepath.size = filesize
 
 		bpy.ops.import_scene.tila_universal_multi_importer_file_selection('INVOKE_DEFAULT')
@@ -438,6 +442,8 @@ class UMI(bpy.types.Operator, ImportHelper):
 			elif self.filter_folder and self.umi_settings.umi_file_selection_done and self.umi_settings.umi_file_selection_started:
 				self.filepaths = [f.path for f in self.umi_settings.umi_file_selection if f.check]
 				self.store_formats_to_import()
+				
+				self.init_progress()
 
 				if not len (self.formats_to_import):
 					return self.cancel_finish(context)
@@ -731,10 +737,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			# Sorting filepaths per Filesize for optimization
 			self.filepaths = self.sort_per_filesize(self.filepaths)
 
-		self.number_of_files = len(self.filepaths)
-		self.number_of_operations = self.number_of_files
-
-		self.total_import_size = self.get_total_size(self.filepaths)
+		self.init_progress()
 
 		LOG.info("{} compatible file(s) found".format(len(self.filepaths)))
 		LOG.separator()

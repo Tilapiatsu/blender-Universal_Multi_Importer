@@ -4,8 +4,8 @@ from .logger_base import Logger, SCROLL_OFFSET_INCREMENT
 from ..blender_version import BVERSION
 
 class LoggerProgress(Logger):
-	def __init__(self, context='ROOT'):
-		super(LoggerProgress, self).__init__(context)
+	def __init__(self, log_name='ROOT'):
+		super(LoggerProgress, self).__init__(log_name)
 		self.esc_message = ''
 		self.message_offset = 0
 		self.scroll_offset = 0

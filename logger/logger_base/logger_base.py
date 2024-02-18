@@ -20,9 +20,8 @@ def color_mult(c1, c2):
 	return Color((c1.r * c2.r, c1.g * c2.g, c1.b * c2.b))
 
 class Logger():
-	def __init__(self, context='ROOT'):
-		self.context = context
-		self.module_name = os.path.basename(os.path.dirname(os.path.realpath(__file__))).capitalize
+	def __init__(self, log_name='ROOT'):
+		self.log_name = log_name
 
 		self.log_file = get_log_file()
 		self.timeformat = '%m/%d/%Y %I:%M:%S %p'
@@ -45,7 +44,7 @@ class Logger():
 	def info(self, message, skip_prefix=False, color=None):
 		self.set_basic_config()
 		if not skip_prefix:
-			message = '{} : INFO - '.format(self.context) + message
+			message = '{} : INFO - '.format(self.log_name) + message
 		
 		if color is not None:
 			self.messages.append({'message':message, 'color':Color(color)})
@@ -57,7 +56,7 @@ class Logger():
 	def success(self, message, skip_prefix=False, show_message=True):
 		self.set_basic_config()
 		if not skip_prefix:
-			message = '{} : SUCCESS - '.format(self.context) + message
+			message = '{} : SUCCESS - '.format(self.log_name) + message
 			
 		self.messages.append({'message':message, 'color':color_mult(self.color,  Color((0.5, 1.0, 0.5)))})
 		
@@ -67,26 +66,26 @@ class Logger():
 	def debug(self, message, skip_prefix=False):
 		self.set_basic_config()
 		if not skip_prefix:
-			message = '{} : DEBUG - '.format(self.context) + message
+			message = '{} : DEBUG - '.format(self.log_name) + message
 		self.messages.append({'message':message, 'color':self.color * 0.2})
 		logging.debug(message)
 
 	def warning(self, message, skip_prefix=False):
 		self.set_basic_config()
 		if not skip_prefix:
-			message = '{} : WARNING - '.format(self.context) + message
+			message = '{} : WARNING - '.format(self.log_name) + message
 		self.messages.append({'message':message, 'color': Color(LoggerColors.WARNING_COLOR)})
 		logging.warning(message)
 
 	def error(self, message, skip_prefix=False):
 		self.set_basic_config()
 		if not skip_prefix:
-			message = '{} : ERROR - '.format(self.context) + message
+			message = '{} : ERROR - '.format(self.log_name) + message
 		self.messages.append({'message':message, 'color': Color(LoggerColors.ERROR_COLOR)})
 		logging.error(message)
 
 	def set_basic_config(self):
-		self.format = '{} : %(asctime)s - %(levelname)s : {} :    %(message)s'.format(self.module_name, self.context)
+		self.format = '%(asctime)s - %(levelname)s :    %(message)s'
 		logging.basicConfig(filename=self.log_file, level=logging.DEBUG, datefmt=self.timeformat, filemode='w', format=self.format)
 
 	def store_success(self, success):
