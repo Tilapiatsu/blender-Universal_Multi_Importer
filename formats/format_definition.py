@@ -1,14 +1,14 @@
 from ..blender_version import BVERSION
 
 def axis():
-    return [
-        ("X", "X", "X"),
-        ("Y", "Y", "Y"),
-        ("Z", "Z", "Z"),
-        ("NEGATIVE_X", "-X", "-X"),
-        ("NEGATIVE_Y", "-Y", "-Y"),
-        ("NEGATIVE_Z", "-Z", "-Z")
-    ]
+	return [
+		("X", "X", "X"),
+		("Y", "Y", "Y"),
+		("Z", "Z", "Z"),
+		("NEGATIVE_X", "-X", "-X"),
+		("NEGATIVE_Y", "-Y", "-Y"),
+		("NEGATIVE_Z", "-Z", "-Z")
+	]
 
 class FormatDefinition():
 	if BVERSION >= 4.0:
@@ -168,4 +168,11 @@ class FormatDefinition():
 								{"import_textures_mode": {'type':'bpy.props.EnumProperty', 'name':'"Import Textures"', 'default':'"IMPORT_PACK"', 'enum_items':[("IMPORT_NONE", "None", ""), ("IMPORT_PACK", "Packed", ""), ("IMPORT_COPY", "Copy", "")]},
 								"import_textures_dir": {'type':'bpy.props.StringProperty', 'name':'"Textures Directory"', 'default':'"//textures/"'},
 								"tex_name_collision_mode": {'type':'bpy.props.EnumProperty', 'name':'"File Name Collision"', 'default':'"USE_EXISTING"', 'enum_items':[("USE_EXISTING", "Use Existing", ""), ("OVERWRITE", "Overwrite Existing", "")]}}]]
-				                }
+								}
+	
+	blend = {'name' : 'blend',
+			'ext' : ['.blend'],
+			'operator' : {'default':'bpy.ops.import_scene.tila_import_blend'},
+			'module' : 'IMPORT_SCENE_OT_tila_import_blend',
+			'ignore': ['files', 'directory']		
+			}

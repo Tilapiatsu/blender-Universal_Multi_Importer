@@ -73,6 +73,7 @@ class FormatClassCreator():
 
 		if 'import_settings' in f.keys() :
 			for g in f['import_settings']:
+				# TODO : create a pointer to a settings for each g[0]
 				for k,v in g[1].items():
 					if 'enum_items' in v.keys():
 						command = f'{v["type"]}(name={v["name"]}, default={v["default"]}, items={v["enum_items"]})'

@@ -1,4 +1,6 @@
 import bpy
+from . import import_module
+
 from .format_definition import FormatDefinition
 FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('__')]
 
@@ -21,6 +23,7 @@ def register_import_setting_class():
 	properties.PG_ImportSettings.umi_import_settings_registered = True
 	
 def register():
+	import_module.register()
 	class_parser = FormatClassCreator()
 	class_parser.register_compatible_formats()
 	register_import_setting_class()
@@ -30,6 +33,7 @@ def unregister():
 	properties.unregister()
 	class_parser = FormatClassCreator()
 	class_parser.unregister_compatible_formats()
+	import_module.unregister()
 	
 for f in COMPATIBLE_FORMATS.formats:
 	exec(f'class UMI_{f[1]["name"]}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[1]["name"]}")')
