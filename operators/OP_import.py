@@ -5,6 +5,7 @@ from os import path
 import math
 from string import punctuation
 from ..formats import FormatHandler, COMPATIBLE_FORMATS
+from ..formats.properties.properties import update_file_stats
 from .OP_command_batcher import draw_command_batcher
 from ..preferences import get_prefs
 from ..logger import LOG, LoggerColors
@@ -104,6 +105,7 @@ class UMI_FileSelection(bpy.types.Operator):
 	def invoke(self, context, event):
 		self.umi_settings = context.scene.umi_settings
 		self.umi_settings.umi_file_selection_started = True
+		update_file_stats(self, context)
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self, width=900)
 
@@ -149,6 +151,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		box = row1.box()
 		box.label(text='Size')
 		row2 = box.row(align=True)
+		
 		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
 		op.action = 'SELECT'
 		op.mode = "SIZE"
@@ -175,8 +178,16 @@ class UMI_FileSelection(bpy.types.Operator):
 		row2.prop(self.umi_settings, 'umi_file_name_case_sensitive_selection', text='', icon='SYNTAX_OFF')
 		row2.prop(self.umi_settings, 'umi_file_name_include_folder_selection', text='', icon='FILEBROWSER')
 		
-		
-		rows = min(len(self.umi_settings.umi_file_selection) if len(self.umi_settings.umi_file_selection) > 2 else 2, 40)
+		col1.separator()
+		row2 = col1.row(align=True)
+		row2.alignment = 'LEFT'
+		row2.label(text=str(self.umi_settings.umi_file_stat_selected_count) + ' file(s)  |  ')
+		col1.separator()
+		row2.label(text=str(round(self.umi_settings.umi_file_stat_selected_size, 4)) + ' Mb  |  ')
+		col1.separator()
+		row2.label(text=self.umi_settings.umi_file_stat_selected_formats + ' format(s) selected')
+	
+		rows = min(len(self.umi_settings.umi_file_selection) if len(self.umi_settings.umi_file_selection) > 2 else 2, 20)
 		col1.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
 
 		

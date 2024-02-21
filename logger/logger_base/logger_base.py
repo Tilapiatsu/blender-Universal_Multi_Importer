@@ -58,7 +58,7 @@ class Logger():
 		if not skip_prefix:
 			message = '{} : SUCCESS - '.format(self.log_name) + message
 			
-		self.messages.append({'message':message, 'color':color_mult(self.color,  Color((0.5, 1.0, 0.5)))})
+		self.messages.append({'message':message, 'color':color_mult(Color(LoggerColors.SUCCESS_COLOR),  Color((1.0, 0.8, 1.0)))})
 		
 		if show_message :
 			logging.info(message)
