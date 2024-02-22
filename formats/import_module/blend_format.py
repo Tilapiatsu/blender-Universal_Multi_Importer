@@ -1,4 +1,5 @@
 import bpy
+from os import path
 from .unique_name import UniqueName
 from ...logger import LOG
 
@@ -94,37 +95,41 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		imported_objects = []
 		local_datas = getattr(bpy.data, source)
 		source_string = source.replace('_', ' ')
-		with bpy.data.libraries.load(self.filepath, link=self.import_mode == 'LINK') as (data_from, data_to):
-			for name in getattr(data_from, source):
+		with bpy.data.libraries.load(self.filepath, link=True) as (data_from, data_to):
+			data_source = getattr(data_from, source)
+			for name in data_source:
 				target = getattr(data_to, source)
-				if name not in self.local_names[source]:
-					# Import objects
-					LOG.info(f'		Blend format : {self.operation} {source_string} : {name}')
-					target.append(name)
-				else:
-					self.unique_name.register_element_correspondance(local_datas[name])
-					new_name = self.unique_name.get_unique_name(name)
-					# LOG.info(f'Blend format : Name Collision, Renaming local {source_string} {name} to {new_name}')
-					local_datas[name].name = new_name
-					LOG.info(f'		Blend format : {self.operation} {source_string} : {name}')
-					target.append(name)
+				LOG.info(f'				Blend format : {self.operation} {source_string} : {name}')
+				target.append(name)
 
-		for element, name in self.unique_name.element_correspondance.items():
-			new_name = self.unique_name.get_next_valid_name(name)
-			incomming_element = local_datas[name]
-			incomming_element.name = new_name
-			# LOG.info(f'Blend format : Renaming {source_string} {element.name} to {name}')
-			element.name = name
-			LOG.info(f'		Blend format : Name Collision, Renaming {source_string} {name} to {incomming_element.name}')
+				if source in self.import_to_collection_source:
+					imported_objects.append(name)
 
-			if source in self.import_to_collection_source:
-				imported_objects.append(incomming_element.name)
+		library = bpy.data.libraries[path.basename(self.filepath)]
 
-		for name in imported_objects:
-			if name in self.current_collection.objects.keys():
+		for o in library.users_id:
+			if o.rna_type.name != 'Object':
 				continue
-			LOG.info(f'		Blend format : Link {name} {source_string} to {self.current_collection.name} collection')
-			self.current_collection.objects.link(local_datas[name])
+			if o.name in imported_objects:
+
+				if o.name in self.current_collection.objects :
+					library_duplicate = False
+
+					for ob in self.current_collection.objects:
+						if ob.name == o.name and ob.library is not None and ob.library.name == library.name:
+							library_duplicate = True
+							break
+
+					if library_duplicate:
+						LOG.warning(f'				Blend format : {o.name} {source_string} already in {self.current_collection.name} collection. Skipping ...')
+						continue
+
+				LOG.info(f'				Blend format : Link {o.name} {source_string} to {self.current_collection.name} collection')
+				self.current_collection.objects.link(o)
+				name = o.name
+
+				if self.import_mode == 'APPEND':
+					o.make_local()
 
 	def execute(self, context):
 		self.current_collection = context.collection
