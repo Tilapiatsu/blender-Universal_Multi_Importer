@@ -476,11 +476,11 @@ class UMI(bpy.types.Operator, ImportHelper):
 					for filename in self.current_filenames:
 						index = len(self.imported_files) - i
 						if len(self.files_succeeded) and self.files_succeeded[index]:
-							message = f'File {index + 1} is imported successfully : {filename}'
+							message = f'File {index + 1} imported successfully : {filename}'
 							LOG.success(message)
 							LOG.store_success(message)
 						else:
-							message = f'File {index + 1} is NOT imported correctly : {filename}'
+							message = f'File {index + 1} NOT imported correctly : {filename}'
 							LOG.error(message)
 							# LOG.store_failure(message)
 						
