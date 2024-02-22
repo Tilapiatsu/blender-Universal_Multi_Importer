@@ -1,6 +1,25 @@
 import bpy
+from os import path
 from .. import COMPATIBLE_FORMATS
-		
+
+def update_file_stats(self, context):
+	if not context.scene.umi_settings.umi_file_stat_update:
+		return
+	
+	selected_files = [f for f in context.scene.umi_settings.umi_file_selection if f.check]
+	size = [f.size for f in selected_files]
+	formats = []
+	for f in selected_files:
+		ext = path.splitext(f.name)[1].lower()
+		if ext in formats:
+			continue
+
+		formats.append(ext)
+	
+	context.scene.umi_settings.umi_file_stat_selected_count = len(selected_files)
+	context.scene.umi_settings.umi_file_stat_selected_size = sum(size)
+	context.scene.umi_settings.umi_file_stat_selected_formats = '( ' + ' | '.join(formats) + ' )' if len(formats) else 'no'
+	
 class PG_ImportSettings(bpy.types.PropertyGroup):
 	umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)
 	umi_import_cancelled : bpy.props.BoolProperty(name='Import settings registered', default=False)
@@ -18,7 +37,7 @@ class PG_Preset(bpy.types.PropertyGroup):
 class PG_FilePathSelection(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Name')
 	path : bpy.props.StringProperty(name='File Path', default='', subtype='FILE_PATH')
-	check : bpy.props.BoolProperty(name='Check', default=True)
+	check : bpy.props.BoolProperty(name='Check', default=True, update=update_file_stats)
 	size : bpy.props.FloatProperty(name='FileSize', default=0.0)
 
 class PG_SceneSettings(bpy.types.PropertyGroup):
@@ -41,6 +60,10 @@ class PG_SceneSettings(bpy.types.PropertyGroup):
 	umi_file_name_selection : bpy.props.StringProperty(name='name', default='')
 	umi_file_name_case_sensitive_selection : bpy.props.BoolProperty(name='Case Sensitive', default=True)
 	umi_file_name_include_folder_selection : bpy.props.BoolProperty(name='Include Folder', default=False)
+	umi_file_stat_update : bpy.props.BoolProperty(name='update file stats', default=True)
+	umi_file_stat_selected_count : bpy.props.IntProperty(name='file(s)', default=0)
+	umi_file_stat_selected_size : bpy.props.FloatProperty(name='Mb', default=0)
+	umi_file_stat_selected_formats : bpy.props.StringProperty(name='format(s)', default='')
 
 class UMI_UL_OperatorList(bpy.types.UIList):
 	bl_idname = "UMI_UL_operator_list"
@@ -96,7 +119,7 @@ class UMI_UL_FileSelectionList(bpy.types.UIList):
 		row.label(text=f'{item.path}')
 		row = layout.row(align=True)
 		row.alignment = 'RIGHT'
-		row.label(text=f'{round(item.size, 2)} MB')
+		row.label(text=f'{round(item.size, 4)} MB')
 
 classes = (PG_ImportSettings, 
 		   PG_ImportSettingsCreator, 

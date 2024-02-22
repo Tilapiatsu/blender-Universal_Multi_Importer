@@ -1,5 +1,6 @@
 import bpy
 import os
+from ...formats.properties.properties import update_file_stats
 
 
 def get_file_selection(context):
@@ -34,6 +35,8 @@ class UI_Select(bpy.types.Operator):
 
 	def execute(self, context):
 		_, file_selection, _ = get_file_selection(context)
+		
+		self.umi_settings.umi_file_stat_update = False
 
 		if self.mode == "ALL":
 			for f in file_selection:
@@ -51,7 +54,7 @@ class UI_Select(bpy.types.Operator):
 				name = os.path.splitext(f.name)[0]
 				ref = self.umi_settings.umi_file_name_selection
 
-				if self.umi_settings.umi_file_name_include_folder_selection:
+				if not self.umi_settings.umi_file_name_include_folder_selection:
 					name = os.path.basename(name)
 
 				if not self.umi_settings.umi_file_name_case_sensitive_selection:
@@ -61,6 +64,8 @@ class UI_Select(bpy.types.Operator):
 				if ref in name:
 					f.check = self.bool_action
 
+		self.umi_settings.umi_file_stat_update = True
+		update_file_stats(self, context)
 		return {'FINISHED'}
 
 classes = ( UI_Select, 
