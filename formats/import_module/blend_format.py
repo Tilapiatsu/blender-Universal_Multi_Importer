@@ -51,6 +51,47 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
 	import_to_collection_source = ['objects']
 	excluded_datatypes = ['batch_remove', 'bl_rna', 'filepath', 'is_dirty', 'is_saved', 'libraries', 'orphans_purge', 'rna_type', 'screens', 'temp_data', 'use_autopack', 'user_map', 'version', 'window_managers']
+	dependency_datatype = [	'ACTION',
+							'ARMATURE',
+							'BRUSH',
+							'CACHEFILE',
+							'CAMERA',
+							'COLLECTION',
+							'CURVE',
+							'CURVES',
+							'FONT',
+							'GEOMETRY',
+							'GREASEPENCIL',
+							'GREASEPENCIL_V3',
+							'IMAGE',
+							'KEY',
+							'LATTICE',
+							'LIBRARY',
+							'LIGHT',
+							'LIGHT_PROBE',
+							'LINESTYLE',
+							'MASK',
+							'MATERIAL',
+							'MESH',
+							'META',
+							'MOVIECLIP',
+							'NODETREE',
+							'NODE'
+							'OBJECT',
+							'PAINTCURVE',
+							'PALETTE',
+							'PARTICLE',
+							'POINTCLOUD',
+							'SCENE',
+							'SCREEN',
+							'SOUND',
+							'SPEAKER',
+							'TEXT',
+							'TEXTURE',
+							'VOLUME',
+							'WINDOWMANAGER',
+							'WORKSPACE',
+							'WORLD']
 	
 	@property
 	def import_datas(self):
@@ -79,6 +120,15 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 	@property
 	def operation(self):
 		return 'Appending' if self.import_mode == "APPEND" else 'Linking'
+	
+	@property
+	def library(self):
+		if self._library is None:
+			lib_name = path.basename(self.filepath)
+			if lib_name in bpy.data.libraries:
+				self._library = bpy.data.libraries[lib_name]
+
+		return self._library
 
 	def register_local_unique_names(self):
 		for source in self.import_datas:
@@ -91,9 +141,40 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 	def get_import_command(self):
 		return bpy.ops.wm.append if self.import_mode == "APPEND" else bpy.ops.wm.link
 	
+	def get_modifier_dependencies(self, obj, dependencies):
+		# Capture Dependencies
+		for m in obj.modifiers:
+			for p in dir(m):
+				if p.startswith('__'):
+					continue
+				
+				attr = getattr(m, p, None)
+				
+				if attr is None:
+					continue
+				
+				try:
+					attr.rna_type
+					attr_type = attr.type
+				except AttributeError:
+					continue
+
+				if attr.rna_type.name != 'Object':
+					continue
+
+				if attr_type in self.dependency_datatype:
+					if attr in dependencies:
+						continue
+					dependencies.append(attr)
+
+	def make_local(self, objects):
+		override = bpy.context.copy()
+		override["selected_objects"] = objects
+		with bpy.context.temp_override(**override):
+			bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+
 	def import_command(self, source):
 		imported_objects = []
-		local_datas = getattr(bpy.data, source)
 		source_string = source.replace('_', ' ')
 		with bpy.data.libraries.load(self.filepath, link=True) as (data_from, data_to):
 			data_source = getattr(data_from, source)
@@ -105,9 +186,9 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 				if source in self.import_to_collection_source:
 					imported_objects.append(name)
 
-		library = bpy.data.libraries[path.basename(self.filepath)]
+		object_to_append = []
 
-		for o in library.users_id:
+		for o in self.library.users_id:
 			if o.rna_type.name != 'Object':
 				continue
 			if o.name in imported_objects:
@@ -116,7 +197,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 					library_duplicate = False
 
 					for ob in self.current_collection.objects:
-						if ob.name == o.name and ob.library is not None and ob.library.name == library.name:
+						if ob.name == o.name and ob.library is not None and ob.library.name == self.library.name:
 							library_duplicate = True
 							break
 
@@ -126,16 +207,22 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
 				LOG.info(f'				Blend format : Link {o.name} {source_string} to {self.current_collection.name} collection')
 				self.current_collection.objects.link(o)
-				name = o.name
 
 				if self.import_mode == 'APPEND':
-					o.make_local()
+					self.get_modifier_dependencies(o, object_to_append)
 
+					if o not in object_to_append:
+						object_to_append.append(o)
+		
+		object_to_append.reverse()
+		self.make_local(object_to_append)
+			
 	def execute(self, context):
 		self.current_collection = context.collection
 		self.unique_name = UniqueName()
 		self._import_datas = None
 		self._local_names = None
+		self._library = None
 		self.register_local_unique_names()
 
 		if self.import_actions:
@@ -208,10 +295,25 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		if self.import_workspaces:
 			self.import_command('workspaces')
 
+		if self.import_mode == 'APPEND':
+			# TODO : Need to check if the library is use elsewhere than in the currently imported objects
+			bpy.ops.data.tila_remove_library(library_name = self.library.name)
+			
 		return {'FINISHED'}
 
+class IMPORT_SCENE_OT_tila_remove_library(bpy.types.Operator):
+	bl_idname = "data.tila_remove_library"
+	bl_label = "Remove Library"
+	bl_options = {'REGISTER', 'INTERNAL'}
+	bl_description = 'Remove a library by name'
 
-classes = (IMPORT_SCENE_OT_tila_import_blend,)
+	library_name : bpy.props.StringProperty(name="Library Name", default='')
+
+	def execute(self, context):
+		bpy.data.libraries.remove(bpy.data.libraries[self.library_name])
+		return {'FINISHED'}
+
+classes = (IMPORT_SCENE_OT_tila_import_blend, IMPORT_SCENE_OT_tila_remove_library)
 
 def register():
 
