@@ -173,9 +173,22 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		with bpy.context.temp_override(**override):
 			bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
 
+			for o in bpy.context.selected_objects:
+				if o.data is None:
+					continue
+				
+				# Make Fonts Local
+				if o.data.rna_type.name == 'Text Curve':
+					if o.data.font.library is None:
+						continue
+					LOG.info(f'				Blend format : Link "{o.data.font.name}"')
+					o.data.font.make_local()
+
 	def import_command(self, source):
 		imported_objects = []
 		source_string = source.replace('_', ' ')
+
+		# Import Loop
 		with bpy.data.libraries.load(self.filepath, link=True) as (data_from, data_to):
 			data_source = getattr(data_from, source)
 			for name in data_source:
@@ -188,6 +201,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
 		object_to_append = []
 
+		# Link to Collection
 		for o in self.library.users_id:
 			if o.rna_type.name != 'Object':
 				continue
@@ -202,10 +216,10 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 							break
 
 					if library_duplicate:
-						LOG.warning(f'				Blend format : {o.name} {source_string} already in {self.current_collection.name} collection. Skipping ...')
+						LOG.warning(f'				Blend format : "{o.name}" {source_string} already in "{self.current_collection.name}" collection. Skipping ...')
 						continue
 
-				LOG.info(f'				Blend format : Link {o.name} {source_string} to {self.current_collection.name} collection')
+				LOG.info(f'				Blend format : Link "{o.name}" {source_string} to "{self.current_collection.name}" collection')
 				self.current_collection.objects.link(o)
 
 				if self.import_mode == 'APPEND':
@@ -213,7 +227,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
 					if o not in object_to_append:
 						object_to_append.append(o)
-		
+
 		object_to_append.reverse()
 		self.make_local(object_to_append)
 			
