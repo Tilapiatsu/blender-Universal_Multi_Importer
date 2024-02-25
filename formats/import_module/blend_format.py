@@ -141,7 +141,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 	def get_import_command(self):
 		return bpy.ops.wm.append if self.import_mode == "APPEND" else bpy.ops.wm.link
 	
-	def get_modifier_dependencies(self, obj, dependencies):
+	def get_modifier_dependencies(self, obj, object_to_import, dependencies):
 		# Capture Dependencies
 		for m in obj.modifiers:
 			for p in dir(m):
@@ -159,19 +159,21 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 				except AttributeError:
 					continue
 
-				if attr.rna_type.name != 'Object':
-					continue
-
 				if attr_type in self.dependency_datatype:
-					if attr in dependencies:
+					if attr in object_to_import:
 						continue
-					dependencies.append(attr)
+					
+					LOG.info(f'				Blend format : Store Modifier Depencency "{attr.name}"')
+					if attr_type == 'OBJECT':
+						object_to_import.append(attr)
+					else:
+						dependencies.append(attr)
 
-	def make_local(self, objects):
+	def make_local(self, objects, dependencies):
 		override = bpy.context.copy()
 		override["selected_objects"] = objects
 		with bpy.context.temp_override(**override):
-			bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+			bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL') 
 
 			for o in bpy.context.selected_objects:
 				if o.data is None:
@@ -183,6 +185,12 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 						continue
 					LOG.info(f'				Blend format : Link "{o.data.font.name}"')
 					o.data.font.make_local()
+
+		with bpy.context.temp_override(**override):
+			bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+			
+		for d in dependencies:
+			d.make_local()
 
 	def import_command(self, source):
 		imported_objects = []
@@ -200,6 +208,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 					imported_objects.append(name)
 
 		object_to_append = []
+		dependencies = []
 
 		# Link to Collection
 		for o in self.library.users_id:
@@ -223,22 +232,15 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 				self.current_collection.objects.link(o)
 
 				if self.import_mode == 'APPEND':
-					self.get_modifier_dependencies(o, object_to_append)
+					self.get_modifier_dependencies(o, object_to_append, dependencies)
 
 					if o not in object_to_append:
 						object_to_append.append(o)
 
 		object_to_append.reverse()
-		self.make_local(object_to_append)
-			
-	def execute(self, context):
-		self.current_collection = context.collection
-		self.unique_name = UniqueName()
-		self._import_datas = None
-		self._local_names = None
-		self._library = None
-		self.register_local_unique_names()
-
+		self.make_local(object_to_append, dependencies)
+	
+	def import_data(self):
 		if self.import_actions:
 			self.import_command('actions')
 		if self.import_armatures:
@@ -308,14 +310,43 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 			self.import_command('worlds')
 		if self.import_workspaces:
 			self.import_command('workspaces')
+		
+		self.importing = False
 
-		if self.import_mode == 'APPEND':
-			# TODO : Need to check if the library is use elsewhere than in the currently imported objects
-			bpy.ops.data.tila_remove_library(library_name = self.library.name)
-			
-		return {'FINISHED'}
+	def modal(self, context, event):
+		if not self.import_started:
+			self.import_started = True
+			self.importing = True
+			self.import_data()
+		
+		if not self.import_finished and not self.importing:
+			if self.import_mode == 'APPEND':
+				# TODO : Need to check if the library is use elsewhere than in the currently imported objects
+				bpy.ops.data.tila_remove_library(library_name=self.library.name)
 
-class IMPORT_SCENE_OT_tila_remove_library(bpy.types.Operator):
+			self.import_finished = True
+			return {'FINISHED'}
+
+		return {'RUNNING_MODAL'}
+
+
+	def execute(self, context):
+		self.current_collection = context.collection
+		self.unique_name = UniqueName()
+		self._import_datas = None
+		self._local_names = None
+		self._library = None
+		self.import_started = False
+		self.importing = False
+		self.import_finished = False
+		self.register_local_unique_names()
+
+		wm = context.window_manager
+		self._timer = wm.event_timer_add(0.01, window=context.window)
+		wm.modal_handler_add(self)
+		return {'RUNNING_MODAL'}
+
+class RemoveLibrary(bpy.types.Operator):
 	bl_idname = "data.tila_remove_library"
 	bl_label = "Remove Library"
 	bl_options = {'REGISTER', 'INTERNAL'}
@@ -327,7 +358,7 @@ class IMPORT_SCENE_OT_tila_remove_library(bpy.types.Operator):
 		bpy.data.libraries.remove(bpy.data.libraries[self.library_name])
 		return {'FINISHED'}
 
-classes = (IMPORT_SCENE_OT_tila_import_blend, IMPORT_SCENE_OT_tila_remove_library)
+classes = (IMPORT_SCENE_OT_tila_import_blend, RemoveLibrary)
 
 def register():
 
