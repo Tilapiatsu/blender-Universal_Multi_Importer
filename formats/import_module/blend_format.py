@@ -94,6 +94,10 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 							'WORLD']
 	
 	@property
+	def filename(self):
+		return path.basename(self.filepath)
+
+	@property
 	def import_datas(self):
 		if self._import_datas is None:
 			self._import_datas = [m.replace('import_', '') for m in self.__annotations__.keys() if m.startswith('import_') and m != 'import_mode' and getattr(self, m)]
@@ -124,7 +128,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 	@property
 	def library(self):
 		if self._library is None:
-			lib_name = path.basename(self.filepath)
+			lib_name = self.filename
 			if lib_name in bpy.data.libraries:
 				self._library = bpy.data.libraries[lib_name]
 
@@ -163,7 +167,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 					if attr in object_to_import:
 						continue
 					
-					LOG.info(f'				Blend format : Store Modifier Depencency "{attr.name}"')
+					LOG.info(f'Blend format : Link Modifier Depencency "{attr.name}"')
 					if attr_type == 'OBJECT':
 						object_to_import.append(attr)
 					else:
@@ -210,6 +214,14 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		object_to_append = []
 		dependencies = []
 
+		# Stop Import if no data found in Blend file
+		if self.library is None:
+			message = f'No {source_string} found in {self.filename}. Skipping ...'
+			LOG.warning(f'Blend format : ' + message)
+			LOG.store_failure(message)
+			self.errors.append(message)
+			return
+		
 		# Link to Collection
 		for o in self.library.users_id:
 			if o.rna_type.name != 'Object':
@@ -225,10 +237,10 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 							break
 
 					if library_duplicate:
-						LOG.warning(f'				Blend format : "{o.name}" {source_string} already in "{self.current_collection.name}" collection. Skipping ...')
+						LOG.warning(f'Blend format : "{o.name}" {source_string} already in "{self.current_collection.name}" collection. Skipping ...')
 						continue
 
-				LOG.info(f'				Blend format : Link "{o.name}" {source_string} to "{self.current_collection.name}" collection')
+				LOG.info(f'Blend format : Link "{o.name}" {source_string} to "{self.current_collection.name}" collection')
 				self.current_collection.objects.link(o)
 
 				if self.import_mode == 'APPEND':
@@ -320,11 +332,12 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 			self.import_data()
 		
 		if not self.import_finished and not self.importing:
-			if self.import_mode == 'APPEND':
+			if self.import_mode == 'APPEND' and self.library is not None:
 				# TODO : Need to check if the library is use elsewhere than in the currently imported objects
 				bpy.ops.data.tila_remove_library(library_name=self.library.name)
 
 			self.import_finished = True
+			
 			return {'FINISHED'}
 
 		return {'RUNNING_MODAL'}
@@ -339,6 +352,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		self.import_started = False
 		self.importing = False
 		self.import_finished = False
+		self.errors = []
 		self.register_local_unique_names()
 
 		wm = context.window_manager
