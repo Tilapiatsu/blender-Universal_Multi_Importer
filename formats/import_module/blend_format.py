@@ -185,7 +185,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 	
 	def make_local(self, to_append, dependencies, data):
 		if len(to_append['Object']):
-			override = bpy.context.copy()
+			override = {}
 			override["selected_objects"] = to_append['Object']
 			with bpy.context.temp_override(**override):
 				bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL') 
@@ -396,9 +396,11 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 			if self.import_mode == 'APPEND' and self.library is not None:
 				# TODO : Need to check if the library is use elsewhere than in the currently imported objects
 				bpy.ops.data.tila_remove_library(library_name=self.library.name)
-				# pass
+				pass
 
 			self.import_finished = True
+			
+			context.window_manager.event_timer_remove(self._timer)
 			
 			return {'FINISHED'}
 
