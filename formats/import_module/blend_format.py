@@ -155,35 +155,94 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 	def get_import_command(self):
 		return bpy.ops.wm.append if self.is_append else bpy.ops.wm.link
 	
-	def get_modifier_dependencies(self, obj, object_to_import, dependencies):
+	def get_data_dependencies(self, src, object_to_import, dependencies, data):
 		# Capture Dependencies
-		for m in obj.modifiers:
-			for p in dir(m):
-				if p.startswith('__'):
-					continue
-				
-				attr = getattr(m, p, None)
-				
-				if attr is None:
-					continue
-				
-				try:
-					attr.rna_type
-					attr_type = attr.type
-				except AttributeError:
-					continue
+		for p in dir(src):
+			if p.startswith('__'):
+				continue
+			
+			attr = getattr(src, p, None)
+			
+			if attr is None:
+				continue
+			
+			try:
+				attr.rna_type
+				attr_type = attr.id_type
+			except AttributeError:
+				continue
 
-				if attr_type in self.dependency_datatype:
+			if attr_type in self.dependency_datatype:
+				if attr in object_to_import:
+					continue
+				
+				
+				if attr_type == 'OBJECT':
 					if attr in object_to_import:
 						continue
-					
-					LOG.info(f'Blend format : Link Modifier Depencency "{attr.name}"')
-					if attr_type == 'OBJECT':
-						object_to_import.append(attr)
-					else:
-						dependencies.append(attr)
+					LOG.info(f'Blend format : Link Object Depencency "{attr.name}"')
+					object_to_import.append(attr)
+				elif attr_type in ['NODETREE', 'GEOMETRY']:
+					if attr in data:
+						continue
+					LOG.info(f'Blend format : Link Node Depencency "{attr.name}"')
+					data.append(attr.name)
+				else:
+					if attr in dependencies:
+						continue
+					LOG.info(f'Blend format : Link Depencency "{attr.name}"')
+					dependencies.append(attr)
+
+	def append_data(self, source, data_list):
+		source_string = source.replace('_', ' ')
+		# Import Loop
+		with bpy.data.libraries.load(self.filepath, link=False) as (data_from, data_to):
+			data_source = getattr(data_from, source)
+			for name in data_source:
+				if name not in data_list:
+					continue
+
+				target = getattr(data_to, source)
+				LOG.info(f'Blend format : Appending {source_string} : {name}')
+				target.append(name)
+
+	def get_node_dependencies(self, data, dep=[], local_data=[]):
+		for n in data.nodes:
+			node_tree = getattr(n, 'node_tree', None)
+			if node_tree is None:
+				continue
+
+			if node_tree in local_data:
+				# n.node_tree = bpy.data.node_groups[node_tree.name]
+				continue
+
+			if node_tree.library is None:
+				continue
+			
+			if node_tree in dep:
+				continue
+			
+			dep.append(node_tree)
+
+			new_dep = self.get_node_dependencies(node_tree, dep=[], local_data = local_data)
+
+			for nd in new_dep:
+				if nd in dep:
+					continue
+
+				dep.append(nd)
+
+		return dep
 	
+	def get_font_dependencies(self, data):
+		if data.font.library is None:
+			return False
+		LOG.info(f'Blend format : Appending "{data.font.name}"')
+		data.font.make_local()
+		return True
+
 	def make_local(self, to_append, dependencies, data):
+		local_data = []
 		if len(to_append['Object']):
 			override = {}
 			override["selected_objects"] = to_append['Object']
@@ -196,31 +255,51 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 					
 					# Make Fonts Local
 					if o.data.rna_type.name == 'Text Curve':
-						if o.data.font.library is None:
+						if not self.get_font_dependencies(o.data):
 							continue
-						LOG.info(f'Blend format : Link "{o.data.font.name}"')
-						o.data.font.make_local()
 
 			with bpy.context.temp_override(**override):
 				bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
 	
 		for d in dependencies:
+			if d in local_data:
+				continue
 			d.make_local()
+			local_data.append(d)
 			
 		for d in data:
+			if d in local_data:
+				continue
 			d.make_local()
+
+			local_data.append(d)
+			LOG.info(f'Blend format : Appending "{d.name}"')
 
 			# Make Fonts Local
 			if d.rna_type.name == 'Text Curve':
-				if d.font.library is None:
+				if not self.get_font_dependencies(d):
 					continue
-				LOG.info(f'Blend format : Link "{d.font.name}"')
-				d.font.make_local()
-			
+
+			if d.id_type in ['NODETREE']:
+				dep = self.get_node_dependencies(d, dep=[], local_data=local_data)
+				while len(dep):
+					for dd in dep:
+						if dd in local_data:
+							continue
+						
+						if dd.library is None:
+							continue
+
+						local_dd = dd.make_local()
+						local_data.append(dd)
+
+					dep = self.get_node_dependencies(d, dep=[], local_data=local_data)
+
 
 	def import_command(self, source):
 		imported_objects = []
 		data = []
+		data_name = []
 		source_string = source.replace('_', ' ')
 
 		before_import_data = {d.name:None for d in getattr(bpy.data, source)}
@@ -240,7 +319,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 						before_import_data[name] = new_name
 					imported_objects.append(name)
 				else:
-					data.append(name)
+					data_name.append(name)
 
 		if self.import_mode == 'APPEND':
 			for name ,new_name in before_import_data.items():
@@ -283,7 +362,8 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 						self.current_collection.objects.link(o)
 
 						if self.is_append:
-							self.get_modifier_dependencies(o, to_append, dependencies)
+							for m in o.modifiers:
+								self.get_data_dependencies(m, to_append, dependencies, data_name)
 
 							if o not in to_append['Object']:
 								to_append['Object'].append(o)
@@ -295,6 +375,13 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 							if o not in to_append['Collection']:
 								to_append['Collection'].append(o)
 
+					# append Data:
+					if 'data' in dir(o):
+						if o.data is not None:
+							if o.data.name not in data_name:
+								data_name.append(o.data.name)
+							self.get_data_dependencies(o.data, to_append, dependencies, data_name)
+
 		elif source == 'collections':
 			for c in getattr(bpy.data, source):
 				if c.name not in imported_objects and self.is_append:
@@ -305,8 +392,16 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 				if self.is_append:
 					if c not in to_append['Collection']:
 						to_append['Collection'].append(c)
+			
 
-		data = [d for d in self.library.users_id if d.name in data]
+		# reorder data to ensure make local will work as expected
+		lib = [d for d in self.library.users_id if d.name in data_name]
+		for d in data_name:
+			for l in lib:
+				if l.name !=d:
+					continue
+				
+				data.append(l)
 
 		if self.is_append:
 			self.make_local(to_append, dependencies, data)
@@ -395,7 +490,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		if not self.import_finished and not self.importing:
 			if self.import_mode == 'APPEND' and self.library is not None:
 				# TODO : Need to check if the library is use elsewhere than in the currently imported objects
-				bpy.ops.data.tila_remove_library(library_name=self.library.name)
+				# bpy.ops.data.tila_remove_library(library_name=self.library.name)
 				pass
 
 			self.import_finished = True
