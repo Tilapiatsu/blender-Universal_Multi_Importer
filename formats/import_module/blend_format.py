@@ -309,15 +309,20 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 			element = getattr(bpy.data, source)[name]
 			need_rename[name] = element
 			element.name = new_name
-			# self.unique_name.element_correspondance[element] = new_name
 		
 		return need_rename
 
-	def revert_name_collision(self, source:str, duplicate_data_names:dict):
+	def revert_name_collision(self, source:str, duplicate_data_names:dict, import_data_names:list):
 		data = getattr(bpy.data, source)
 
+
 		for name in duplicate_data_names.keys():
-			data[name].name = self.unique_name.get_next_valid_name(name)
+			new_name = self.unique_name.get_next_valid_name(name)
+			data[name].name = new_name
+
+			if name in import_data_names:
+				i = import_data_names.index(name)
+				import_data_names[i] = new_name
 			duplicate_data_names[name].name = name
 
 
@@ -328,7 +333,6 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		name_collison_data = {}
 		source_string = source.replace('_', ' ')
 
-		before_import_data = {d.name:None for d in getattr(bpy.data, source)}
 		self.register_local_unique_names()
 
 		name_collison_data = self.prevent_name_collision(source)
@@ -342,27 +346,11 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 				target.append(name)
 
 				if source in self.import_to_collection_source:
-					# Element Already in local file
-					if name in before_import_data.keys():
-						new_name = self.unique_name.get_next_valid_name(name)
-						before_import_data[name] = new_name
-						
 					imported_object_names.append(name)
 				else:
 					data_names.append(name)
 
-		self.revert_name_collision(source, name_collison_data)
-
-		self.register_local_unique_names()
-
-		if self.import_mode == 'APPEND':
-			for name, new_name in before_import_data.items():
-				if new_name is None:
-					continue
-				self.unique_name.register_element_correspondance(getattr(bpy.data, source)[new_name])
-				i = imported_object_names.index(name)
-				imported_object_names[i] = new_name
-				before_import_data[name] = getattr(bpy.data, source)[new_name]
+		self.revert_name_collision(source, name_collison_data, imported_object_names)
 
 		to_append = {'Object':[], 'Collection':[]}
 		dependencies = []
@@ -398,8 +386,6 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 				LOG.info(f'Blend format : Link "{o.name}" {source_string} to "{self.current_collection.name}" collection')
 
 				if o.rna_type.name == "Object":
-					if o.name in self.current_collection.objects:
-						o = before_import_data[o.name]
 					self.current_collection.objects.link(o)
 
 					if self.is_append:
