@@ -175,8 +175,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 			if attr_type in self.dependency_datatype:
 				if attr in object_to_import:
 					continue
-				
-				
+
 				if attr_type == 'OBJECT':
 					if attr in object_to_import:
 						continue
@@ -295,17 +294,47 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
 					dep = self.get_node_dependencies(d, dep=[], local_data=local_data)
 
+	def prevent_name_collision(self, source):
+		need_rename = {}
+		with bpy.data.libraries.load(self.filepath, link=self.is_link) as (data_from, data_to):
+			data_source = getattr(data_from, source)
+			data_target = getattr(bpy.data, source)
+			data_target = [d.name for d in data_target]
+			for name in data_source:
+				if name in data_target:
+					need_rename[name] = None
+
+		for name in need_rename.keys():
+			new_name = self.unique_name.get_unique_name(name)
+			element = getattr(bpy.data, source)[name]
+			need_rename[name] = element
+			element.name = new_name
+			# self.unique_name.element_correspondance[element] = new_name
+		
+		return need_rename
+
+	def revert_name_collision(self, source:str, duplicate_data_names:dict):
+		data = getattr(bpy.data, source)
+
+		for name in duplicate_data_names.keys():
+			data[name].name = self.unique_name.get_next_valid_name(name)
+			duplicate_data_names[name].name = name
+
 
 	def import_command(self, source):
-		imported_objects = []
+		imported_object_names = []
 		data = []
-		data_name = []
+		data_names = []
+		name_collison_data = {}
 		source_string = source.replace('_', ' ')
 
 		before_import_data = {d.name:None for d in getattr(bpy.data, source)}
+		self.register_local_unique_names()
+
+		name_collison_data = self.prevent_name_collision(source)
 
 		# Import Loop
-		with bpy.data.libraries.load(self.filepath, link=True if source not in self.force_append_mode else self.is_link) as (data_from, data_to):
+		with bpy.data.libraries.load(self.filepath, link=self.is_link) as (data_from, data_to):
 			data_source = getattr(data_from, source)
 			for name in data_source:
 				target = getattr(data_to, source)
@@ -317,15 +346,23 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 					if name in before_import_data.keys():
 						new_name = self.unique_name.get_next_valid_name(name)
 						before_import_data[name] = new_name
-					imported_objects.append(name)
+						
+					imported_object_names.append(name)
 				else:
-					data_name.append(name)
+					data_names.append(name)
+
+		self.revert_name_collision(source, name_collison_data)
+
+		self.register_local_unique_names()
 
 		if self.import_mode == 'APPEND':
-			for name ,new_name in before_import_data.items():
-				if new_name is not None:
-					i = imported_objects.index(name)
-					imported_objects[i] = new_name
+			for name, new_name in before_import_data.items():
+				if new_name is None:
+					continue
+				self.unique_name.register_element_correspondance(getattr(bpy.data, source)[new_name])
+				i = imported_object_names.index(name)
+				imported_object_names[i] = new_name
+				before_import_data[name] = getattr(bpy.data, source)[new_name]
 
 		to_append = {'Object':[], 'Collection':[]}
 		dependencies = []
@@ -338,53 +375,57 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 			self.errors.append(message)
 			return
 		
-		if source == 'objects' or self.is_link:
-			library_objects = [o for o in self.library.users_id if o.rna_type.name in self.import_to_collection_rnatype_name]
+		if source == 'objects':
+			source_data = self.library.users_id if self.is_link else getattr(bpy.data, source)
+			library_objects = [o for o in source_data if o.rna_type.name in self.import_to_collection_rnatype_name]
 			# Link to Collection
 			for o in library_objects:
-				if o.name in imported_objects:
+				if o.name not in imported_object_names:
+					continue
 
-					if o.name in self.current_collection.objects :
-						library_duplicate = False
+				if o.name in self.current_collection.objects :
+					library_duplicate = False
 
-						for ob in self.current_collection.objects:
-							if ob.name == o.name and ob.library is not None and ob.library.name == self.library.name:
-								library_duplicate = True
-								break
+					for ob in self.current_collection.objects:
+						if ob.name == o.name and ob.library is not None and ob.library.name == self.library.name:
+							library_duplicate = True
+							break
 
-						if library_duplicate:
-							LOG.warning(f'Blend format : "{o.name}" {source_string} already in "{self.current_collection.name}" collection. Skipping ...')
-							continue
+					if library_duplicate:
+						LOG.warning(f'Blend format : "{o.name}" {source_string} already in "{self.current_collection.name}" collection. Skipping ...')
+						continue
 
-					LOG.info(f'Blend format : Link "{o.name}" {source_string} to "{self.current_collection.name}" collection')
+				LOG.info(f'Blend format : Link "{o.name}" {source_string} to "{self.current_collection.name}" collection')
 
-					if o.rna_type.name == "Object":
-						self.current_collection.objects.link(o)
+				if o.rna_type.name == "Object":
+					if o.name in self.current_collection.objects:
+						o = before_import_data[o.name]
+					self.current_collection.objects.link(o)
 
-						if self.is_append:
-							for m in o.modifiers:
-								self.get_data_dependencies(m, to_append, dependencies, data_name)
+					if self.is_append:
+						for m in o.modifiers:
+							self.get_data_dependencies(m, to_append, dependencies, data_names)
 
-							if o not in to_append['Object']:
-								to_append['Object'].append(o)
+						if o not in to_append['Object']:
+							to_append['Object'].append(o)
 
-					elif o.rna_type.name == 'Collection':
-						self.current_collection.children.link(o)
+				elif o.rna_type.name == 'Collection':
+					self.current_collection.children.link(o)
 
-						if self.is_append:
-							if o not in to_append['Collection']:
-								to_append['Collection'].append(o)
+					if self.is_append:
+						if o not in to_append['Collection']:
+							to_append['Collection'].append(o)
 
-					# append Data:
-					if 'data' in dir(o):
-						if o.data is not None:
-							if o.data.name not in data_name:
-								data_name.append(o.data.name)
-							self.get_data_dependencies(o.data, to_append, dependencies, data_name)
+				# append Data:
+				if 'data' in dir(o):
+					if o.data is not None:
+						if o.data.name not in data_names:
+							data_names.append(o.data.name)
+						self.get_data_dependencies(o.data, to_append, dependencies, data_names)
 
 		elif source == 'collections':
 			for c in getattr(bpy.data, source):
-				if c.name not in imported_objects and self.is_append:
+				if c.name not in imported_object_names and self.is_append:
 					continue
 
 				self.current_collection.children.link(c)
@@ -393,10 +434,9 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 					if c not in to_append['Collection']:
 						to_append['Collection'].append(c)
 			
-
 		# reorder data to ensure make local will work as expected
-		lib = [d for d in self.library.users_id if d.name in data_name]
-		for d in data_name:
+		lib = [d for d in self.library.users_id if d.name in data_names]
+		for d in data_names:
 			for l in lib:
 				if l.name !=d:
 					continue
@@ -482,6 +522,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		self.importing = False
 
 	def modal(self, context, event):
+		bpy.ops.wm.redraw_timer(type='DRAW', iterations=1)
 		if not self.import_started:
 			self.import_started = True
 			self.importing = True
@@ -489,9 +530,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		
 		if not self.import_finished and not self.importing:
 			if self.import_mode == 'APPEND' and self.library is not None:
-				# TODO : Need to check if the library is use elsewhere than in the currently imported objects
-				# bpy.ops.data.tila_remove_library(library_name=self.library.name)
-				pass
+				bpy.ops.data.tila_remove_library(library_name=self.library.name)
 
 			self.import_finished = True
 			
