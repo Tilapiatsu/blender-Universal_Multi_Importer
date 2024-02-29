@@ -606,7 +606,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		try:
 			exec(command, {'bpy':bpy})
 		except Exception as e:
-			err_str = self.insert_str(str(e), each=3)
+			err_str = self.insert_str(str(e), each=100)
 			LOG.error(err_str)
 			LOG.store_failure(err_str)
 			success = False
