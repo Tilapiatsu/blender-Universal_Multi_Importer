@@ -1,7 +1,7 @@
 import bpy, os, logging, tempfile
 from os import path
 from mathutils import Color
-from .logger_const import LoggerColors
+from .logger_const import LoggerColors, MessageType
 
 def get_log_file():
 	try:
@@ -68,7 +68,9 @@ class Logger():
 
 		self.successes = []
 		self.failures = []
+		self.warnings = []
 		self.messages = MessageColored()
+		self.message_types = []
 
 		self._pretty = '---------------------'
 
@@ -78,6 +80,8 @@ class Logger():
 	def revert_parameters(self):
 		self.successes = []
 		self.failures = []
+		self.warnings = []
+		self.message_types = []
 		self.messages = MessageColored()
 
 
@@ -130,9 +134,15 @@ class Logger():
 
 	def store_success(self, success):
 		self.successes.append(success)
+		self.message_types.append(MessageType.SUCCESS)
 	
 	def store_failure(self, failure):
 		self.failures.append(failure)
+		self.message_types.append(MessageType.ERROR)
+
+	def store_warning(self, warning):
+		self.warnings.append(warning)
+		self.message_types.append(MessageType.WARNING)
 
 	def clear_message(self):
 		self.messages = MessageColored()
@@ -143,10 +153,18 @@ class Logger():
 	def clear_failure(self):
 		self.failures = []
 	
+	def clear_warning(self):
+		self.warnings = []
+
+	def clear_message_types(self):
+		self.message_types = []
+	
 	def clear_all(self):
 		self.clear_message()
 		self.clear_success()
 		self.clear_failure()
+		self.clear_warning()
+		self.clear_message_types()
 
 	def pretty(self, str):
 

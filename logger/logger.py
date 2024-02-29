@@ -89,5 +89,7 @@ class LoggerProgress(Logger):
 		if show_successes:
 			for s in self.successes:
 				self.success(f'{s}')
+		for f in self.warnings:
+			self.warning(f'{f}')
 		for f in self.failures:
 			self.error(f'{f}')

@@ -8,7 +8,7 @@ from ..formats import FormatHandler, COMPATIBLE_FORMATS
 from ..formats.properties.properties import update_file_stats
 from .OP_command_batcher import draw_command_batcher
 from ..preferences import get_prefs
-from ..logger import LOG, LoggerColors
+from ..logger import LOG, LoggerColors, MessageType
 
 
 class UMI_Settings(bpy.types.Operator):
@@ -559,7 +559,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 		return size
 
-	def import_command(self, context, filepath,):
+	def import_command(self, context, filepath):
 		success = True
 		ext = os.path.splitext(filepath)[1]
 		operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)

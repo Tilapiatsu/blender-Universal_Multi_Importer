@@ -7,4 +7,11 @@ class LoggerColors():
     COMMAND_COLOR = (0.95, 0.91, 0.10)
     IMPORT_COLOR = (0.13, 0.69, 0.72)
 
+class MessageType():
+    MESSAGE = 'Message'
+    SUCCESS = 'Success'
+    WARNING = 'Warning'
+    ERROR = 'Error'
+
 SCROLL_OFFSET_INCREMENT = 50
+

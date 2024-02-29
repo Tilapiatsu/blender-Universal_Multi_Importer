@@ -359,8 +359,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		if self.library is None:
 			message = f'No {source_string} found in {self.filename}. Skipping ...'
 			LOG.warning(f'Blend format : ' + message)
-			LOG.store_failure(message)
-			self.errors.append(message)
+			LOG.store_warning(message)
 			return
 		
 		if source == 'objects':
@@ -536,7 +535,6 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		self.import_started = False
 		self.importing = False
 		self.import_finished = False
-		self.errors = []
 		self.register_local_unique_names()
 
 		wm = context.window_manager
