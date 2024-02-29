@@ -88,6 +88,6 @@ class LoggerProgress(Logger):
 		self.info(stats)
 		if show_successes:
 			for s in self.successes:
-				self.success('{}'.format(s))
+				self.success(f'{s}')
 		for f in self.failures:
-			self.error('{}'.format(f))
+			self.error(f'{f}')

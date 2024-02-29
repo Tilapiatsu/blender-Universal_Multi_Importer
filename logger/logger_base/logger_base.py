@@ -19,11 +19,20 @@ def get_log_file():
 def color_mult(c1, c2):
 	return Color((c1.r * c2.r, c1.g * c2.g, c1.b * c2.b))
 
+# From https://stackoverflow.com/questions/30919275/inserting-period-after-every-3-chars-in-a-string
+def insert_str(my_str, each=50, char='\n'):
+	my_str = str(my_str)
+	return char.join(my_str[i:i+each] for i in range(0, len(my_str), each))
+
+# from https://stackoverflow.com/questions/9475241/split-string-every-nth-character
+def split_str(string, each=150):
+	return [string[i:i+each] for i in range(0, len(string), each)]
 
 class Message():
 	def __init__(self, message='', color=Color((1,1,1))):
 		self.message = message
 		self.color = color
+
 
 class MessageColored():
 	def __init__(self):
@@ -35,7 +44,7 @@ class MessageColored():
 		return self._messages
 
 	def append(self, message:str, color:Color=Color((1,1,1))):
-		splitted = message.split('//*//n')
+		splitted = split_str(message)
 		for s in splitted:
 			self._messages.append(Message(message=s, color=color))
 
@@ -143,7 +152,7 @@ class Logger():
 
 		p = self._pretty
 
-		for c in str:
+		for _ in str:
 			p += '-'
 		
 		return p
