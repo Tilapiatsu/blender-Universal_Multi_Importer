@@ -559,6 +559,11 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 		return size
 
+	# From https://stackoverflow.com/questions/30919275/inserting-period-after-every-3-chars-in-a-string
+	def insert_str(self, my_str, each=100, char=f'//*//n'):
+		my_str = str(my_str)
+		return char.join(my_str[i:i+each] for i in range(0, len(my_str), each))
+
 	def import_command(self, context, filepath,):
 		success = True
 		ext = os.path.splitext(filepath)[1]
@@ -601,8 +606,9 @@ class UMI(bpy.types.Operator, ImportHelper):
 		try:
 			exec(command, {'bpy':bpy})
 		except Exception as e:
-			LOG.error(str(e))
-			LOG.store_failure(str(e))
+			err_str = self.insert_str(str(e), each=3)
+			LOG.error(err_str)
+			LOG.store_failure(err_str)
 			success = False
 			# raise Exception(e)
 

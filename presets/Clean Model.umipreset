@@ -1,0 +1,5 @@
+bpy.ops.object.apply_all_modifiers()
+bpy.ops.object.select_by_type(type='EMPTY')
+bpy.ops.object.delete(use_global=False, confirm=False)
+bpy.ops.object.select_by_type(type='ARMATURE')
+bpy.ops.object.delete(use_global=False, confirm=False)

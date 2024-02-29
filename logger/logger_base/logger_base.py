@@ -19,6 +19,36 @@ def get_log_file():
 def color_mult(c1, c2):
 	return Color((c1.r * c2.r, c1.g * c2.g, c1.b * c2.b))
 
+
+class Message():
+	def __init__(self, message='', color=Color((1,1,1))):
+		self.message = message
+		self.color = color
+
+class MessageColored():
+	def __init__(self):
+		self._messages = []
+		self.count = 0
+
+	@property
+	def messages(self):
+		return self._messages
+
+	def append(self, message:str, color:Color=Color((1,1,1))):
+		splitted = message.split('//*//n')
+		for s in splitted:
+			self._messages.append(Message(message=s, color=color))
+
+		self.count += 1
+
+	def __len__(self):
+		return len(self._messages)
+	
+	def __getitem__(self, item):
+		return self._messages[item]
+	
+	
+
 class Logger():
 	def __init__(self, log_name='ROOT'):
 		self.log_name = log_name
@@ -29,7 +59,7 @@ class Logger():
 
 		self.successes = []
 		self.failures = []
-		self.messages = []
+		self.messages = MessageColored()
 
 		self._pretty = '---------------------'
 
@@ -39,17 +69,18 @@ class Logger():
 	def revert_parameters(self):
 		self.successes = []
 		self.failures = []
-		self.messages = []
-	
+		self.messages = MessageColored()
+
+
 	def info(self, message, skip_prefix=False, color=None):
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : INFO - '.format(self.log_name) + message
 		
 		if color is not None:
-			self.messages.append({'message':message, 'color':Color(color)})
+			self.messages.append(message=message, color=Color(color))
 		else:
-			self.messages.append({'message':message, 'color':self.color})
+			self.messages.append(message=message, color=self.color)
 			
 		logging.info(message)
 	
@@ -58,7 +89,7 @@ class Logger():
 		if not skip_prefix:
 			message = '{} : SUCCESS - '.format(self.log_name) + message
 			
-		self.messages.append({'message':message, 'color':color_mult(Color(LoggerColors.SUCCESS_COLOR),  Color((1.0, 0.8, 1.0)))})
+		self.messages.append(message=message, color=color_mult(Color(LoggerColors.SUCCESS_COLOR),  Color((1.0, 0.8, 1.0))))
 		
 		if show_message :
 			logging.info(message)
@@ -67,21 +98,21 @@ class Logger():
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : DEBUG - '.format(self.log_name) + message
-		self.messages.append({'message':message, 'color':self.color * 0.2})
+		self.messages.append(message=message, color=self.color * 0.2)
 		logging.debug(message)
 
 	def warning(self, message, skip_prefix=False):
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : WARNING - '.format(self.log_name) + message
-		self.messages.append({'message':message, 'color': Color(LoggerColors.WARNING_COLOR)})
+		self.messages.append(message=message, color= Color(LoggerColors.WARNING_COLOR))
 		logging.warning(message)
 
 	def error(self, message, skip_prefix=False):
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : ERROR - '.format(self.log_name) + message
-		self.messages.append({'message':message, 'color': Color(LoggerColors.ERROR_COLOR)})
+		self.messages.append(message=message, color= Color(LoggerColors.ERROR_COLOR))
 		logging.error(message)
 
 	def set_basic_config(self):
@@ -95,7 +126,7 @@ class Logger():
 		self.failures.append(failure)
 
 	def clear_message(self):
-		self.messages = []
+		self.messages = MessageColored()
 	
 	def clear_success(self):
 		self.successes = []
