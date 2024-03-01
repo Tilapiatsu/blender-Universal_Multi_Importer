@@ -9,6 +9,7 @@ class CompatibleFormats():
 	
 	def __init__(self):
 		self._extensions = None
+		self._extensions_string = None
 		self._operators = None
 		self._module = None		
 		# automatically gather format
@@ -25,6 +26,12 @@ class CompatibleFormats():
 					extensions = extensions + f[1]['ext']
 			self._extensions = extensions
 		return self._extensions
+	
+	@property
+	def extensions_string(self):
+		if self._extensions_string is None:
+			self._extensions_string = ';'.join(self.extensions)
+		return self._extensions_string
 
 	@property
 	def operators(self):

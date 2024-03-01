@@ -86,6 +86,7 @@ class Logger():
 
 
 	def info(self, message, skip_prefix=False, color=None):
+		message = str(message)
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : INFO - '.format(self.log_name) + message
@@ -98,6 +99,7 @@ class Logger():
 		logging.info(message)
 	
 	def success(self, message, skip_prefix=False, show_message=True):
+		message = str(message)
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : SUCCESS - '.format(self.log_name) + message
@@ -108,6 +110,7 @@ class Logger():
 			logging.info(message)
 
 	def debug(self, message, skip_prefix=False):
+		message = str(message)
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : DEBUG - '.format(self.log_name) + message
@@ -115,6 +118,7 @@ class Logger():
 		logging.debug(message)
 
 	def warning(self, message, skip_prefix=False):
+		message = str(message)
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : WARNING - '.format(self.log_name) + message
@@ -122,6 +126,7 @@ class Logger():
 		logging.warning(message)
 
 	def error(self, message, skip_prefix=False):
+		message = str(message)
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : ERROR - '.format(self.log_name) + message
@@ -133,14 +138,17 @@ class Logger():
 		logging.basicConfig(filename=self.log_file, level=logging.DEBUG, datefmt=self.timeformat, filemode='w', format=self.format)
 
 	def store_success(self, success):
+		success = str(success)
 		self.successes.append(success)
 		self.message_types.append(MessageType.SUCCESS)
 	
 	def store_failure(self, failure):
+		failure = str(failure)
 		self.failures.append(failure)
 		self.message_types.append(MessageType.ERROR)
 
 	def store_warning(self, warning):
+		warning = str(warning)
 		self.warnings.append(warning)
 		self.message_types.append(MessageType.WARNING)
 
