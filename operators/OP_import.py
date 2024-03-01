@@ -9,7 +9,19 @@ from ..formats.properties.properties import update_file_stats
 from .OP_command_batcher import draw_command_batcher
 from ..preferences import get_prefs
 from ..logger import LOG, LoggerColors, MessageType
+from ..blender_version import BVERSION
 
+# TODO: https://docs.blender.org/api/4.1/bpy.types.FileHandler.html
+
+class IMPORT_SCENE_FH_UMI_3DVIEW(bpy.types.FileHandler):
+	bl_idname = "IMPORT_SCENE_FH_UMI_3DVIEW"
+	bl_label = "File handler for UMI"
+	bl_import_operator = "import_scene.tila_universal_multi_importer"
+	bl_file_extensions = COMPATIBLE_FORMATS.extensions_string
+
+	@classmethod
+	def poll_drop(cls, context):
+		return (context.area and context.area.type == 'VIEW_3D')
 
 class UMI_Settings(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_settings"
@@ -202,7 +214,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 	bl_description = 'Import multiple files of different formats from the same import dialog. You can also scan folders and subfolders to import everything inside.'
 
 	# Selected files
-	files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
+	files : bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement, options={'SKIP_SAVE'})
 	import_simultaneously_count : bpy.props.IntProperty(name="Max Import Simultaneously (files)", default=200, min=1, description='Maximum number of file to import simultaneously')
 	max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="Max size per import batch. An import batch represents the number of files imported simultaneously", default=20, min=0)
 	minimize_batch_number : bpy.props.BoolProperty(name="Minimize batch number", description="Try to pack files per batch in a way to be as close as possible to the Max batch size, and then minimize the number of import batches", default=True)
@@ -216,7 +228,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 	recursion_depth : bpy.props.IntProperty(name='Recursion Depth', default=0, min=0, description='How many Subfolders will be used to search for compatible files to import.\n/!\ WARNING : A too big number may result of a huge number of files to import and may cause instability')
 	# Support Folder selection
 	filter_folder: bpy.props.BoolProperty(name = 'Import Directory', default = False, options = {"HIDDEN"})
-	directory: bpy.props.StringProperty(name="Outdir Path")
+	directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
 
 	_timer = None
 	thread = None
@@ -260,8 +272,11 @@ class UMI(bpy.types.Operator, ImportHelper):
 	def invoke(self, context, event):
 		bpy.context.scene.umi_settings.umi_batcher_is_processing = False
 		bpy.ops.scene.umi_load_preset_list()
+		if self.directory and not self.filter_folder:
+			return self.execute(context)
 		context.window_manager.fileselect_add(self)
 		return {'RUNNING_MODAL'}
+
 
 	def init_progress(self):
 		self.number_of_files = len(self.filepaths)
@@ -871,6 +886,9 @@ def menu_func_import(self, context):
 	op.filter_folder = True
 
 classes = (UMI_Settings, UMI_FileSelection, UMI)
+
+if BVERSION >= 4.1:
+	classes = classes + (IMPORT_SCENE_FH_UMI_3DVIEW,)
 
 def register():
 	from bpy.utils import register_class
