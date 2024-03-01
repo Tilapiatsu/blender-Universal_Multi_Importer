@@ -15,7 +15,7 @@ def get_operator(context):
 	return idx, operators, active
 
 
-class UI_MoveOperator(bpy.types.Operator):
+class UI_UMIMoveOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_move_operator"
 	bl_label = "Move Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -41,7 +41,7 @@ class UI_MoveOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UI_ClearOperators(bpy.types.Operator):
+class UI_UMIClearOperators(bpy.types.Operator):
 	bl_idname = "scene.umi_clear_operators"
 	bl_label = "Clear All Operators"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -61,7 +61,7 @@ class UI_ClearOperators(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UI_RemoveOperator(bpy.types.Operator):
+class UI_UMIRemoveOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_remove_operator"
 	bl_label = "Remove Selected Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -87,7 +87,7 @@ class UI_RemoveOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UI_DuplicateOperator(bpy.types.Operator):
+class UI_UMIDuplicateOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_duplicate_operator"
 	bl_label = "Duplicate Selected Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -109,7 +109,7 @@ class UI_DuplicateOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UI_EditOperator(bpy.types.Operator):
+class UI_UMIEditOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_edit_operator"
 	bl_label = "Edit Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -135,7 +135,7 @@ class UI_EditOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class UI_AddOperator(bpy.types.Operator):
+class UI_UMIAddOperator(bpy.types.Operator):
 	bl_idname = "scene.umi_add_operator"
 	bl_label = "Add Operator"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -158,12 +158,12 @@ class UI_AddOperator(bpy.types.Operator):
 		return {'FINISHED'}
 	
 
-classes = ( UI_MoveOperator, 
-			UI_ClearOperators, 
-			UI_RemoveOperator, 
-			UI_DuplicateOperator,
-			UI_EditOperator,
-			UI_AddOperator)
+classes = ( UI_UMIMoveOperator, 
+			UI_UMIClearOperators, 
+			UI_UMIRemoveOperator, 
+			UI_UMIDuplicateOperator,
+			UI_UMIEditOperator,
+			UI_UMIAddOperator)
 
 def register():
 	from bpy.utils import register_class
