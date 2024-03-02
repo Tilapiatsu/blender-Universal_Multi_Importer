@@ -14,15 +14,15 @@ from ..blender_version import BVERSION
 # TODO: https://docs.blender.org/api/4.1/bpy.types.FileHandler.html
 
 if BVERSION >= 4.1:
-    class IMPORT_SCENE_FH_UMI_3DVIEW(bpy.types.FileHandler):
-        bl_idname = "IMPORT_SCENE_FH_UMI_3DVIEW"
-        bl_label = "File handler for UMI"
-        bl_import_operator = "import_scene.tila_universal_multi_importer"
-        bl_file_extensions = COMPATIBLE_FORMATS.extensions_string
+	class IMPORT_SCENE_FH_UMI_3DVIEW(bpy.types.FileHandler):
+		bl_idname = "IMPORT_SCENE_FH_UMI_3DVIEW"
+		bl_label = "File handler for UMI"
+		bl_import_operator = "import_scene.tila_universal_multi_importer"
+		bl_file_extensions = COMPATIBLE_FORMATS.extensions_string
 
-        @classmethod
-        def poll_drop(cls, context):
-            return (context.area and context.area.type == 'VIEW_3D')
+		@classmethod
+		def poll_drop(cls, context):
+			return (context.area and context.area.type == 'VIEW_3D')
 
 class UMI_OT_Settings(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_settings"
@@ -116,11 +116,13 @@ class UMI_OT_Settings(bpy.types.Operator):
 
 	def draw(self, context):
 		layout = self.layout
+		layout.use_property_split = True
+		layout.use_property_decorate = False
 		col = layout.column()
 		if len(self.format_handler.format_annotations):
 			col.separator()
 			for k in self.__class__.__annotations__.keys():
-				if not k in ['name', 'settings_imported', 'import_format']:
+				if not k in ['name', 'settings_imported', 'import_format', 'ui_tab']:
 					col.prop(self, k)
 	
 	def cancel(self, context):
