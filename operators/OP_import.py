@@ -24,10 +24,10 @@ if BVERSION >= 4.1:
         def poll_drop(cls, context):
             return (context.area and context.area.type == 'VIEW_3D')
 
-class UMI_Settings(bpy.types.Operator):
+class UMI_OT_Settings(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_settings"
 	bl_label = "Import Settings"
-	bl_options = {'REGISTER', 'INTERNAL'}
+	bl_options = {'REGISTER', 'INTERNAL', 'PRESET'}
 	bl_region_type = "UI"
 
 	import_format : bpy.props.StringProperty(name='Import Format', default="", options={'HIDDEN'},)
@@ -35,6 +35,19 @@ class UMI_Settings(bpy.types.Operator):
 	
 	def unregister_annotations(self):
 		for a in self.registered_annotations:
+			del self.__class__.__annotations__[a]
+		UMI_OT_Settings.bl_idname = f'import_scene.tila_universal_multi_importer_settings'
+		bpy.utils.unregister_class(UMI_OT_Settings)
+		bpy.utils.register_class(UMI_OT_Settings)
+	
+	def init_annotations(self):
+		to_delete = []
+		for a in self.__class__.__annotations__:
+			if a in ['import_format']:
+				continue
+			to_delete.append(a)
+
+		for a in to_delete:
 			del self.__class__.__annotations__[a]
 
 	def populate_property(self, property_name, property_value):
@@ -61,6 +74,9 @@ class UMI_Settings(bpy.types.Operator):
 		return {'FINISHED'}
 
 	def invoke(self, context, event):
+		self.umi_settings = context.scene.umi_settings
+		self.init_annotations()
+
 		key_to_delete = []
 		self.registered_annotations = []
 		self.format_handler = eval('FormatHandler(import_format="{}", context=cont)'.format(self.import_format), {'self':self, 'FormatHandler':FormatHandler, 'cont':context})
@@ -86,8 +102,11 @@ class UMI_Settings(bpy.types.Operator):
 		for k in key_to_delete:
 			del self.format_handler.format_annotations[k]
 
-		bpy.utils.unregister_class(UMI_Settings)
-		bpy.utils.register_class(UMI_Settings)
+		UMI_OT_Settings.bl_label = f'{self.format_handler.format_name.upper()} Import Settings'
+		UMI_OT_Settings.bl_idname = f'import_scene.tila_umi_{self.format_handler.format_name}_settings'
+
+		bpy.utils.unregister_class(UMI_OT_Settings)
+		bpy.utils.register_class(UMI_OT_Settings)
 
 		wm = context.window_manager
 		if len(self.format_handler.format_annotations)-2 > 0 :
@@ -99,14 +118,18 @@ class UMI_Settings(bpy.types.Operator):
 		layout = self.layout
 		col = layout.column()
 		if len(self.format_handler.format_annotations):
-			col.label(text='{} Import Settings'.format(self.format_handler.format_name))
 			col.separator()
 			for k in self.__class__.__annotations__.keys():
 				if not k in ['name', 'settings_imported', 'import_format']:
 					col.prop(self, k)
 	
 	def cancel(self, context):
-		self.execute(context)
+		UMI_OT_Settings.bl_idname = f'import_scene.tila_universal_multi_importer_settings'
+		bpy.utils.unregister_class(UMI_OT_Settings)
+		bpy.utils.register_class(UMI_OT_Settings)
+		self.umi_settings.umi_current_format_setting_cancelled = True
+		return {'CANCELLED'}
+
 
 class UMI_FileSelection(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_file_selection"
@@ -202,10 +225,10 @@ class UMI_FileSelection(bpy.types.Operator):
 	
 		rows = min(len(self.umi_settings.umi_file_selection) if len(self.umi_settings.umi_file_selection) > 2 else 2, 20)
 		col1.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
-
-		
+	
 	def cancel(self, context):
-		self.execute(context)
+		self.umi_settings.umi_current_format_setting_cancelled = True
+		return {'CANCELLED'}
 
 class UMI(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.tila_universal_multi_importer"
@@ -273,11 +296,10 @@ class UMI(bpy.types.Operator, ImportHelper):
 	def invoke(self, context, event):
 		bpy.context.scene.umi_settings.umi_batcher_is_processing = False
 		bpy.ops.scene.umi_load_preset_list()
-		if self.directory and not self.filter_folder:
+		if self.directory and not self.filter_folder and len(self.files):
 			return self.execute(context)
 		context.window_manager.fileselect_add(self)
 		return {'RUNNING_MODAL'}
-
 
 	def init_progress(self):
 		self.number_of_files = len(self.filepaths)
@@ -463,6 +485,8 @@ class UMI(bpy.types.Operator, ImportHelper):
 			if self.filter_folder and not self.umi_settings.umi_file_selection_done:
 				if not self.umi_settings.umi_file_selection_started:
 					self.select_files()
+				if self.umi_settings.umi_current_format_setting_cancelled:
+					return self.cancel_finish(context)
 				return {'PASS_THROUGH'}
 			
 			# File Selection is approved and fed into self.filepaths
@@ -483,6 +507,8 @@ class UMI(bpy.types.Operator, ImportHelper):
 			# Loop through all import format settings
 			if not self.umi_settings.umi_ready_to_import:
 				if not self.first_setting_to_import:
+					if self.umi_settings.umi_current_format_setting_cancelled:
+						return self.cancel_finish(context)
 					if not self.umi_settings.umi_current_format_setting_imported:
 						return {'PASS_THROUGH'}
 					else:
@@ -706,13 +732,15 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.umi_settings.umi_last_setting_to_get = False
 		self.umi_settings.umi_ready_to_import = False
 		self.umi_settings.umi_current_format_setting_imported = False
+		self.umi_settings.umi_current_format_setting_cancelled = False
+		self._filepaths = None
 		context.window_manager.event_timer_remove(self._timer)
 		LOG.revert_parameters()
 		LOG.clear_all()
 	
 	def init_importer(self, context):
-		bpy.utils.unregister_class(UMI_Settings)
-		bpy.utils.register_class(UMI_Settings)
+		bpy.utils.unregister_class(UMI_OT_Settings)
+		bpy.utils.register_class(UMI_OT_Settings)
 		self._filepaths = None
 		self.current_blend_file = bpy.data.filepath
 		self.preferences = get_prefs()
@@ -886,7 +914,7 @@ def menu_func_import(self, context):
 	op = self.layout.operator(UMI.bl_idname, text="Universal Multi Importer Folders", icon='FILEBROWSER')
 	op.filter_folder = True
 
-classes = (UMI_Settings, UMI_FileSelection, UMI)
+classes = (UMI_OT_Settings, UMI_FileSelection, UMI)
 
 if BVERSION >= 4.1:
 	classes = classes + (IMPORT_SCENE_FH_UMI_3DVIEW,)

@@ -45,6 +45,7 @@ class PG_SceneSettings(bpy.types.PropertyGroup):
 	umi_last_setting_to_get : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_batcher_is_processing : bpy.props.BoolProperty(name="Is Batcher Processing", default=False)
 	umi_current_format_setting_imported : bpy.props.BoolProperty(name='Current Format Settings Imported', default=False)
+	umi_current_format_setting_cancelled : bpy.props.BoolProperty(name='Current Format Settings cancelled', default=False)
 	umi_file_selection_started : bpy.props.BoolProperty(name='File selection_started', default=False)
 	umi_file_selection_done : bpy.props.BoolProperty(name='File Selected', default=False)
 	umi_operators : bpy.props.CollectionProperty(type = PG_Operator)
