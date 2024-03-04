@@ -10,6 +10,7 @@ from .OP_command_batcher import draw_command_batcher
 from ..preferences import get_prefs
 from ..logger import LOG, LoggerColors, MessageType
 from ..blender_version import BVERSION
+from .panels import panel_fbx
 
 # TODO: https://docs.blender.org/api/4.1/bpy.types.FileHandler.html
 
@@ -133,22 +134,35 @@ class UMI_OT_Settings(bpy.types.Operator):
 		return {'CANCELLED'}
 
 
+def get_file_selected_items(self, context):
+	return eval(context.scene.umi_settings.umi_file_selected_format_items)
+
+
 class UMI_FileSelection(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_file_selection"
 	bl_label = "File Selection"
 	bl_options = {'REGISTER', 'INTERNAL'}
 	bl_region_type = "UI"
-
-
+	
+	file_selected_formats : bpy.props.EnumProperty(items=get_file_selected_items, options={"ENUM_FLAG"})
+	
 	def invoke(self, context, event):
 		self.umi_settings = context.scene.umi_settings
 		self.umi_settings.umi_file_selection_started = True
+		
+		for f in COMPATIBLE_FORMATS.formats:
+			exec('self.{}_format = FormatHandler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'FormatHandler':FormatHandler, 'cont':context})
+		
+		print(self.fbx_format)
 		update_file_stats(self, context)
 		wm = context.window_manager
-		return wm.invoke_props_dialog(self, width=900)
+		return wm.invoke_props_dialog(self, width=1000)
 
 	def execute(self, context):
 		self.umi_settings.umi_file_selection_done = True
+		self.umi_settings.umi_ready_to_import = True
+
+		self.umi_settings.umi_current_format_setting_imported = True
 		return {'FINISHED'}
 
 	def draw(self, context):
@@ -224,10 +238,36 @@ class UMI_FileSelection(bpy.types.Operator):
 		row2.label(text=str(round(self.umi_settings.umi_file_stat_selected_size, 4)) + ' Mb  |  ')
 		col1.separator()
 		row2.label(text=self.umi_settings.umi_file_stat_selected_formats + ' format(s) selected')
-	
+
+		row = col1.row(align=True)
 		rows = min(len(self.umi_settings.umi_file_selection) if len(self.umi_settings.umi_file_selection) > 2 else 2, 20)
-		col1.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
+		row.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
+		row.separator()
+		col = row.column()
+		col.label(text='Import Settings')
+
+		box = col.box()
+		row1 = box.row(align=True)
+		row1.ui_units_x = 25
+		row1.prop(self, 'file_selected_formats', expand=True)
+		col.separator()
+		if not len(self.file_selected_formats):
+			return
+		current_setting_name = self.file_selected_formats.copy().pop()
+
+		self.draw_current_settings(box, current_setting_name.lower())
+
 	
+	def draw_current_settings(self, layout, format_name):
+		layout.use_property_split = True
+		layout.use_property_decorate = False
+		col = layout.column()
+		current_format = eval(f'self.{format_name}_format')
+		if len(current_format.format_annotations):
+			col.separator()
+			COMPATIBLE_FORMATS.draw_format_settings(format_name, current_format.format_settings, col)
+
+
 	def cancel(self, context):
 		self.umi_settings.umi_current_format_setting_cancelled = True
 		return {'CANCELLED'}
@@ -775,6 +815,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		for f in COMPATIBLE_FORMATS.formats:
 			exec('self.{}_format = FormatHandler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'FormatHandler':FormatHandler, 'cont':context})
 
+		print(self.fbx_format)
 		if not path.exists(self.current_blend_file):
 			LOG.warning('Blender file not saved')
 			self.save_file_after_import = False

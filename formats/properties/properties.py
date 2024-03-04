@@ -2,7 +2,9 @@ import bpy
 from os import path
 from .. import COMPATIBLE_FORMATS
 
+
 def update_file_stats(self, context):
+
 	if not context.scene.umi_settings.umi_file_stat_update:
 		return
 	
@@ -19,6 +21,7 @@ def update_file_stats(self, context):
 	context.scene.umi_settings.umi_file_stat_selected_count = len(selected_files)
 	context.scene.umi_settings.umi_file_stat_selected_size = sum(size)
 	context.scene.umi_settings.umi_file_stat_selected_formats = '( ' + ' | '.join(formats) + ' )' if len(formats) else 'no'
+	context.scene.umi_settings.umi_file_selected_format_items = str([(COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), '') for f in formats])
 	
 class PG_ImportSettings(bpy.types.PropertyGroup):
 	umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)
@@ -41,6 +44,7 @@ class PG_FilePathSelection(bpy.types.PropertyGroup):
 	size : bpy.props.FloatProperty(name='FileSize', default=0.0)
 
 class PG_SceneSettings(bpy.types.PropertyGroup):
+	umi_file_selected_format_items : bpy.props.StringProperty(name='Selected format items')
 	umi_ready_to_import : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_last_setting_to_get : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_batcher_is_processing : bpy.props.BoolProperty(name="Is Batcher Processing", default=False)

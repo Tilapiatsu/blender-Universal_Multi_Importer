@@ -15,6 +15,7 @@ class CompatibleFormats():
 		# automatically gather format
 		attributes = inspect.getmembers(CompatibleFormats, lambda a:not(inspect.isroutine(a)))
 		self.formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
+		self.formats_dict = {a[0]:a[1] for a in self.formats}
 
 
 	@property
@@ -73,3 +74,8 @@ class CompatibleFormats():
 			formats[k] = v
 		
 		return formats
+	
+	def draw_format_settings(self, format_name, operator, layout):
+		exec(f'from .panels import panel_{format_name}')
+		module = eval(f'panel_{format_name}.IMPORT_SCENE_{format_name.upper()}Settings')
+		module.draw(operator, layout)
