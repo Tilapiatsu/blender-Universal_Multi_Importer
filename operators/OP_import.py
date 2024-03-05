@@ -133,9 +133,6 @@ class UMI_OT_Settings(bpy.types.Operator):
 		return {'CANCELLED'}
 
 
-def get_file_selected_items(self, context):
-	return eval(context.scene.umi_settings.umi_file_selected_format_items)
-
 def register_import_format(self, context):
 	for f in COMPATIBLE_FORMATS.formats:
 		exec('self.{}_format = {{ }}'.format(f[0]), {'self':self})
@@ -149,15 +146,12 @@ class UMI_FileSelection(bpy.types.Operator):
 	bl_options = {'REGISTER', 'INTERNAL'}
 	bl_region_type = "UI"
 	
-	file_selected_formats : bpy.props.EnumProperty(items=get_file_selected_items, options={"ENUM_FLAG"})
-	
 	def invoke(self, context, event):
 		self.umi_settings = context.scene.umi_settings
 		self.umi_settings.umi_file_selection_started = True
 		
 		register_import_format(self, context)
 		
-		print(self.fbx_format)
 		update_file_stats(self, context)
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self, width=1000)
@@ -254,15 +248,15 @@ class UMI_FileSelection(bpy.types.Operator):
 		box = col.box()
 		row1 = box.row(align=True)
 		# row1.ui_units_x = 25
-		row1.prop(self, 'file_selected_formats', expand=True)
+		row1.prop(self.umi_settings, 'umi_file_format_current_settings', expand=True)
 		col.separator()
-		if not len(self.file_selected_formats):
+		if not len(self.umi_settings.umi_file_format_current_settings):
 			return
-		current_setting_name = self.file_selected_formats.copy().pop()
+		current_setting_name = self.umi_settings.umi_file_format_current_settings.copy().pop()
 
-		self.draw_current_settings(box, current_setting_name.lower())
+		self.draw_current_settings(context, box, current_setting_name.lower())
 	
-	def draw_current_settings(self, layout, format_name):
+	def draw_current_settings(self, context, layout, format_name):
 		layout.use_property_split = True
 		layout.use_property_decorate = False
 		col = layout.column()
@@ -275,7 +269,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		current_module = eval(f'self.umi_settings.umi_import_settings.{format_name}_import_module', {'self':self}).name.lower()
 		current_settings = current_format[current_module]
 		if len(current_settings.format_settings_dict.keys()):
-			COMPATIBLE_FORMATS.draw_format_settings(format_name, current_settings.format_settings, current_module, col)
+			COMPATIBLE_FORMATS.draw_format_settings(context, format_name, current_settings.format_settings, current_module, col)
 
 	def cancel(self, context):
 		self.umi_settings.umi_current_format_setting_cancelled = True
@@ -829,7 +823,6 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 		register_import_format(self, context)
 
-		print(self.fbx_format)
 		if not path.exists(self.current_blend_file):
 			LOG.warning('Blender file not saved')
 			self.save_file_after_import = False

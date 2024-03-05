@@ -1,5 +1,7 @@
 import bpy
 from . import import_module
+from . import panels
+
 
 from .format_definition import FormatDefinition
 FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('__')]
@@ -31,10 +33,12 @@ def register():
 	class_parser = FormatClassCreator()
 	class_parser.register_compatible_formats()
 	register_import_setting_class()
+	panels.register()
 	properties.register()
 
 def unregister():
 	properties.unregister()
+	panels.unregister()
 	class_parser = FormatClassCreator()
 	class_parser.unregister_compatible_formats()
 	import_module.unregister()

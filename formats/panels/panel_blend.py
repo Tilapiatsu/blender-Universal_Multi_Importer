@@ -1,6 +1,7 @@
+from bpy.types import Panel
 
-class IMPORT_SCENE_BLENDSettings():
-    def draw(operator, module_name,  layout):
+class IMPORT_SCENE_BLENDSettings(Panel):
+    def draw(self, context, operator, module_name,  layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 

@@ -1,6 +1,6 @@
 
 class IMPORT_SCENE_ABCSettings():
-    def draw(operator, module_name, layout):
+    def draw(self, context, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 

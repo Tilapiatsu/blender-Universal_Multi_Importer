@@ -1,6 +1,7 @@
 from .format_definition import FormatDefinition
 from . import FORMATS
 from ..logger import LOG
+from .panels.presets import preset
 import inspect
 
 class CompatibleFormats():
@@ -75,7 +76,14 @@ class CompatibleFormats():
 		
 		return formats
 	
-	def draw_format_settings(self, format_name, operator, module_name, layout):
+	def draw_format_settings(self, context, format_name, operator, module_name, layout):
 		exec(f'from .panels import panel_{format_name}')
 		module = eval(f'panel_{format_name}.IMPORT_SCENE_{format_name.upper()}Settings')
-		module.draw(operator, module_name, layout)
+		self.layout = layout
+		
+		preset.panel_func(self, context)
+
+		layout.separator()
+		layout.separator()
+	
+		module.draw(self, context, operator, module_name, layout)
