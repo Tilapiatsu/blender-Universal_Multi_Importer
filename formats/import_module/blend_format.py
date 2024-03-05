@@ -10,7 +10,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 	bl_options = {'REGISTER', 'INTERNAL'}
 	bl_description = 'Append or Link Blend file'
 
-	import_mode : bpy.props.EnumProperty(name="Import Mode", default="APPEND", items=[("APPEND", "Append", ""), ("LINK", "Link", "")])
+	import_module : bpy.props.EnumProperty(name="Import Module", default="APPEND", items=[("APPEND", "Append", ""), ("LINK", "Link", "")])
 
 	import_actions : bpy.props.BoolProperty(name="Actions", default=False)
 	import_armatures : bpy.props.BoolProperty(name="Armatures", default=False)
@@ -97,11 +97,11 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 	
 	@property
 	def is_append(self):
-		return self.import_mode == 'APPEND'
+		return self.import_module == 'APPEND'
 
 	@property
 	def is_link(self):
-		return self.import_mode == 'LINK'
+		return self.import_module == 'LINK'
 	
 	@property
 	def filename(self):
@@ -110,7 +110,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 	@property
 	def import_datas(self):
 		if self._import_datas is None:
-			self._import_datas = [m.replace('import_', '') for m in self.__annotations__.keys() if m.startswith('import_') and m != 'import_mode' and getattr(self, m)]
+			self._import_datas = [m.replace('import_', '') for m in self.__annotations__.keys() if m.startswith('import_') and m != 'import_module' and getattr(self, m)]
 		
 		return self._import_datas
 
@@ -514,7 +514,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 			self.import_data()
 		
 		if not self.import_finished and not self.importing:
-			if self.import_mode == 'APPEND' and self.library is not None:
+			if self.import_module == 'APPEND' and self.library is not None:
 				bpy.ops.data.tila_remove_library(library_name=self.library.name)
 
 			self.import_finished = True

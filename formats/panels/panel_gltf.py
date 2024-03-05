@@ -1,6 +1,6 @@
 
 class IMPORT_SCENE_GLTFSettings():
-    def draw(operator,  layout):
+    def draw(operator, module_name,  layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 

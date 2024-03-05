@@ -79,7 +79,7 @@ class UMI_OT_Settings(bpy.types.Operator):
 
 		key_to_delete = []
 		self.registered_annotations = []
-		self.format_handler = eval('FormatHandler(import_format="{}", context=cont)'.format(self.import_format), {'self':self, 'FormatHandler':FormatHandler, 'cont':context})
+		self.format_handler = eval(f'FormatHandler(import_format="{self.import_format}", module_name="default" context=cont)', {'self':self, 'FormatHandler':FormatHandler, 'cont':context})
 
 		for k,v in self.format_handler.format_annotations.items():
 			if getattr(v, 'is_hidden', False) or getattr(v, 'is_readonly', False):
@@ -261,7 +261,6 @@ class UMI_FileSelection(bpy.types.Operator):
 		current_setting_name = self.file_selected_formats.copy().pop()
 
 		self.draw_current_settings(box, current_setting_name.lower())
-
 	
 	def draw_current_settings(self, layout, format_name):
 		layout.use_property_split = True
@@ -276,8 +275,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		current_module = eval(f'self.umi_settings.umi_import_settings.{format_name}_import_module', {'self':self}).name.lower()
 		current_settings = current_format[current_module]
 		if len(current_settings.format_settings_dict.keys()):
-			COMPATIBLE_FORMATS.draw_format_settings(format_name, current_settings.format_settings, col)
-
+			COMPATIBLE_FORMATS.draw_format_settings(format_name, current_settings.format_settings, current_module, col)
 
 	def cancel(self, context):
 		self.umi_settings.umi_current_format_setting_cancelled = True
@@ -535,7 +533,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		
 		if event.type == 'TIMER':
 			# Select files if in folder mode
-			if self.filter_folder and not self.umi_settings.umi_file_selection_done:
+			if not self.umi_settings.umi_file_selection_done:
 				if not self.umi_settings.umi_file_selection_started:
 					self.select_files()
 				if self.umi_settings.umi_current_format_setting_cancelled:
@@ -543,7 +541,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 				return {'PASS_THROUGH'}
 			
 			# File Selection is approved and fed into self.filepaths
-			elif self.filter_folder and self.umi_settings.umi_file_selection_done and self.umi_settings.umi_file_selection_started:
+			elif self.umi_settings.umi_file_selection_done and self.umi_settings.umi_file_selection_started:
 				self.filepaths = [f.path for f in self.umi_settings.umi_file_selection if f.check]
 				self.store_formats_to_import()
 				
@@ -557,7 +555,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 				self.umi_settings.umi_file_selection.clear()
 				self.umi_settings.umi_file_selection_started = False
 
-			# Loop through all import format settings
+			# LEGACY : Loop through all import format settings
 			if not self.umi_settings.umi_ready_to_import:
 				if not self.first_setting_to_import:
 					if self.umi_settings.umi_current_format_setting_cancelled:
@@ -660,12 +658,9 @@ class UMI(bpy.types.Operator, ImportHelper):
 		format_name = COMPATIBLE_FORMATS.get_format_from_extension(ext)['name']
 		current_format = eval(f'self.{format_name}_format')
 		current_module = eval(f'self.umi_settings.umi_import_settings.{format_name}_import_module', {'self':self}).name.lower()
-		format_settings = current_format[current_module].format_settings
-
-		if 'import_module' in dir(format_settings):
-			operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)[getattr(format_settings, 'import_module').lower()]['command']
-		else:
-			operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)['default']['command']
+		# format_settings = current_format[current_module].format_settings
+		
+		operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)[current_module]['command']
 
 		# Double \\ in the path causing error in the string
 		args = current_format[current_module].format_settings_dict
@@ -675,10 +670,26 @@ class UMI(bpy.types.Operator, ImportHelper):
 		args_as_string = ''
 		arg_number = len(args.keys())
 		for k,v in args.items():
-			if k in ['settings_imported', 'name', 'import_module']:
+			if k in ['settings_imported', 'name']:
 				arg_number -= 1
 				continue
-			args_as_string += ' {}={}'.format(k, v)
+			if isinstance(v, bpy.types.bpy_prop_collection):
+				if not len(v):
+					continue
+
+				col_as_string = ''
+				for i,f in enumerate(v):
+					if i == 0:
+						col_as_string += '['
+					elif i < len(v) -1:
+						col_as_string += ','
+			
+					col_as_string += f'"{f}"'
+				col_as_string += ']'
+
+				args_as_string += f' {k}={col_as_string}'
+			else:
+				args_as_string += f' {k}={v}'
 			if arg_number >= 2:
 				args_as_string += ','
 

@@ -21,7 +21,9 @@ def update_file_stats(self, context):
 	context.scene.umi_settings.umi_file_stat_selected_count = len(selected_files)
 	context.scene.umi_settings.umi_file_stat_selected_size = sum(size)
 	context.scene.umi_settings.umi_file_stat_selected_formats = '( ' + ' | '.join(formats) + ' )' if len(formats) else 'no'
-	context.scene.umi_settings.umi_file_selected_format_items = str([(COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), '') for f in formats])
+	context.scene.umi_settings.umi_file_selected_format_items = str([( COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), '') for f in formats])
+	if len(formats):
+		pass
 	
 class PG_ImportSettings(bpy.types.PropertyGroup):
 	umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)

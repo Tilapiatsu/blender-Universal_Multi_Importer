@@ -75,7 +75,7 @@ class CompatibleFormats():
 		
 		return formats
 	
-	def draw_format_settings(self, format_name, operator, layout):
+	def draw_format_settings(self, format_name, operator, module_name, layout):
 		exec(f'from .panels import panel_{format_name}')
 		module = eval(f'panel_{format_name}.IMPORT_SCENE_{format_name.upper()}Settings')
-		module.draw(operator, layout)
+		module.draw(operator, module_name, layout)

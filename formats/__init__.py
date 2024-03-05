@@ -40,7 +40,7 @@ def unregister():
 	import_module.unregister()
 	
 for f in COMPATIBLE_FORMATS.formats:
-	module_items = [(m.upper(), m.upper(), '') for m in f[1]['operator'].keys()]
-	exec(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import modules")')
+	module_items = [(m.upper(), m.title().replace('_', ' '), '') for m in f[1]['operator'].keys()]
+	exec(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import Module")')
 	for name in f[1]['operator'].keys():
 		exec(f'class UMI_{f[0]}_{name}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[0]}_{name}")')

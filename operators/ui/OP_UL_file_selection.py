@@ -15,7 +15,7 @@ def get_file_selection(context):
 class UI_Select(bpy.types.Operator):
 	bl_idname = "scene.umi_select_file"
 	bl_label = "Select File"
-	bl_options = {'REGISTER', 'UNDO'}
+	bl_options = {'REGISTER', 'UNDO', 'INTERNAL'}
 	bl_description = "Select Files"
 
 	action: bpy.props.EnumProperty(items=[("SELECT", "Select", ""), ("DESELECT", "Deselect", "")])

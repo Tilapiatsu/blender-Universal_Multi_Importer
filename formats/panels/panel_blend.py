@@ -1,11 +1,11 @@
 
 class IMPORT_SCENE_BLENDSettings():
-    def draw(operator,  layout):
+    def draw(operator, module_name,  layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        mode = layout.row(align=True)
-        mode.prop(operator, 'import_mode', expand=True)
+        module = layout.row(align=True)
+        module.prop(operator, 'import_module', expand=True)
         
         layout.separator()
         
