@@ -5,16 +5,15 @@ class IMPORT_SCENE_ABCSettings():
         layout.use_property_decorate = False  # No animation.
 
         transorm = layout.box()
-        transorm.label(text='TODO', icon='OBJECT_DATA')
-        # transorm.prop(operator, 'global_scale')
-        # transorm.prop(operator, 'clamp_size')
-        # transorm.prop(operator, 'forward_axis')
-        # transorm.prop(operator, 'up_axis')
+        transorm.label(text='Manual Transform', icon='OBJECT_DATA')
+        transorm.prop(operator, 'scale')
 
-        # options = layout.box()
-        # options.label(text='Options', icon='EXPORT')
-        # options.prop(operator, 'use_split_objects')
-        # options.prop(operator, 'use_split_groups')
-        # options.prop(operator, 'import_vertex_groups')
-        # options.prop(operator, 'validate_meshes')
-        # options.prop(operator, 'collection_separator')
+        option = layout.box()
+        option.label(text='Options', icon='OPTIONS')
+        option.prop(operator, 'relative_path')
+        option.prop(operator, 'set_frame_range')
+        option.prop(operator, 'is_sequence')
+        option.prop(operator, 'validate_meshes')
+        option.prop(operator, 'always_add_cache_reader')
+        
+

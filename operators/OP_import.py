@@ -10,7 +10,6 @@ from .OP_command_batcher import draw_command_batcher
 from ..preferences import get_prefs
 from ..logger import LOG, LoggerColors, MessageType
 from ..blender_version import BVERSION
-from .panels import panel_fbx
 
 # TODO: https://docs.blender.org/api/4.1/bpy.types.FileHandler.html
 
@@ -137,6 +136,12 @@ class UMI_OT_Settings(bpy.types.Operator):
 def get_file_selected_items(self, context):
 	return eval(context.scene.umi_settings.umi_file_selected_format_items)
 
+def register_import_format(self, context):
+	for f in COMPATIBLE_FORMATS.formats:
+		exec('self.{}_format = {{ }}'.format(f[0]), {'self':self})
+		current_format = eval(f'self.{f[0]}_format')
+		for i,name in enumerate(f[1]['operator'].keys()):
+			current_format[name] = FormatHandler(import_format=f"{f[0]}", module_name=name, context=context)
 
 class UMI_FileSelection(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_file_selection"
@@ -150,8 +155,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		self.umi_settings = context.scene.umi_settings
 		self.umi_settings.umi_file_selection_started = True
 		
-		for f in COMPATIBLE_FORMATS.formats:
-			exec('self.{}_format = FormatHandler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'FormatHandler':FormatHandler, 'cont':context})
+		register_import_format(self, context)
 		
 		print(self.fbx_format)
 		update_file_stats(self, context)
@@ -244,11 +248,12 @@ class UMI_FileSelection(bpy.types.Operator):
 		row.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
 		row.separator()
 		col = row.column()
+		col.ui_units_x = 25
 		col.label(text='Import Settings')
 
 		box = col.box()
 		row1 = box.row(align=True)
-		row1.ui_units_x = 25
+		# row1.ui_units_x = 25
 		row1.prop(self, 'file_selected_formats', expand=True)
 		col.separator()
 		if not len(self.file_selected_formats):
@@ -263,9 +268,15 @@ class UMI_FileSelection(bpy.types.Operator):
 		layout.use_property_decorate = False
 		col = layout.column()
 		current_format = eval(f'self.{format_name}_format')
-		if len(current_format.format_annotations):
+		if len(current_format.keys()) > 1:
+			row = col.row()
+			row.prop(eval(f"self.umi_settings.umi_import_settings.{format_name}_import_module", {'self':self}), 'name' , expand=True)
 			col.separator()
-			COMPATIBLE_FORMATS.draw_format_settings(format_name, current_format.format_settings, col)
+
+		current_module = eval(f'self.umi_settings.umi_import_settings.{format_name}_import_module', {'self':self}).name.lower()
+		current_settings = current_format[current_module]
+		if len(current_settings.format_settings_dict.keys()):
+			COMPATIBLE_FORMATS.draw_format_settings(format_name, current_settings.format_settings, col)
 
 
 	def cancel(self, context):
@@ -445,7 +456,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		# gather import setting from the user for each format selected
 		bpy.ops.import_scene.tila_universal_multi_importer_settings('INVOKE_DEFAULT', import_format=self.current_format['name'])
 		self.first_setting_to_import = False
-
+ 
 	def select_files(self):
 		for f in self.filepaths:
 			filepath = self.umi_settings.umi_file_selection.add()
@@ -646,32 +657,25 @@ class UMI(bpy.types.Operator, ImportHelper):
 	def import_command(self, context, filepath):
 		success = True
 		ext = os.path.splitext(filepath)[1]
-		operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)
-		format_names = COMPATIBLE_FORMATS.get_format_from_extension(ext)['name']
-		if operators is None:
-			message = f"'{ext}' format is not supported"
-			LOG.error(message)
-			LOG.store_failure(message)
-			return
+		format_name = COMPATIBLE_FORMATS.get_format_from_extension(ext)['name']
+		current_format = eval(f'self.{format_name}_format')
+		current_module = eval(f'self.umi_settings.umi_import_settings.{format_name}_import_module', {'self':self}).name.lower()
+		format_settings = current_format[current_module].format_settings
 
-		if len(operators) == 1:
-			operators = operators['default']
+		if 'import_module' in dir(format_settings):
+			operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)[getattr(format_settings, 'import_module').lower()]['command']
 		else:
-			if ext == '.svg':
-				if self.import_svg_as_grease_pencil:
-					operators = operators['grease_pencil']
-				else:
-					operators = operators['default']
+			operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)['default']['command']
 
 		# Double \\ in the path causing error in the string
-		args = eval(f'self.{format_names}_format.format_settings_dict', {'self':self})
+		args = current_format[current_module].format_settings_dict
 		raw_path = filepath.replace('\\\\', punctuation[23])
 		args['filepath'] = 'r"{}"'.format(raw_path)
 
 		args_as_string = ''
 		arg_number = len(args.keys())
 		for k,v in args.items():
-			if k in ['settings_imported', 'name']:
+			if k in ['settings_imported', 'name', 'import_module']:
 				arg_number -= 1
 				continue
 			args_as_string += ' {}={}'.format(k, v)
@@ -812,8 +816,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 	def execute(self,context):
 		self.init_importer(context)
 
-		for f in COMPATIBLE_FORMATS.formats:
-			exec('self.{}_format = FormatHandler(import_format="{}", context=cont)'.format(f[0], f[0]), {'self':self, 'FormatHandler':FormatHandler, 'cont':context})
+		register_import_format(self, context)
 
 		print(self.fbx_format)
 		if not path.exists(self.current_blend_file):

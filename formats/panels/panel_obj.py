@@ -12,7 +12,7 @@ class IMPORT_SCENE_OBJSettings():
         transorm.prop(operator, 'up_axis')
 
         options = layout.box()
-        options.label(text='Options', icon='EXPORT')
+        options.label(text='Options', icon='OPTIONS')
         options.prop(operator, 'use_split_objects')
         options.prop(operator, 'use_split_groups')
         options.prop(operator, 'import_vertex_groups')

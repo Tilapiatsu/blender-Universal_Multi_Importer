@@ -6,8 +6,9 @@ class IMPORT_SCENE_BLENDSettings():
 
         mode = layout.row(align=True)
         mode.prop(operator, 'import_mode', expand=True)
-        mode.separator()
-
+        
+        layout.separator()
+        
         data = layout.box()
         data.label(text='Import Data', icon='IMPORT')
 

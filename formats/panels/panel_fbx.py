@@ -5,7 +5,7 @@ class IMPORT_SCENE_FBXSettings():
         layout.use_property_decorate = False  # No animation.
 
         include = layout.box()
-        include.label(text='Include')
+        include.label(text='Include', icon='IMPORT')
         include.prop(operator, "use_custom_normals")
         include.prop(operator, "use_subsurf")
         include.prop(operator, "use_custom_props")
@@ -16,7 +16,7 @@ class IMPORT_SCENE_FBXSettings():
         include.prop(operator, "colors_type")
 
         transform = layout.box()
-        transform.label(text='Transform')
+        transform.label(text='Transform', icon='OBJECT_DATA')
         transform.prop(operator, "global_scale")
         transform.prop(operator, "decal_offset")
         row = transform.row()
@@ -38,7 +38,7 @@ class IMPORT_SCENE_FBXSettings():
         col.prop(operator, "anim_offset")
 
         armature = layout.box()
-        armature.label(text='Armature')
+        armature.label(text='Armature', icon='ARMATURE_DATA')
         armature.prop(operator, "ignore_leaf_bones")
         armature.prop(operator, "force_connect_children"),
         armature.prop(operator, "automatic_bone_orientation")

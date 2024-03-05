@@ -4,17 +4,17 @@ class IMPORT_SCENE_DAESettings():
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        transorm = layout.box()
-        transorm.label(text='TODO', icon='OBJECT_DATA')
-        # transorm.prop(operator, 'global_scale')
-        # transorm.prop(operator, 'clamp_size')
-        # transorm.prop(operator, 'forward_axis')
-        # transorm.prop(operator, 'up_axis')
+        data = layout.box()
+        data.label(text='Import Data Options', icon='MESH_DATA')
+        data.prop(operator, 'import_units')
+        data.prop(operator, 'custom_normals')
 
-        # options = layout.box()
-        # options.label(text='Options', icon='EXPORT')
-        # options.prop(operator, 'use_split_objects')
-        # options.prop(operator, 'use_split_groups')
-        # options.prop(operator, 'import_vertex_groups')
-        # options.prop(operator, 'validate_meshes')
-        # options.prop(operator, 'collection_separator')
+        armature = layout.box()
+        armature.label(text='Armature', icon='ARMATURE_DATA')
+        armature.prop(operator, 'fix_orientation')
+        armature.prop(operator, 'find_chains')
+        armature.prop(operator, 'auto_connect')
+        armature.prop(operator, 'min_chain_length')
+
+        misc = layout.box()
+        misc.prop(operator, 'keep_bind_info')

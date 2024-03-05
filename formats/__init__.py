@@ -16,10 +16,14 @@ from .format_class_creator import FormatClassCreator
 # function to register dynamically generated classes for each compatible formats
 def register_import_setting_class():
 	for f in COMPATIBLE_FORMATS.formats:
-		cl_name = f'UMI_{f[1]["name"]}_settings'
+		cl_name = f'UMI_{f[0]}_module'
 		cl = eval(cl_name)
-		exec(f'PG_ImportSettings.__annotations__["{f[1]["name"]}_import_settings"] = bpy.props.PointerProperty(type={cl_name})', {'bpy': bpy, 'PG_ImportSettings':properties.PG_ImportSettings, cl_name:cl})
-		
+		properties.PG_ImportSettings.__annotations__[f'{f[0]}_import_module'] = bpy.props.PointerProperty(type=cl)
+		for name in f[1]['operator'].keys():
+			cl_name = f'UMI_{f[0]}_{name}_settings'
+			cl = eval(cl_name)
+			properties.PG_ImportSettings.__annotations__[f'{f[0]}_{name}_import_settings'] = bpy.props.PointerProperty(type=cl)
+			
 	properties.PG_ImportSettings.umi_import_settings_registered = True
 	
 def register():
@@ -36,4 +40,7 @@ def unregister():
 	import_module.unregister()
 	
 for f in COMPATIBLE_FORMATS.formats:
-	exec(f'class UMI_{f[1]["name"]}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[1]["name"]}")')
+	module_items = [(m.upper(), m.upper(), '') for m in f[1]['operator'].keys()]
+	exec(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import modules")')
+	for name in f[1]['operator'].keys():
+		exec(f'class UMI_{f[0]}_{name}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[0]}_{name}")')
