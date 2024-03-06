@@ -1,3 +1,4 @@
+from . import BVERSION
 
 class IMPORT_SCENE_USDSettings():
     def draw(self, operator, module_name,  layout):
@@ -16,8 +17,12 @@ class IMPORT_SCENE_USDSettings():
         col = row.column(align=True)
         col.prop(operator, 'import_volumes')
         col.prop(operator, 'import_shapes')
-        col.prop(operator, 'import_skeletons')
-        col.prop(operator, 'import_blendshapes')
+        if BVERSION >= 4.1:
+            col.prop(operator, 'import_skeletons')
+        if BVERSION >= 4.1:
+            col.prop(operator, 'import_blendshapes')
+        else:
+            col.prop(operator, 'import_shapes')
         col = include.column(align=True)
         col.prop(operator, 'prim_path_mask')
         col.prop(operator, 'scale')
@@ -28,7 +33,8 @@ class IMPORT_SCENE_USDSettings():
         col = base_col.column(align=True)
         col.prop(operator, 'read_mesh_uvs')
         col.prop(operator, 'read_mesh_colors')
-        col.prop(operator, 'read_mesh_attributes')
+        if BVERSION >= 4.1:
+            col.prop(operator, 'read_mesh_attributes')
 
         base_col.separator()
 
@@ -36,7 +42,8 @@ class IMPORT_SCENE_USDSettings():
         base_col.label(text='Include', icon='IMPORT')
         col = base_col.column(align=True)
         col.prop(operator, 'import_subdiv')
-        col.prop(operator, 'support_scene_instancing')
+        if BVERSION >= 4.1:
+            col.prop(operator, 'support_scene_instancing')
         col.prop(operator, 'import_visible_only')
         col.prop(operator, 'import_guide')
         col.prop(operator, 'import_proxy')
