@@ -86,4 +86,4 @@ class CompatibleFormats():
 		layout.separator()
 		layout.separator()
 	
-		module.draw(self, context, operator, module_name, layout)
+		module.draw(self, operator, module_name, layout)

@@ -268,8 +268,8 @@ class UMI_FileSelection(bpy.types.Operator):
 
 		current_module = eval(f'self.umi_settings.umi_import_settings.{format_name}_import_module', {'self':self}).name.lower()
 		current_settings = current_format[current_module]
-		if len(current_settings.format_settings_dict.keys()):
-			COMPATIBLE_FORMATS.draw_format_settings(context, format_name, current_settings.format_settings, current_module, col)
+		# if len(current_settings.format_settings_dict.keys()):
+		COMPATIBLE_FORMATS.draw_format_settings(context, format_name, current_settings.format_settings, current_module, col)
 
 	def cancel(self, context):
 		self.umi_settings.umi_current_format_setting_cancelled = True

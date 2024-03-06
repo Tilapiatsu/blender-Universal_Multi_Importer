@@ -23,6 +23,8 @@ class FormatClassCreator():
 	def __init__(self):
 		self._classes = None
 
+	incompatible_subclass = ['Operator', 'bpy_struct', 'object']
+	
 	@property
 	def compatible_formats_class(self):
 		if self._classes is None:
@@ -33,10 +35,6 @@ class FormatClassCreator():
 				for name, operator in f[1]['operator'].items():
 					exec(f'from . import UMI_{f[0]}_{name}_settings')
 					format_class = eval(f'UMI_{f[0]}_{name}_settings')
-
-					# if len(f[1]["operator"].keys()) > 1:
-					# 	module_items = [(m.upper(), m.upper(), '') for m in f[1]['operator'].keys()]
-					# 	format_class.__annotations__['import_module'] = bpy.props.EnumProperty(items=module_items, name='Import Module')
 
 					if operator['module'] is not None:
 						format_class = self.create_format_class_from_module(operator, format_class)
@@ -51,6 +49,18 @@ class FormatClassCreator():
 	def create_format_class_from_module(self, f, format_class):
 		print(f'create class from module {f["module"]}')
 		format_module = getattr(bpy.types, f['module'], None)
+
+		if format_module is None:
+			print(f"Invalid module name passed : {f['module']}\nOr importer addon is disable")
+			return None
+		
+		for sub_module in self.get_valid_submodule(format_module):
+			self.create_format_class_hierarchy_from_module(f, format_class, sub_module)
+
+		format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
+		return format_class
+	
+	def create_format_class_hierarchy_from_module(self, f, format_class, format_module):
 
 		if format_module is None:
 			print(f"Invalid module name passed : {f['module']}\nOr importer addon is disable")
@@ -73,10 +83,9 @@ class FormatClassCreator():
 
 		for k in key_to_delete:
 			del format_annotations[k]
-		
-		format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
+
 		return format_class
-	
+
 	def create_format_class_from_operator(self, f, format_class):
 		print(f'create class from operator {f["command"]}')
 		if 'import_settings' in f.keys() :
@@ -102,6 +111,9 @@ class FormatClassCreator():
 		
 		format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
 		return format_class
+	
+	def get_valid_submodule(self, format_module):
+		return [c for c in format_module.__mro__ if c.__name__ not in self.incompatible_subclass]
 
 	def register_compatible_formats(self):
 		for c in self.compatible_formats_class:
