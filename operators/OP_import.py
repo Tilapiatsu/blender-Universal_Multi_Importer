@@ -522,7 +522,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 			return {'RUNNING_MODAL'}
-		
+
 		if event.type == 'TIMER':
 			# Select files if in folder mode
 			if not self.umi_settings.umi_file_selection_done:
@@ -543,7 +543,6 @@ class UMI(bpy.types.Operator, ImportHelper):
 					return self.cancel_finish(context)
 				
 				LOG.info(f'{len(self.filepaths)}  files selected')
-				LOG.separator()
 				self.umi_settings.umi_file_selection.clear()
 				self.umi_settings.umi_file_selection_started = False
 
@@ -561,13 +560,18 @@ class UMI(bpy.types.Operator, ImportHelper):
 			
 			# Import Loop
 			else:
-				if self.start_time == 0: #INIT Counter
+				#INIT Counter
+				if self.start_time == 0: 
 					self.start_time = time.perf_counter()
 
-				if bpy.context.scene.umi_settings.umi_batcher_is_processing: # wait if post processing in progress
+				# wait if post processing in progress
+				if bpy.context.scene.umi_settings.umi_batcher_is_processing: 
 					return {'PASS_THROUGH'}
 				
-				elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and self.current_files_to_import == []: # Import and Processing done
+				# After each Import Batch, and batch process
+				elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and not len (self.current_files_to_import):
+					# update End LOGs
+					LOG.separator()
 					i=len(self.current_filenames)
 					for filename in self.current_filenames:
 						index = len(self.imported_files) - i
@@ -578,27 +582,27 @@ class UMI(bpy.types.Operator, ImportHelper):
 						else:
 							message = f'File {index + 1} NOT imported correctly : {filename}'
 							LOG.error(message)
-							# LOG.store_failure(message)
 						
 						i -= 1
-
+					
+					# Backup file
 					if self.backup_file_after_import:
 						if self.backup_step <= self.current_backup_step:
 							self.current_backup_step = 0
 							LOG.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
 							bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
-
-					self.current_files_to_import = []
-
+					
+					# Register Next Batch if files are remaining in the import list
 					if len(self.filepaths):
 						LOG.separator()
-						self.next_file()
-						LOG.info(f'Starting Batch n°{self.batch_number} with {len(self.current_files_to_import)} files')
-						LOG.info(f'Batch size : {round(self.current_batch_size, 2)}MB')
-					else:
+						self.next_batch()
+						self.log_next_batch()
+
+					# All Batches are imported and processed : init ending
+					else: 
 						if self.save_file_after_import:
 							bpy.ops.wm.save_as_mainfile(filepath=self.current_blend_file, check_existing=False)
-
+						
 						LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2), size=self.total_imported_size, batch_count=self.batch_number)
 						self.import_complete = True
 						LOG.completed = True
@@ -606,24 +610,25 @@ class UMI(bpy.types.Operator, ImportHelper):
 						self.counter = self.wait_before_hiding
 						bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
-				elif len(self.objects_to_process): # Processing current object
+				# Set Importing to false once Importing is done
+				elif self.importing and self.current_batch_imported:  
+					self.importing = False
+
+				# Run Command Batcher on Last batch imported files
+				elif len(self.objects_to_process): 
 					self.post_import_command(self.objects_to_process, self.operator_list)
 					self.objects_to_process = []
+
+				# Register First Batch
+				elif not len(self.current_files_to_import) and len(self.filepaths):
+					LOG.separator()
+					self.next_batch()
+					self.log_next_batch()
 				
-				elif self.importing and self.current_batch_imported: # Post Import Processing 
-					self.importing = False
-
-				elif self.current_files_to_import == [] and len(self.filepaths):
-					self.next_file()
-					LOG.info(f'Starting Batch n°{self.batch_number} with {len(self.current_files_to_import)} files')
-					LOG.info(f'Batch size : {round(self.current_batch_size, 2)}MB')
-
-				elif not self.importing and len(self.current_files_to_import): # Import can start
+				 # Import can start
+				elif not self.importing and len(self.current_files_to_import):
 					self.files_succeeded += self.import_files(context, self.current_files_to_import)
 					self.current_files_to_import = []
-
-				elif self.current_files_to_import == [] and len(self.filepaths):
-					self.importing = False
 
 		return {'PASS_THROUGH'}
 	
@@ -700,49 +705,52 @@ class UMI(bpy.types.Operator, ImportHelper):
 		if len(self.operator_list):
 			if success:
 				self.objects_to_process = self.objects_to_process + [o for o in context.selected_objects]
+
 		return success
 
 	def update_progress(self):
 			self.progress = (self.total_imported_size * 100) / self.total_import_size
+	
+	def import_file(self, context, current_file):
+		filename = path.basename(current_file)
+		name = (path.splitext(current_file)[0])
+		name = path.basename(name)
+		self.current_filenames.append(path.basename(filename))
+
+		if self.skip_already_imported_files:
+			if filename in bpy.data.collections:
+				self.current_files_to_import = []
+				self.importing = False
+				LOG.warning(f'File {filename} have already been imported, skiping file...')
+				return
 		
+		current_file_size = self.get_filesize(current_file)
+		self.total_imported_size += current_file_size
+		self.update_progress()
+
+		LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=LoggerColors.IMPORT_COLOR)
+		self.current_backup_step += current_file_size
+		
+		if self.force_refresh_viewport_after_each_import:
+			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+
+		if self.create_collection_per_file:
+			collection = bpy.data.collections.new(name=filename)
+			self.root_collection.children.link(collection)
+			
+			root_layer_col = self.view_layer.layer_collection    
+			layer_col = self.recur_layer_collection(root_layer_col, collection.name)
+			self.view_layer.active_layer_collection = layer_col
+
+		succeeded = self.import_command(context, filepath=current_file)
+		self.imported_files.append(current_file)
+		return succeeded
+
 	def import_files(self, context, filepaths):
 		self.importing = True
 		success = []
 		for f in filepaths:
-			filename = path.basename(f)
-			name = (path.splitext(f)[0])
-			name = path.basename(name)
-			self.current_filenames.append(path.basename(filename))
-
-			if self.skip_already_imported_files:
-				if filename in bpy.data.collections:
-					self.current_files_to_import = []
-					self.importing = False
-					LOG.warning(f'File {filename} have already been imported, skiping file...')
-					return
-			
-			current_file_size = self.get_filesize(f)
-			self.total_imported_size += current_file_size
-			self.update_progress()
-
-			LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=LoggerColors.IMPORT_COLOR)
-			self.current_backup_step += current_file_size
-			
-			if self.force_refresh_viewport_after_each_import:
-				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-
-			if self.create_collection_per_file:
-				collection = bpy.data.collections.new(name=filename)
-				self.root_collection.children.link(collection)
-				
-				root_layer_col = self.view_layer.layer_collection    
-				layer_col = self.recur_layer_collection(root_layer_col, collection.name)
-				self.view_layer.active_layer_collection = layer_col
-
-			succeeded = self.import_command(context, filepath=f)
-			success.append(succeeded)
-			self.imported_files.append(f)
-
+			success.append(self.import_file(context, f))
 		self.current_batch_imported = True
 		return success
 
@@ -916,33 +924,36 @@ class UMI(bpy.types.Operator, ImportHelper):
 		
 		return None
 
-	def next_file(self):
+	def log_next_batch(self):
+		LOG.info(f'Starting Batch n°{self.batch_number} with {len(self.current_files_to_import)} files')
+		LOG.info(f'Batch size : {round(self.current_batch_size, 2)}MB')
+
+	def next_batch(self):
 		self.current_files_to_import = []
 		self.current_filenames = []
 		self.current_batch_size = 0
 		self.batch_number += 1
-		for f in range(self.import_simultaneously_count):
+		for _ in range(self.import_simultaneously_count):
 			if not len(self.filepaths):
 				return
 			
-			next_file = self.get_next_viable_file(self.filepaths, self.current_batch_size, self.max_batch_size, self.current_files_to_import)
-			if next_file is not None:
-				next_filesize = self.get_filesize(next_file)
+			next_files = self.get_next_viable_file(self.filepaths, self.current_batch_size, self.max_batch_size, self.current_files_to_import)
+			if next_files is not None:
+				next_filesize = self.get_filesize(next_files)
 			# Batch is Full
-			if next_file is None:
+			if next_files is None:
 				if len(self.current_files_to_import):
 					return
-				next_file = self.filepaths.pop(0)
+				next_files = self.filepaths.pop(0)
 
 			elif self.current_batch_size + next_filesize > self.max_batch_size:
 				if len(self.current_files_to_import):
 					return
 				
-					
 			# increment batch and import size
 			self.current_batch_size += next_filesize
-			self.filepaths.remove(next_file)
-			self.current_files_to_import.append(next_file)
+			self.filepaths.remove(next_files)
+			self.current_files_to_import.append(next_files)
 			self.current_file_number += 1
 		
 	def cancel(self, context):

@@ -1,5 +1,6 @@
 
 class LoggerColors():
+    DEFAULT_COLOR = (0.1, 0.5, 0.6)
     SUCCESS_COLOR = (0.1, 1.0, 0.1)
     CANCELLED_COLOR = (1.0, 0.4, 0.1)
     WARNING_COLOR = (1.0, 0.4, 0.1)

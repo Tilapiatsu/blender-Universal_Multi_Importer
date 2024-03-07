@@ -75,6 +75,7 @@ class Logger():
 		self._pretty = '---------------------'
 
 		self.color = bpy.context.preferences.themes['Default'].view_3d.object_selected
+		self.color = Color(LoggerColors.DEFAULT_COLOR)
 		self.fontsize = 12
 	
 	def revert_parameters(self):
