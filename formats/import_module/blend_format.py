@@ -503,10 +503,9 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 			self.import_command('worlds')
 		if self.import_workspaces:
 			self.import_command('workspaces')
-		
-		if self.import_module == 'APPEND':
-			for o in self.imported_objects:
-				o.select_set(True)
+
+		for o in self.imported_objects:
+			o.select_set(True)
 
 		self.importing = False
 
