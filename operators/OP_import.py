@@ -11,8 +11,6 @@ from ..preferences import get_prefs
 from ..logger import LOG, LoggerColors, MessageType
 from ..blender_version import BVERSION
 
-# TODO: https://docs.blender.org/api/4.1/bpy.types.FileHandler.html
-
 if BVERSION >= 4.1:
 	class IMPORT_SCENE_FH_UMI_3DVIEW(bpy.types.FileHandler):
 		bl_idname = "IMPORT_SCENE_FH_UMI_3DVIEW"

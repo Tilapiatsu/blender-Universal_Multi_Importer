@@ -15,9 +15,6 @@ bl_info = {
 	"category": "Import-Export"
 }
 
-# TODO: check https://github.com/mika-f/blender-drag-and-drop for Drag and drop support
-
-
 def register():
 	formats.register()
 	preferences.register()
