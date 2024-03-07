@@ -151,7 +151,6 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 			for e in local_datas:
 				self.unique_name.register_element_correspondance(e)
 
-
 	def get_import_command(self):
 		return bpy.ops.wm.append if self.is_append else bpy.ops.wm.link
 	
@@ -325,7 +324,6 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 				import_data_names[i] = new_name
 			duplicate_data_names[name].name = name
 
-
 	def import_command(self, source):
 		imported_object_names = []
 		data = []
@@ -431,6 +429,8 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		if self.is_append:
 			self.make_local(to_append, dependencies, data)
 
+		if source == 'objects':
+			self.imported_objects = [bpy.data.objects[o] for o in imported_object_names]
 		self._library = None
 	
 	def import_data(self):
@@ -504,6 +504,10 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		if self.import_workspaces:
 			self.import_command('workspaces')
 		
+		if self.import_module == 'APPEND':
+			for o in self.imported_objects:
+				o.select_set(True)
+
 		self.importing = False
 
 	def modal(self, context, event):
@@ -525,7 +529,6 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
 		return {'RUNNING_MODAL'}
 
-
 	def execute(self, context):
 		self.current_collection = context.collection
 		self.unique_name = UniqueName()
@@ -536,6 +539,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		self.importing = False
 		self.import_finished = False
 		self.register_local_unique_names()
+		self.imported_objects = []
 
 		wm = context.window_manager
 		self._timer = wm.event_timer_add(0.01, window=context.window)
