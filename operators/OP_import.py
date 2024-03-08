@@ -172,6 +172,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		row1.separator()
 		
 		box = row1.box()
+		box.ui_units_x = 2
 		box.label(text='All')
 		row2 = box.row(align=True)
 		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT')
@@ -184,6 +185,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		row1.separator()
 		
 		box = row1.box()
+		box.ui_units_x = 8
 		box.label(text='Ext')
 		row2 = box.row(align=True)
 		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
@@ -198,6 +200,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		row1.separator()
 		
 		box = row1.box()
+		box.ui_units_x = 15
 		box.label(text='Size')
 		row2 = box.row(align=True)
 		
@@ -237,7 +240,9 @@ class UMI_FileSelection(bpy.types.Operator):
 
 		row = main_col.split(factor = 0.55)
 		rows = min(len(self.umi_settings.umi_file_selection) if len(self.umi_settings.umi_file_selection) > 2 else 2, 20)
-		row.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
+		col1 = row.column()
+		col1.label(text='File Selection')
+		col1.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
 		
 		col1 = row.column()
 		# col.ui_units_x = 25
