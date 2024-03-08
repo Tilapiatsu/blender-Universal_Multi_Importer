@@ -609,26 +609,35 @@ class UMI(bpy.types.Operator, ImportHelper):
 						self.log_end_text()
 						self.counter = self.wait_before_hiding
 						bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-
-				# Set Importing to false once Importing is done
-				elif self.importing and self.current_batch_imported:  
+				
+				# Current File Imported , need to switch no next file
+				elif self.importing and self.current_importing_file is None:
 					self.importing = False
-
+				
 				# Run Command Batcher on Last batch imported files
-				elif len(self.objects_to_process): 
+				elif len(self.objects_to_process) and self.current_batch_imported: 
 					self.post_import_command(self.objects_to_process, self.operator_list)
 					self.objects_to_process = []
 
+				# Current Batch imported need to swicth to next batch
+				elif not self.current_batch_imported and not self.importing and not len(self.current_files_to_import) and self.current_importing_file is None:
+					self.current_batch_imported = True
+				
+				# Current File Imported , need to switch no next file
+				elif self.importing and self.current_importing_file:
+					self.current_importing_file = None
+					
 				# Register First Batch
 				elif not len(self.current_files_to_import) and len(self.filepaths):
 					LOG.separator()
 					self.next_batch()
 					self.log_next_batch()
-				
-				 # Import can start
-				elif not self.importing and len(self.current_files_to_import):
-					self.files_succeeded += self.import_files(context, self.current_files_to_import)
-					self.current_files_to_import = []
+
+				# Import next file after the previous is imported
+				elif not self.importing and len(self.current_files_to_import) and not self.current_batch_imported:
+					file_to_import = self.current_files_to_import.pop()
+					self.current_importing_file = file_to_import
+					self.files_succeeded.append(self.import_file(context, file_to_import))
 
 		return {'PASS_THROUGH'}
 	
@@ -712,6 +721,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			self.progress = (self.total_imported_size * 100) / self.total_import_size
 	
 	def import_file(self, context, current_file):
+		self.importing = True
 		filename = path.basename(current_file)
 		name = (path.splitext(current_file)[0])
 		name = path.basename(name)
@@ -786,6 +796,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.import_complete = False
 		self.current_batch_imported = False
 		self.files_succeeded = []
+		self.current_importing_file = None
 		self.umi_settings.umi_last_setting_to_get = False
 		self.umi_settings.umi_ready_to_import = False
 		self.umi_settings.umi_current_format_setting_imported = False
@@ -814,6 +825,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.total_imported_size = 0
 		self.current_batch_imported = False
 		self.files_succeeded = []
+		self.current_importing_file = None
 		self.umi_settings = context.scene.umi_settings
 		self.umi_settings.umi_import_settings.umi_import_cancelled = False
 		self.umi_settings.umi_file_selection.clear()
@@ -871,7 +883,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
 
 		wm = context.window_manager
-		self._timer = wm.event_timer_add(0.01, window=context.window)
+		self._timer = wm.event_timer_add(0.0001, window=context.window)
 		wm.modal_handler_add(self)
 		return {'RUNNING_MODAL'}
 
@@ -955,6 +967,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			self.filepaths.remove(next_files)
 			self.current_files_to_import.append(next_files)
 			self.current_file_number += 1
+			self.current_batch_imported = False
 		
 	def cancel(self, context):
 		self.canceled = True
