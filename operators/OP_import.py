@@ -14,13 +14,40 @@ from ..blender_version import BVERSION
 if BVERSION >= 4.1:
 	class IMPORT_SCENE_FH_UMI_3DVIEW(bpy.types.FileHandler):
 		bl_idname = "IMPORT_SCENE_FH_UMI_3DVIEW"
-		bl_label = "File handler for UMI"
+		bl_label = "File handler for UMI on 3DView"
 		bl_import_operator = "import_scene.tila_universal_multi_importer"
 		bl_file_extensions = COMPATIBLE_FORMATS.extensions_string
 
 		@classmethod
 		def poll_drop(cls, context):
 			return (context.area and context.area.type == 'VIEW_3D')
+		
+	class IMPORT_SCENE_FH_UMI_OUTLINER(bpy.types.FileHandler):
+		bl_idname = "IMPORT_SCENE_FH_UMI_OUTLINER"
+		bl_label = "File handler for UMI on Outliner"
+		bl_import_operator = "import_scene.tila_drop_in_collection"
+		bl_file_extensions = COMPATIBLE_FORMATS.extensions_string
+
+		@classmethod
+		def poll_drop(cls, context):
+			return (context.area and context.area.type == 'OUTLINER')
+		
+	class UMI_OT_Drop_In_Outliner(bpy.types.Operator):
+		bl_idname = "import_scene.tila_drop_in_collection"
+		bl_label = "Select Collection in Drag and Drop"
+		bl_options = {'REGISTER', 'INTERNAL'}
+
+		files : bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement, options={'SKIP_SAVE'})
+		directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
+
+		def execute(self, context):
+			bpy.ops.outliner.item_activate('INVOKE_DEFAULT', extend=False, extend_range=False, deselect_all=False)
+			files = []
+			for f in self.files.values():
+				files.append({'name':f.name})
+
+			bpy.ops.import_scene.tila_universal_multi_importer("INVOKE_DEFAULT", filter_folder=False, files=files, directory=self.directory)
+			return {'FINISHED'}
 
 class UMI_OT_Settings(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_settings"
@@ -346,6 +373,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		bpy.context.scene.umi_settings.umi_batcher_is_processing = False
 		context.scene.umi_settings.umi_skip_settings = False
 		bpy.ops.scene.umi_load_preset_list()
+
 		if self.directory and not self.filter_folder and len(self.files):
 			if event.shift:
 				context.scene.umi_settings.umi_skip_settings = True
@@ -874,7 +902,6 @@ class UMI(bpy.types.Operator, ImportHelper):
 		LOG.separator()
 
 		self.view_layer = bpy.context.view_layer
-		self.root_collection = bpy.context.collection
 		self.current_file_number = 0
 
 		self.umi_settings.umi_ready_to_import = False
@@ -997,7 +1024,7 @@ def menu_func_import(self, context):
 classes = (UMI_OT_Settings, UMI_FileSelection, UMI)
 
 if BVERSION >= 4.1:
-	classes = classes + (IMPORT_SCENE_FH_UMI_3DVIEW,)
+	classes = classes + (IMPORT_SCENE_FH_UMI_3DVIEW, IMPORT_SCENE_FH_UMI_OUTLINER, UMI_OT_Drop_In_Outliner)
 
 def register():
 	from bpy.utils import register_class
