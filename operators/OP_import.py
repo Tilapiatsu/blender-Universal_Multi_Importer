@@ -902,6 +902,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		LOG.separator()
 
 		self.view_layer = bpy.context.view_layer
+		self.root_collection = bpy.context.collection
 		self.current_file_number = 0
 
 		self.umi_settings.umi_ready_to_import = False
