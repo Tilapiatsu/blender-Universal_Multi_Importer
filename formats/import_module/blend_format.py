@@ -540,10 +540,16 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 		self.register_local_unique_names()
 		self.imported_objects = []
 
-		wm = context.window_manager
-		self._timer = wm.event_timer_add(0.01, window=context.window)
-		wm.modal_handler_add(self)
-		return {'RUNNING_MODAL'}
+		self.import_data()
+		if self.import_module == 'APPEND' and self.library is not None:
+			bpy.ops.data.tila_remove_library(library_name=self.library.name)
+
+		return {'FINISHED'}
+	
+		# wm = context.window_manager
+		# self._timer = wm.event_timer_add(0.01, window=context.window)
+		# wm.modal_handler_add(self)
+		# return {'RUNNING_MODAL'}
 
 class RemoveLibrary(bpy.types.Operator):
 	bl_idname = "data.tila_remove_library"
