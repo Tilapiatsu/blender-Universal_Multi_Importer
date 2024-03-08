@@ -278,6 +278,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		self.umi_settings.umi_current_format_setting_cancelled = True
 		return {'CANCELLED'}
 
+
 class UMI(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.tila_universal_multi_importer"
 	bl_label = "Import ALL"

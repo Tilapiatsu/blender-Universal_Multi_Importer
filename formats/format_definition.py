@@ -232,7 +232,7 @@ class FormatDefinition():
 							'grease_pencil':{'command':'bpy.ops.wm.gpencil_import_svg', 
 											'module':None, 
 											'import_settings':[['options',
-																{	"resolution": {'type':'bpy.props.FloatProperty', 'name':'"Resolution"', 'default':1.0},
+																{	"resolution": {'type':'bpy.props.IntProperty', 'name':'"Resolution"', 'default':1},
 																	"scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0} }] ]}},
 			'ignore': ['files', 'directory']}
 
