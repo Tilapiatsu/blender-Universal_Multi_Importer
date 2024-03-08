@@ -66,6 +66,7 @@ class PG_SceneSettings(bpy.types.PropertyGroup):
 	umi_file_selection : bpy.props.CollectionProperty(type = PG_FilePathSelection)
 	umi_file_selection_idx : bpy.props.IntProperty()
 	umi_import_settings : bpy.props.PointerProperty(type=PG_ImportSettings)
+	umi_skip_settings : bpy.props.BoolProperty(name='Skip Setting Windows', default=False)
 	umi_file_extension_selection : bpy.props.EnumProperty(name='ext', items=[(e, e, '') for e in COMPATIBLE_FORMATS.extensions])
 	umi_file_format_current_settings : bpy.props.EnumProperty(items=get_file_selected_items, options={"ENUM_FLAG"})
 	umi_file_size_min_selection : bpy.props.FloatProperty( min=0, name='min (Mb)', default=0.0)

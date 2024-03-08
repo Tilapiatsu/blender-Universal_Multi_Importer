@@ -344,8 +344,11 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 	def invoke(self, context, event):
 		bpy.context.scene.umi_settings.umi_batcher_is_processing = False
+		context.scene.umi_settings.umi_skip_settings = False
 		bpy.ops.scene.umi_load_preset_list()
 		if self.directory and not self.filter_folder and len(self.files):
+			if event.shift:
+				context.scene.umi_settings.umi_skip_settings = True
 			return self.execute(context)
 		context.window_manager.fileselect_add(self)
 		return {'RUNNING_MODAL'}
@@ -532,6 +535,12 @@ class UMI(bpy.types.Operator, ImportHelper):
 			return {'RUNNING_MODAL'}
 		
 		if event.type == 'TIMER':
+			if self.umi_settings.umi_skip_settings:
+				self.umi_settings.umi_skip_settings = False
+				self.umi_settings.umi_file_selection_done = True
+				self.umi_settings.umi_file_selection_started = False
+				self.umi_settings.umi_ready_to_import = True
+				
 			# Select files if in folder mode
 			if not self.umi_settings.umi_file_selection_done:
 				if not self.umi_settings.umi_file_selection_started:
