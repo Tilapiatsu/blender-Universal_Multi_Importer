@@ -467,6 +467,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			return {'FINISHED'}
 
 	def modal(self, context, event):
+		# If Escape is Pressed :Cancelling
 		if not self.import_complete and event.type in {'ESC'} and event.value == 'PRESS':
 			LOG.warning('Cancelling...')
 			self.cancel(context)
@@ -478,6 +479,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			self.umi_settings.umi_import_settings.umi_import_cancelled = True
 			return {'RUNNING_MODAL'}
 		
+        # If Import Complete, show Import Summary
 		if self.import_complete:
 			if not self.show_scroll_text:
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
@@ -609,19 +611,23 @@ class UMI(bpy.types.Operator, ImportHelper):
 						self.counter = self.wait_before_hiding
 						bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
-				elif len(self.objects_to_process): # Processing current object
+                # Running Current Batcher on Imported Objects
+				elif len(self.objects_to_process): 
 					self.post_import_command(self.objects_to_process, self.operator_list)
 					self.objects_to_process = []
-				
-				elif self.importing and self.current_batch_imported: # Post Import Processing 
+                
+                # Current Batch Imported, update parameters 
+				elif self.importing and self.current_batch_imported: 
 					self.importing = False
 
+                # Register Next Batch Files
 				elif self.current_files_to_import == [] and len(self.filepaths):
 					LOG.separator()
 					self.next_batch()
 					self.log_next_batch()
 
-				elif not self.importing and len(self.current_files_to_import): # Import can start
+                # Start Importing
+				elif not self.importing and len(self.current_files_to_import):
 					self.files_succeeded += self.import_files(context, self.current_files_to_import)
 					self.current_files_to_import = []
 
