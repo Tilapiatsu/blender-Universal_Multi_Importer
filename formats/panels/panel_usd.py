@@ -14,6 +14,7 @@ class IMPORT_SCENE_USDSettings():
         col.prop(operator, 'import_lights')
         col.prop(operator, 'import_materials')
         col.prop(operator, 'import_meshes')
+
         col = row.column(align=True)
         col.prop(operator, 'import_volumes')
         col.prop(operator, 'import_shapes')

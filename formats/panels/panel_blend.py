@@ -1,6 +1,6 @@
-from bpy.types import Panel
+from . import BVERSION
 
-class IMPORT_SCENE_BLENDSettings(Panel):
+class IMPORT_SCENE_BLENDSettings():
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
@@ -45,7 +45,11 @@ class IMPORT_SCENE_BLENDSettings(Panel):
         draw_import_data(col2, operator, 'Palettes', 'import_palettes', 'RESTRICT_COLOR_ON')
         draw_import_data(col2, operator, 'Particles', 'import_particles', 'PARTICLE_DATA')
         draw_import_data(col2, operator, 'Point Clouds', 'import_pointclouds', 'OUTLINER_OB_FONT')
-        draw_import_data(col2, operator, 'Light Probes', 'import_lightprobes', 'LIGHTPROBE_CUBEMAP')
+        if BVERSION >=4.1:
+            icon = 'LIGHTPROBE_SPHERE'
+        else:
+            icon = 'LIGHTPROBE_CUBEMAP'
+        draw_import_data(col2, operator, 'Light Probes', 'import_lightprobes', icon)
         draw_import_data(col2, operator, 'Scene', 'import_scenes', 'SCENE_DATA')
         draw_import_data(col2, operator, 'Sounds', 'import_sounds', 'PLAY_SOUND')
         draw_import_data(col2, operator, 'Speakers', 'import_speakers', 'PLAY_SOUND')

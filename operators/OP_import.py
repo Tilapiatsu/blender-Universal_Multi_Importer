@@ -163,9 +163,10 @@ class UMI_FileSelection(bpy.types.Operator):
 
 	def draw(self, context):
 		layout = self.layout
-		col1 = layout.column()
-
-		row1 = col1.row(align=True)
+		main_col = layout.column()
+		
+		main_box = main_col.box()
+		row1 = main_box.row(align=True)
 		# col2.ui_units_x = 2
 		# row1.alignment = 'LEFT'
 		row1.separator()
@@ -226,33 +227,32 @@ class UMI_FileSelection(bpy.types.Operator):
 		row2.prop(self.umi_settings, 'umi_file_name_case_sensitive_selection', text='', icon='SYNTAX_OFF')
 		row2.prop(self.umi_settings, 'umi_file_name_include_folder_selection', text='', icon='FILEBROWSER')
 		
-		col1.separator()
-		row2 = col1.row(align=True)
+		row2 = main_box.row(align=True)
 		row2.alignment = 'LEFT'
 		row2.label(text=str(self.umi_settings.umi_file_stat_selected_count) + ' file(s)  |  ')
-		col1.separator()
+		main_col.separator()
 		row2.label(text=str(round(self.umi_settings.umi_file_stat_selected_size, 4)) + ' Mb  |  ')
-		col1.separator()
+		main_col.separator()
 		row2.label(text=self.umi_settings.umi_file_stat_selected_formats + ' format(s) selected')
 
-		row = col1.row(align=True)
+		row = main_col.split(factor = 0.55)
 		rows = min(len(self.umi_settings.umi_file_selection) if len(self.umi_settings.umi_file_selection) > 2 else 2, 20)
 		row.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
-		row.separator()
-		col = row.column()
-		col.ui_units_x = 25
-		col.label(text='Import Settings')
+		
+		col1 = row.column()
+		# col.ui_units_x = 25
+		col1.label(text='Import Settings')
 
-		box = col.box()
+		box = col1.box()
 		row1 = box.row(align=True)
 		# row1.ui_units_x = 25
 		row1.prop(self.umi_settings, 'umi_file_format_current_settings', expand=True)
-		col.separator()
+		col1.separator()
 		if not len(self.umi_settings.umi_file_format_current_settings):
 			return
-		current_setting_name = self.umi_settings.umi_file_format_current_settings.copy().pop()
+		current_setting_name = self.umi_settings.umi_file_format_current_settings.copy().pop().lower()
 
-		self.draw_current_settings(context, box, current_setting_name.lower())
+		self.draw_current_settings(context, box, current_setting_name)
 	
 	def draw_current_settings(self, context, layout, format_name):
 		layout.use_property_split = True
@@ -479,7 +479,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			self.umi_settings.umi_import_settings.umi_import_cancelled = True
 			return {'RUNNING_MODAL'}
 		
-        # If Import Complete, show Import Summary
+		# If Import Complete, show Import Summary
 		if self.import_complete:
 			if not self.show_scroll_text:
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
@@ -611,22 +611,22 @@ class UMI(bpy.types.Operator, ImportHelper):
 						self.counter = self.wait_before_hiding
 						bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
-                # Running Current Batcher on Imported Objects
+				# Running Current Batcher on Imported Objects
 				elif len(self.objects_to_process): 
 					self.post_import_command(self.objects_to_process, self.operator_list)
 					self.objects_to_process = []
-                
-                # Current Batch Imported, update parameters 
+				
+				# Current Batch Imported, update parameters 
 				elif self.importing and self.current_batch_imported: 
 					self.importing = False
 
-                # Register Next Batch Files
+				# Register Next Batch Files
 				elif self.current_files_to_import == [] and len(self.filepaths):
 					LOG.separator()
 					self.next_batch()
 					self.log_next_batch()
 
-                # Start Importing
+				# Start Importing
 				elif not self.importing and len(self.current_files_to_import):
 					self.files_succeeded += self.import_files(context, self.current_files_to_import)
 					self.current_files_to_import = []

@@ -22,8 +22,9 @@ def update_file_stats(self, context):
 	context.scene.umi_settings.umi_file_stat_selected_size = sum(size)
 	context.scene.umi_settings.umi_file_stat_selected_formats = '( ' + ' | '.join(formats) + ' )' if len(formats) else 'no'
 	context.scene.umi_settings.umi_file_selected_format_items = str([( COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), '') for f in formats])
-	if len(formats):
-		pass
+	
+	if len(formats) and not len(context.scene.umi_settings.umi_file_format_current_settings):
+		context.scene.umi_settings.umi_file_format_current_settings = {formats[0][1:].upper()}
 
 def get_file_selected_items(self, context):
 	return eval(context.scene.umi_settings.umi_file_selected_format_items)
