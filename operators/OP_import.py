@@ -478,10 +478,10 @@ class UMI(bpy.types.Operator, ImportHelper):
 				return found
 
 	def post_import_command(self, objects, operator_list):
-		bpy.ops.object.select_all(action='DESELECT')
-		for o in objects:
-			bpy.data.objects[o.name].select_set(True)
-		bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', operator_list=operator_list, importer_mode=True)
+		override = {}
+		override["selected_objects"] = [bpy.data.objects[o.name] for o in objects]
+		with bpy.context.temp_override(**override):
+			bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', operator_list=operator_list, importer_mode=True)
 
 	def import_settings(self):
 		self.current_format = self.formats_to_import.pop()

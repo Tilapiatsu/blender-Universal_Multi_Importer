@@ -103,6 +103,7 @@ class CommandBatcher(bpy.types.Operator):
 		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 	
 	def invoke(self, context, event):
+		self.umi_settings = get_umi_settings()
 		if not self.importer_mode:
 			bpy.ops.scene.umi_load_preset_list()
 			
@@ -130,7 +131,7 @@ class CommandBatcher(bpy.types.Operator):
 				LOG.warning('Cancelling...')
 			self.cancel(context)
 
-			self.counter = self.umi_settings.wait_before_hiding
+			self.counter = self.umi_settings.umi_wait_before_hiding
 			self.end = True
 			LOG.completed = True
 			return {'RUNNING_MODAL'}
@@ -155,10 +156,10 @@ class CommandBatcher(bpy.types.Operator):
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				return {'PASS_THROUGH'}
 			
-			if self.umi_settings.auto_hide_text_when_finished:
+			if self.umi_settings.umi_auto_hide_text_when_finished:
 				self.store_delta_start()
 
-				if self.counter == self.umi_settings.wait_before_hiding:
+				if self.counter == self.umi_settings.umi_wait_before_hiding:
 					self.previous_counter = self.counter
 					self.store_delta_end()
 					
@@ -174,7 +175,7 @@ class CommandBatcher(bpy.types.Operator):
 			if event.type in {'ESC'} and event.value == 'PRESS':
 				return self.finish(context, self.canceled)
 			
-			if self.umi_settings.auto_hide_text_when_finished:
+			if self.umi_settings.umi_auto_hide_text_when_finished:
 				self.previous_counter = remaining_seconds
 				self.store_delta_end()
 				self.decrement_counter()
@@ -194,7 +195,7 @@ class CommandBatcher(bpy.types.Operator):
 			elif self.current_object_to_process is None and len(self.objects_to_process) == 0:
 				if not self.importer_mode:
 					LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2))
-					self.counter = self.umi_settings.wait_before_hiding
+					self.counter = self.umi_settings.umi_wait_before_hiding
 				else:
 					self.finished = True
 				self.end = True
@@ -214,8 +215,13 @@ class CommandBatcher(bpy.types.Operator):
 					self.current_operation_number += 1
 					
 					LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=LoggerColors.COMMAND_COLOR)
-					bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-					exec(self.current_command, {'bpy':bpy})
+					# bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+
+					override = {}
+					override["selected_objects"] = [bpy.data.objects[self.current_object_to_process.name]]
+					with bpy.context.temp_override(**override):
+						exec(self.current_command, {'bpy':bpy})
+
 					LOG.store_success('Command executed successfully')
 					self.process_succeeded.append(True)
 				except Exception as e:
@@ -317,8 +323,8 @@ class CommandBatcher(bpy.types.Operator):
 		self.object_progress = round(self.current_object_number * 100 / self.number_of_object_to_process, 2)
 		
 		LOG.info(f'Processing object {self.current_object_number}/{self.number_of_object_to_process} - {self.object_progress}% : {self.current_object_to_process.name}')
-		bpy.ops.object.select_all(action='DESELECT')
-		bpy.data.objects[self.current_object_to_process.name].select_set(True)
+		# bpy.ops.object.select_all(action='DESELECT')
+		# bpy.data.objects[self.current_object_to_process.name].select_set(True)
 		self.fill_operator_to_process()
 
 # function to append the operator in the File>Import menu
