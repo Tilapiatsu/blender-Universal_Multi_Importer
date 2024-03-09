@@ -1,20 +1,22 @@
 import bpy
 import time, math
-from ..formats.properties import PG_Operator
+from ..preferences.formats.properties import PG_Operator
 from ..logger import LOG, LoggerColors
-from ..preferences import get_prefs
+from ..umi_const import get_umi_settings
 
-def draw_command_batcher(self, context):
-	layout = self.layout
+def draw_command_batcher(self, context, layout):
 	col = layout.column()
 	
 	box = col.box()
 	row = box.row()
-	row.label(text='Command Batcher Operators')
+	row.label(text='Operators', icon='SCRIPTPLUGINS')
 
-	rows = len(context.scene.umi_settings.umi_operators) if len(context.scene.umi_settings.umi_operators) > 2 else 2
+	rows = len(self.umi_settings.umi_operators) if len(self.umi_settings.umi_operators) > 2 else 2
 	row = box.row()
-	row.template_list('UMI_UL_operator_list', '', context.scene.umi_settings, 'umi_operators', context.scene.umi_settings, 'umi_operator_idx', rows=rows)
+	col1 = row.column(align=True)
+	col1.template_list('UMI_UL_operator_list', '', self.umi_settings, 'umi_operators', self.umi_settings, 'umi_operator_idx', rows=rows)
+	col1.prop(self.umi_settings, 'umi_ignore_command_batcher_errors')
+
 	col2 = row.column()
 	
 	col2.separator()
@@ -29,11 +31,11 @@ def draw_command_batcher(self, context):
 
 	box = col.box()
 	row = box.row()
-	row.label(text='Command Batcher Presets')
+	row.label(text='Presets', icon='PRESET')
 
-	rows = len(context.scene.umi_settings.umi_presets) if len(context.scene.umi_settings.umi_presets) > 2 else 2
+	rows = len(self.umi_settings.umi_presets) if len(self.umi_settings.umi_presets) > 2 else 2
 	row = box.row()
-	row.template_list('UMI_UL_preset_list', '', context.scene.umi_settings, 'umi_presets', context.scene.umi_settings, 'umi_preset_idx', rows=rows)
+	row.template_list('UMI_UL_preset_list', '', self.umi_settings, 'umi_presets', self.umi_settings, 'umi_preset_idx', rows=rows)
 	col2 = row.column()
 	col2.separator()
 	col2.operator('scene.umi_add_preset', text='', icon='ADD')
@@ -42,7 +44,7 @@ def draw_command_batcher(self, context):
 	col2.operator('scene.umi_move_preset', text='', icon='TRIA_DOWN').direction = 'DOWN'
 	col2.separator()
 	col2.operator('scene.umi_clear_presets', text='', icon='TRASH')
-	
+
 
 class CommandBatcher(bpy.types.Operator):
 	bl_idname = "object.tila_umi_command_batcher"
@@ -128,7 +130,7 @@ class CommandBatcher(bpy.types.Operator):
 				LOG.warning('Cancelling...')
 			self.cancel(context)
 
-			self.counter = self.wait_before_hiding
+			self.counter = self.umi_settings.wait_before_hiding
 			self.end = True
 			LOG.completed = True
 			return {'RUNNING_MODAL'}
@@ -153,10 +155,10 @@ class CommandBatcher(bpy.types.Operator):
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				return {'PASS_THROUGH'}
 			
-			if self.auto_hide_text_when_finished:
+			if self.umi_settings.auto_hide_text_when_finished:
 				self.store_delta_start()
 
-				if self.counter == self.wait_before_hiding:
+				if self.counter == self.umi_settings.wait_before_hiding:
 					self.previous_counter = self.counter
 					self.store_delta_end()
 					
@@ -172,7 +174,7 @@ class CommandBatcher(bpy.types.Operator):
 			if event.type in {'ESC'} and event.value == 'PRESS':
 				return self.finish(context, self.canceled)
 			
-			if self.auto_hide_text_when_finished:
+			if self.umi_settings.auto_hide_text_when_finished:
 				self.previous_counter = remaining_seconds
 				self.store_delta_end()
 				self.decrement_counter()
@@ -192,7 +194,7 @@ class CommandBatcher(bpy.types.Operator):
 			elif self.current_object_to_process is None and len(self.objects_to_process) == 0:
 				if not self.importer_mode:
 					LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2))
-					self.counter = self.wait_before_hiding
+					self.counter = self.umi_settings.wait_before_hiding
 				else:
 					self.finished = True
 				self.end = True
@@ -227,18 +229,14 @@ class CommandBatcher(bpy.types.Operator):
 		return {'PASS_THROUGH'}
 	
 	def execute(self, context):
-		self.preferences = get_prefs()
-		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
-		self.wait_before_hiding = self.preferences.wait_before_hiding
 		self.completed = False
 		self.succeedeed = False
 		self.end_text_written = False
 		self.start_time = 0
 		self.process_succeeded = []
+		self.umi_settings = get_umi_settings()
 		LOG.esc_message = '[Esc] to Cancel'
 		LOG.message_offset = 15
-		LOG.show_log = self.preferences.show_log_on_3d_view
-		self.umi_settings = context.scene.umi_settings
 
 		if not self.importer_mode:
 			LOG.revert_parameters()
@@ -278,7 +276,7 @@ class CommandBatcher(bpy.types.Operator):
 		return {'RUNNING_MODAL'}
 	
 	def draw(self, context):
-		draw_command_batcher(self, context)
+		draw_command_batcher(self, context, self.layout)
 
 	def revert_parameters(self, context):
 		self.finished = False
@@ -308,7 +306,7 @@ class CommandBatcher(bpy.types.Operator):
 		
 	def next_object(self):
 		if self.importer_mode:
-			if self.umi_settings.umi_import_settings.umi_import_cancelled:
+			if self.umi_settings.umi_format_import_settings.umi_import_cancelled:
 				self.canceled = True
 				return
 		else:

@@ -1,4 +1,4 @@
-from ..blender_version import BVERSION
+from ...blender_version import BVERSION
 
 def axis():
 	return [

@@ -1,11 +1,12 @@
 import bpy
 import os
-from ...formats.properties.properties import update_file_stats
+from ...umi_const import get_umi_settings
+from ...preferences.formats.properties import update_file_stats
 
 
-def get_file_selection(context):
-	idx = context.scene.umi_settings.umi_file_selection_idx
-	file_selection = context.scene.umi_settings.umi_file_selection
+def get_file_selection(self):
+	idx = self.umi_settings.umi_file_selection_idx
+	file_selection = self.umi_settings.umi_file_selection
 
 	active = file_selection[idx] if len(file_selection) else None
 
@@ -23,18 +24,19 @@ class UI_Select(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.umi_settings.umi_file_selection)
+		umi_settings = get_umi_settings()
+		return len(umi_settings.umi_file_selection)
 	
 	@property
 	def bool_action(self):
 		return True if self.action == "SELECT" else False
 	
 	def invoke(self, context, event):
-		self.umi_settings = context.scene.umi_settings
+		self.umi_settings = get_umi_settings()
 		return self.execute(context)
 
 	def execute(self, context):
-		_, file_selection, _ = get_file_selection(context)
+		_, file_selection, _ = get_file_selection(self)
 		
 		self.umi_settings.umi_file_stat_update = False
 

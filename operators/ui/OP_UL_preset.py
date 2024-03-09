@@ -1,5 +1,6 @@
 import bpy
 import os, shutil
+from ...umi_const import get_umi_settings
 from .operators_const import PRESET_FOLDER, UMIPRESET_EXTENSION
 
 def get_presets(context):
@@ -21,9 +22,11 @@ class UI_MovePreset(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.umi_settings.umi_presets)
+		umi_settings = get_umi_settings()
+		return len(umi_settings.umi_presets)
 
 	def execute(self, context):
+		umi_settings = get_umi_settings()
 		idx, preset, _ = get_presets(context)
 
 		if self.direction == "UP":
@@ -32,7 +35,7 @@ class UI_MovePreset(bpy.types.Operator):
 			nextidx = min(idx + 1, len(preset) - 1)
 
 		preset.move(idx, nextidx)
-		context.scene.umi_settings.umi_preset_idx = nextidx
+		umi_settings.umi_preset_idx = nextidx
 
 		return {'FINISHED'}
 
@@ -45,14 +48,16 @@ class UI_ClearPresets(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.umi_settings.umi_presets)
+		umi_settings = get_umi_settings()
+		return len(umi_settings.umi_presets)
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
 		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
-		context.scene.umi_settings.umi_presets.clear()
+		umi_settings = get_umi_settings()
+		umi_settings.umi_presets.clear()
 
 		return {'FINISHED'}
 
@@ -67,7 +72,8 @@ class UI_RemovePreset(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.umi_settings.umi_presets)
+		umi_settings = get_umi_settings()
+		return len(umi_settings.umi_presets)
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -75,13 +81,14 @@ class UI_RemovePreset(bpy.types.Operator):
 		
 
 	def execute(self, context):
+		umi_settings = get_umi_settings()
 		_, self.presets, self.item = get_presets(context)
 		if os.path.isfile(self.presets[self.id].path):
 			os.remove(self.presets[self.id].path)
 			
 		self.presets.remove(self.id)
 
-		context.scene.umi_settings.umi_preset_idx = min(self.id, len(context.scene.umi_settings.umi_presets) - 1)
+		umi_settings.umi_preset_idx = min(self.id, len(umi_settings.umi_presets) - 1)
 
 		return {'FINISHED'}
 
@@ -158,7 +165,8 @@ class UI_DuplicatePreset(bpy.types.Operator):
 	
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.umi_settings.umi_presets)
+		umi_settings = get_umi_settings()
+		return len(umi_settings.umi_presets)
 
 	def execute(self, context):
 		_, presets, _ = get_presets(context)
@@ -191,13 +199,15 @@ class UI_EditPreset(bpy.types.Operator):
 		col.prop(self, 'name', text='Preset Name')
 	
 	def invoke(self, context, event):
-		current_preset = context.scene.umi_settings.umi_presets[self.id]
+		umi_settings = get_umi_settings()
+		current_preset = umi_settings.umi_presets[self.id]
 		self.name = current_preset.name
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self, width=900)
 	
 	def execute(self, context):
-		o = context.scene.umi_settings.umi_presets[self.id]
+		umi_settings = get_umi_settings()
+		o = umi_settings.umi_presets[self.id]
 		o.name = self.name
 		old_name = o.path
 		o.path = os.path.join(PRESET_FOLDER, self.name + UMIPRESET_EXTENSION)
@@ -225,7 +235,8 @@ class UI_AddPreset(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=500)
 
 	def execute(self, context):
-		o = context.scene.umi_settings.umi_presets.add()
+		umi_settings = get_umi_settings()
+		o = umi_settings.umi_presets.add()
 		o.name = self.name
 		o.path = os.path.join(PRESET_FOLDER, self.name + UMIPRESET_EXTENSION)
 		if self.from_list:
@@ -250,7 +261,7 @@ class UI_SavePresetOperator(bpy.types.Operator):
 
 	def execute(self, context):
 		print(f'Saving preset : {os.path.basename(self.filepath)}')
-		self.umi_settings = context.scene.umi_settings
+		self.umi_settings = get_umi_settings()
 		with open(self.filepath, 'w') as f:
 			lines = [l.operator.replace('\n', '') for l in self.umi_settings.umi_operators]
 
@@ -284,8 +295,9 @@ class UI_LoadPresetList(bpy.types.Operator):
 	bl_description = "Load the list of all presets saved on disks"
 
 	def execute(self, context):
+		umi_settings = get_umi_settings()
 		presets = [f for f in os.listdir(PRESET_FOLDER) if os.path.splitext(f)[1].lower() == UMIPRESET_EXTENSION]
-		if len(bpy.context.scene.umi_settings.umi_presets):
+		if len(umi_settings.umi_presets):
 			bpy.ops.scene.umi_clear_presets('EXEC_DEFAULT')
 
 		for p in presets:

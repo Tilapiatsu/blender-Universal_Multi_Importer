@@ -1,14 +1,16 @@
 import bpy
 from os import path
+from ....logger import LOG
+from ....umi_const import get_umi_settings
 from .. import COMPATIBLE_FORMATS
 
 
 def update_file_stats(self, context):
-
-	if not context.scene.umi_settings.umi_file_stat_update:
+	umi_settings = get_umi_settings()
+	if not umi_settings.umi_file_stat_update:
 		return
 	
-	selected_files = [f for f in context.scene.umi_settings.umi_file_selection if f.check]
+	selected_files = [f for f in umi_settings.umi_file_selection if f.check]
 	size = [f.size for f in selected_files]
 	formats = []
 	for f in selected_files:
@@ -18,17 +20,35 @@ def update_file_stats(self, context):
 
 		formats.append(ext)
 	
-	context.scene.umi_settings.umi_file_stat_selected_count = len(selected_files)
-	context.scene.umi_settings.umi_file_stat_selected_size = sum(size)
-	context.scene.umi_settings.umi_file_stat_selected_formats = '( ' + ' | '.join(formats) + ' )' if len(formats) else 'no'
-	context.scene.umi_settings.umi_file_selected_format_items = str([( COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), '') for f in formats])
+	umi_settings.umi_file_stat_selected_count = len(selected_files)
+	umi_settings.umi_file_stat_selected_size = sum(size)
+	umi_settings.umi_file_stat_selected_formats = '( ' + ' | '.join(formats) + ' )' if len(formats) else 'no'
+	umi_settings.umi_file_selected_format_items = str([( COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), '') for f in formats])
 	
-	if len(formats) and not len(context.scene.umi_settings.umi_file_format_current_settings):
+	if len(formats) and not len(umi_settings.umi_file_format_current_settings):
 		f = COMPATIBLE_FORMATS.get_format_from_extension(formats[0])['name'].upper()
-		context.scene.umi_settings.umi_file_format_current_settings = {f}
+		umi_settings.umi_file_format_current_settings = {f}
+		
+def update_file_format_current_settings(self, context):
+	umi_settings = get_umi_settings()
+	if len(umi_settings.umi_file_format_current_settings):
+		if not len(umi_settings.umi_import_batch_settings):
+			return
+		umi_settings.umi_file_format_current_settings = set({})
+
+def update_import_batch_settings(self, context):
+	umi_settings = get_umi_settings()
+	if len(umi_settings.umi_import_batch_settings):
+		if not len(umi_settings.umi_file_format_current_settings):
+			return
+		umi_settings.umi_import_batch_settings = set({})
 
 def get_file_selected_items(self, context):
-	return eval(context.scene.umi_settings.umi_file_selected_format_items)
+	return eval(get_umi_settings().umi_file_selected_format_items)
+    
+def update_log_drawing(self, context):
+	umi_settings = get_umi_settings()
+	LOG.show_log = umi_settings.umi_show_log_on_3d_view
 
 class PG_ImportSettings(bpy.types.PropertyGroup):
 	umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)
@@ -50,7 +70,17 @@ class PG_FilePathSelection(bpy.types.PropertyGroup):
 	check : bpy.props.BoolProperty(name='Check', default=True, update=update_file_stats)
 	size : bpy.props.FloatProperty(name='FileSize', default=0.0)
 
-class PG_SceneSettings(bpy.types.PropertyGroup):
+class PG_ImportGlobalSettings(bpy.types.PropertyGroup):
+	import_simultaneously_count : bpy.props.IntProperty(name="Max Simultaneously Files", default=200, min=1, description='Maximum number of file to import simultaneously')
+	max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="Max size per import batch. An import batch represents the number of files imported simultaneously", default=20, min=0)
+	minimize_batch_number : bpy.props.BoolProperty(name="Minimize batch number", description="Try to pack files per batch in a way to be as close as possible to the Max batch size, and then minimize the number of import batches", default=True)
+	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=False)
+	backup_file_after_import : bpy.props.BoolProperty(name='Backup file during import', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
+	backup_step : bpy.props.FloatProperty(name='Backup Step (MB)', description='Backup file after X file(s) imported', default=100, min=1)
+	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
+	save_file_after_import : bpy.props.BoolProperty(name='Save file after import complete', description='Save the original file when the entire import process is compete', default=False)
+
+class PG_UMISettings(bpy.types.PropertyGroup):
 	umi_file_selected_format_items : bpy.props.StringProperty(name='Selected format items')
 	umi_ready_to_import : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_last_setting_to_get : bpy.props.BoolProperty(name='Ready to Import', default=False)
@@ -65,10 +95,12 @@ class PG_SceneSettings(bpy.types.PropertyGroup):
 	umi_preset_idx : bpy.props.IntProperty()
 	umi_file_selection : bpy.props.CollectionProperty(type = PG_FilePathSelection)
 	umi_file_selection_idx : bpy.props.IntProperty()
-	umi_import_settings : bpy.props.PointerProperty(type=PG_ImportSettings)
+	umi_format_import_settings : bpy.props.PointerProperty(type=PG_ImportSettings)
+	umi_global_import_settings : bpy.props.PointerProperty(type=PG_ImportGlobalSettings)
 	umi_skip_settings : bpy.props.BoolProperty(name='Skip Setting Windows', default=False)
 	umi_file_extension_selection : bpy.props.EnumProperty(name='ext', items=[(e, e, '') for e in COMPATIBLE_FORMATS.extensions])
-	umi_file_format_current_settings : bpy.props.EnumProperty(items=get_file_selected_items, options={"ENUM_FLAG"})
+	umi_import_batch_settings : bpy.props.EnumProperty(items=[('GLOBAL', 'Global Settings', ''), ('BATCHER', 'Command Batcher', '')], options={"ENUM_FLAG"}, update=update_file_format_current_settings)
+	umi_file_format_current_settings : bpy.props.EnumProperty(items=get_file_selected_items, options={"ENUM_FLAG"}, update=update_import_batch_settings)
 	umi_file_size_min_selection : bpy.props.FloatProperty( min=0, name='min (Mb)', default=0.0)
 	umi_file_size_max_selection : bpy.props.FloatProperty( min=0, name='max (Mb)', default=1.0)
 	umi_file_name_selection : bpy.props.StringProperty(name='name', default='')
@@ -78,6 +110,11 @@ class PG_SceneSettings(bpy.types.PropertyGroup):
 	umi_file_stat_selected_count : bpy.props.IntProperty(name='file(s)', default=0)
 	umi_file_stat_selected_size : bpy.props.FloatProperty(name='Mb', default=0)
 	umi_file_stat_selected_formats : bpy.props.StringProperty(name='format(s)', default='')
+	umi_ignore_command_batcher_errors : bpy.props.BoolProperty(name='Ignore Command Batcher Errors', default=True)
+	umi_show_log_on_3d_view : bpy.props.BoolProperty(name="Show Log on 3D View", default=True, update=update_log_drawing)
+	umi_auto_hide_text_when_finished : bpy.props.BoolProperty(name="Auto Hide Text When Finished", default=False)
+	umi_wait_before_hiding : bpy.props.FloatProperty(name="Wait Before Hiding (s)", default=5.0)
+	umi_force_refresh_viewport_after_each_import : bpy.props.BoolProperty(name="Refresh Viewport After Each Imported Files", default=False)
 
 class UMI_UL_OperatorList(bpy.types.UIList):
 	bl_idname = "UMI_UL_operator_list"
@@ -135,26 +172,23 @@ class UMI_UL_FileSelectionList(bpy.types.UIList):
 		row.alignment = 'RIGHT'
 		row.label(text=f'{round(item.size, 4)} MB')
 
-classes = (PG_ImportSettings, 
-		   PG_ImportSettingsCreator, 
-		   PG_Operator, 
-		   PG_Preset,
-		   PG_FilePathSelection,
-		   PG_SceneSettings, 
-		   UMI_UL_OperatorList, 
-		   UMI_UL_PresetList,
-		   UMI_UL_FileSelectionList)
+classes = ( PG_ImportSettings,
+	        PG_ImportSettingsCreator,
+			PG_Operator,
+			PG_Preset,
+			PG_FilePathSelection,
+			PG_ImportGlobalSettings,
+			PG_UMISettings,
+		    UMI_UL_OperatorList, 
+		    UMI_UL_PresetList,
+		    UMI_UL_FileSelectionList)
 
 def register():
 	from bpy.utils import register_class
 	for cls in classes:
 		register_class(cls)
-	
-	bpy.types.Scene.umi_settings = bpy.props.PointerProperty(type=PG_SceneSettings)
 
 def unregister():
-	del bpy.types.Scene.umi_settings
-
 	from bpy.utils import unregister_class
 	for cls in reversed(classes):
 		unregister_class(cls)

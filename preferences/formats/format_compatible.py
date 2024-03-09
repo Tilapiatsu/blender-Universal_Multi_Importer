@@ -1,6 +1,6 @@
 from .format_definition import FormatDefinition
 from . import FORMATS
-from ..logger import LOG
+from ...logger import LOG
 from .panels.presets import preset
 import inspect
 

@@ -1,10 +1,12 @@
 import bpy
+from ...umi_const import get_umi_settings
 from . import COMPATIBLE_FORMATS
 
 class FormatHandler():
 	import_format : bpy.props.StringProperty(name='Import Format', default="", options={'HIDDEN'},)
 
 	def __init__(self, import_format, module_name, context):
+		self.umi_settings = get_umi_settings() 
 		self._format = None
 		self._format_name = None
 		self._format_settings = None
@@ -51,7 +53,7 @@ class FormatHandler():
 	@property
 	def format_settings(self):
 		if self._format_settings is None:
-			self._format_settings = eval(f"context.scene.umi_settings.umi_import_settings.{self.format_name}_{self.module_name}_import_settings", {'context':self.context})
+			self._format_settings = eval(f"self.umi_settings.umi_format_import_settings.{self.format_name}_{self.module_name}_import_settings", {'self':self})
 		
 		return self._format_settings
 
@@ -77,4 +79,4 @@ class FormatHandler():
 	
 	@property
 	def import_module(self):
-		return eval(f"context.scene.umi_settings.umi_import_settings.{self.format_name}_import_module", {'context':self.context})
+		return eval(f"self.umi_settings.umi_format_import_settings.{self.format_name}_import_module", {'self':self})

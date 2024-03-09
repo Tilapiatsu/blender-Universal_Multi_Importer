@@ -1,9 +1,15 @@
+import bpy
+from .. import ADDON_PACKAGE
+
+
+from . import formats
 from . import preferences
-from .preferences import get_prefs
 
 def register():
+    formats.register()
     preferences.register()
 
 
 def unregister():
     preferences.unregister()
+    formats.unregister()

@@ -1,14 +1,15 @@
 import bpy
 import os
+from ...umi_const import get_umi_settings
 from .operators_const import PRESET_FOLDER
 
 if not os.path.exists(PRESET_FOLDER):
 		print(f'UMI : Creating Preset Folder : {PRESET_FOLDER}')
 		os.mkdir(PRESET_FOLDER)
 
-def get_operator(context):
-	idx = context.scene.umi_settings.umi_operator_idx
-	operators = context.scene.umi_settings.umi_operators
+def get_operator(self):
+	idx = self.umi_settings.umi_operator_idx
+	operators = self.umi_settings.umi_operators
 
 	active = operators[idx] if len(operators) else None
 
@@ -25,9 +26,11 @@ class UI_UMIMoveOperator(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.umi_settings.umi_operators)
+		umi_settings = get_umi_settings()
+		return len(umi_settings.umi_operators)
 
 	def execute(self, context):
+		umi_settings = get_umi_settings()
 		idx, camera, _ = get_operator(context)
 
 		if self.direction == "UP":
@@ -36,7 +39,7 @@ class UI_UMIMoveOperator(bpy.types.Operator):
 			nextidx = min(idx + 1, len(camera) - 1)
 
 		camera.move(idx, nextidx)
-		context.scene.umi_settings.umi_operator_idx = nextidx
+		umi_settings.umi_operator_idx = nextidx
 
 		return {'FINISHED'}
 
@@ -49,14 +52,16 @@ class UI_UMIClearOperators(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.umi_settings.umi_operators)
+		umi_settings = get_umi_settings()
+		return len(umi_settings.umi_operators)
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
 		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
-		context.scene.umi_settings.umi_operators.clear()
+		umi_settings = get_umi_settings()
+		umi_settings.umi_operators.clear()
 
 		return {'FINISHED'}
 
@@ -71,18 +76,20 @@ class UI_UMIRemoveOperator(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.umi_settings.umi_operators
+		umi_settings = get_umi_settings()
+		return umi_settings.umi_operators
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
 		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
+		umi_settings = get_umi_settings()
 		_, operators, _ = get_operator(context)
 
 		operators.remove(self.id)
 
-		context.scene.umi_settings.umi_operator_idx = min(self.id, len(context.scene.umi_settings.umi_operators) - 1)
+		umi_settings.umi_operator_idx = min(self.id, len(umi_settings.umi_operators) - 1)
 
 		return {'FINISHED'}
 
@@ -97,7 +104,8 @@ class UI_UMIDuplicateOperator(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.umi_settings.umi_operators
+		umi_settings = get_umi_settings()
+		return umi_settings.umi_operators
 
 	def execute(self, context):
 		_, operators, _ = get_operator(context)
@@ -124,13 +132,14 @@ class UI_UMIEditOperator(bpy.types.Operator):
 		col.prop(self, 'operator', text='Command')
 	
 	def invoke(self, context, event):
-		current_operator = context.scene.umi_settings.umi_operators[self.id]
+		self.umi_settings = get_umi_settings()
+		current_operator = self.umi_settings.umi_operators[self.id]
 		self.operator = current_operator.operator
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self, width=900)
 	
 	def execute(self, context):
-		o = context.scene.umi_settings.umi_operators[self.id]
+		o = self.umi_settings.umi_operators[self.id]
 		o.operator = self.operator
 		return {'FINISHED'}
 
@@ -153,7 +162,8 @@ class UI_UMIAddOperator(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=900)
 
 	def execute(self, context):
-		o = context.scene.umi_settings.umi_operators.add()
+		self.umi_settings = get_umi_settings()
+		o = self.umi_settings.umi_operators.add()
 		o.operator = self.operator
 		return {'FINISHED'}
 	

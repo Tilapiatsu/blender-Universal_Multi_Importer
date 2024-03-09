@@ -1,4 +1,5 @@
 import bpy
+from .....umi_const import get_umi_settings
 from bl_ui.utils import PresetPanel
 from bpy.types import Menu, Operator, Panel
 from bpy.props import StringProperty
@@ -21,8 +22,9 @@ class WM_MT_UMIPresets(Menu):
 
 	@property
 	def preset_subdir(self):
-		current_format = bpy.context.scene.umi_settings.umi_file_format_current_settings.copy().pop().lower()
-		current_module = eval(f'bpy.context.scene.umi_settings.umi_import_settings.{current_format}_import_module', {'bpy':bpy}).name.lower()
+		umi_settings = get_umi_settings()
+		current_format = umi_settings.umi_file_format_current_settings.copy().pop().lower()
+		current_module = eval(f'umi_settings.umi_format_import_settings.{current_format}_import_module', {'bpy':bpy}).name.lower()
 		return AddUMIPreset.operator_path(current_format, current_module)
 
 class AddUMIPreset(AddPresetBase, Operator): 
@@ -37,23 +39,25 @@ class AddUMIPreset(AddPresetBase, Operator):
 	)
 
 	preset_defines = [
-		"umi_settings = bpy.context.scene.umi_settings.umi_import_settings"
+		"prefs = get_prefs()"
+		"umi_settings = prefs.umi_settings.umi_format_import_settings"
 	]
 
 	skip_prop = ['name', 'settings_imported', 'bl_rna']
 
 	@property
 	def preset_subdir(self):
-		current_format = bpy.context.scene.umi_settings.umi_file_format_current_settings.copy().pop().lower()
-		current_module = eval(f'bpy.context.scene.umi_settings.umi_import_settings.{current_format}_import_module', {'bpy':bpy}).name.lower()
+		umi_settings = get_umi_settings()
+		current_format = umi_settings.umi_file_format_current_settings.copy().pop().lower()
+		current_module = eval(f'umi_settings.umi_format_import_settings.{current_format}_import_module', {'bpy':bpy}).name.lower()
 		return AddUMIPreset.operator_path(current_format, current_module)
 
 	@property
 	def preset_values(self):
 		properties_blacklist = Operator.bl_rna.properties.keys()
-
-		current_format = bpy.context.scene.umi_settings.umi_file_format_current_settings.copy().pop().lower()
-		current_module = eval(f'bpy.context.scene.umi_settings.umi_import_settings.{current_format}_import_module', {'bpy':bpy}).name.lower()
+		umi_settings = get_umi_settings()
+		current_format = umi_settings.umi_file_format_current_settings.copy().pop().lower()
+		current_module = eval(f'umi_settings.umi_format_import_settings.{current_format}_import_module', {'bpy':bpy}).name.lower()
 		from ...format_handler import FormatHandler
 		settings = FormatHandler(import_format=f"{current_format}", module_name=current_module, context=bpy.context).format_settings
 		

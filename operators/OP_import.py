@@ -4,10 +4,10 @@ import os, time
 from os import path
 import math
 from string import punctuation
-from ..formats import FormatHandler, COMPATIBLE_FORMATS
-from ..formats.properties.properties import update_file_stats
+from ..preferences.formats import FormatHandler, COMPATIBLE_FORMATS
+from ..preferences.formats.properties.properties import update_file_stats, get_file_selected_items
 from .OP_command_batcher import draw_command_batcher
-from ..preferences import get_prefs
+from ..umi_const import get_umi_settings
 from ..logger import LOG, LoggerColors, MessageType
 from ..blender_version import BVERSION
 
@@ -79,7 +79,7 @@ class UMI_OT_Settings(bpy.types.Operator):
 		self.__class__.__annotations__[property_name] = property_value
 
 	def execute(self, context):
-		self.umi_settings = context.scene.umi_settings
+		self.umi_settings = get_umi_settings()
 		# set the scene setting equal to the setting set by the user
 		for k,v in self.__class__.__annotations__.items():
 			if getattr(v, 'is_hidden', False) or getattr(v, 'is_readonly', False):
@@ -99,7 +99,7 @@ class UMI_OT_Settings(bpy.types.Operator):
 		return {'FINISHED'}
 
 	def invoke(self, context, event):
-		self.umi_settings = context.scene.umi_settings
+		self.umi_settings = get_umi_settings()
 		self.init_annotations()
 
 		key_to_delete = []
@@ -170,9 +170,9 @@ class UMI_FileSelection(bpy.types.Operator):
 	bl_label = "File Selection"
 	bl_options = {'REGISTER', 'INTERNAL'}
 	bl_region_type = "UI"
-	
+
 	def invoke(self, context, event):
-		self.umi_settings = context.scene.umi_settings
+		self.umi_settings = get_umi_settings()
 		self.umi_settings.umi_file_selection_started = True
 		
 		register_import_format(self, context)
@@ -276,15 +276,25 @@ class UMI_FileSelection(bpy.types.Operator):
 		col1.label(text='Import Settings')
 
 		box = col1.box()
-		row1 = box.row(align=True)
-		# row1.ui_units_x = 25
-		row1.prop(self.umi_settings, 'umi_file_format_current_settings', expand=True)
-		col1.separator()
-		if not len(self.umi_settings.umi_file_format_current_settings):
-			return
-		current_setting_name = self.umi_settings.umi_file_format_current_settings.copy().pop().lower()
+		col2 = box.column(align=True)
+		row1 = col2.row(align=True)
+		row1.prop(self.umi_settings, 'umi_import_batch_settings', expand=True)
+		row1 = col2.row(align=True)
 
-		self.draw_current_settings(context, box, current_setting_name)
+		if len(self.umi_settings.umi_file_extension_selection) and len(get_file_selected_items(self, context)):
+			row1.prop(self.umi_settings, 'umi_file_format_current_settings', expand=True)
+		else:
+			row1.alignment = 'CENTER'
+			row1.label(text='Select at least one file')
+		col1.separator()
+		if len(self.umi_settings.umi_file_format_current_settings):
+			current_setting_name = self.umi_settings.umi_file_format_current_settings.copy().pop().lower()
+			self.draw_current_settings(context, box, current_setting_name)
+		elif len(self.umi_settings.umi_import_batch_settings):
+			if self.umi_settings.umi_import_batch_settings == {'GLOBAL'}:
+				self.draw_global_settings(context, box)
+			elif self.umi_settings.umi_import_batch_settings == {'BATCHER'}:
+				draw_command_batcher(self, context, box)
 	
 	def draw_current_settings(self, context, layout, format_name):
 		layout.use_property_split = True
@@ -293,13 +303,56 @@ class UMI_FileSelection(bpy.types.Operator):
 		current_format = eval(f'self.{format_name}_format')
 		if len(current_format.keys()) > 1:
 			row = col.row()
-			row.prop(eval(f"self.umi_settings.umi_import_settings.{format_name}_import_module", {'self':self}), 'name' , expand=True)
+			row.prop(eval(f"self.umi_settings.umi_format_import_settings.{format_name}_import_module", {'self':self}), 'name' , expand=True)
 			col.separator()
 
-		current_module = eval(f'self.umi_settings.umi_import_settings.{format_name}_import_module', {'self':self}).name.lower()
+		current_module = eval(f'self.umi_settings.umi_format_import_settings.{format_name}_import_module', {'self':self}).name.lower()
 		current_settings = current_format[current_module]
 		# if len(current_settings.format_settings_dict.keys()):
 		COMPATIBLE_FORMATS.draw_format_settings(context, format_name, current_settings.format_settings, current_module, col)
+
+	def draw_global_settings(self, context, layout):
+		layout.use_property_split = True
+		layout.use_property_decorate = False
+		col = layout.column()
+		import_count = col.box()
+		import_count.label(text='File Count', icon='LONGDISPLAY')
+		import_count.prop(self.umi_settings.umi_global_import_settings, 'import_simultaneously_count')
+		import_count.prop(self.umi_settings.umi_global_import_settings, 'max_batch_size')
+		if self.umi_settings.umi_global_import_settings.max_batch_size:
+			import_count.prop(self.umi_settings.umi_global_import_settings, 'minimize_batch_number')
+
+		settings = col.box()
+		settings.label(text='Options', icon='OPTIONS')
+		settings.prop(self.umi_settings.umi_global_import_settings, 'create_collection_per_file')
+		
+		if self.umi_settings.umi_global_import_settings.create_collection_per_file:
+			row = settings.row()
+			split = row.split(factor=0.1, align=True)
+			split.label(text='')
+			split = split.split()
+			split.prop(self.umi_settings.umi_global_import_settings, 'skip_already_imported_files')
+
+		log = col.box()
+		log.label(text='Log Display', icon='WORDWRAP_ON')
+
+		column = log.column(align=True)
+
+		column.prop(self.umi_settings, 'umi_show_log_on_3d_view')
+		if self.umi_settings.umi_show_log_on_3d_view:
+			column.prop(self.umi_settings, 'umi_auto_hide_text_when_finished')
+			if self.umi_settings.umi_auto_hide_text_when_finished:
+				column.prop(self.umi_settings, 'umi_wait_before_hiding')
+		column.prop(self.umi_settings, 'umi_force_refresh_viewport_after_each_import')
+
+		backup = col.box()
+		col1 = backup.column()
+		col1.label(text='backup', icon='FILE_TICK')
+		col1.prop(self.umi_settings.umi_global_import_settings, 'save_file_after_import')
+		col1.prop(self.umi_settings.umi_global_import_settings, 'backup_file_after_import')
+
+		if self.umi_settings.umi_global_import_settings.backup_file_after_import:
+			backup.prop(self.umi_settings.umi_global_import_settings, 'backup_step')
 
 	def cancel(self, context):
 		self.umi_settings.umi_current_format_setting_cancelled = True
@@ -309,26 +362,17 @@ class UMI_FileSelection(bpy.types.Operator):
 class UMI(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.tila_universal_multi_importer"
 	bl_label = "Import ALL"
-	bl_options = {'REGISTER', 'INTERNAL', 'PRESET'}
+	bl_options = {'REGISTER', 'INTERNAL'}
 	bl_region_type = "UI"
 	bl_description = 'Import multiple files of different formats from the same import dialog. You can also scan folders and subfolders to import everything inside.'
 
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement, options={'SKIP_SAVE'})
-	import_simultaneously_count : bpy.props.IntProperty(name="Max Import Simultaneously (files)", default=200, min=1, description='Maximum number of file to import simultaneously')
-	max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="Max size per import batch. An import batch represents the number of files imported simultaneously", default=20, min=0)
-	minimize_batch_number : bpy.props.BoolProperty(name="Minimize batch number", description="Try to pack files per batch in a way to be as close as possible to the Max batch size, and then minimize the number of import batches", default=True)
-	create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=False)
-	backup_file_after_import : bpy.props.BoolProperty(name='Backup file', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
-	backup_step : bpy.props.FloatProperty(name='Backup Step (MB)', description='Backup file after X file(s) imported', default=100, min=1)
-	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
-	save_file_after_import : bpy.props.BoolProperty(name='Save file after import', description='Save the original file when the entire import process is compete', default=False)
-	ignore_command_batcher_errors : bpy.props.BoolProperty(name='Ignore Command Batcher Errors', description='If any error(s) occurs during processing of Command Batcher, error(s) will be ignore and the import process will continue to the next operation', default=True)
-	import_svg_as_grease_pencil : bpy.props.BoolProperty(name='Import SVG as Grease Pencil', description='SVG file will be imported as grease Pencil instead of curve objects', default=False)
-	recursion_depth : bpy.props.IntProperty(name='Recursion Depth', default=0, min=0, description='How many Subfolders will be used to search for compatible files to import.\n/!\ WARNING : A too big number may result of a huge number of files to import and may cause instability')
 	# Support Folder selection
 	filter_folder: bpy.props.BoolProperty(name = 'Import Directory', default = False, options = {"HIDDEN"})
 	directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
+	# Import Settings
+	recursion_depth : bpy.props.IntProperty(name='Recursion Depth', default=0, min=0, description='How many Subfolders will be used to search for compatible files to import.\n/!\ WARNING : A too big number may result of a huge number of files to import and may cause instability')
 
 	_timer = None
 	thread = None
@@ -369,15 +413,25 @@ class UMI(bpy.types.Operator, ImportHelper):
 	def compatible_extensions(self):
 		return COMPATIBLE_FORMATS.extensions
 
+	def draw(self, context):
+		layout = self.layout
+		layout.use_property_split = True
+		layout.use_property_decorate = False
+		
+		if self.filter_folder:
+			layout.prop(self, 'recursion_depth')
+
 	def invoke(self, context, event):
-		bpy.context.scene.umi_settings.umi_batcher_is_processing = False
-		context.scene.umi_settings.umi_skip_settings = False
+		self.umi_settings = get_umi_settings()
+		self.umi_settings.umi_batcher_is_processing = False
+		self.umi_settings.umi_skip_settings = False
 		bpy.ops.scene.umi_load_preset_list()
 
 		if self.directory and not self.filter_folder and len(self.files):
 			if event.shift:
-				context.scene.umi_settings.umi_skip_settings = True
+				self.umi_settings.umi_skip_settings = True
 			return self.execute(context)
+		
 		context.window_manager.fileselect_add(self)
 		return {'RUNNING_MODAL'}
 
@@ -413,49 +467,6 @@ class UMI(bpy.types.Operator, ImportHelper):
 		LOG.info('-----------------------------------')
 		self.end_text_written = True
 		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-
-	def draw(self, context):
-		layout = self.layout
-		col = layout.column()
-		col.label(text='Import Settings')
-		
-		import_count = col.box()
-		import_count.label(text='File Count')
-		if self.filter_folder:
-			import_count.prop(self, 'recursion_depth')
-		import_count.prop(self, 'import_simultaneously_count')
-		import_count.prop(self, 'max_batch_size')
-		if self.max_batch_size:
-			import_count.prop(self, 'minimize_batch_number')
-
-		settings = col.box()
-		settings.label(text='Settings')
-		settings.prop(self, 'ignore_command_batcher_errors')
-		settings.prop(self, 'save_file_after_import')
-		# settings.prop(self, 'import_svg_as_grease_pencil')
-		settings.prop(self, 'create_collection_per_file')
-		
-		if self.create_collection_per_file:
-			row = settings.row()
-			split = row.split(factor=0.1, align=True)
-			split.label(text='')
-			split = split.split()
-			split.prop(self, 'skip_already_imported_files')
-
-
-		backup = col.box()
-		backup.label(text='Backup')
-		backup.prop(self, 'backup_file_after_import')
-
-		if self.backup_file_after_import:
-			row = backup.row()
-			split = row.split(factor=0.1, align=True)
-			split.label(text='')
-			split = split.split()
-			split.prop(self, 'backup_step')
-			
-		
-		draw_command_batcher(self, context)
 
 	def recur_layer_collection(self, layer_coll, coll_name):
 		found = None
@@ -510,10 +521,10 @@ class UMI(bpy.types.Operator, ImportHelper):
 			self.cancel(context)
 
 			self.log_end_text()
-			self.counter = self.wait_before_hiding
+			self.counter = self.umi_settings.umi_wait_before_hiding
 			self.import_complete = True
 			LOG.completed = True
-			self.umi_settings.umi_import_settings.umi_import_cancelled = True
+			self.umi_settings.umi_format_import_settings.umi_import_cancelled = True
 			return {'RUNNING_MODAL'}
 		
 		# If Import Complete, show Import Summary
@@ -535,10 +546,10 @@ class UMI(bpy.types.Operator, ImportHelper):
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				return {'PASS_THROUGH'}
 			
-			if self.auto_hide_text_when_finished:
+			if self.umi_settings.umi_auto_hide_text_when_finished:
 				self.store_delta_start()
 
-				if self.counter == self.wait_before_hiding:
+				if self.counter == self.umi_settings.umi_wait_before_hiding:
 					self.previous_counter = self.counter
 					self.store_delta_end()
 					
@@ -554,7 +565,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			if event.type in {'ESC'} and event.value == 'PRESS':
 				return self.finish(context, self.canceled)
 			
-			if self.auto_hide_text_when_finished:
+			if self.umi_settings.umi_auto_hide_text_when_finished:
 				self.previous_counter = remaining_seconds
 				self.store_delta_end()
 				self.decrement_counter()
@@ -588,6 +599,9 @@ class UMI(bpy.types.Operator, ImportHelper):
 					return self.cancel_finish(context)
 				
 				LOG.info(f'{len(self.filepaths)}  files selected')
+				
+				self.operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
+
 				self.umi_settings.umi_file_selection.clear()
 				self.umi_settings.umi_file_selection_started = False
 
@@ -610,7 +624,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 					self.start_time = time.perf_counter()
 
 				# wait if post processing in progress
-				if bpy.context.scene.umi_settings.umi_batcher_is_processing: 
+				if self.umi_settings.umi_batcher_is_processing: 
 					return {'PASS_THROUGH'}
 				
 				# After each Import Batch, and batch process
@@ -630,8 +644,8 @@ class UMI(bpy.types.Operator, ImportHelper):
 						i -= 1
 					
 					# Backup file
-					if self.backup_file_after_import:
-						if self.backup_step <= self.current_backup_step:
+					if self.umi_settings.umi_global_import_settings.backup_file_after_import:
+						if self.umi_settings.umi_global_import_settings.backup_step <= self.current_backup_step:
 							self.current_backup_step = 0
 							LOG.info('Saving backup file : {}'.format(path.basename(self.blend_backup_file)))
 							bpy.ops.wm.save_as_mainfile(filepath=self.blend_backup_file, check_existing=False, copy=True)
@@ -644,14 +658,14 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 					# All Batches are imported and processed : init ending
 					else: 
-						if self.save_file_after_import:
+						if self.umi_settings.umi_global_import_settings.save_file_after_import:
 							bpy.ops.wm.save_as_mainfile(filepath=self.current_blend_file, check_existing=False)
 
 						LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2), size=self.total_imported_size, batch_count=self.batch_number)
 						self.import_complete = True
 						LOG.completed = True
 						self.log_end_text()
-						self.counter = self.wait_before_hiding
+						self.counter = self.umi_settings.umi_wait_before_hiding
 						bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 				# Running Current Batcher on Imported Objects
@@ -701,7 +715,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		ext = os.path.splitext(filepath)[1]
 		format_name = COMPATIBLE_FORMATS.get_format_from_extension(ext)['name']
 		current_format = eval(f'self.{format_name}_format')
-		current_module = eval(f'self.umi_settings.umi_import_settings.{format_name}_import_module', {'self':self}).name.lower()
+		current_module = eval(f'self.umi_settings.umi_format_import_settings.{format_name}_import_module', {'self':self}).name.lower()
 		# format_settings = current_format[current_module].format_settings
 		
 		operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)[current_module]['command']
@@ -765,7 +779,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		name = path.basename(name)
 		self.current_filenames.append(path.basename(filename))
 
-		if self.skip_already_imported_files:
+		if self.umi_settings.umi_global_import_settings.skip_already_imported_files:
 			if filename in bpy.data.collections:
 				self.current_files_to_import = []
 				self.importing = False
@@ -779,10 +793,10 @@ class UMI(bpy.types.Operator, ImportHelper):
 		LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=LoggerColors.IMPORT_COLOR)
 		self.current_backup_step += current_file_size
 		
-		if self.force_refresh_viewport_after_each_import:
+		if self.umi_settings.umi_force_refresh_viewport_after_each_import:
 			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
-		if self.create_collection_per_file:
+		if self.umi_settings.umi_global_import_settings.create_collection_per_file:
 			collection = bpy.data.collections.new(name=filename)
 			self.root_collection.children.link(collection)
 			
@@ -848,10 +862,6 @@ class UMI(bpy.types.Operator, ImportHelper):
 		bpy.utils.register_class(UMI_OT_Settings)
 		self._filepaths = None
 		self.current_blend_file = bpy.data.filepath
-		self.preferences = get_prefs()
-		self.auto_hide_text_when_finished = self.preferences.auto_hide_text_when_finished
-		self.wait_before_hiding = self.preferences.wait_before_hiding
-		self.force_refresh_viewport_after_each_import = self.preferences.force_refresh_viewport_after_each_import
 		self.current_files_to_import = []
 		self.current_filenames = []
 		self.imported_files = []
@@ -862,13 +872,12 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.total_imported_size = 0
 		self.current_batch_imported = False
 		self.files_succeeded = []
-		self.umi_settings = context.scene.umi_settings
-		self.umi_settings.umi_import_settings.umi_import_cancelled = False
+		self.umi_settings = get_umi_settings()
+		self.umi_settings.umi_format_import_settings.umi_import_cancelled = False
 		self.umi_settings.umi_file_selection.clear()
 		self.umi_settings.umi_file_selection_started = False
 		self.umi_settings.umi_file_selection_done = False
 		LOG.revert_parameters()
-		LOG.show_log = self.preferences.show_log_on_3d_view
 		LOG.esc_message = '[Esc] to Cancel'
 		LOG.message_offset = 15
 
@@ -879,7 +888,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 		if not path.exists(self.current_blend_file):
 			LOG.warning('Blender file not saved')
-			self.save_file_after_import = False
+			self.umi_settings.umi_global_import_settings.save_file_after_import = False
 			autosave = path.join(bpy.utils.user_resource(resource_type='AUTOSAVE', create=True), 'umi_autosave_' + time.strftime('%Y-%m-%d-%H-%M-%S') + '.blend')
 		else:
 			autosave = path.splitext(self.current_blend_file)[0] + "_bak" + path.splitext(self.current_blend_file)[1]
@@ -892,7 +901,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			self.report({'ERROR'}, message)
 			return {'CANCELLED'}
 
-		if self.max_batch_size and self.minimize_batch_number:
+		if self.umi_settings.umi_global_import_settings.max_batch_size and self.umi_settings.umi_global_import_settings.minimize_batch_number:
 			# Sorting filepaths per Filesize for optimization
 			self.filepaths = self.sort_per_filesize(self.filepaths)
 
@@ -913,7 +922,6 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 		self.objects_to_process = []
 		self.current_object_to_process = None
-		self.operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
 
 		args = (context,)
 		self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
@@ -961,7 +969,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 	def get_next_viable_file(self, filepaths, initial_size, max_size, selected_files):
 		for f in filepaths:
-			if self.minimize_batch_number:
+			if self.umi_settings.umi_global_import_settings.minimize_batch_number:
 				current_size = self.get_filesize(f)
 				if initial_size + current_size > max_size:
 					if len(selected_files):
@@ -981,11 +989,11 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.current_filenames = []
 		self.current_batch_size = 0
 		self.batch_number += 1
-		for _ in range(self.import_simultaneously_count):
+		for _ in range(self.umi_settings.umi_global_import_settings.import_simultaneously_count):
 			if not len(self.filepaths):
 				return
 			
-			next_files = self.get_next_viable_file(self.filepaths, self.current_batch_size, self.max_batch_size, self.current_files_to_import)
+			next_files = self.get_next_viable_file(self.filepaths, self.current_batch_size, self.umi_settings.umi_global_import_settings.max_batch_size, self.current_files_to_import)
 			if next_files is not None:
 				next_filesize = self.get_filesize(next_files)
 			# Batch is Full
@@ -994,7 +1002,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 					return
 				next_files = self.filepaths.pop(0)
 
-			elif self.current_batch_size + next_filesize > self.max_batch_size:
+			elif self.current_batch_size + next_filesize > self.umi_settings.umi_global_import_settings.max_batch_size:
 				if len(self.current_files_to_import):
 					return
 				

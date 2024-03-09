@@ -6,8 +6,8 @@ from ..blender_version import BVERSION
 class LoggerProgress(Logger):
 	def __init__(self, log_name='ROOT'):
 		super(LoggerProgress, self).__init__(log_name)
-		self.esc_message = ''
-		self.message_offset = 0
+		self.esc_message = '[Esc] to Cancel'
+		self.message_offset = 15
 		self.scroll_offset = 0
 		self.completed = False
 		self.show_log = True
