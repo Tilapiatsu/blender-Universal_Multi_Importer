@@ -228,7 +228,6 @@ class CommandBatcher(bpy.types.Operator):
 					self.current_operation_number += 1
 					
 					LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=LoggerColors.COMMAND_COLOR)
-					# bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 					override = {}
 					override["selected_objects"] = [bpy.data.objects[self.current_object_to_process.name]]
@@ -336,8 +335,6 @@ class CommandBatcher(bpy.types.Operator):
 		self.object_progress = round(self.current_object_number * 100 / self.number_of_object_to_process, 2)
 		
 		LOG.info(f'Processing object {self.current_object_number}/{self.number_of_object_to_process} - {self.object_progress}% : {self.current_object_to_process.name}')
-		# bpy.ops.object.select_all(action='DESELECT')
-		# bpy.data.objects[self.current_object_to_process.name].select_set(True)
 		self.fill_operator_to_process()
 
 # function to append the operator in the File>Import menu
