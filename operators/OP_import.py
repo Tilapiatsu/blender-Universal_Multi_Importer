@@ -49,6 +49,7 @@ if BVERSION >= 4.1:
 			bpy.ops.import_scene.tila_universal_multi_importer("INVOKE_DEFAULT", filter_folder=False, files=files, directory=self.directory)
 			return {'FINISHED'}
 
+# Legacy Settings Drawing
 class UMI_OT_Settings(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_settings"
 	bl_label = "Import Settings"

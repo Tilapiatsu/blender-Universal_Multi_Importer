@@ -112,7 +112,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
 	umi_file_stat_selected_formats : bpy.props.StringProperty(name='format(s)', default='')
 	umi_ignore_command_batcher_errors : bpy.props.BoolProperty(name='Ignore Command Batcher Errors', default=True)
 	umi_show_log_on_3d_view : bpy.props.BoolProperty(name="Show Log on 3D View", default=True, update=update_log_drawing)
-	umi_auto_hide_text_when_finished : bpy.props.BoolProperty(name="Auto Hide Text When Finished", default=False)
+	umi_auto_hide_text_when_finished : bpy.props.BoolProperty(name="Auto Hide Log When Finished", default=False)
 	umi_wait_before_hiding : bpy.props.FloatProperty(name="Wait Before Hiding (s)", default=5.0)
 	umi_force_refresh_viewport_after_each_import : bpy.props.BoolProperty(name="Refresh Viewport After Each Imported Files", default=False)
 

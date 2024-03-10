@@ -6,10 +6,10 @@ from ..umi_const import get_umi_settings
 
 def draw_command_batcher(self, context, layout):
 	col = layout.column()
-	
 	box = col.box()
 	row = box.row()
-	row.label(text='Operators', icon='SCRIPTPLUGINS')
+
+	row.label(text='Commands', icon='SCRIPTPLUGINS')
 
 	rows = len(self.umi_settings.umi_operators) if len(self.umi_settings.umi_operators) > 2 else 2
 	row = box.row()
@@ -27,7 +27,7 @@ def draw_command_batcher(self, context, layout):
 	col2.operator('scene.umi_move_operator', text='', icon='TRIA_DOWN').direction = 'DOWN'
 	col2.separator()
 	col2.operator('scene.umi_clear_operators', text='', icon='TRASH')
-
+	
 
 	box = col.box()
 	row = box.row()
@@ -44,6 +44,19 @@ def draw_command_batcher(self, context, layout):
 	col2.operator('scene.umi_move_preset', text='', icon='TRIA_DOWN').direction = 'DOWN'
 	col2.separator()
 	col2.operator('scene.umi_clear_presets', text='', icon='TRASH')
+
+	
+	if self.bl_label == CommandBatcher.bl_label:
+		box = col.box()
+		box.label(text='Log Display', icon='WORDWRAP_ON')
+		row = box.row(align=True)
+		row.use_property_split = True
+		row.use_property_decorate = False
+		row.prop(self.umi_settings, 'umi_show_log_on_3d_view')
+		col = row.column(align=True)
+		col.prop(self.umi_settings, 'umi_auto_hide_text_when_finished')
+		if self.umi_settings.umi_auto_hide_text_when_finished:
+			col.prop(self.umi_settings, 'umi_wait_before_hiding')
 
 
 class CommandBatcher(bpy.types.Operator):
