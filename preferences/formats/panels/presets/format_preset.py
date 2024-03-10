@@ -2,20 +2,19 @@ import bpy
 from .....umi_const import get_umi_settings, ADDON_PACKAGE
 from bl_ui.utils import PresetPanel
 from bpy.types import Menu, Operator, Panel
-from bpy.props import StringProperty
 
 from bl_operators.presets import AddPresetBase
 
-class UMI_PT_presets(PresetPanel, Panel):
+class UMI_PT_format_presets(PresetPanel, Panel):
 	bl_label = 'UMI Presets' 
 	preset_subdir = 'UMI/presets' 
 	preset_operator = 'script.execute_preset' 
-	preset_add_operator = 'umi.add_preset'
+	preset_add_operator = 'umi.add_format_preset'
 	
 
 #  From https://sinestesia.co/blog/tutorials/using-blenders-presets-in-python/
-class WM_MT_UMIPresets(Menu):
-	bl_label = 'Import Presets'
+class WM_MT_UMIFormatPresets(Menu):
+	bl_label = 'Format Presets'
 	preset_subdir = 'UMI/presets'
 	preset_operator = 'script.execute_preset' 
 	draw = Menu.draw_preset
@@ -25,19 +24,13 @@ class WM_MT_UMIPresets(Menu):
 		umi_settings = get_umi_settings()
 		current_format = umi_settings.umi_file_format_current_settings.copy().pop().lower()
 		current_module = eval(f'umi_settings.umi_format_import_settings.{current_format}_import_module', {'umi_settings':umi_settings}).name.lower()
-		return AddUMIPreset.operator_path(current_format, current_module)
+		return AddUMIFormatPreset.operator_path(current_format, current_module)
 
-class AddUMIPreset(AddPresetBase, Operator): 
-	bl_idname = 'umi.add_preset' 
-	bl_label = 'Add UMI preset' 
-	preset_menu = 'WM_MT_UMIPresets' 
+class AddUMIFormatPreset(AddPresetBase, Operator): 
+	bl_idname = 'umi.add_format_preset' 
+	bl_label = 'Add UMI Format Preset' 
+	preset_menu = 'WM_MT_UMIFormatPresets' 
 	
-	operator: StringProperty(
-		name="Operator",
-		maxlen=64,
-		options={'HIDDEN', 'SKIP_SAVE'},
-	)
-
 	preset_defines = [
 		f"umi_settings = bpy.context.preferences.addons['{ADDON_PACKAGE}'].preferences.umi_settings.umi_format_import_settings"
 	]
@@ -49,7 +42,7 @@ class AddUMIPreset(AddPresetBase, Operator):
 		umi_settings = get_umi_settings()
 		current_format = umi_settings.umi_file_format_current_settings.copy().pop().lower()
 		current_module = eval(f'umi_settings.umi_format_import_settings.{current_format}_import_module', {'umi_settings':umi_settings}).name.lower()
-		return AddUMIPreset.operator_path(current_format, current_module)
+		return AddUMIFormatPreset.operator_path(current_format, current_module)
 
 	@property
 	def preset_values(self):
@@ -79,12 +72,12 @@ class AddUMIPreset(AddPresetBase, Operator):
 
 def panel_func(self, context): 
 	row = self.layout.row(align=True)
-	row.menu(WM_MT_UMIPresets.__name__, text=WM_MT_UMIPresets.bl_label)
-	row.operator(AddUMIPreset.bl_idname, text="", icon='ADD')
-	row.operator(AddUMIPreset.bl_idname, text="", icon='REMOVE').remove_active = True
+	row.menu(WM_MT_UMIFormatPresets.__name__, text=WM_MT_UMIFormatPresets.bl_label)
+	row.operator(AddUMIFormatPreset.bl_idname, text="", icon='ADD')
+	row.operator(AddUMIFormatPreset.bl_idname, text="", icon='REMOVE').remove_active = True
 
 
-classes = (WM_MT_UMIPresets, AddUMIPreset, UMI_PT_presets)
+classes = (WM_MT_UMIFormatPresets, AddUMIFormatPreset, UMI_PT_format_presets)
 
 def register():
 	from bpy.utils import register_class

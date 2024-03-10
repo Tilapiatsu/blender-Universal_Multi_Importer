@@ -4,7 +4,7 @@ from .formats.properties import PG_UMISettings
 from .. import ADDON_PACKAGE
 
 def update_log_drawing(self, context):
-	LOG.show_log = self.umi_settings.show_log_on_3d_view
+	LOG.show_log = self.umi_settings.umi_global_import_settings.show_log_on_3d_view
 
 
 class Preferences(bpy.types.AddonPreferences):

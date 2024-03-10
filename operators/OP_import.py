@@ -8,6 +8,7 @@ from ..preferences.formats import FormatHandler, COMPATIBLE_FORMATS
 from ..preferences.formats.properties.properties import update_file_stats, get_file_selected_items
 from .OP_command_batcher import draw_command_batcher
 from ..umi_const import get_umi_settings
+from ..preferences.formats.panels.presets import import_preset
 from ..logger import LOG, LoggerColors, MessageType
 from ..blender_version import BVERSION
 
@@ -293,6 +294,7 @@ class UMI_FileSelection(bpy.types.Operator):
 			self.draw_current_settings(context, box, current_setting_name)
 		elif len(self.umi_settings.umi_import_batch_settings):
 			if self.umi_settings.umi_import_batch_settings == {'GLOBAL'}:
+				import_preset.panel_func(box)
 				self.draw_global_settings(context, box)
 			elif self.umi_settings.umi_import_batch_settings == {'BATCHER'}:
 				draw_command_batcher(self, context, box)
@@ -339,12 +341,12 @@ class UMI_FileSelection(bpy.types.Operator):
 
 		column = log.column(align=True)
 
-		column.prop(self.umi_settings, 'umi_show_log_on_3d_view')
-		if self.umi_settings.umi_show_log_on_3d_view:
-			column.prop(self.umi_settings, 'umi_auto_hide_text_when_finished')
-			if self.umi_settings.umi_auto_hide_text_when_finished:
-				column.prop(self.umi_settings, 'umi_wait_before_hiding')
-		column.prop(self.umi_settings, 'umi_force_refresh_viewport_after_each_import')
+		column.prop(self.umi_settings.umi_global_import_settings, 'show_log_on_3d_view')
+		if self.umi_settings.umi_global_import_settings.show_log_on_3d_view:
+			column.prop(self.umi_settings.umi_global_import_settings, 'auto_hide_text_when_finished')
+			if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
+				column.prop(self.umi_settings.umi_global_import_settings, 'wait_before_hiding')
+		column.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_each_import')
 
 		backup = col.box()
 		col1 = backup.column()
@@ -522,7 +524,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			self.cancel(context)
 
 			self.log_end_text()
-			self.counter = self.umi_settings.umi_wait_before_hiding
+			self.counter = self.umi_settings.umi_global_import_settings.wait_before_hiding
 			self.import_complete = True
 			LOG.completed = True
 			self.umi_settings.umi_format_import_settings.umi_import_cancelled = True
@@ -547,10 +549,10 @@ class UMI(bpy.types.Operator, ImportHelper):
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				return {'PASS_THROUGH'}
 			
-			if self.umi_settings.umi_auto_hide_text_when_finished:
+			if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
 				self.store_delta_start()
 
-				if self.counter == self.umi_settings.umi_wait_before_hiding:
+				if self.counter == self.umi_settings.umi_global_import_settings.wait_before_hiding:
 					self.previous_counter = self.counter
 					self.store_delta_end()
 					
@@ -566,7 +568,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 			if event.type in {'ESC'} and event.value == 'PRESS':
 				return self.finish(context, self.canceled)
 			
-			if self.umi_settings.umi_auto_hide_text_when_finished:
+			if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
 				self.previous_counter = remaining_seconds
 				self.store_delta_end()
 				self.decrement_counter()
@@ -666,7 +668,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 						self.import_complete = True
 						LOG.completed = True
 						self.log_end_text()
-						self.counter = self.umi_settings.umi_wait_before_hiding
+						self.counter = self.umi_settings.umi_global_import_settings.wait_before_hiding
 						bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 				# Running Current Batcher on Imported Objects
@@ -794,7 +796,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=LoggerColors.IMPORT_COLOR)
 		self.current_backup_step += current_file_size
 		
-		if self.umi_settings.umi_force_refresh_viewport_after_each_import:
+		if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_each_import:
 			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
 		if self.umi_settings.umi_global_import_settings.create_collection_per_file:

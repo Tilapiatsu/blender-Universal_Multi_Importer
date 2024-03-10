@@ -15,7 +15,7 @@ def draw_command_batcher(self, context, layout):
 	row = box.row()
 	col1 = row.column(align=True)
 	col1.template_list('UMI_UL_operator_list', '', self.umi_settings, 'umi_operators', self.umi_settings, 'umi_operator_idx', rows=rows)
-	col1.prop(self.umi_settings, 'umi_ignore_command_batcher_errors')
+	col1.prop(self.umi_settings.umi_global_import_settings, 'ignore_command_batcher_errors')
 
 	col2 = row.column()
 	
@@ -52,11 +52,11 @@ def draw_command_batcher(self, context, layout):
 		row = box.row(align=True)
 		row.use_property_split = True
 		row.use_property_decorate = False
-		row.prop(self.umi_settings, 'umi_show_log_on_3d_view')
+		row.prop(self.umi_settings.umi_global_import_settings, 'show_log_on_3d_view')
 		col = row.column(align=True)
-		col.prop(self.umi_settings, 'umi_auto_hide_text_when_finished')
-		if self.umi_settings.umi_auto_hide_text_when_finished:
-			col.prop(self.umi_settings, 'umi_wait_before_hiding')
+		col.prop(self.umi_settings.umi_global_import_settings, 'auto_hide_text_when_finished')
+		if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
+			col.prop(self.umi_settings.umi_global_import_settings, 'wait_before_hiding')
 
 
 class CommandBatcher(bpy.types.Operator):
@@ -144,7 +144,7 @@ class CommandBatcher(bpy.types.Operator):
 				LOG.warning('Cancelling...')
 			self.cancel(context)
 
-			self.counter = self.umi_settings.umi_wait_before_hiding
+			self.counter = self.umi_settings.umi_global_import_settings.wait_before_hiding
 			self.end = True
 			LOG.completed = True
 			return {'RUNNING_MODAL'}
@@ -169,10 +169,10 @@ class CommandBatcher(bpy.types.Operator):
 				bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 				return {'PASS_THROUGH'}
 			
-			if self.umi_settings.umi_auto_hide_text_when_finished:
+			if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
 				self.store_delta_start()
 
-				if self.counter == self.umi_settings.umi_wait_before_hiding:
+				if self.counter == self.umi_settings.umi_global_import_settings.wait_before_hiding:
 					self.previous_counter = self.counter
 					self.store_delta_end()
 					
@@ -188,7 +188,7 @@ class CommandBatcher(bpy.types.Operator):
 			if event.type in {'ESC'} and event.value == 'PRESS':
 				return self.finish(context, self.canceled)
 			
-			if self.umi_settings.umi_auto_hide_text_when_finished:
+			if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
 				self.previous_counter = remaining_seconds
 				self.store_delta_end()
 				self.decrement_counter()
@@ -208,7 +208,7 @@ class CommandBatcher(bpy.types.Operator):
 			elif self.current_object_to_process is None and len(self.objects_to_process) == 0:
 				if not self.importer_mode:
 					LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2))
-					self.counter = self.umi_settings.umi_wait_before_hiding
+					self.counter = self.umi_settings.umi_global_import_settings.wait_before_hiding
 				else:
 					self.finished = True
 				self.end = True

@@ -1,7 +1,7 @@
 from .format_definition import FormatDefinition
 from . import FORMATS
 from ...logger import LOG
-from .panels.presets import preset
+from .panels.presets import format_preset
 import inspect
 
 class CompatibleFormats():
@@ -81,7 +81,7 @@ class CompatibleFormats():
 		module = eval(f'panel_{format_name}.IMPORT_SCENE_{format_name.upper()}Settings')
 		self.layout = layout
 		
-		preset.panel_func(self, context)
+		format_preset.panel_func(self, context)
 
 		layout.separator()
 		layout.separator()

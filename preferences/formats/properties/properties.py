@@ -48,7 +48,7 @@ def get_file_selected_items(self, context):
     
 def update_log_drawing(self, context):
 	umi_settings = get_umi_settings()
-	LOG.show_log = umi_settings.umi_show_log_on_3d_view
+	LOG.show_log = umi_settings.umi_global_import_settings.show_log_on_3d_view
 
 class PG_ImportSettings(bpy.types.PropertyGroup):
 	umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)
@@ -70,7 +70,7 @@ class PG_FilePathSelection(bpy.types.PropertyGroup):
 	check : bpy.props.BoolProperty(name='Check', default=True, update=update_file_stats)
 	size : bpy.props.FloatProperty(name='FileSize', default=0.0)
 
-class PG_ImportGlobalSettings(bpy.types.PropertyGroup):
+class PG_GlobalSettings(bpy.types.PropertyGroup):
 	import_simultaneously_count : bpy.props.IntProperty(name="Max Simultaneously Files", default=200, min=1, description='Maximum number of file to import simultaneously')
 	max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="Max size per import batch. An import batch represents the number of files imported simultaneously", default=20, min=0)
 	minimize_batch_number : bpy.props.BoolProperty(name="Minimize batch number", description="Try to pack files per batch in a way to be as close as possible to the Max batch size, and then minimize the number of import batches", default=True)
@@ -79,6 +79,11 @@ class PG_ImportGlobalSettings(bpy.types.PropertyGroup):
 	backup_step : bpy.props.FloatProperty(name='Backup Step (MB)', description='Backup file after X file(s) imported', default=100, min=1)
 	skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
 	save_file_after_import : bpy.props.BoolProperty(name='Save file after import complete', description='Save the original file when the entire import process is compete', default=False)
+	ignore_command_batcher_errors : bpy.props.BoolProperty(name='Ignore Command Batcher Errors', default=True)
+	show_log_on_3d_view : bpy.props.BoolProperty(name="Show Log on 3D View", default=True, update=update_log_drawing)
+	auto_hide_text_when_finished : bpy.props.BoolProperty(name="Auto Hide Log When Finished", default=False)
+	wait_before_hiding : bpy.props.FloatProperty(name="Wait Before Hiding (s)", default=5.0)
+	force_refresh_viewport_after_each_import : bpy.props.BoolProperty(name="Refresh Viewport After Each Imported Files", default=False)
 
 class PG_UMISettings(bpy.types.PropertyGroup):
 	umi_file_selected_format_items : bpy.props.StringProperty(name='Selected format items')
@@ -96,7 +101,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
 	umi_file_selection : bpy.props.CollectionProperty(type = PG_FilePathSelection)
 	umi_file_selection_idx : bpy.props.IntProperty()
 	umi_format_import_settings : bpy.props.PointerProperty(type=PG_ImportSettings)
-	umi_global_import_settings : bpy.props.PointerProperty(type=PG_ImportGlobalSettings)
+	umi_global_import_settings : bpy.props.PointerProperty(type=PG_GlobalSettings)
 	umi_skip_settings : bpy.props.BoolProperty(name='Skip Setting Windows', default=False)
 	umi_file_extension_selection : bpy.props.EnumProperty(name='ext', items=[(e, e, '') for e in COMPATIBLE_FORMATS.extensions])
 	umi_import_batch_settings : bpy.props.EnumProperty(items=[('GLOBAL', 'Global Settings', ''), ('BATCHER', 'Command Batcher', '')], options={"ENUM_FLAG"}, update=update_file_format_current_settings)
@@ -110,11 +115,6 @@ class PG_UMISettings(bpy.types.PropertyGroup):
 	umi_file_stat_selected_count : bpy.props.IntProperty(name='file(s)', default=0)
 	umi_file_stat_selected_size : bpy.props.FloatProperty(name='Mb', default=0)
 	umi_file_stat_selected_formats : bpy.props.StringProperty(name='format(s)', default='')
-	umi_ignore_command_batcher_errors : bpy.props.BoolProperty(name='Ignore Command Batcher Errors', default=True)
-	umi_show_log_on_3d_view : bpy.props.BoolProperty(name="Show Log on 3D View", default=True, update=update_log_drawing)
-	umi_auto_hide_text_when_finished : bpy.props.BoolProperty(name="Auto Hide Log When Finished", default=False)
-	umi_wait_before_hiding : bpy.props.FloatProperty(name="Wait Before Hiding (s)", default=5.0)
-	umi_force_refresh_viewport_after_each_import : bpy.props.BoolProperty(name="Refresh Viewport After Each Imported Files", default=False)
 
 class UMI_UL_OperatorList(bpy.types.UIList):
 	bl_idname = "UMI_UL_operator_list"
@@ -177,7 +177,7 @@ classes = ( PG_ImportSettings,
 			PG_Operator,
 			PG_Preset,
 			PG_FilePathSelection,
-			PG_ImportGlobalSettings,
+			PG_GlobalSettings,
 			PG_UMISettings,
 		    UMI_UL_OperatorList, 
 		    UMI_UL_PresetList,

@@ -1,7 +1,9 @@
-from . import preset
+from . import format_preset, import_preset
 
 def register():
-    preset.register()
+    format_preset.register()
+    import_preset.register()
 
 def unregister():
-    preset.unregister()
+    import_preset.unregister()
+    format_preset.unregister()
