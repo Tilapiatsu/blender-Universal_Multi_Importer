@@ -7,9 +7,10 @@ if not os.path.exists(PRESET_FOLDER):
 		print(f'UMI : Creating Preset Folder : {PRESET_FOLDER}')
 		os.mkdir(PRESET_FOLDER)
 
-def get_operator(self):
-	idx = self.umi_settings.umi_operator_idx
-	operators = self.umi_settings.umi_operators
+def get_operator():
+	umi_settings = get_umi_settings()
+	idx = umi_settings.umi_operator_idx
+	operators = umi_settings.umi_operators
 
 	active = operators[idx] if len(operators) else None
 

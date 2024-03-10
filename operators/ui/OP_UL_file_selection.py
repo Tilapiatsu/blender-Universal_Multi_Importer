@@ -4,9 +4,10 @@ from ...umi_const import get_umi_settings
 from ...preferences.formats.properties import update_file_stats
 
 
-def get_file_selection(self):
-	idx = self.umi_settings.umi_file_selection_idx
-	file_selection = self.umi_settings.umi_file_selection
+def get_file_selection():
+	umi_settings = get_umi_settings()
+	idx = umi_settings.umi_file_selection_idx
+	file_selection = umi_settings.umi_file_selection
 
 	active = file_selection[idx] if len(file_selection) else None
 
@@ -36,7 +37,7 @@ class UI_Select(bpy.types.Operator):
 		return self.execute(context)
 
 	def execute(self, context):
-		_, file_selection, _ = get_file_selection(self)
+		_, file_selection, _ = get_file_selection()
 		
 		self.umi_settings.umi_file_stat_update = False
 

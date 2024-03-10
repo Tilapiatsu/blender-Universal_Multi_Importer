@@ -4,8 +4,9 @@ from ...umi_const import get_umi_settings
 from .operators_const import PRESET_FOLDER, UMIPRESET_EXTENSION
 
 def get_presets(context):
-	idx = context.scene.umi_settings.umi_preset_idx
-	presets = context.scene.umi_settings.umi_presets
+	umi_settings = get_umi_settings()
+	idx = umi_settings.umi_preset_idx
+	presets = umi_settings.umi_presets
 
 	active = presets[idx] if presets else None
 

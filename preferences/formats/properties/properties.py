@@ -122,12 +122,14 @@ class UMI_UL_OperatorList(bpy.types.UIList):
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		scn = context.scene
 
-		grid = layout.grid_flow(columns=2, align=True, even_columns=True)
-		row = grid.row()
-		row.alignment = 'LEFT'
-		row.label(text=f'{index + 1} : {item.operator}')
+		col = layout.column(align=True)
+		col.alignment = 'LEFT'
+		col.label(text=f'{index + 1} : {item.operator}')
 
-		row = grid.row(align=True)
+		col = layout.column(align=True)
+		col.ui_units_x = 6
+		col.alignment = 'RIGHT'
+		row = col.row(align=True)
 		row.alignment = 'RIGHT'
 
 		row.operator('scene.umi_edit_operator', text='', icon='GREASEPENCIL').id = index
@@ -139,14 +141,14 @@ class UMI_UL_PresetList(bpy.types.UIList):
 	bl_idname = "UMI_UL_preset_list"
 
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-		scn = context.scene
+		col = layout.column(align=True)
+		col.alignment = 'LEFT'
+		col.label(text=f'{item.name}')
 
-		grid = layout.grid_flow(columns=2, align=True, even_columns=True)
-		row = grid.row()
-		row.alignment = 'LEFT'
-		row.label(text=f'{item.name}')
-
-		row = grid.row(align=True)
+		col = layout.column(align=True)
+		col.ui_units_x = 10
+		col.alignment = 'RIGHT'
+		row = col.row(align=True)
 		row.alignment = 'RIGHT'
 
 		row.operator('scene.umi_edit_preset', text='', icon='GREASEPENCIL').id = index
