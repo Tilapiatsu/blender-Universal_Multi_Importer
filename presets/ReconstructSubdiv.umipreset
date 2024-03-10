@@ -1,2 +1,0 @@
-bpy.ops.sculpt.tila_multires_rebuild_subdiv('INVOKE_DEFAULT')
-bpy.ops.sculpt.tila_multires_subdiv_level('INVOKE_DEFAULT', mode='MAX', force_subd=False)
