@@ -16,6 +16,14 @@ Then, you will also see a prompt to select the compatible files that have been f
 
 ### v2.0 : Support for 4.0+
 
+### v2.0 : Unified and Improved Import Window UX
+
+### v2.0 : Save and Load Import Presets
+
+### v2.0 : Support for drag and drop import ( Blender 4.1 only )
+Drag and drop multiple files in 3D viewport to import all the files at once and place the imported objects in current collection.
+Dropping in a collection of the outliner will place the imported objects in the collection under the cursor.
+
 ### v1.0 : Import any number of suported formats
 Just click on `File`>`Import`>`Universal Multi Importer Files`, select the files and clic on `Import ALL`,  and the addon will take care of using the proper import command.
 
