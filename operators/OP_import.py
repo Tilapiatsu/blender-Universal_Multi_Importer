@@ -196,8 +196,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		
 		main_box = main_col.box()
 		row1 = main_box.row(align=True)
-		# col2.ui_units_x = 2
-		# row1.alignment = 'LEFT'
+
 		row1.separator()
 		
 		box = row1.box()
@@ -274,7 +273,6 @@ class UMI_FileSelection(bpy.types.Operator):
 		col1.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
 		
 		col1 = row.column()
-		# col.ui_units_x = 25
 		col1.label(text='Import Settings')
 
 		box = col1.box()
@@ -311,7 +309,6 @@ class UMI_FileSelection(bpy.types.Operator):
 
 		current_module = eval(f'self.umi_settings.umi_format_import_settings.{format_name}_import_module', {'self':self}).name.lower()
 		current_settings = current_format[current_module]
-		# if len(current_settings.format_settings_dict.keys()):
 		COMPATIBLE_FORMATS.draw_format_settings(context, format_name, current_settings.format_settings, current_module, col)
 
 	def draw_global_settings(self, context, layout):
