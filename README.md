@@ -20,7 +20,7 @@ Then, you will also see a prompt to select the compatible files that have been f
 
 ### v2.0 : Save and Load Import Presets
 
-### v2.0 : Support for drag and drop import ( Blender 4.1 only )
+### v2.0 : Support for drag and drop import ( Blender 4.1+ only )
 Drag and drop multiple files in 3D viewport to import all the files at once and place the imported objects in current collection.
 Dropping in a collection of the outliner will place the imported objects in the collection under the cursor.
 
