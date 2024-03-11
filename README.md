@@ -3,20 +3,24 @@
 ## Key Features
 
 - With this addon, you can import multiple files of different formats from the same import dialog.
-- (NEW) You can scan for files in a folder hierarchy.
+- (NEW) You can scan for files to import in a folder hierarchy.
+- (NEW) (Blender 4.1+ only) Drag and drop any file to import them.
 - The viewport stays interactive durring the import process, you can setup autosaves durring import. Everything is made to smooth the experience. 
-- You can process the imported files with python command durring the import process that opens a lot of possibilities
+- You can process the imported files with python command durring import that opens a lot of possibilities
 
 ## Changelog
 
 ### v2.0 : Import Folder Hierachy
-You can select a folder and recursively scan for compatible formats in subfolders. Just Click on `File`>`Import`>`Universal Multi Importer Folder`, pick a root folder, adjust the `Recursion Depth` which indicate in how many subfolders you want to search files, and clic on `Import ALL`
+You can select a folder and recursively scan for compatible formats in subfolders. Just Click on `File`>`Import`>`Universal Multi Importer Folder`, pick a root folder, adjust the `Recursion Depth` which indicate in how many subfolders you want to search for files, and clic on `Import ALL`
 
-Then, you will also see a prompt to select the compatible files that have been found within the scaned folders. It prevents to blindfully import files that you don't need.
+Then, you will see a prompt to select the compatible files that have been found within the scaned folders.
 
 ### v2.0 : Support for 4.0+
 
+### v2.0 : Support for Appending or Linking Blend files
+
 ### v2.0 : Unified and Improved Import Window UX
+[![Import Dialog](https://i.postimg.cc/X7f5vw5f/import-dialog.png)](https://postimg.cc/XpvqHBQq)
 
 ### v2.0 : Save and Load Import Presets
 
@@ -35,16 +39,17 @@ Just select any objects in your scene, then clic on `Object`>`Command Batcher` a
 
 Here is a full breakdown of this feature :
 
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/Q87E13E2wBI/0.jpg)](https://youtu.be/Q87E13E2wBI?si=XPmF8cQbV3XN63LZ&t=485)
+[![Full Breakdown](https://img.youtube.com/vi/Q87E13E2wBI/0.jpg)](https://youtu.be/Q87E13E2wBI?si=XPmF8cQbV3XN63LZ&t=485)
 
 
 
 ### v1.0 : Import and Batch
-You can also batch process imported files right after import with custom macros
+You can batch process imported files right after each import combining the capability of the Batch Importer and the Command Batcher
 
 # Supported Formats
 | Formats | 
 | ----------- | 
+| blend |
 | obj |
 | fbx |
 | glb |
@@ -64,18 +69,27 @@ You can also batch process imported files right after import with custom macros
 | Settings | Description |
 | ----------- | ----------- |
 | **File Count** ||
-| Recursion Depth | ( Folder mode only ) Determine how many subfloders will be scaned for compatible files to import |
-| Max Import Simultaneously | Determine the max number of file to import simultaneously. Each group of files to be imported simultaneously is called a "Batch". Importing multiple file at the same time allow to reduce the import time for small file, but can cause screen freezing or memory issue for biger file. To smartly ballance this, you can check `Max batch size` and `inimize batch number`|
+| Recursion Depth | ( Folder mode only ) Determine how many subfolders will be scaned for compatible files to import |
+| Max Simultaneously | Determine the max number of file to import simultaneously. Each group of files to be imported simultaneously is called a "Batch". Importing multiple file at the same time allow to reduce the import time for small file, but can cause screen freezing or memory issue for biger file. To smartly ballance this, you can check `Max batch size` and `inimize batch number`|
 | Max batch size | Determine the max batch file size to Import. If a file is a candidate to be include in the current batch, but his filesize would make the batch bigger than `Max batch size`, then the file will be included in the next batch |
 | Minimize batch number | The importer will smartly group files in batches in order to be as close as possible to `Max batch size` for each batch without exceeding it and without exceeding `Max Import Simultaneously`|
-| **Settings** ||
-| Ignore Command Batcher Errors | Batch Processing imported files can cause error. Enabling this will continue the import of the following files even if an error occurs. Otherwise, the import process will stop |
-| Save file after import | At the end of the imprort process, save the current file |
+|
+| **Options** ||
 | Create collection per file | Each imported file will be placed in a new collection named like the file |
 | Skip already imported files | if a file have already been imported, the import is skipped for this file, this option is only available if "`Create collection per file`" is Enable |
+|
+| **Log Display** ||
+| Show Log on 3D View | Display the Log and Progress of the Importing files in the 3D viewport while importing |
+| Auto Hide Log When Finished | Automatic hide the log once the Import is Completed |
+| Wait Before Hiding (s) | How much time to wait before Hiding the Log |
+| Refresh viewport after each Import | Force refresh the viewport after each imported files. It imporoves interactivity, but will slow down the global import time |
+|
 | **Backup** ||
+| Save file after import | At the end of the imprort process, save the current file |
 | Backup file after each import | A backup file is saved after each "`Backup Step`" file is imported |
 | Backup Step | The number of file that is imported before saving a backup |
+|
 | **Command Batcher** ||
-| Batch Process Imported Files | You create a macro like pyhon commands list. These commands will be executed in a row to all the imported objects after each importes batch.<br><br> It will process in that order :<br> - Import Batch 1<br>-  Run all batch commands in order<br>-  Repeat for next Batches...  <br><br>For exemple, if you add this command "`bpy.ops.transform.translate(value=(10, 0, 0))`", each imported file will be translated 10 meters away on positive X axis <br><br> Please note how the commands are written with `bpy.ops` and all parameters in parentheses <br> You can't create variable, for loops or if statements. Just commands that blender will execute|
-| Batch Process Preset | You can save any list of commands from `batch process Imported files` to a preset that will be saved on disk. Here you can manage the presets: <br>- Creating preset<br>- Loading Preset <br>- Removing Preset<br>- Renaming Preset|
+|Commands | You create a macro like pyhon commands list. These commands will be executed in a row to all the imported objects after each importes batch.<br><br> It will process in that order :<br> - Import Batch 1<br>-  Run all batch commands in order<br>-  Repeat for next Batches...  <br><br>For exemple, if you add this command "`bpy.ops.transform.translate(value=(10, 0, 0))`", each imported file will be translated 10 meters away on positive X axis <br><br> Please note how the commands are written with `bpy.ops` and all parameters in parentheses <br> You can't create variable, for loops or if statements. Just commands that blender will execute|
+| Ignore Command Batcher Errors | Batch Processing imported files can cause error. Enabling this will continue the import of the following files even if an error occurs. Otherwise, the import process will stop |
+| Presets | You can save any list of commands from `batch process Imported files` to a preset that will be saved on disk. Here you can manage the presets: <br>- Creating preset<br>- Loading Preset <br>- Removing Preset<br>- Renaming Preset|

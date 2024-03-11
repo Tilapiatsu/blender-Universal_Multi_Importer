@@ -196,10 +196,12 @@ class UMI_FileSelection(bpy.types.Operator):
 	def draw(self, context):
 		layout = self.layout
 		main_col = layout.column()
+
+		main_row = main_col.split(factor = 0.55)
+		file_selection_box = main_row.box()
+		file_selection_box.label(text='File Selection')
 		
-		main_box = main_col.box()
-		main_box.label(text='File Selection')
-		row1 = main_box.row(align=True)
+		row1 = file_selection_box.row(align=True)
 
 		row1.separator()
 		
@@ -232,7 +234,6 @@ class UMI_FileSelection(bpy.types.Operator):
 		row1.separator()
 		
 		box = row1.box()
-		box.ui_units_x = 15
 		box.label(text='Size')
 		row2 = box.row(align=True)
 		
@@ -245,10 +246,10 @@ class UMI_FileSelection(bpy.types.Operator):
 		row2.separator()
 		row2.prop(self.umi_settings, 'umi_file_size_min_selection')
 		row2.prop(self.umi_settings, 'umi_file_size_max_selection')
-
+        
 		row1.separator()
 		
-		box = row1.box()
+		box = file_selection_box.box()
 		box.label(text='Name')
 		row2 = box.row(align=True)
 		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
@@ -262,21 +263,19 @@ class UMI_FileSelection(bpy.types.Operator):
 		row2.prop(self.umi_settings, 'umi_file_name_case_sensitive_selection', text='', icon='SYNTAX_OFF')
 		row2.prop(self.umi_settings, 'umi_file_name_include_folder_selection', text='', icon='FILEBROWSER')
 		
-		row2 = main_box.row(align=True)
+		row2 = file_selection_box.row(align=True)
 		row2.alignment = 'LEFT'
 		row2.label(text=str(self.umi_settings.umi_file_stat_selected_count) + ' file(s)  |  ')
-		main_col.separator()
-		row2.label(text=str(round(self.umi_settings.umi_file_stat_selected_size, 4)) + ' Mb  |  ')
-		main_col.separator()
-		row2.label(text=self.umi_settings.umi_file_stat_selected_formats + ' format(s) selected')
+		row2.label(text=str(round(self.umi_settings.umi_file_stat_selected_size, 4)) + ' Mb')
+		file_selection_box.label(text=self.umi_settings.umi_file_stat_selected_formats + ' format(s) selected')
 
-		row = main_col.split(factor = 0.55)
+		main_col.separator()
+		
 		rows = min(len(self.umi_settings.umi_file_selection) if len(self.umi_settings.umi_file_selection) > 2 else 2, 20)
-		col1 = row.column()
-		col1.label(text='File Selection')
+		col1 = file_selection_box.column()
 		col1.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
 		
-		col1 = row.column()
+		col1 = main_row.column()
 		col1.label(text='Import Settings')
 
 		box = col1.box()
