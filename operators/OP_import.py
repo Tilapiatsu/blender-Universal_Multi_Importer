@@ -172,7 +172,7 @@ def register_import_format(self, context):
 
 class UMI_FileSelection(bpy.types.Operator):
 	bl_idname = "import_scene.tila_universal_multi_importer_file_selection"
-	bl_label = "File Selection"
+	bl_label = "Universal Multi Importer"
 	bl_options = {'REGISTER', 'INTERNAL'}
 	bl_region_type = "UI"
 
@@ -198,6 +198,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		main_col = layout.column()
 		
 		main_box = main_col.box()
+		main_box.label(text='File Selection')
 		row1 = main_box.row(align=True)
 
 		row1.separator()
@@ -219,7 +220,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		box.ui_units_x = 8
 		box.label(text='Ext')
 		row2 = box.row(align=True)
-		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
+		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT')
 		op.action = 'SELECT'
 		op.mode = "EXTENSION"
 		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_DEHLT')
