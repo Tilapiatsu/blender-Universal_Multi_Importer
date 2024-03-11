@@ -167,6 +167,7 @@ class UMI_UL_FileSelectionList(bpy.types.UIList):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
 		row.prop(item, 'check', text='')
+		row.separator()
 		row.label(text=f'{item.path}')
 		row = layout.row(align=True)
 		row.alignment = 'RIGHT'

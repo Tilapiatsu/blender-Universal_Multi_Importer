@@ -206,7 +206,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		row1.separator()
 		
 		box = row1.box()
-		box.ui_units_x = 2
+		box.ui_units_x = 4
 		box.label(text='All')
 		row2 = box.row(align=True)
 		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT')
