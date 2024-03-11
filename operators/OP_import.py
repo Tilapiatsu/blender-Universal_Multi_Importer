@@ -31,18 +31,21 @@ if BVERSION >= 4.1:
 
 		@classmethod
 		def poll_drop(cls, context):
-			return (context.area and context.area.type == 'OUTLINER')
+			return (context.area and context.area.type == 'OUTLINER' and context.area.spaces.active.display_mode in ['VIEW_LAYER'])
 		
 	class UMI_OT_Drop_In_Outliner(bpy.types.Operator):
 		bl_idname = "import_scene.tila_drop_in_collection"
-		bl_label = "Select Collection in Drag and Drop"
+		bl_label = "Import ALL"
 		bl_options = {'REGISTER', 'INTERNAL'}
 
 		files : bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement, options={'SKIP_SAVE'})
 		directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
 
 		def execute(self, context):
-			bpy.ops.outliner.item_activate('INVOKE_DEFAULT', extend=False, extend_range=False, deselect_all=False)
+			bpy.ops.outliner.item_activate('INVOKE_DEFAULT', extend=False, extend_range=False, deselect_all=True)
+			if context.collection is None :
+				self.report({'ERROR'}, 'UMI : Please Drop files on a Collection')
+				return {'FINISHED'}
 			files = []
 			for f in self.files.values():
 				files.append({'name':f.name})
