@@ -20,7 +20,7 @@ Then, you will see a prompt to select the compatible files that have been found 
 ### v2.0 : Support for Appending or Linking Blend files
 
 ### v2.0 : Unified and Improved Import Window UX
-![Import Dialog](https://i.postimg.cc/X7f5vw5f/import-dialog.png)
+![Import Dialog](https://i.postimg.cc/2j4G5hJN/import-dialog.png)
 
 ### v2.0 : Save and Load Import Presets
 
