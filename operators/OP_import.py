@@ -247,7 +247,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		row2.separator()
 		row2.prop(self.umi_settings, 'umi_file_size_min_selection')
 		row2.prop(self.umi_settings, 'umi_file_size_max_selection')
-        
+		
 		row1.separator()
 		
 		box = file_selection_box.box()
@@ -423,7 +423,9 @@ class UMI(bpy.types.Operator, ImportHelper):
 		layout.use_property_decorate = False
 		
 		if self.filter_folder:
-			layout.prop(self, 'recursion_depth')
+			options = layout.box()
+			options.label(text='Options', icon='OPTIONS')
+			options.prop(self, 'recursion_depth')
 
 	def invoke(self, context, event):
 		self.umi_settings = get_umi_settings()
