@@ -198,8 +198,9 @@ class UMI_FileSelection(bpy.types.Operator):
 		main_col = layout.column()
 
 		main_row = main_col.split(factor = 0.55)
-		file_selection_box = main_row.box()
-		file_selection_box.label(text='File Selection')
+		file_selection_col = main_row.column(align=True)
+		file_selection_col.label(text='File Selection')
+		file_selection_box = file_selection_col.box()
 		
 		row1 = file_selection_box.row(align=True)
 
