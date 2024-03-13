@@ -23,7 +23,8 @@ def update_file_stats(self, context):
 	umi_settings.umi_file_stat_selected_count = len(selected_files)
 	umi_settings.umi_file_stat_selected_size = sum(size)
 	umi_settings.umi_file_stat_selected_formats = '( ' + ' | '.join(formats) + ' )' if len(formats) else 'no'
-	umi_settings.umi_file_selected_format_items = str([( COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), '') for f in formats])
+	file_selected_format_items = {( COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), '') for f in formats}
+	umi_settings.umi_file_selected_format_items = str(list(file_selected_format_items))
 	
 	if len(formats) and not len(umi_settings.umi_file_format_current_settings):
 		f = COMPATIBLE_FORMATS.get_format_from_extension(formats[0])['name'].upper()
@@ -45,6 +46,14 @@ def update_import_batch_settings(self, context):
 
 def get_file_selected_items(self, context):
 	return eval(get_umi_settings().umi_file_selected_format_items)
+
+def update_file_extension_selection(self, context):
+	umi_settings = get_umi_settings()
+	current_extensions = {e.ext for e in umi_settings.umi_file_selection if e.ext in COMPATIBLE_FORMATS.extensions}
+	umi_settings.umi_file_extension_selection_items = str([(e, e, '') for e in current_extensions])
+
+def get_file_extension_selection(self, context):
+	return eval(get_umi_settings().umi_file_extension_selection_items)
     
 def update_log_drawing(self, context):
 	umi_settings = get_umi_settings()
@@ -66,6 +75,7 @@ class PG_Preset(bpy.types.PropertyGroup):
 	
 class PG_FilePathSelection(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Name')
+	ext : bpy.props.StringProperty(name='Extension')
 	path : bpy.props.StringProperty(name='File Path', default='', subtype='FILE_PATH')
 	check : bpy.props.BoolProperty(name='Check', default=True, update=update_file_stats)
 	size : bpy.props.FloatProperty(name='FileSize', default=0.0)
@@ -87,6 +97,7 @@ class PG_GlobalSettings(bpy.types.PropertyGroup):
 
 class PG_UMISettings(bpy.types.PropertyGroup):
 	umi_file_selected_format_items : bpy.props.StringProperty(name='Selected format items')
+	umi_file_extension_selection_items : bpy.props.StringProperty(name='Selected format items')
 	umi_ready_to_import : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_last_setting_to_get : bpy.props.BoolProperty(name='Ready to Import', default=False)
 	umi_batcher_is_processing : bpy.props.BoolProperty(name="Is Batcher Processing", default=False)
@@ -103,7 +114,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
 	umi_format_import_settings : bpy.props.PointerProperty(type=PG_ImportSettings)
 	umi_global_import_settings : bpy.props.PointerProperty(type=PG_GlobalSettings)
 	umi_skip_settings : bpy.props.BoolProperty(name='Skip Setting Windows', default=False)
-	umi_file_extension_selection : bpy.props.EnumProperty(name='ext', items=[(e, e, '') for e in COMPATIBLE_FORMATS.extensions])
+	umi_file_extension_selection : bpy.props.EnumProperty(name='ext', items=get_file_extension_selection)
 	umi_import_batch_settings : bpy.props.EnumProperty(items=[('GLOBAL', 'Global Settings', ''), ('BATCHER', 'Command Batcher', '')], options={"ENUM_FLAG"}, update=update_file_format_current_settings)
 	umi_file_format_current_settings : bpy.props.EnumProperty(items=get_file_selected_items, options={"ENUM_FLAG"}, update=update_import_batch_settings)
 	umi_file_size_min_selection : bpy.props.FloatProperty( min=0, name='min (Mb)', default=0.0)

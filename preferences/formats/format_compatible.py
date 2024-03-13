@@ -13,6 +13,8 @@ class CompatibleFormats():
 		self._extensions_string = None
 		self._operators = None
 		self._module = None		
+		self._filename_ext = None
+		self._filter_glob = None
 		# automatically gather format
 		attributes = inspect.getmembers(CompatibleFormats, lambda a:not(inspect.isroutine(a)))
 		self.formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
@@ -54,6 +56,21 @@ class CompatibleFormats():
 					module.append(f[1]['module'])
 			self._module = module
 		return self._module
+	
+	@property
+	def filename_ext(self):
+		if self._filename_ext is None:
+			self._filename_ext = {e for e in self.extensions}
+
+		return self._filename_ext
+	
+	@property
+	def filter_glob(self):
+		if self._filter_glob is None:
+			extensions = ['*' + e for e in self.extensions]
+			self._filter_glob = ';'.join(extensions)
+
+		return self._filter_glob
 
 	def get_format_from_extension(self, ext):
 		if ext.lower() not in self.extensions:

@@ -5,7 +5,7 @@ from os import path
 import math
 from string import punctuation
 from ..preferences.formats import FormatHandler, COMPATIBLE_FORMATS
-from ..preferences.formats.properties.properties import update_file_stats, get_file_selected_items
+from ..preferences.formats.properties.properties import update_file_stats, get_file_selected_items, update_file_extension_selection
 from .OP_command_batcher import draw_command_batcher
 from ..umi_const import get_umi_settings
 from ..preferences.formats.panels.presets import import_preset
@@ -370,11 +370,18 @@ class UMI(bpy.types.Operator, ImportHelper):
 	bl_region_type = "UI"
 	bl_description = 'Import multiple files of different formats from the same import dialog. You can also scan folders and subfolders to import everything inside.'
 
+	# Supported File Extensions
+	filename_ext = COMPATIBLE_FORMATS.filename_ext
+	filter_glob: bpy.props.StringProperty(default=COMPATIBLE_FORMATS.filter_glob, options={"HIDDEN"})
+
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement, options={'SKIP_SAVE'})
 	# Support Folder selection
 	filter_folder: bpy.props.BoolProperty(name = 'Import Directory', default = False, options = {"HIDDEN"})
 	directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
+	# Support for Image and movie file
+	# filter_image: bpy.props.BoolProperty(default=True, options={'HIDDEN', 'SKIP_SAVE'})
+	# filter_movie: bpy.props.BoolProperty(default=True, options={'HIDDEN', 'SKIP_SAVE'})
 	# Import Settings
 	recursion_depth : bpy.props.IntProperty(name='Recursion Depth', default=0, min=0, description='How many Subfolders will be used to search for compatible files to import.\n/!\ WARNING : A too big number may result of a huge number of files to import and may cause instability')
 
@@ -505,10 +512,12 @@ class UMI(bpy.types.Operator, ImportHelper):
 		for f in self.filepaths:
 			filepath = self.umi_settings.umi_file_selection.add()
 			filepath.name = f
+			filepath.ext = path.splitext(f)[1]
 			filepath.path = f
 			filesize = self.get_filesize(f)
 			filepath.size = filesize
 
+		update_file_extension_selection(self, bpy.context)
 		bpy.ops.import_scene.tila_universal_multi_importer_file_selection('INVOKE_DEFAULT')
 
 	def finish(self, context, canceled=False):
@@ -729,7 +738,11 @@ class UMI(bpy.types.Operator, ImportHelper):
 		# Double \\ in the path causing error in the string
 		args = current_format[current_module].format_settings_dict
 		raw_path = filepath.replace('\\\\', punctuation[23])
-		args['filepath'] = 'r"{}"'.format(raw_path)
+		if format_name == 'image':
+			args['files'] = '[{"name":' + f'r"{raw_path}"' + '}]'
+
+		else:
+			args['filepath'] = f'r"{raw_path}"'
 
 		args_as_string = ''
 		arg_number = len(args.keys())

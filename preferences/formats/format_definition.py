@@ -241,3 +241,11 @@ class FormatDefinition():
 			'operator' : {'default':{'command':'bpy.ops.import_scene.tila_import_blend', 'module':'IMPORT_SCENE_OT_tila_import_blend'}},
 			'ignore': ['files', 'directory']		
 			}
+
+	image = {'name' : 'image',
+			'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
+						'.hdr', '.exr',
+					 	'.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
+			'operator' : {'default':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane'}},
+			'ignore': ['files', 'directory', 'filepath']
+			}

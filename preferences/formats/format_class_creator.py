@@ -70,6 +70,11 @@ class FormatClassCreator():
 
 		key_to_delete = []
 		for k,v in format_annotations.items():
+			try:
+				v.keywords
+			except AttributeError:
+				continue
+			
 			if 'options' in v.keywords.keys():
 				options = v.keywords['options']
 			else:
