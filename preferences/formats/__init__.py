@@ -1,5 +1,4 @@
 import bpy
-from . import import_module
 from . import panels
 
 
@@ -29,7 +28,6 @@ def register_import_setting_class():
 	properties.PG_ImportSettings.umi_import_settings_registered = True
 	
 def register():
-	import_module.register()
 	class_parser = FormatClassCreator()
 	class_parser.register_compatible_formats()
 	register_import_setting_class()
@@ -41,7 +39,6 @@ def unregister():
 	panels.unregister()
 	class_parser = FormatClassCreator()
 	class_parser.unregister_compatible_formats()
-	import_module.unregister()
 	
 for f in COMPATIBLE_FORMATS.formats:
 	module_items = [(m.upper(), m.title().replace('_', ' '), '') for m in f[1]['operator'].keys()]

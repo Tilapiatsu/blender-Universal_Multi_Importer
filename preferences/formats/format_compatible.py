@@ -1,3 +1,4 @@
+import bpy
 from .format_definition import FormatDefinition
 from . import FORMATS
 from ...logger import LOG
@@ -16,8 +17,7 @@ class CompatibleFormats():
 		self._filename_ext = None
 		self._filter_glob = None
 		# automatically gather format
-		attributes = inspect.getmembers(CompatibleFormats, lambda a:not(inspect.isroutine(a)))
-		self.formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
+		self.formats = CompatibleFormats.get_formats()
 		self.formats_dict = {a[0]:a[1] for a in self.formats}
 
 
@@ -72,6 +72,29 @@ class CompatibleFormats():
 
 		return self._filter_glob
 
+	@classmethod
+	def get_formats(cls):
+		attributes = inspect.getmembers(CompatibleFormats, lambda a:not(inspect.isroutine(a)))
+		formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
+
+		valid_formats = []
+		for f in formats:
+			for o in f[1]['operator'].values():
+				if o['module'] is None:
+					# Check Command
+					try:
+						eval(o['command'])
+					except:
+						continue
+					valid_formats.append(f)
+				else:
+					# Check Module
+					if o['module'] not in dir(bpy.types):
+						continue
+					valid_formats.append(f)
+
+		return valid_formats
+	
 	def get_format_from_extension(self, ext):
 		if ext.lower() not in self.extensions:
 			# raise Exception("extension '{}' is not supported".format(ext))

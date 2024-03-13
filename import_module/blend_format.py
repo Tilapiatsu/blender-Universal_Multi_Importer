@@ -1,7 +1,7 @@
 import bpy
 from os import path
 from .unique_name import UniqueName
-from ....logger import LOG
+from ..logger import LOG
 
 
 class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
