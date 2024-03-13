@@ -19,6 +19,8 @@ Then, you will see a prompt to select the compatible files that have been found 
 
 ### v2.0 : Support for Appending or Linking Blend files
 
+### v2.0 : Support for Importing Images and Movies
+
 ### v2.0 : Unified and Improved Import Window UX
 ![Import Dialog](https://i.postimg.cc/2j4G5hJN/import-dialog.png)
 
@@ -47,23 +49,24 @@ Here is a full breakdown of this feature :
 You can batch process imported files right after each import combining the capability of the Batch Importer and the Command Batcher
 
 # Supported Formats
-| Formats | 
-| ----------- | 
-| blend |
-| obj |
-| fbx |
-| glb |
-| gltf |
-| x3d |
-| stl |
-| ply |
-| abc |
-| dae |
-| svg |
-| usd |
-| usda |
-| usdc |
-| usdz |
+| Mesh Formats | Image Fommats | Video Formats |
+| ----------- | ----------- |  ----------- | 
+| blend | jpg | mov  |
+| obj | jpeg |  mp4 |
+| fbx | gif |  mkv |
+| glb | png |  mpg |
+| gltf | tif |  mpeg |
+| x3d | tiff |  dvd |
+| wrl | bmp |  dvd |
+| stl | cin |  vob |
+| ply | dpx |  avi |
+| abc | jp2 | dv  |
+| dae | j2c | flv |
+| svg | sig |  webm |
+| usd | rgb |   |
+| usda | bw |   |
+| usdc | exr |   |
+| usdz | hdr |   |
 
 # Import Settings
 | Settings | Description |
