@@ -66,6 +66,18 @@ class FormatDefinition():
 								}},
 			'ignore': ['files', 'directory'],
 			'generate_filter_glob':False}
+		
+		svg = {'name' : 'svg',
+			'ext' : ['.svg'],
+			'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'import_settings':[[]]}, 
+							'grease_pencil':{'command':'bpy.ops.wm.gpencil_import_svg', 
+											'module':None, 
+											'import_settings':[['options',
+																{	"resolution": {'type':'bpy.props.IntProperty', 'name':'"Resolution"', 'default':10, 'min':1},
+																	"scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':10.0} }] ]}},
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False}
+		
 	else:
 		usd = {'name' : 'usd',
 			'ext' : ['.usd', '.usda', '.usdc', '.usdz'],
@@ -118,6 +130,12 @@ class FormatDefinition():
 								}},
 			'ignore': ['files', 'directory'],
 			'generate_filter_glob':False}
+		svg = {'name' : 'svg',
+			'ext' : ['.svg'],
+			'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'import_settings':[[]]}
+							},
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False}
 
 	if BVERSION >= 4.0:
 		obj = {'name' : 'obj',
@@ -154,6 +172,7 @@ class FormatDefinition():
 									}]]}},
 				'ignore': ['files', 'directory'],
 				'generate_filter_glob':False}
+		
 	else:
 		obj = {	'name' : 'obj',
 			'ext' : ['.obj'],
@@ -167,7 +186,7 @@ class FormatDefinition():
 
 				'ignore': ['files', 'directory'],
 			'generate_filter_glob':False}
-		
+
 	fbx = {'name' : 'fbx',
 			'ext' : ['.fbx'],
 			'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : 'IMPORT_SCENE_OT_fbx'}},
@@ -197,7 +216,6 @@ class FormatDefinition():
 										"up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Z"', 'enum_items':axis()},
 										"use_mesh_validate": {'type':'bpy.props.BoolProperty', 'name':'"Validate Mesh"', 'default':False}}]]},
 							'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl'}},
-			'module' : 'IMPORT_MESH_OT_stl',
 			'ignore': ['files', 'directory'],
 			'generate_filter_glob':False}
 	
@@ -237,17 +255,6 @@ class FormatDefinition():
 			'ignore': ['files', 'name', 'directory'],
 			'generate_filter_glob':False
 			}
-	
-	svg = {'name' : 'svg',
-			'ext' : ['.svg'],
-			'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'import_settings':[[]]}, 
-							'grease_pencil':{'command':'bpy.ops.wm.gpencil_import_svg', 
-											'module':None, 
-											'import_settings':[['options',
-																{	"resolution": {'type':'bpy.props.IntProperty', 'name':'"Resolution"', 'default':10, 'min':1},
-																	"scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':10.0} }] ]}},
-			'ignore': ['files', 'directory'],
-			'generate_filter_glob':False}
 
 	blend = {'name' : 'blend',
 			'ext' : ['.blend'],

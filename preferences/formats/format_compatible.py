@@ -92,19 +92,24 @@ class CompatibleFormats():
 
 		valid_formats = []
 		for f in formats:
-			for o in f[1]['operator'].values():
+			op = {}
+			new_f = f
+			for n,o in f[1]['operator'].items():
 				if o['module'] is None:
 					# Check Command
 					try:
 						eval(o['command'])
 					except:
 						continue
-					valid_formats.append(f)
+					op[n] = f[1]['operator'][n]
 				else:
 					# Check Module
 					if o['module'] not in dir(bpy.types):
 						continue
-					valid_formats.append(f)
+					op[n] = f[1]['operator'][n]
+			
+			new_f[1]['operator'] = op
+			valid_formats.append(new_f)
 
 		return valid_formats
 	
