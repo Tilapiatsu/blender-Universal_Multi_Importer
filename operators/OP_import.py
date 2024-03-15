@@ -1061,7 +1061,6 @@ class UMI(bpy.types.Operator, ImportHelper):
 # function to append the operator in the File>Import menu
 def menu_func_import(self, context):
 	op = self.layout.operator(UMI.bl_idname, text="Universal Multi Importer Files", icon='LONGDISPLAY')
-	op.filter_glob = COMPATIBLE_FORMATS.filter_glob
 	op.import_folders = False
 	op.filter_blender = True
 	op.filter_usd = True
