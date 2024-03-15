@@ -372,7 +372,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 	# Supported File Extensions
 	filename_ext = COMPATIBLE_FORMATS.filename_ext
-	filter_glob: bpy.props.StringProperty(default='', options={"HIDDEN"})
+	filter_glob: bpy.props.StringProperty(default=COMPATIBLE_FORMATS.filter_glob, options={"HIDDEN"})
 	filter_folder: bpy.props.BoolProperty(default=True, options = {"HIDDEN"})
 	filter_blender : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
 	filter_usd : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
