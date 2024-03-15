@@ -28,10 +28,11 @@ class FormatClassCreator():
 	@property
 	def compatible_formats_class(self):
 		if self._classes is None:
-			self._classes = []
+			self._classes = {'classes':[], 'modules':[]}
 			for f in COMPATIBLE_FORMATS.formats:
 				exec(f'from . import UMI_{f[0]}_module')
 				import_module = eval(f'UMI_{f[0]}_module')
+				self._classes['modules'].append(import_module)
 				for name, operator in f[1]['operator'].items():
 					exec(f'from . import UMI_{f[0]}_{name}_settings')
 					format_class = eval(f'UMI_{f[0]}_{name}_settings')
@@ -41,8 +42,7 @@ class FormatClassCreator():
 					else:
 						format_class = self.create_format_class_from_operator(operator, format_class)
 
-					self._classes.append(format_class)
-					self._classes.append(import_module)
+					self._classes['classes'].append(format_class)
 
 		return self._classes
 
@@ -121,19 +121,36 @@ class FormatClassCreator():
 		return [c for c in format_module.__mro__ if c.__name__ not in self.incompatible_subclass]
 
 	def register_compatible_formats(self):
-		for c in self.compatible_formats_class:
+		for c in self.compatible_formats_class['classes']:
 			if c is None:
 				continue
 			try:
 				bpy.utils.register_class(c)
 			except ValueError:
-				pass
+				continue
+
+		for c in self.compatible_formats_class['modules']:
+			if c is None:
+				continue
+			try:
+				bpy.utils.register_class(c)
+			except ValueError:
+				continue
 	
 	def unregister_compatible_formats(self):
-		for c in reversed(self.compatible_formats_class):
+		for c in reversed(self.compatible_formats_class['classes']):
 			if c is None:
 				continue
 			try:
 				bpy.utils.unregister_class(c)
 			except ValueError:
-				pass
+				continue
+
+		for c in reversed(self.compatible_formats_class['modules']):
+			if c is None:
+				continue
+			try:
+				bpy.utils.unregister_class(c)
+			except ValueError:
+				continue
+		
