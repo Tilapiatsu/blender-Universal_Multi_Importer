@@ -830,6 +830,8 @@ class UMI(bpy.types.Operator, ImportHelper):
 		
 		if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_each_import:
 			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+			
+		import_col = self.root_collection
 
 		if self.umi_settings.umi_global_import_settings.create_collection_per_file:
 			collection = bpy.data.collections.new(name=filename)
@@ -838,10 +840,32 @@ class UMI(bpy.types.Operator, ImportHelper):
 			root_layer_col = self.view_layer.layer_collection    
 			layer_col = self.recur_layer_collection(root_layer_col, collection.name)
 			self.view_layer.active_layer_collection = layer_col
+			import_col = collection
 
+		self.store_objects()
+
+		# Running Import Command
 		succeeded = self.import_command(context, filepath=current_file)
+
+		self.link_new_object_in_collection(import_col)
+
 		self.imported_files.append(current_file)
 		return succeeded
+	
+	def store_objects(self):
+		self._stored_objects = [o for o in bpy.data.objects]
+
+	def get_new_objects(self):
+		return [o for o in bpy.data.objects if o not in self._stored_objects]
+	
+	def link_new_object_in_collection(self, import_col):
+		new_objects = self.get_new_objects()
+		
+		if len(new_objects) and new_objects[0].name not in import_col.all_objects:
+			for o in new_objects:
+				previous_col = o.users_collection[0]
+				import_col.objects.link(o)
+				previous_col.objects.unlink(o)
 
 	def import_files(self, context, filepaths):
 		self.importing = True
