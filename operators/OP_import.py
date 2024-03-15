@@ -50,7 +50,7 @@ if BVERSION >= 4.1:
 			for f in self.files.values():
 				files.append({'name':f.name})
 
-			bpy.ops.import_scene.tila_universal_multi_importer("INVOKE_DEFAULT", filter_folder=False, files=files, directory=self.directory)
+			bpy.ops.import_scene.tila_universal_multi_importer("INVOKE_DEFAULT", import_folders=False, files=files, directory=self.directory)
 			return {'FINISHED'}
 
 # Legacy Settings Drawing
@@ -184,7 +184,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		
 		update_file_stats(self, context)
 		wm = context.window_manager
-		return wm.invoke_props_dialog(self, width=1000)
+		return wm.invoke_props_dialog(self, width=1100)
 
 	def execute(self, context):
 		self.umi_settings.umi_file_selection_done = True
@@ -207,7 +207,7 @@ class UMI_FileSelection(bpy.types.Operator):
 		row1.separator()
 		
 		box = row1.box()
-		box.ui_units_x = 4
+		box.ui_units_x = 3
 		box.label(text='All')
 		row2 = box.row(align=True)
 		op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT')
@@ -372,12 +372,28 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 	# Supported File Extensions
 	filename_ext = COMPATIBLE_FORMATS.filename_ext
-	filter_glob: bpy.props.StringProperty(default=COMPATIBLE_FORMATS.filter_glob, options={"HIDDEN"})
+	filter_glob: bpy.props.StringProperty(default='', options={"HIDDEN"})
+	filter_folder: bpy.props.BoolProperty(default=True, options = {"HIDDEN"})
+	filter_blender : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_usd : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_obj : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_fbx : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_image : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_movie : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_collada : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_alembic : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_volume : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_ply : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_gltf : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_x3d : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_stl : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_svg : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	
 
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement, options={'SKIP_SAVE'})
 	# Support Folder selection
-	filter_folder: bpy.props.BoolProperty(name = 'Import Directory', default = False, options = {"HIDDEN"})
+	import_folders : bpy.props.BoolProperty(name="Import Folder",default=False)
 	directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
 	# Support for Image and movie file
 	# filter_image: bpy.props.BoolProperty(default=True, options={'HIDDEN', 'SKIP_SAVE'})
@@ -409,7 +425,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		if self._filepaths is None:
 			compatible_extensions = self.compatible_extensions
 			
-			if self.filter_folder:
+			if self.import_folders:
 				self._filepaths = self.get_compatible_files_in_folder(self.directory, recursion_depth=self.recursion_depth)
 			else:
 				self._filepaths = [path.join(self.directory, f.name) for f in self.files if path.splitext(f.name)[1].lower() in compatible_extensions]
@@ -429,7 +445,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		layout.use_property_split = True
 		layout.use_property_decorate = False
 		
-		if self.filter_folder:
+		if self.import_folders:
 			options = layout.box()
 			options.label(text='Options', icon='OPTIONS')
 			options.prop(self, 'recursion_depth')
@@ -440,7 +456,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.umi_settings.umi_skip_settings = False
 		bpy.ops.scene.umi_load_preset_list()
 
-		if self.directory and not self.filter_folder and len(self.files):
+		if self.directory and not self.import_folders and len(self.files):
 			if event.shift:
 				self.umi_settings.umi_skip_settings = True
 			return self.execute(context)
@@ -738,9 +754,9 @@ class UMI(bpy.types.Operator, ImportHelper):
 		# Double \\ in the path causing error in the string
 		args = current_format[current_module].format_settings_dict
 		raw_path = filepath.replace('\\\\', punctuation[23])
-		if format_name == 'image':
+		
+		if format_name == 'image' and current_module in ['plane']:
 			args['files'] = '[{"name":' + f'r"{raw_path}"' + '}]'
-
 		else:
 			args['filepath'] = f'r"{raw_path}"'
 
@@ -936,7 +952,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.umi_settings.umi_ready_to_import = False
 
 		# If in File mode Store Format to import now. If in folder mode, formats will be stored after file selection
-		if not self.filter_folder:
+		if not self.import_folders:
 			self.store_formats_to_import()
 
 		self.objects_to_process = []
@@ -1045,9 +1061,38 @@ class UMI(bpy.types.Operator, ImportHelper):
 # function to append the operator in the File>Import menu
 def menu_func_import(self, context):
 	op = self.layout.operator(UMI.bl_idname, text="Universal Multi Importer Files", icon='LONGDISPLAY')
-	op.filter_folder = False
+	op.filter_glob = COMPATIBLE_FORMATS.filter_glob
+	op.import_folders = False
+	op.filter_blender = True
+	op.filter_usd = True
+	op.filter_obj = True
+	op.filter_fbx = True
+	op.filter_image = True
+	op.filter_movie = True
+	op.filter_collada = True
+	op.filter_alembic = True
+	op.filter_volume = True
+	op.filter_ply = True
+	op.filter_gltf = True
+	op.filter_stl = True
+	op.filter_svg = True
+
 	op = self.layout.operator(UMI.bl_idname, text="Universal Multi Importer Folders", icon='FILEBROWSER')
-	op.filter_folder = True
+	op.filter_glob = ''
+	op.import_folders = True
+	op.filter_blender = False
+	op.filter_usd = False
+	op.filter_obj = False
+	op.filter_fbx = False
+	op.filter_image = False
+	op.filter_movie = False
+	op.filter_collada = False
+	op.filter_alembic = False
+	op.filter_volume = False
+	op.filter_ply = False
+	op.filter_gltf = False
+	op.filter_stl = False
+	op.filter_svg = False
 
 classes = (UMI_OT_Settings, UMI_FileSelection, UMI)
 

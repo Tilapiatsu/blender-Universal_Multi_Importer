@@ -15,6 +15,7 @@ class CompatibleFormats():
 		self._operators = None
 		self._module = None		
 		self._filename_ext = None
+		self._filter_glob_extensions = None
 		self._filter_glob = None
 		# automatically gather format
 		self.formats = CompatibleFormats.get_formats()
@@ -65,9 +66,21 @@ class CompatibleFormats():
 		return self._filename_ext
 	
 	@property
+	def filter_glob_extensions(self):
+		if self._filter_glob_extensions is None:
+			filter_glob_extensions = []
+			for f in self.formats:
+				if isinstance(f[1], dict):
+					if not f[1]['generate_filter_glob']:
+						continue
+					filter_glob_extensions = filter_glob_extensions + f[1]['ext']
+			self._filter_glob_extensions = filter_glob_extensions
+		return self._filter_glob_extensions
+	
+	@property
 	def filter_glob(self):
 		if self._filter_glob is None:
-			extensions = ['*' + e for e in self.extensions]
+			extensions = ['*' + e for e in self.filter_glob_extensions]
 			self._filter_glob = ';'.join(extensions)
 
 		return self._filter_glob

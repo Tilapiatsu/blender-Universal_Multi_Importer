@@ -64,7 +64,8 @@ class FormatDefinition():
 								"import_textures_dir": {'type':'bpy.props.StringProperty', 'name':'"Textures Directory"', 'default':'"//textures/"'},
 								"tex_name_collision_mode": {'type':'bpy.props.EnumProperty', 'name':'"File Name Collision"', 'default':'"USE_EXISTING"', 'enum_items':[("USE_EXISTING", "Use Existing", ""), ("OVERWRITE", "Overwrite Existing", "")]}}]]
 								}},
-			'ignore': ['files', 'directory']}
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False}
 	else:
 		usd = {'name' : 'usd',
 			'ext' : ['.usd', '.usda', '.usdc', '.usdz'],
@@ -115,7 +116,8 @@ class FormatDefinition():
 								"import_textures_dir": {'type':'bpy.props.StringProperty', 'name':'"Textures Directory"', 'default':'"//textures/"'},
 								"tex_name_collision_mode": {'type':'bpy.props.EnumProperty', 'name':'"File Name Collision"', 'default':'"USE_EXISTING"', 'enum_items':[("USE_EXISTING", "Use Existing", ""), ("OVERWRITE", "Overwrite Existing", "")]}}]]
 								}},
-			'ignore': ['files', 'directory']}
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False}
 
 	if BVERSION >= 4.0:
 		obj = {'name' : 'obj',
@@ -133,7 +135,8 @@ class FormatDefinition():
 									"import_vertex_groups": {'type':'bpy.props.BoolProperty', 'name':'"Vertex Groups"', 'default':False},
 									"validate_meshes": {'type':'bpy.props.BoolProperty', 'name':'"Validate Meshes"', 'default':False}
 									}]]}},
-				'ignore': ['files', 'directory']
+				'ignore': ['files', 'directory'],
+				'generate_filter_glob':False
 				}
 		
 		ply = {'name' : 'ply',
@@ -149,33 +152,39 @@ class FormatDefinition():
 									{"merge_verts": {'type':'bpy.props.BoolProperty', 'name':'"Merge Verticies"', 'default':False},
 									"import_colors" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"SRGB"', 'enum_items':[("SRGB", "sRGB", ""), ("LINEAR", "Linear", ""), ("NONE", "None", "")]}
 									}]]}},
-				'ignore': ['files', 'directory']}
+				'ignore': ['files', 'directory'],
+				'generate_filter_glob':False}
 	else:
 		obj = {	'name' : 'obj',
 			'ext' : ['.obj'],
 			'operator' : {'default':{'command':'bpy.ops.import_scene.obj','module' : 'IMPORT_SCENE_OT_obj',}},
-			'ignore': ['files', 'directory']}
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False}
 	
 		ply = {	'name' : 'ply',
 				'ext' : ['.ply'],
 				'operator' : {'default':{'command':'bpy.ops.import_mesh.ply', 'module' : 'IMPORT_MESH_OT_ply'}},
 
-				'ignore': ['files', 'directory']}
+				'ignore': ['files', 'directory'],
+			'generate_filter_glob':False}
 		
 	fbx = {'name' : 'fbx',
 			'ext' : ['.fbx'],
 			'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : 'IMPORT_SCENE_OT_fbx'}},
-			'ignore': ['files', 'directory']}
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False}
 	
 	gltf = {'name' : 'gltf',
 			'ext' : ['.glb', '.gltf'],
 			'operator' : {'default':{'command':'bpy.ops.import_scene.gltf','module' : 'IMPORT_SCENE_OT_gltf'}},
-			'ignore': ['files', 'directory']}
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False}
 	
 	x3d = {'name' : 'x3d',
 			'ext' : ['.x3d', '.wrl'],
 			'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : 'IMPORT_SCENE_OT_x3d'}},
-			'ignore': ['files', 'directory']}
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':True}
 	
 	stl = {'name' : 'stl',
 			'ext' : ['.stl'],
@@ -189,7 +198,8 @@ class FormatDefinition():
 										"use_mesh_validate": {'type':'bpy.props.BoolProperty', 'name':'"Validate Mesh"', 'default':False}}]]},
 							'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl'}},
 			'module' : 'IMPORT_MESH_OT_stl',
-			'ignore': ['files', 'directory']}
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False}
 	
 	abc = {'name' : 'abc',
 			'ext' : ['.abc'],
@@ -206,6 +216,7 @@ class FormatDefinition():
 								# "as_background_job": {'type':'bpy.props.BoolProperty', 'name':'"As Background Job"', 'default':False}
 								}]]}},
 			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False
 			}
 	
 	dae = {'name' : 'dae',
@@ -223,7 +234,8 @@ class FormatDefinition():
 								
 								['', 
 								{"keep_bind_info": {'type':'bpy.props.BoolProperty', 'name':'"Keep Bind Info"', 'default':False}}]]}},
-			'ignore': ['files', 'name', 'directory']
+			'ignore': ['files', 'name', 'directory'],
+			'generate_filter_glob':False
 			}
 	
 	svg = {'name' : 'svg',
@@ -234,18 +246,35 @@ class FormatDefinition():
 											'import_settings':[['options',
 																{	"resolution": {'type':'bpy.props.IntProperty', 'name':'"Resolution"', 'default':1},
 																	"scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0} }] ]}},
-			'ignore': ['files', 'directory']}
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False}
 
 	blend = {'name' : 'blend',
 			'ext' : ['.blend'],
 			'operator' : {'default':{'command':'bpy.ops.import_scene.tila_import_blend', 'module':'IMPORT_SCENE_OT_tila_import_blend'}},
-			'ignore': ['files', 'directory']		
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':False		
+			}
+	
+	bvh = {'name' : 'bvh',
+			'ext' : ['.bvh'],
+			'operator' : {'default':{'command':'bpy.ops.import_anim.bvh', 'module':'IMPORT_ANIM_OT_bvh'}},
+			'ignore': ['files', 'directory'],
+			'generate_filter_glob':True		
 			}
 
 	image = {'name' : 'image',
 			'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
 						'.hdr', '.exr',
 					 	'.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-			'operator' : {'default':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane'}},
-			'ignore': ['files', 'directory', 'filepath']
+			'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane'},
+							'data':{'command':'bpy.ops.image.open', 'module':None, 
+																'import_settings':[['options',
+																{	"relative_path": {'type':'bpy.props.BoolProperty', 'name':'"Relative Path"', 'default':True},
+																	"use_sequence_detection": {'type':'bpy.props.BoolProperty', 'name':'"Detect Sequences"', 'default':True},
+																	"use_udim_detecting": {'type':'bpy.props.BoolProperty', 'name':'"Detect UDIMs"', 'default':True} }] ]},
+							'ref':{'command':'bpy.ops.object.load_reference_image', 'module':'OBJECT_OT_load_reference_image'},
+							'background':{'command':'bpy.ops.object.load_background_image', 'module':'OBJECT_OT_load_background_image'}},
+			'ignore': ['files', 'directory', 'filepath'],
+			'generate_filter_glob':False
 			}

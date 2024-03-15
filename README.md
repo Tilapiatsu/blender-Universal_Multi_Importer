@@ -49,24 +49,24 @@ Here is a full breakdown of this feature :
 You can batch process imported files right after each import combining the capability of the Batch Importer and the Command Batcher
 
 # Supported Formats
-| Mesh Formats | Image Fommats | Video Formats |
-| ----------- | ----------- |  ----------- | 
-| blend | jpg | mov  |
-| obj | jpeg |  mp4 |
-| fbx | gif |  mkv |
-| glb | png |  mpg |
-| gltf | tif |  mpeg |
-| x3d | tiff |  dvd |
-| wrl | bmp |  dvd |
-| stl | cin |  vob |
-| ply | dpx |  avi |
-| abc | jp2 | dv  |
-| dae | j2c | flv |
-| svg | sig |  webm |
-| usd | rgb |   |
-| usda | bw |   |
-| usdc | exr |   |
-| usdz | hdr |   |
+| Mesh Formats | Image Fommats | Video Formats | Animation Formats |
+| ----------- | ----------- |  ----------- |   ----------- | 
+| blend | jpg | mov  | bvh |
+| obj | jpeg |  mp4 |   |
+| fbx | gif |  mkv |   |
+| glb | png |  mpg |   |
+| gltf | tif |  mpeg |   |
+| x3d | tiff |  dvd |   |
+| wrl | bmp |  dvd |   |
+| stl | cin |  vob |   |
+| ply | dpx |  avi |   |
+| abc | jp2 | dv  |   |
+| dae | j2c | flv |   |
+| svg | sig |  webm |   |
+| usd | rgb |   |   |
+| usda | bw |   |   |
+| usdc | exr |   |   |
+| usdz | hdr |   |   |
 
 # Import Settings
 | Settings | Description |
