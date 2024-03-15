@@ -53,7 +53,8 @@ def update_file_extension_selection(self, context):
 	umi_settings.umi_file_extension_selection_items = str([(e, e, '') for e in current_extensions])
 
 def get_file_extension_selection(self, context):
-	return eval(get_umi_settings().umi_file_extension_selection_items)
+	file_extensions_selection_items = get_umi_settings().umi_file_extension_selection_items
+	return eval(file_extensions_selection_items)
     
 def update_log_drawing(self, context):
 	umi_settings = get_umi_settings()
