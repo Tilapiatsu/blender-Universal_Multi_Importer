@@ -372,28 +372,28 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 	# Supported File Extensions
 	filename_ext = COMPATIBLE_FORMATS.filename_ext
-	filter_glob: bpy.props.StringProperty(default=COMPATIBLE_FORMATS.filter_glob, options={"HIDDEN"})
-	filter_folder: bpy.props.BoolProperty(default=True, options = {"HIDDEN"})
-	filter_blender : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_usd : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_obj : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_fbx : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_image : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_movie : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_collada : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_alembic : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_volume : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_ply : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_gltf : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_x3d : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_stl : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
-	filter_svg : bpy.props.BoolProperty(default=True, options={"HIDDEN"})
+	filter_glob: bpy.props.StringProperty(default=COMPATIBLE_FORMATS.filter_glob, options={"HIDDEN", "SKIP_SAVE"})
+	filter_folder: bpy.props.BoolProperty(default=True, options = {"HIDDEN", "SKIP_SAVE"})
+	filter_blender : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_usd : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_obj : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_fbx : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_image : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_movie : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_collada : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_alembic : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_volume : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_ply : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_gltf : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_x3d : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_stl : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+	filter_svg : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
 	
 
 	# Selected files
 	files : bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement, options={'SKIP_SAVE'})
 	# Support Folder selection
-	import_folders : bpy.props.BoolProperty(name="Import Folder",default=False)
+	import_folders : bpy.props.BoolProperty(name="Import Folder",default=False, options={'SKIP_SAVE'})
 	directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
 	# Support for Image and movie file
 	# filter_image: bpy.props.BoolProperty(default=True, options={'HIDDEN', 'SKIP_SAVE'})
