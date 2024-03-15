@@ -32,7 +32,7 @@ class UI_UMIMoveOperator(bpy.types.Operator):
 
 	def execute(self, context):
 		umi_settings = get_umi_settings()
-		idx, camera, _ = get_operator(context)
+		idx, camera, _ = get_operator()
 
 		if self.direction == "UP":
 			nextidx = max(idx - 1, 0)
@@ -86,7 +86,7 @@ class UI_UMIRemoveOperator(bpy.types.Operator):
 
 	def execute(self, context):
 		umi_settings = get_umi_settings()
-		_, operators, _ = get_operator(context)
+		_, operators, _ = get_operator()
 
 		operators.remove(self.id)
 
@@ -109,7 +109,7 @@ class UI_UMIDuplicateOperator(bpy.types.Operator):
 		return umi_settings.umi_operators
 
 	def execute(self, context):
-		_, operators, _ = get_operator(context)
+		_, operators, _ = get_operator()
 
 		o = operators.add()
 		o.operator = operators[self.id].operator
