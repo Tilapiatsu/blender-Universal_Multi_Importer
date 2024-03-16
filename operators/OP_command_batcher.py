@@ -274,20 +274,18 @@ class CommandBatcher(bpy.types.Operator):
 		self.current_operation_number = 0
 		self.current_object_number = 0
 
-		if not self.importer_mode:
-			self.next_object()
-
-			args = (context,)
-			self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
-		else:
-			operator_list = self.operator_list
-			self.operators_to_process = [o.operator for o in operator_list]
-			self.operators_to_process.reverse()
+		self.fill_operator_to_process()
 
 		number_of_operations = len(self.operators_to_process)
 		number_of_objects = len(self.objects_to_process)
 
 		self.number_of_operations_to_perform = number_of_operations * number_of_objects
+
+		if not self.importer_mode:
+			self.next_object()
+			args = (context,)
+			self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
+
 
 		self.register_timer(context)
 		self.umi_settings.umi_batcher_is_processing = True
