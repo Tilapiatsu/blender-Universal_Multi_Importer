@@ -506,11 +506,11 @@ class UMI(bpy.types.Operator, ImportHelper):
 			if found:
 				return found
 
-	def post_import_command(self, objects, operator_list):
+	def post_import_command(self, objects):
 		bpy.ops.object.select_all(action='DESELECT')
 		for o in objects:
 			bpy.data.objects[o.name].select_set(True)
-		bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', operator_list=operator_list, importer_mode=True)
+		bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', importer_mode=True)
 
 	def import_settings(self):
 		self.current_format = self.formats_to_import.pop()
@@ -610,6 +610,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 				self.umi_settings.umi_file_selection_done = True
 				self.umi_settings.umi_file_selection_started = False
 				self.umi_settings.umi_ready_to_import = True
+				self.operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
 				
 			# Select files if in folder mode
 			if not self.umi_settings.umi_file_selection_done:
@@ -701,7 +702,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
 				# Running Current Batcher on Imported Objects
 				elif len(self.objects_to_process): 
-					self.post_import_command(self.objects_to_process, self.operator_list)
+					self.post_import_command(self.objects_to_process)
 					self.objects_to_process = []
 				
 				# Current Batch Imported, update parameters 

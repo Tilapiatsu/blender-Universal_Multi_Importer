@@ -64,7 +64,6 @@ class CommandBatcher(bpy.types.Operator):
 	bl_label = "Command Batcher"
 	bl_options = {'REGISTER'}
 
-	operator_list : bpy.props.CollectionProperty(type=PG_Operator)
 	importer_mode : bpy.props.BoolProperty(name='Importer_mode', default=False) 
 	
 	finished = False
