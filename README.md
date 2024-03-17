@@ -10,23 +10,24 @@
 
 ## Changelog
 
-[![Full Breakdown](https://img.youtube.com/vi/Ciz48xzeO-0/0.jpg)](https://youtu.be/Ciz48xzeO-0)
+[![Teaser](https://img.youtube.com/vi/Ciz48xzeO-0/0.jpg)](https://youtu.be/Ciz48xzeO-0)
+[![Feature Breackdown](https://img.youtube.com/vi/gn0fUx0Idjc/0.jpg)](https://youtu.be/gn0fUx0Idjc)
 
 ### v2.0 : Import Folder Hierachy
 You can select a folder and recursively scan for compatible formats in subfolders. Just Click on `File`>`Import`>`Universal Multi Importer Folder`, pick a root folder, adjust the `Recursion Depth` which indicate in how many subfolders you want to search for files, and clic on `Import ALL`
 
 Then, you will see a prompt to select the compatible files that have been found within the scaned folders.
 
-### v2.0 : Support for 4.0+
-
 ### v2.0 : Support for Appending or Linking Blend files
 
-### v2.0 : Support for Importing Images and Movies
+### v2.0 : Support for Importing Images, Movies and BVH Files
 
 ### v2.0 : Unified and Improved Import Window UX
 ![Import Dialog](https://i.postimg.cc/2j4G5hJN/import-dialog.png)
 
 ### v2.0 : Save and Load Import Presets
+
+### v2.0 : Support for 4.0+
 
 ### v2.0 : Support for drag and drop import ( Blender 4.1+ only )
 Drag and drop multiple files in 3D viewport to import all the files at once and place the imported objects in current collection.
