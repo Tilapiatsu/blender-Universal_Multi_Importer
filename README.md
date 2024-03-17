@@ -47,7 +47,6 @@ Here is a full breakdown of this feature :
 [![Full Breakdown](https://img.youtube.com/vi/Q87E13E2wBI/0.jpg)](https://youtu.be/Q87E13E2wBI?si=XPmF8cQbV3XN63LZ&t=485)
 
 
-
 ### v1.0 : Import and Batch
 You can batch process imported files right after each import combining the capability of the Batch Importer and the Command Batcher
 
