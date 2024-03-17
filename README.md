@@ -10,6 +10,8 @@
 
 ## Changelog
 
+[![Full Breakdown](https://img.youtube.com/vi/Ciz48xzeO-0/0.jpg)](https://youtu.be/Ciz48xzeO-0)
+
 ### v2.0 : Import Folder Hierachy
 You can select a folder and recursively scan for compatible formats in subfolders. Just Click on `File`>`Import`>`Universal Multi Importer Folder`, pick a root folder, adjust the `Recursion Depth` which indicate in how many subfolders you want to search for files, and clic on `Import ALL`
 
