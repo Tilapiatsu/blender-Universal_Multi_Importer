@@ -42,16 +42,32 @@ if BVERSION >= 4.1:
 		directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
 
 		def execute(self, context):
+			current_collection = context.collection
+			current_object = context.object
 			bpy.ops.outliner.item_activate('INVOKE_DEFAULT', extend=False, extend_range=False, deselect_all=True)
+			
 			if context.collection is None :
 				self.report({'ERROR'}, 'UMI : Please Drop files on a Collection')
 				return {'FINISHED'}
+			
+			if context.collection == current_collection and context.object != current_object:
+				context.view_layer.active_layer_collection  = self.recur_layer_collection(context.view_layer.layer_collection, context.object.users_collection[0].name)
+
 			files = []
 			for f in self.files.values():
 				files.append({'name':f.name})
 
 			bpy.ops.import_scene.tila_universal_multi_importer("INVOKE_DEFAULT", import_folders=False, files=files, directory=self.directory)
 			return {'FINISHED'}
+		
+		def recur_layer_collection(self, layer_coll, coll_name):
+			found = None
+			if (layer_coll.name == coll_name):
+				return layer_coll
+			for layer in layer_coll.children:
+				found = self.recur_layer_collection(layer, coll_name)
+				if found:
+					return found
 
 # Legacy Settings Drawing
 class UMI_OT_Settings(bpy.types.Operator):
