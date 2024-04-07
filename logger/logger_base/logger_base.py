@@ -12,7 +12,8 @@ def get_log_file():
 		log_file = path.join(path.dirname(filepath), '{}.log'.format(path.splitext(path.basename(filepath))[0]))
 	else:
 		tempf = tempfile.TemporaryFile().name
-		log_file = '{}.log'.format(tempf) 
+		log_file = '{}.log'.format(tempf)
+		log_file = path.join(path.dirname(log_file), f'UMI_{path.basename(log_file)}')
 
 	return log_file
 

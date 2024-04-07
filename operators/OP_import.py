@@ -897,7 +897,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		for f in os.listdir(folder_path):
 			filepath = path.join(folder_path, f)
 			if path.isfile(filepath):
-				if path.splitext(f)[1] in self.compatible_extensions:
+				if path.splitext(f)[1].lower() in self.compatible_extensions:
 					compatible_files.append(filepath)
 			elif path.isdir(filepath):
 				if recursion_depth > 0:
