@@ -1,11 +1,11 @@
 import bpy
-from .....umi_const import get_umi_settings, ADDON_PACKAGE
+from ....umi_const import get_umi_colors, ADDON_PACKAGE
 from bl_ui.utils import PresetPanel
 from bpy.types import Menu, Operator, Panel
 
 from bl_operators.presets import AddPresetBase
 
-class UMI_PT_import_presets(PresetPanel, Panel):
+class UMI_PT_color_presets(PresetPanel, Panel):
 	bl_label = 'UMI Presets' 
 	preset_subdir = 'UMI/presets' 
 	preset_operator = 'script.execute_preset' 
@@ -13,35 +13,35 @@ class UMI_PT_import_presets(PresetPanel, Panel):
 	
 
 #  From https://sinestesia.co/blog/tutorials/using-blenders-presets-in-python/
-class WM_MT_UMIImportPresets(Menu):
-	bl_label = 'Import Presets'
+class WM_MT_UMIColorPresets(Menu):
+	bl_label = 'Color Presets'
 	preset_subdir = 'UMI/presets'
 	preset_operator = 'script.execute_preset' 
 	draw = Menu.draw_preset
 
 	@property
 	def preset_subdir(self):
-		return AddUMIImportPreset.operator_path()
+		return AddUMIColorPreset.operator_path()
 
-class AddUMIImportPreset(AddPresetBase, Operator): 
+class AddUMIColorPreset(AddPresetBase, Operator): 
 	bl_idname = 'umi.add_import_preset' 
 	bl_label = 'Add UMI preset' 
 	preset_menu = 'WM_MT_UMIImportPresets' 
 
 	preset_defines = [
-		f"umi_settings = bpy.context.preferences.addons['{ADDON_PACKAGE}'].preferences.umi_settings.umi_global_import_settings"
+		f"umi_colors = bpy.context.preferences.addons['{ADDON_PACKAGE}'].preferences.umi_colors"
 	]
 
 	skip_prop = ['name', 'settings_imported', 'bl_rna']
 
 	@property
 	def preset_subdir(self):
-		return AddUMIImportPreset.operator_path()
+		return AddUMIColorPreset.operator_path()
 
 	@property
 	def preset_values(self):
 		properties_blacklist = Operator.bl_rna.properties.keys()
-		umi_settings = get_umi_settings().umi_global_import_settings
+		umi_settings = get_umi_colors()
 
 		ret = []
 		for s in dir(umi_settings):
@@ -50,24 +50,24 @@ class AddUMIImportPreset(AddPresetBase, Operator):
 			if s in self.skip_prop:
 				continue
 			if s not in properties_blacklist:
-				ret.append(f"umi_settings.{s}")
+				ret.append(f"umi_colors.{s}")
 
 		return ret
 
 	@staticmethod
 	def operator_path():
 		import os
-		folder = f'umi_import_presets'
+		folder = f'umi_color_presets'
 		return os.path.join("umi", folder)
 
 def panel_func(layout): 
 	row = layout.row(align=True)
-	row.menu(WM_MT_UMIImportPresets.__name__, text=WM_MT_UMIImportPresets.bl_label)
-	row.operator(AddUMIImportPreset.bl_idname, text="", icon='ADD')
-	row.operator(AddUMIImportPreset.bl_idname, text="", icon='REMOVE').remove_active = True
+	row.menu(WM_MT_UMIColorPresets.__name__, text=WM_MT_UMIColorPresets.bl_label)
+	row.operator(AddUMIColorPreset.bl_idname, text="", icon='ADD')
+	row.operator(AddUMIColorPreset.bl_idname, text="", icon='REMOVE').remove_active = True
 
 
-classes = (WM_MT_UMIImportPresets, AddUMIImportPreset, UMI_PT_import_presets)
+classes = (WM_MT_UMIColorPresets, AddUMIColorPreset, UMI_PT_color_presets)
 
 def register():
 	from bpy.utils import register_class

@@ -68,7 +68,7 @@ class AddUMIFormatPreset(AddPresetBase, Operator):
 	def operator_path(current_format, current_module):
 		import os
 		folder = f'{current_format}_{current_module}_presets'
-		return os.path.join("operator", folder)
+		return os.path.join("umi", folder)
 
 def panel_func(self, context): 
 	row = self.layout.row(align=True)

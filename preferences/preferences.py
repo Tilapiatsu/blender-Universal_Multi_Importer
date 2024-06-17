@@ -1,7 +1,8 @@
 import bpy
 from ..logger import LOG
 from .formats.properties import PG_UMISettings
-from .properties.colors import PG_UMIColors
+from .colors.presets import color_preset
+from .colors.colors import PG_UMIColors
 from .. import ADDON_PACKAGE
 
 def update_log_drawing(self, context):
@@ -23,7 +24,9 @@ class Preferences(bpy.types.AddonPreferences):
 
 		column = layout.column(align=True)
 		box = column.box()
-		box.label(text='Theme', icon='IMAGE_BACKGROUND')
+		col = box.row(align=True)
+		col.label(text='Theme', icon='IMAGE_BACKGROUND')
+		color_preset.panel_func(col)
 		box.prop(self.umi_colors, 'umi_info_color')
 		box.prop(self.umi_colors, 'umi_success_color')
 		box.prop(self.umi_colors, 'umi_cancelled_color')

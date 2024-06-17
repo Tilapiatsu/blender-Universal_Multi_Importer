@@ -1,7 +1,7 @@
 import bpy
 
 class PG_UMIColors(bpy.types.PropertyGroup):
-	umi_info_color      : bpy.props.FloatVectorProperty(name="Info Color",      subtype='COLOR_GAMMA', default=[0.1,  0.5,  0.6])
+	umi_info_color      : bpy.props.FloatVectorProperty(name="Info Color",      subtype='COLOR_GAMMA', default=[0.62,  0.86,  0.92])
 	umi_success_color   : bpy.props.FloatVectorProperty(name="Success Color",   subtype='COLOR_GAMMA', default=[0.1,  1.0,  0.1])
 	umi_cancelled_color : bpy.props.FloatVectorProperty(name="Cancelled Color", subtype='COLOR_GAMMA', default=[1.0,  0.4,  0.1])
 	umi_warning_color   : bpy.props.FloatVectorProperty(name="Warning Color",   subtype='COLOR_GAMMA', default=[1.0,  0.4,  0.1])

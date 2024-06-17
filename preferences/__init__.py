@@ -4,15 +4,15 @@ from .. import ADDON_PACKAGE
 
 from . import formats
 from . import preferences
-from . import properties
+from . import colors
 
 def register():
     formats.register()
-    properties.register()
+    colors.register()
     preferences.register()
 
 
 def unregister():
     preferences.unregister()
-    properties.unregister()
+    colors.unregister()
     formats.unregister()
