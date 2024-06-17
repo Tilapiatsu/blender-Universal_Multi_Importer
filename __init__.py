@@ -1,6 +1,5 @@
 import bpy
 from .umi_const import ADDON_FOLDER_PATH, ADDON_PACKAGE
-from . import import_module
 
 
 bl_info = {
@@ -15,6 +14,7 @@ bl_info = {
 }
 
 def register():
+	from . import import_module
 	import_module.register()
 	from . import preferences
 	from . import operators
@@ -22,6 +22,7 @@ def register():
 	operators.register()
 
 def unregister():
+	from . import import_module
 	from . import preferences
 	from . import operators
 	operators.unregister()

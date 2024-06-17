@@ -12,7 +12,8 @@ def get_log_file():
 		log_file = path.join(path.dirname(filepath), '{}.log'.format(path.splitext(path.basename(filepath))[0]))
 	else:
 		tempf = tempfile.TemporaryFile().name
-		log_file = '{}.log'.format(tempf) 
+		log_file = '{}.log'.format(tempf)
+		log_file = path.join(path.dirname(log_file), f'UMI_{path.basename(log_file)}')
 
 	return log_file
 
@@ -74,8 +75,7 @@ class Logger():
 
 		self._pretty = '---------------------'
 
-		self.color = bpy.context.preferences.themes['Default'].view_3d.object_selected
-		self.color = Color(LoggerColors.DEFAULT_COLOR)
+		self.color = Color(LoggerColors.DEFAULT_COLOR())
 		self.fontsize = 12
 	
 	def revert_parameters(self):
@@ -87,6 +87,7 @@ class Logger():
 
 
 	def info(self, message, skip_prefix=False, color=None):
+		self.color = Color(LoggerColors.DEFAULT_COLOR())
 		message = str(message)
 		self.set_basic_config()
 		if not skip_prefix:
@@ -95,7 +96,7 @@ class Logger():
 		if color is not None:
 			self.messages.append(message=message, color=Color(color))
 		else:
-			self.messages.append(message=message, color=self.color)
+			self.messages.append(message=message, color=Color(LoggerColors.DEFAULT_COLOR()))
 			
 		logging.info(message)
 	
@@ -105,7 +106,7 @@ class Logger():
 		if not skip_prefix:
 			message = '{} : SUCCESS - '.format(self.log_name) + message
 			
-		self.messages.append(message=message, color=color_mult(Color(LoggerColors.SUCCESS_COLOR),  Color((1.0, 0.8, 1.0))))
+		self.messages.append(message=message, color=Color(LoggerColors.SUCCESS_COLOR()))
 		
 		if show_message :
 			logging.info(message)
@@ -123,7 +124,7 @@ class Logger():
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : WARNING - '.format(self.log_name) + message
-		self.messages.append(message=message, color= Color(LoggerColors.WARNING_COLOR))
+		self.messages.append(message=message, color= Color(LoggerColors.WARNING_COLOR()))
 		logging.warning(message)
 
 	def error(self, message, skip_prefix=False):
@@ -131,7 +132,7 @@ class Logger():
 		self.set_basic_config()
 		if not skip_prefix:
 			message = '{} : ERROR - '.format(self.log_name) + message
-		self.messages.append(message=message, color= Color(LoggerColors.ERROR_COLOR))
+		self.messages.append(message=message, color= Color(LoggerColors.ERROR_COLOR()))
 		logging.error(message)
 
 	def set_basic_config(self):

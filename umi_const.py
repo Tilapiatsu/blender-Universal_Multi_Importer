@@ -9,3 +9,11 @@ def get_prefs():
 
 def get_umi_settings():
 	return get_prefs().umi_settings
+
+def get_umi_colors():
+	try:
+		prefs = get_prefs()
+		return prefs.umi_colors
+	except Exception as e:
+		print(e)
+		return None

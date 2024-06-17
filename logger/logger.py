@@ -1,6 +1,6 @@
 import bpy
 import blf
-from .logger_base import Logger, SCROLL_OFFSET_INCREMENT, MessageColored
+from .logger_base import Logger, SCROLL_OFFSET_INCREMENT
 from ..blender_version import BVERSION
 
 class LoggerProgress(Logger):
@@ -36,7 +36,7 @@ class LoggerProgress(Logger):
 		line_width = self.fontsize + 3
 		
 		for m in reversed(self.messages):
-			blf.color(font_id, m.color.r, m.color.g, m.color.b, 0.5)
+			blf.color(font_id, m.color.r, m.color.g, m.color.b, 0.8)
 			blf.position(font_id, self.fontsize, pos + self.scroll_offset, 0)
 			blf.draw(font_id, m.message)
 			pos += line_width

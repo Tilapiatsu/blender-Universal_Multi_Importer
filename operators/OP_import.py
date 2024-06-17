@@ -498,15 +498,15 @@ class UMI(bpy.types.Operator, ImportHelper):
 		LOG.info('-----------------------------------')
 		if self.import_complete:
 			if False in self.files_succeeded:
-				LOG.info('Batch Import completed with errors !', color=LoggerColors.ERROR_COLOR)
+				LOG.info('Batch Import completed with errors !', color=LoggerColors.ERROR_COLOR())
 				LOG.esc_message = '[Esc] to Hide'
 				LOG.message_offset = 4
 			else:
-				LOG.info('Batch Import completed successfully !', color=LoggerColors.SUCCESS_COLOR)
+				LOG.info('Batch Import completed successfully !', color=LoggerColors.SUCCESS_COLOR())
 				LOG.esc_message = '[Esc] to Hide'
 				LOG.message_offset = 4
 		else:
-			LOG.info('Batch Import cancelled !', color=LoggerColors.CANCELLED_COLOR)
+			LOG.info('Batch Import cancelled !', color=LoggerColors.CANCELLED_COLOR())
 			
 		LOG.info('Click [ESC] to hide this text ...')
 		LOG.info('-----------------------------------')
@@ -842,7 +842,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 		self.total_imported_size += current_file_size
 		self.update_progress()
 
-		LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=LoggerColors.IMPORT_COLOR)
+		LOG.info(f'Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress,2)}% - {round(current_file_size, 2)}MB : {filename}', color=LoggerColors.IMPORT_COLOR())
 		self.current_backup_step += current_file_size
 		
 		if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_each_import:

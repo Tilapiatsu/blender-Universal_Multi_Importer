@@ -1,6 +1,7 @@
 import bpy
 from ..logger import LOG
 from .formats.properties import PG_UMISettings
+from .properties.colors import PG_UMIColors
 from .. import ADDON_PACKAGE
 
 def update_log_drawing(self, context):
@@ -10,7 +11,27 @@ def update_log_drawing(self, context):
 class Preferences(bpy.types.AddonPreferences):
 	bl_idname = ADDON_PACKAGE
 
-	umi_settings : bpy.props.PointerProperty(type=PG_UMISettings)
+	umi_settings : bpy.props.PointerProperty(type = PG_UMISettings)
+
+	umi_colors 	 : bpy.props.PointerProperty(type= PG_UMIColors)
+	
+	
+	def draw(self, context):
+		layout = self.layout
+		layout.use_property_split = True
+		layout.use_property_decorate = False
+
+		column = layout.column(align=True)
+		box = column.box()
+		box.label(text='Theme', icon='IMAGE_BACKGROUND')
+		box.prop(self.umi_colors, 'umi_info_color')
+		box.prop(self.umi_colors, 'umi_success_color')
+		box.prop(self.umi_colors, 'umi_cancelled_color')
+		box.prop(self.umi_colors, 'umi_warning_color')
+		box.prop(self.umi_colors, 'umi_error_color')
+		box.prop(self.umi_colors, 'umi_command_color')
+		box.prop(self.umi_colors, 'umi_import_color')
+
 
 classes = (Preferences,)
 

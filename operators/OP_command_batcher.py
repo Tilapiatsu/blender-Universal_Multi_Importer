@@ -99,14 +99,14 @@ class CommandBatcher(bpy.types.Operator):
 	def log_end_text(self):
 		LOG.info('-----------------------------------')
 		if self.canceled:
-			LOG.info('Batch Process cancelled !', color=LoggerColors.CANCELLED_COLOR)
+			LOG.info('Batch Process cancelled !', color=LoggerColors.CANCELLED_COLOR())
 		else:
 			if False in self.process_succeeded:
-				LOG.info('Batch Process completed with errors !', color=LoggerColors.ERROR_COLOR)
+				LOG.info('Batch Process completed with errors !', color=LoggerColors.ERROR_COLOR())
 				LOG.esc_message = '[Esc] to Hide'
 				LOG.message_offset = 4
 			else:
-				LOG.info('Batch Process completed successfully !', color=LoggerColors.SUCCESS_COLOR)
+				LOG.info('Batch Process completed successfully !', color=LoggerColors.SUCCESS_COLOR())
 				LOG.esc_message = '[Esc] to Hide'
 				LOG.message_offset = 4
 		LOG.info('Click [ESC] to hide this text ...')
@@ -226,7 +226,7 @@ class CommandBatcher(bpy.types.Operator):
 					self.progress += 100 / self.number_of_operations_to_perform
 					self.current_operation_number += 1
 					
-					LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=LoggerColors.COMMAND_COLOR)
+					LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=LoggerColors.COMMAND_COLOR())
 
 					override = {}
 					override["selected_objects"] = [bpy.data.objects[self.current_object_to_process.name]]
