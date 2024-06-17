@@ -7,7 +7,7 @@ bl_info = {
 	"author" : "Tilapiatsu",
 	"description" : "",
 	"blender" : (2, 93, 0),
-	"version": (2, 0, 1),
+	"version": (2, 0, 2),
 	"location": "File > Import-Export",
 	"warning" : "",
 	"category": "Import-Export"
