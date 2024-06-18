@@ -1,11 +1,11 @@
 import bpy
 import os
 from ...umi_const import get_umi_settings
-from .operators_const import PRESET_FOLDER
+from .operators_const import COMMAND_BATCHER_PRESET_FOLDER
 
-if not os.path.exists(PRESET_FOLDER):
-        print(f'UMI : Creating Preset Folder : {PRESET_FOLDER}')
-        os.mkdir(PRESET_FOLDER)
+if not os.path.exists(COMMAND_BATCHER_PRESET_FOLDER):
+        print(f'UMI : Creating Preset Folder : {COMMAND_BATCHER_PRESET_FOLDER}')
+        os.mkdir(COMMAND_BATCHER_PRESET_FOLDER)
 
 def get_operator():
     umi_settings = get_umi_settings()

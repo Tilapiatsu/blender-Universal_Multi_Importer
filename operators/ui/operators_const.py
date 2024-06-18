@@ -1,5 +1,6 @@
+import bpy
 import os
-from .. import ADDON_FOLDER_PATH
 
-PRESET_FOLDER = os.path.join(ADDON_FOLDER_PATH, 'presets')
+PRESET_FOLDER = os.path.join(bpy.utils.script_paths()[1], 'presets')
+COMMAND_BATCHER_PRESET_FOLDER = os.path.join(PRESET_FOLDER, 'command_batcher')
 UMIPRESET_EXTENSION = '.umipreset'

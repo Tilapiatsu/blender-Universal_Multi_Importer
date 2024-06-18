@@ -1,7 +1,7 @@
 import bpy
 import os, shutil
 from ...umi_const import get_umi_settings
-from .operators_const import PRESET_FOLDER, UMIPRESET_EXTENSION
+from .operators_const import COMMAND_BATCHER_PRESET_FOLDER, UMIPRESET_EXTENSION
 
 def get_presets(context):
     umi_settings = get_umi_settings()
@@ -178,7 +178,7 @@ class UI_DuplicatePreset(bpy.types.Operator):
         o = presets.add()
         o.name = self.get_unique_name(presets[self.id].name, name_list=name_list)
         o.path = self.get_unique_name(presets[self.id].path, name_list=path_list, is_path=True)
-        # bpy.ops.scene.umi_save_preset_operator('EXEC_DEFAULT', filepath=os.path.join(PRESET_FOLDER, o.name) + UMIPRESET_EXTENSION)
+        # bpy.ops.scene.umi_save_preset_operator('EXEC_DEFAULT', filepath=os.path.join(COMMAND_BATCHER_PRESET_FOLDER, o.name) + UMIPRESET_EXTENSION)
         shutil.copy(presets[self.id].path, o.path)
         presets.move(len(presets) - 1, self.id + 1)
 
@@ -211,7 +211,7 @@ class UI_EditPreset(bpy.types.Operator):
         o = umi_settings.umi_presets[self.id]
         o.name = self.name
         old_name = o.path
-        o.path = os.path.join(PRESET_FOLDER, self.name + UMIPRESET_EXTENSION)
+        o.path = os.path.join(COMMAND_BATCHER_PRESET_FOLDER, self.name + UMIPRESET_EXTENSION)
 
         os.rename(old_name, o.path)
         return {'FINISHED'}	
@@ -239,7 +239,7 @@ class UI_AddPreset(bpy.types.Operator):
         umi_settings = get_umi_settings()
         o = umi_settings.umi_presets.add()
         o.name = self.name
-        o.path = os.path.join(PRESET_FOLDER, self.name + UMIPRESET_EXTENSION)
+        o.path = os.path.join(COMMAND_BATCHER_PRESET_FOLDER, self.name + UMIPRESET_EXTENSION)
         if self.from_list:
             bpy.ops.scene.umi_save_preset_operator(filepath=o.path)
         return {'FINISHED'}
@@ -297,7 +297,7 @@ class UI_LoadPresetList(bpy.types.Operator):
 
     def execute(self, context):
         umi_settings = get_umi_settings()
-        presets = [f for f in os.listdir(PRESET_FOLDER) if os.path.splitext(f)[1].lower() == UMIPRESET_EXTENSION]
+        presets = [f for f in os.listdir(COMMAND_BATCHER_PRESET_FOLDER) if os.path.splitext(f)[1].lower() == UMIPRESET_EXTENSION]
         if len(umi_settings.umi_presets):
             bpy.ops.scene.umi_clear_presets('EXEC_DEFAULT')
 
