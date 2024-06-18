@@ -469,8 +469,12 @@ class UMI(bpy.types.Operator, ImportHelper):
 	def invoke(self, context, event):
 		self.umi_settings = get_umi_settings()
 		self.umi_settings.umi_batcher_is_processing = False
-		self.umi_settings.umi_skip_settings = False
 		bpy.ops.scene.umi_load_preset_list()
+
+		# If one blend file is dropped, skip UMI to let blender handle it
+		if len(self.files) == 1 and path.splitext(self.files[0].name)[1].lower() == '.blend':
+			bpy.ops.wm.drop_blend_file('INVOKE_DEFAULT', filepath=self.filepath)
+			return {'FINISHED'}
 
 		if self.directory and not self.import_folders and len(self.files):
 			if event.shift:

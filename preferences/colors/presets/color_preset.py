@@ -24,9 +24,9 @@ class WM_MT_UMIColorPresets(Menu):
 		return AddUMIColorPreset.operator_path()
 
 class AddUMIColorPreset(AddPresetBase, Operator): 
-	bl_idname = 'umi.add_import_preset' 
+	bl_idname = 'umi.add_color_preset' 
 	bl_label = 'Add UMI preset' 
-	preset_menu = 'WM_MT_UMIImportPresets' 
+	preset_menu = 'WM_MT_UMIColorPresets' 
 
 	preset_defines = [
 		f"umi_colors = bpy.context.preferences.addons['{ADDON_PACKAGE}'].preferences.umi_colors"
