@@ -7,7 +7,7 @@ from string import punctuation
 from ..preferences.formats import FormatHandler, COMPATIBLE_FORMATS
 from ..preferences.formats.properties.properties import update_file_stats, get_file_selected_items, update_file_extension_selection
 from .OP_command_batcher import draw_command_batcher
-from ..umi_const import get_umi_settings
+from ..umi_const import get_umi_settings, AUTOSAVE_PATH
 from ..preferences.formats.panels.presets import import_preset
 from ..logger import LOG, LoggerColors, MessageType
 from ..blender_version import BVERSION
@@ -969,7 +969,7 @@ class UMI(bpy.types.Operator, ImportHelper):
         if not path.exists(self.current_blend_file):
             LOG.warning('Blender file not saved')
             self.umi_settings.umi_global_import_settings.save_file_after_import = False
-            autosave = path.join(bpy.utils.user_resource(resource_type='AUTOSAVE', create=True), 'umi_autosave_' + time.strftime('%Y-%m-%d-%H-%M-%S') + '.blend')
+            autosave = path.join(AUTOSAVE_PATH, 'umi_autosave_' + time.strftime('%Y-%m-%d-%H-%M-%S') + '.blend')
         else:
             autosave = path.splitext(self.current_blend_file)[0] + "_bak" + path.splitext(self.current_blend_file)[1]
 

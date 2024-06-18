@@ -1,0 +1,31 @@
+schema_version = "1.0.0"
+
+id = "universal_multi_importer"
+version = "2.0.2"
+name = "Universal Multi Importer"
+tagline = "Batch Import many file formats at once, Batch process imported objectst"
+maintainer = "Tilapiatsu <tilapiatsu@hotmail.fr>"
+type = "add-on"
+
+website = "https://github.com/Tilapiatsu/blender-Universal_Multi_Importer"
+
+tags = ["Import", "Batch", "Drag-and-Drop", "Mesh", "Object", "Scene", "Image", "Append", "Link"]
+
+blender_version_min = "4.2.0"
+
+license = [
+  "SPDX:MIT",
+]
+
+copyright = [
+  "2023 Tilapiatsu",
+]
+
+## Optional: build setting.
+## https://docs.blender.org/manual/en/dev/advanced/extensions/command_line_arguments.html#command-line-args-extension-build
+[build]
+paths_exclude_pattern = [
+  "/.git/",
+  "__pycache__/",
+  ".gitignore",
+]
