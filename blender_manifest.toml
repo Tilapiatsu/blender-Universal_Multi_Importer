@@ -3,7 +3,7 @@ schema_version = "1.0.0"
 id = "universal_multi_importer"
 version = "2.0.2"
 name = "Universal Multi Importer"
-tagline = "Batch Import many file formats at once, Batch process imported objectst"
+tagline = "Batch Import many file formats at once, Batch process imported objects"
 maintainer = "Tilapiatsu <tilapiatsu@hotmail.fr>"
 type = "add-on"
 
