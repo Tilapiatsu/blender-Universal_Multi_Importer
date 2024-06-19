@@ -9,7 +9,7 @@ type = "add-on"
 
 website = "https://github.com/Tilapiatsu/blender-Universal_Multi_Importer"
 
-tags = ["Import", "Batch", "Drag-and-Drop", "Mesh", "Object", "Scene", "Image", "Append", "Link"]
+tags = ["Import-Export", "Pipeline"]
 
 blender_version_min = "4.2.0"
 
