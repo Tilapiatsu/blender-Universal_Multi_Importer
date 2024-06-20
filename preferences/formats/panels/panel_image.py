@@ -1,4 +1,6 @@
 from . import draw_no_settings
+from ....blender_version import BVERSION
+
 class IMPORT_SCENE_IMAGESettings():
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
@@ -11,9 +13,12 @@ class IMPORT_SCENE_IMAGESettings():
             import_options.prop(operator, 'force_reload')
             import_options.prop(operator, 'image_sequence')
 
-            compositing = layout.box()
-            compositing.label(text='Compositing Nodes', icon='NODE_COMPOSITING')
-            compositing.prop(operator, 'compositing_nodes')
+            if BVERSION >= 4.2:
+                pass
+            else:
+                compositing = layout.box()
+                compositing.label(text='Compositing Nodes', icon='NODE_COMPOSITING')
+                compositing.prop(operator, 'compositing_nodes')
 
             material = layout.box()
             material.label(text='Material Settings', icon='MATERIAL')
@@ -36,7 +41,7 @@ class IMPORT_SCENE_IMAGESettings():
             row = texture.row(align=True)
             row.prop(operator, 'use_transparency')
             if operator.use_transparency:
-                row.prop(operator, 'alpha_mode')
+                row.prop(operator, 'alpha_mode', text='')
             texture.prop(operator, 'use_auto_refresh')
 
 
@@ -66,5 +71,8 @@ class IMPORT_SCENE_IMAGESettings():
             options = layout.box()
             options.label(text='Options', icon='OPTIONS')
 
-            options.prop(operator, 'view_align')
+            if BVERSION >= 4.2:
+                options.prop(operator, 'align')
+            else:
+                options.prop(operator, 'view_align')
             
