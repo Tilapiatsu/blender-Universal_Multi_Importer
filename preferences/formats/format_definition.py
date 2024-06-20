@@ -30,12 +30,11 @@ class FormatDefinition():
                                                                 {	"relative_path": {'type':'bpy.props.BoolProperty', 'name':'"Relative Path"', 'default':True},
                                                                     "use_sequence_detection": {'type':'bpy.props.BoolProperty', 'name':'"Detect Sequences"', 'default':True},
                                                                     "use_udim_detecting": {'type':'bpy.props.BoolProperty', 'name':'"Detect UDIMs"', 'default':True} }] ]},
-                            'ref':{'command':'bpy.ops.object.empty_image_add', 'module':None, 
+                            'empty':{'command':'bpy.ops.object.empty_image_add', 'module':None, 
                                                                 'import_settings':[['options',
-                                                                {	"align": {'type':'bpy.props.EnumProperty', 'name':'"Align"', 'default':'"VIEW"', 'enum_items':align()} }] ]},
-                            'background':{'command':'bpy.ops.object.empty_image_add', 'module':None, 
-                                                                'import_settings':[['options',
-                                                                {	"align": {'type':'bpy.props.EnumProperty', 'name':'"Align"', 'default':'"VIEW"', 'enum_items':align()}}] ]}},
+                                                                {	"align": {'type':'bpy.props.EnumProperty', 'name':'"Align"', 'default':'"VIEW"', 'enum_items':align()},
+                                                                    "background": {'type':'bpy.props.BoolProperty', 'name':'"Put in Background"', 'default':False} }] ]},
+                        },
             'ignore': ['files', 'directory', 'filepath'],
             'generate_filter_glob':False
             }

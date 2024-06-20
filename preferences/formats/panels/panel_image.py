@@ -67,12 +67,13 @@ class IMPORT_SCENE_IMAGESettings():
             options.prop(operator, 'use_sequence_detection')
             options.prop(operator, 'use_udim_detecting')
         
-        elif module_name in ['ref', 'background']:
+        elif module_name in ['ref', 'background', 'empty']:
             options = layout.box()
             options.label(text='Options', icon='OPTIONS')
 
             if BVERSION >= 4.2:
                 options.prop(operator, 'align')
+                options.prop(operator, 'background')
             else:
                 options.prop(operator, 'view_align')
             
