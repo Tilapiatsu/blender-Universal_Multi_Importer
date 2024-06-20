@@ -10,7 +10,53 @@ def axis():
         ("NEGATIVE_Z", "-Z", "-Z")
     ]
 
+def align():
+    return [
+        ("WORLD", "World", "WORLD"),
+        ("VIEW", "View", "VIEW"),
+        ("CURSOR", "3D Cursor", "CURSOR")
+    ]
+
 class FormatDefinition():
+    if BVERSION >= 4.2:
+        image = {'name' : 'image',
+            'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
+                        '.hdr', '.exr',
+                         '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
+            'operator' : {  'plane':{'command':'bpy.ops.image.import_as_mesh_planes', 'module':'IMAGE_OT_import_as_mesh_planes'},
+
+                            'data':{'command':'bpy.ops.image.open', 'module':None, 
+                                                                'import_settings':[['options',
+                                                                {	"relative_path": {'type':'bpy.props.BoolProperty', 'name':'"Relative Path"', 'default':True},
+                                                                    "use_sequence_detection": {'type':'bpy.props.BoolProperty', 'name':'"Detect Sequences"', 'default':True},
+                                                                    "use_udim_detecting": {'type':'bpy.props.BoolProperty', 'name':'"Detect UDIMs"', 'default':True} }] ]},
+                            'ref':{'command':'bpy.ops.object.empty_image_add', 'module':None, 
+                                                                'import_settings':[['options',
+                                                                {	"align": {'type':'bpy.props.EnumProperty', 'name':'"Align"', 'default':'"VIEW"', 'enum_items':align()} }] ]},
+                            'background':{'command':'bpy.ops.object.empty_image_add', 'module':None, 
+                                                                'import_settings':[['options',
+                                                                {	"align": {'type':'bpy.props.EnumProperty', 'name':'"Align"', 'default':'"VIEW"', 'enum_items':align()}}] ]}},
+            'ignore': ['files', 'directory', 'filepath'],
+            'generate_filter_glob':False
+            }
+        
+    else:
+        image = {'name' : 'image',
+            'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
+                        '.hdr', '.exr',
+                         '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
+            'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane'},
+                            'data':{'command':'bpy.ops.image.open', 'module':None, 
+                                                                'import_settings':[['options',
+                                                                {	"relative_path": {'type':'bpy.props.BoolProperty', 'name':'"Relative Path"', 'default':True},
+                                                                    "use_sequence_detection": {'type':'bpy.props.BoolProperty', 'name':'"Detect Sequences"', 'default':True},
+                                                                    "use_udim_detecting": {'type':'bpy.props.BoolProperty', 'name':'"Detect UDIMs"', 'default':True} }] ]},
+                            'ref':{'command':'bpy.ops.object.load_reference_image', 'module':'OBJECT_OT_load_reference_image'},
+                            'background':{'command':'bpy.ops.object.load_background_image', 'module':'OBJECT_OT_load_background_image'}},
+            'ignore': ['files', 'directory', 'filepath'],
+            'generate_filter_glob':False
+            }
+        
     if BVERSION >= 4.1:
         usd = {'name' : 'usd',
             'ext' : ['.usd', '.usda', '.usdc', '.usdz'],
@@ -268,20 +314,4 @@ class FormatDefinition():
             'operator' : {'default':{'command':'bpy.ops.import_anim.bvh', 'module':'IMPORT_ANIM_OT_bvh'}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':True		
-            }
-
-    image = {'name' : 'image',
-            'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
-                        '.hdr', '.exr',
-                         '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-            'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane'},
-                            'data':{'command':'bpy.ops.image.open', 'module':None, 
-                                                                'import_settings':[['options',
-                                                                {	"relative_path": {'type':'bpy.props.BoolProperty', 'name':'"Relative Path"', 'default':True},
-                                                                    "use_sequence_detection": {'type':'bpy.props.BoolProperty', 'name':'"Detect Sequences"', 'default':True},
-                                                                    "use_udim_detecting": {'type':'bpy.props.BoolProperty', 'name':'"Detect UDIMs"', 'default':True} }] ]},
-                            'ref':{'command':'bpy.ops.object.load_reference_image', 'module':'OBJECT_OT_load_reference_image'},
-                            'background':{'command':'bpy.ops.object.load_background_image', 'module':'OBJECT_OT_load_background_image'}},
-            'ignore': ['files', 'directory', 'filepath'],
-            'generate_filter_glob':False
             }
