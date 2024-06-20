@@ -21,8 +21,6 @@ copyright = [
   "2023 Tilapiatsu",
 ]
 
-## Optional: build setting.
-## https://docs.blender.org/manual/en/dev/advanced/extensions/command_line_arguments.html#command-line-args-extension-build
 [build]
 paths_exclude_pattern = [
   "/.git/",
