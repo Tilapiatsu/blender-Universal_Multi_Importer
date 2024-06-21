@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "universal_multi_importer"
-version = "2.1.0"
+version = "2.1.1"
 name = "Universal Multi Importer"
 tagline = "Batch Import many file formats at once, Batch process them"
 maintainer = "Tilapiatsu <tilapiatsu@hotmail.fr>"
