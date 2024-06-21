@@ -1,5 +1,5 @@
 # Universal Multi Importer
-
+[![Teaser](https://img.youtube.com/vi/pFKmG-QfxGg/0.jpg)](https://youtu.be/pFKmG-QfxGg)
 ## Key Features
 
 - With this addon, you can import multiple files of different formats from the same import dialog.
@@ -9,7 +9,11 @@
 - You can process the imported files with python command durring import that opens a lot of possibilities
 
 ## Changelog
-
+### v2.1.0 : Support for Blender 4.2 and the extension plateform
+### v2.1.0 : Add Settings to choose text colors in the addon preferences
+![Theme Settings](https://i.postimg.cc/Y9mdfBgG/blender-7qd3o6bgs-W.png)
+### v2.1.0 : Bug Fixes
+----
 [![Teaser](https://img.youtube.com/vi/Ciz48xzeO-0/0.jpg)](https://youtu.be/Ciz48xzeO-0)
 [![Feature Breackdown](https://img.youtube.com/vi/gn0fUx0Idjc/0.jpg)](https://youtu.be/gn0fUx0Idjc)
 
@@ -33,6 +37,7 @@ Then, you will see a prompt to select the compatible files that have been found 
 Drag and drop multiple files in 3D viewport to import all the files at once and place the imported objects in current collection.
 Dropping in a collection of the outliner will place the imported objects in the collection under the cursor.
 
+-----
 ### v1.0 : Import any number of suported formats
 Just click on `File`>`Import`>`Universal Multi Importer Files`, select the files and clic on `Import ALL`,  and the addon will take care of using the proper import command.
 
