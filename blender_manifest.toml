@@ -21,6 +21,9 @@ copyright = [
   "2023 Tilapiatsu",
 ]
 
+[permissions]
+files = "Import Files from disk"
+
 [build]
 paths_exclude_pattern = [
   "/.git/",
