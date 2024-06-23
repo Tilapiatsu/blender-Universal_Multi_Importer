@@ -22,7 +22,7 @@ copyright = [
 ]
 
 [permissions]
-files = "Import Files from disk"
+files = "Import Files from disk, save presets to disk"
 
 [build]
 paths_exclude_pattern = [
