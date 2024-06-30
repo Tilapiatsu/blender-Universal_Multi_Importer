@@ -1,5 +1,10 @@
 # Universal Multi Importer
 [![Teaser](https://img.youtube.com/vi/pFKmG-QfxGg/0.jpg)](https://youtu.be/pFKmG-QfxGg)
+
+
+<span style="font-size:2em;">[Download on Extention Platform](https://extensions.blender.org/add-ons/universal-multi-importer/)</span>
+
+
 ## Key Features
 
 - With this addon, you can import multiple files of different formats from the same import dialog.
