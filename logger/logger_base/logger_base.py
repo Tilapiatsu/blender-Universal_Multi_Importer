@@ -1,21 +1,17 @@
-import bpy, os, logging, tempfile
+import bpy, os, logging, tempfile, time
 from os import path
 from mathutils import Color
 from .logger_const import LoggerColors, MessageType
 
 def get_log_file():
-    try:
-        filepath = bpy.data.filepath
-    except AttributeError:
-        filepath = ''
-    if path.exists(filepath):
-        log_file = path.join(path.dirname(filepath), '{}.log'.format(path.splitext(path.basename(filepath))[0]))
-    else:
-        tempf = tempfile.TemporaryFile().name
-        log_file = '{}.log'.format(tempf)
-        log_file = path.join(path.dirname(log_file), f'UMI_{path.basename(log_file)}')
+
+    log_file = "UMI_" + time.strftime(f"%Y%m%d") + ".log"
+    log_file = path.join(tempfile.gettempdir(), log_file)
+    
+    print('UMI : Log file path :', log_file)
 
     return log_file
+
 
 def color_mult(c1, c2):
     return Color((c1.r * c2.r, c1.g * c2.g, c1.b * c2.b))
