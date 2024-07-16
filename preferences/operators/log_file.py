@@ -15,7 +15,7 @@ def get_latest_log_file():
 
 
 class UI_UMIOpenLogFile(bpy.types.Operator):
-    bl_idname = "scene.umi_open_log_file"
+    bl_idname = "wm.umi_open_log_file"
     bl_label = "Open Log File"
     bl_options = {'REGISTER', 'UNDO'}
     bl_description = "Open Last Log File"
