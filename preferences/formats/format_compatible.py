@@ -1,4 +1,4 @@
-import bpy
+import bpy, addon_utils
 from .format_definition import FormatDefinition
 from . import FORMATS
 from ...logger import LOG
@@ -21,6 +21,65 @@ class CompatibleFormats():
         self.formats = CompatibleFormats.get_formats()
         self.formats_dict = {a[0]:a[1] for a in self.formats}
 
+    def is_format_installed(self, addon_name):
+        return addon_name in self.installed_addons
+    
+    def is_format_enabled(self, addon_name):
+        return addon_name in self.enabled_addons
+
+    def is_format_extension(self, format_name, module):
+        return self.all_formats[format_name]['operator'][module]['pkg_id'] != None
+
+    @property
+    def all_valid_addons(self):
+        all_valid_addons = []
+        for f in self.all_formats.values():
+            for module in f['operator'].values():
+                # if module['addon_name'] is None:
+                #     continue
+                all_valid_addons.append(module['addon_name'])
+
+        return all_valid_addons
+
+    @property
+    def valid_installed_addons(self):
+        return [a for a in self.installed_addons if a in self.all_valid_addons]
+
+    @property
+    def installed_addons(self):
+        return [a.__name__ for a in addon_utils.modules()]
+    
+    @property
+    def enabled_addons(self):
+        return list(bpy.context.preferences.addons.keys())
+
+    @property
+    def is_all_formats_installed(self):
+        valid = True
+        valid_installed_addons = self.valid_installed_addons
+        for a in self.all_valid_addons:
+            if a is None:
+                continue
+
+            if a not in valid_installed_addons:
+                valid = False
+                break
+
+        return valid
+
+    @property
+    def is_all_formats_enabled(self):
+        valid = True
+        enabled_addons = self.enabled_addons
+        for a in self.all_valid_addons:
+            if a is None:
+                continue
+
+            if a not in enabled_addons:
+                valid = False
+                break
+
+        return valid
 
     @property
     def extensions(self):
@@ -85,6 +144,14 @@ class CompatibleFormats():
 
         return self._filter_glob
 
+    @property
+    def all_formats(self):
+        attributes = inspect.getmembers(CompatibleFormats, lambda a:not(inspect.isroutine(a)))
+        formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
+
+        all_formats = {a[0]:a[1] for a in formats}
+        return all_formats
+
     @classmethod
     def get_formats(cls):
         attributes = inspect.getmembers(CompatibleFormats, lambda a:not(inspect.isroutine(a)))
@@ -94,14 +161,14 @@ class CompatibleFormats():
         for f in formats:
             op = {}
             new_f = f
-            assigned = True
+            assigned = []
             for n,o in f[1]['operator'].items():
                 if o['module'] is None:
                     # Check Command
                     try:
                         eval(o['command'])
                     except:
-                        assigned = False
+                        assigned.append(False)
                         print(o['command'], 'not found')
                         continue
 
@@ -109,13 +176,14 @@ class CompatibleFormats():
                 else:
                     # Check Module
                     if o['module'] not in dir(bpy.types):
-                        assigned = False
+                        assigned.append(False)
                         print(o['module'], 'not in bpy.types')
                         continue
 
                     op[n] = f[1]['operator'][n]
-                    
-            if assigned:
+            
+            # check if at leas one modyle succeeded
+            if len(assigned) < len(f[1]['operator'].keys()):
                 new_f[1]['operator'] = op
                 valid_formats.append(new_f)
 

@@ -23,14 +23,14 @@ class FormatDefinition():
             'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                         '.hdr', '.exr',
                          '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-            'operator' : {  'plane':{'command':'bpy.ops.image.import_as_mesh_planes', 'module':'IMAGE_OT_import_as_mesh_planes'},
+            'operator' : {  'plane':{'command':'bpy.ops.image.import_as_mesh_planes', 'module':'IMAGE_OT_import_as_mesh_planes', 'module':None, 'addon_name' : None, 'pkg_id' : None},
 
-                            'data':{'command':'bpy.ops.image.open', 'module':None, 
+                            'data':{'command':'bpy.ops.image.open', 'module':None, 'addon_name' : None, 'pkg_id' : None,
                                                                 'import_settings':[['options',
                                                                 {	"relative_path": {'type':'bpy.props.BoolProperty', 'name':'"Relative Path"', 'default':True},
                                                                     "use_sequence_detection": {'type':'bpy.props.BoolProperty', 'name':'"Detect Sequences"', 'default':True},
                                                                     "use_udim_detecting": {'type':'bpy.props.BoolProperty', 'name':'"Detect UDIMs"', 'default':True} }] ]},
-                            'empty':{'command':'bpy.ops.object.empty_image_add', 'module':None, 
+                            'empty':{'command':'bpy.ops.object.empty_image_add', 'module':None, 'addon_name' : None, 'pkg_id' : None,
                                                                 'import_settings':[['options',
                                                                 {	"align": {'type':'bpy.props.EnumProperty', 'name':'"Align"', 'default':'"VIEW"', 'enum_items':align()},
                                                                     "background": {'type':'bpy.props.BoolProperty', 'name':'"Put in Background"', 'default':False} }] ]},
@@ -38,13 +38,33 @@ class FormatDefinition():
             'ignore': ['files', 'directory', 'filepath'],
             'generate_filter_glob':False
             }
+        x3d = {'name' : 'x3d',
+            'ext' : ['.x3d', '.wrl'],
+            'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : 'IMPORT_SCENE_OT_x3d', 'addon_name' : 'bl_ext.blender_org.web3d_x3d_vrml2_format', 'pkg_id' : 'web3d_x3d_vrml2_format'}},
+            'ignore' : ['files', 'directory'],
+            'generate_filter_glob' : True}
+            
+        stl = {'name' : 'stl',
+                'ext' : ['.stl'],
+                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : None, 'pkg_id' : None,
+                                           'import_settings':
+                                            [['Options', 
+                                            {"global_scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0},
+                                            "use_scene_unit": {'type':'bpy.props.BoolProperty', 'name':'"Scene Unit"', 'default':False},
+                                            "use_facet_normal": {'type':'bpy.props.BoolProperty', 'name':'"Facet Normals"', 'default':False},
+                                            "forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"Y"', 'enum_items':axis()},
+                                            "up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Z"', 'enum_items':axis()},
+                                            "use_mesh_validate": {'type':'bpy.props.BoolProperty', 'name':'"Validate Mesh"', 'default':False}}]]},
+                                'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl'}},
+                'ignore': ['files', 'directory'],
+                'generate_filter_glob':False}
         
     else:
         image = {'name' : 'image',
             'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                         '.hdr', '.exr',
                          '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-            'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane'},
+            'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane', 'addon_name' : None, 'pkg_id' : None},
                             'data':{'command':'bpy.ops.image.open', 'module':None, 
                                                                 'import_settings':[['options',
                                                                 {	"relative_path": {'type':'bpy.props.BoolProperty', 'name':'"Relative Path"', 'default':True},
@@ -56,10 +76,31 @@ class FormatDefinition():
             'generate_filter_glob':False
             }
         
+        x3d = {'name' : 'x3d',
+            'ext' : ['.x3d', '.wrl'],
+            'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : 'IMPORT_SCENE_OT_x3d', 'addon_name' : 'web3d_x3d_vrml2_format', 'pkg_id' : None}},
+            'ignore': ['files', 'directory'],
+            'generate_filter_glob':True}
+        
+            
+        stl = {'name' : 'stl',
+                'ext' : ['.stl'],
+                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':
+                                            [['Options', 
+                                            {"global_scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0},
+                                            "use_scene_unit": {'type':'bpy.props.BoolProperty', 'name':'"Scene Unit"', 'default':False},
+                                            "use_facet_normal": {'type':'bpy.props.BoolProperty', 'name':'"Facet Normals"', 'default':False},
+                                            "forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"Y"', 'enum_items':axis()},
+                                            "up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Z"', 'enum_items':axis()},
+                                            "use_mesh_validate": {'type':'bpy.props.BoolProperty', 'name':'"Validate Mesh"', 'default':False}}]]},
+                                'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl'}},
+                'ignore': ['files', 'directory'],
+                'generate_filter_glob':False}
+        
     if BVERSION >= 4.1:
         usd = {'name' : 'usd',
             'ext' : ['.usd', '.usda', '.usdc', '.usdz'],
-            'operator' : {'default':{'command':'bpy.ops.wm.usd_import', 'module':None, 'import_settings':
+            'operator' : {'default':{'command':'bpy.ops.wm.usd_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':
                                 [['Data Types', 
                                 {"import_cameras": {'type':'bpy.props.BoolProperty', 'name':'"Import Cameras"', 'default':True},
                                 "import_curves": {'type':'bpy.props.BoolProperty', 'name':'"Import Curves"', 'default':True},
@@ -114,9 +155,9 @@ class FormatDefinition():
         
         svg = {'name' : 'svg',
             'ext' : ['.svg'],
-            'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'import_settings':[[]]}, 
+            'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'addon_name' : 'io_curve_svg', 'pkg_id' : None, 'import_settings':[[]]}, 
                             'grease_pencil':{'command':'bpy.ops.wm.gpencil_import_svg', 
-                                            'module':None, 
+                                            'module':None, 'addon_name' : None, 'pkg_id' : None,
                                             'import_settings':[['options',
                                                                 {	"resolution": {'type':'bpy.props.IntProperty', 'name':'"Resolution"', 'default':10, 'min':1},
                                                                     "scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':10.0} }] ]}},
@@ -126,7 +167,7 @@ class FormatDefinition():
     else:
         usd = {'name' : 'usd',
             'ext' : ['.usd', '.usda', '.usdc', '.usdz'],
-            'operator' : {'default':{'command':'bpy.ops.wm.usd_import', 'module':None, 'import_settings':
+            'operator' : {'default':{'command':'bpy.ops.wm.usd_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':
                                 [['Data Types', 
                                 {"import_cameras": {'type':'bpy.props.BoolProperty', 'name':'"Import Cameras"', 'default':True},
                                 "import_curves": {'type':'bpy.props.BoolProperty', 'name':'"Import Curves"', 'default':True},
@@ -177,7 +218,7 @@ class FormatDefinition():
             'generate_filter_glob':False}
         svg = {'name' : 'svg',
             'ext' : ['.svg'],
-            'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'import_settings':[[]]}
+            'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'addon_name' : 'io_curve_svg', 'pkg_id' : None, 'import_settings':[[]]}
                             },
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
@@ -185,7 +226,7 @@ class FormatDefinition():
     if BVERSION >= 4.0:
         obj = {'name' : 'obj',
                 'ext' : ['.obj'],
-                'operator' : {'default':{'command':'bpy.ops.wm.obj_import', 'module':None, 'import_settings':
+                'operator' : {'default':{'command':'bpy.ops.wm.obj_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':
                                     [['Transform',
                                     {"global_scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0},
                                     "clamp_size" : {'type':'bpy.props.FloatProperty', 'name':'"Clamp Bounding Box"', 'default':1.0},
@@ -204,7 +245,7 @@ class FormatDefinition():
         
         ply = {'name' : 'ply',
                 'ext' : ['.ply'],
-                'operator' : {'default':{'command':'bpy.ops.wm.ply_import', 'module':None, 'import_settings':
+                'operator' : {'default':{'command':'bpy.ops.wm.ply_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':
                                     [['Transform',
                                     {"global_scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0},
                                     "use_scene_unit": {'type':'bpy.props.BoolProperty', 'name':'"Scene Unit"', 'default':False},
@@ -221,52 +262,32 @@ class FormatDefinition():
     else:
         obj = {	'name' : 'obj',
             'ext' : ['.obj'],
-            'operator' : {'default':{'command':'bpy.ops.import_scene.obj','module' : 'IMPORT_SCENE_OT_obj',}},
+            'operator' : {'default':{'command':'bpy.ops.import_scene.obj','module' : 'IMPORT_SCENE_OT_obj', 'addon_name' : None, 'pkg_id' : None,}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
     
         ply = {	'name' : 'ply',
                 'ext' : ['.ply'],
-                'operator' : {'default':{'command':'bpy.ops.import_mesh.ply', 'module' : 'IMPORT_MESH_OT_ply'}},
-
+                'operator' : {'default':{'command':'bpy.ops.import_mesh.ply', 'module' : 'IMPORT_MESH_OT_ply', 'addon_name' : None, 'pkg_id' : None}},
                 'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
 
     fbx = {'name' : 'fbx',
             'ext' : ['.fbx'],
-            'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : 'IMPORT_SCENE_OT_fbx'}},
+            'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : 'IMPORT_SCENE_OT_fbx', 'addon_name' : 'io_scene_fbx', 'pkg_id' : None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
     
     gltf = {'name' : 'gltf',
             'ext' : ['.glb', '.gltf'],
-            'operator' : {'default':{'command':'bpy.ops.import_scene.gltf','module' : 'IMPORT_SCENE_OT_gltf'}},
+            'operator' : {'default':{'command':'bpy.ops.import_scene.gltf','module' : 'IMPORT_SCENE_OT_gltf', 'addon_name' : 'io_scene_gltf2', 'pkg_id' : None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
-    
-    x3d = {'name' : 'x3d',
-            'ext' : ['.x3d', '.wrl'],
-            'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : 'IMPORT_SCENE_OT_x3d'}},
-            'ignore': ['files', 'directory'],
-            'generate_filter_glob':True}
-    
-    stl = {'name' : 'stl',
-            'ext' : ['.stl'],
-            'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'import_settings':
-                                        [['Options', 
-                                        {"global_scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0},
-                                        "use_scene_unit": {'type':'bpy.props.BoolProperty', 'name':'"Scene Unit"', 'default':False},
-                                        "use_facet_normal": {'type':'bpy.props.BoolProperty', 'name':'"Facet Normals"', 'default':False},
-                                        "forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"Y"', 'enum_items':axis()},
-                                        "up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Z"', 'enum_items':axis()},
-                                        "use_mesh_validate": {'type':'bpy.props.BoolProperty', 'name':'"Validate Mesh"', 'default':False}}]]},
-                            'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl'}},
-            'ignore': ['files', 'directory'],
-            'generate_filter_glob':False}
+
     
     abc = {'name' : 'abc',
             'ext' : ['.abc'],
-            'operator' : {'default':{'command':'bpy.ops.wm.alembic_import', 'module':None, 'import_settings':
+            'operator' : {'default':{'command':'bpy.ops.wm.alembic_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':
                                 [['Manual Transform',
                                 {"scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0}}],
 
@@ -284,7 +305,7 @@ class FormatDefinition():
     
     dae = {'name' : 'dae',
             'ext' : ['.dae'],
-            'operator' : {'default':{'command':'bpy.ops.wm.collada_import', 'module':None, 'import_settings':
+            'operator' : {'default':{'command':'bpy.ops.wm.collada_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':
                                 [['Import Data Options',
                                 {"import_units": {'type':'bpy.props.BoolProperty', 'name':'"Relative Path"', 'default':False},
                                 "custom_normals": {'type':'bpy.props.BoolProperty', 'name':'"Custom Normals"', 'default':True}}],
@@ -303,14 +324,14 @@ class FormatDefinition():
 
     blend = {'name' : 'blend',
             'ext' : ['.blend'],
-            'operator' : {'default':{'command':'bpy.ops.import_scene.tila_import_blend', 'module':'IMPORT_SCENE_OT_tila_import_blend'}},
+            'operator' : {'default':{'command':'bpy.ops.import_scene.tila_import_blend', 'module':'IMPORT_SCENE_OT_tila_import_blend', 'addon_name' : None, 'pkg_id' : None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False		
             }
     
     bvh = {'name' : 'bvh',
             'ext' : ['.bvh'],
-            'operator' : {'default':{'command':'bpy.ops.import_anim.bvh', 'module':'IMPORT_ANIM_OT_bvh'}},
+            'operator' : {'default':{'command':'bpy.ops.import_anim.bvh', 'module':'IMPORT_ANIM_OT_bvh', 'addon_name' : 'io_anim_bvh', 'pkg_id' : None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':True		
             }
