@@ -35,8 +35,6 @@ class CompatibleFormats():
         all_valid_addons = []
         for f in self.all_formats.values():
             for module in f['operator'].values():
-                # if module['addon_name'] is None:
-                #     continue
                 all_valid_addons.append(module['addon_name'])
 
         return all_valid_addons

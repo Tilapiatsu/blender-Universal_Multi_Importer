@@ -55,7 +55,7 @@ class FormatDefinition():
                                             "forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"Y"', 'enum_items':axis()},
                                             "up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Z"', 'enum_items':axis()},
                                             "use_mesh_validate": {'type':'bpy.props.BoolProperty', 'name':'"Validate Mesh"', 'default':False}}]]},
-                                'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl'}},
+                                'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl', 'addon_name' : None, 'pkg_id' : None}},
                 'ignore': ['files', 'directory'],
                 'generate_filter_glob':False}
         
@@ -64,28 +64,28 @@ class FormatDefinition():
             'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                         '.hdr', '.exr',
                          '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-            'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane', 'addon_name' : None, 'pkg_id' : None},
-                            'data':{'command':'bpy.ops.image.open', 'module':None, 
+            'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane', 'addon_name' : 'is_import_image_as_planes', 'pkg_id' : None},
+                            'data':{'command':'bpy.ops.image.open', 'module':None, 'addon_name' : None, 'pkg_id' : None ,
                                                                 'import_settings':[['options',
                                                                 {	"relative_path": {'type':'bpy.props.BoolProperty', 'name':'"Relative Path"', 'default':True},
                                                                     "use_sequence_detection": {'type':'bpy.props.BoolProperty', 'name':'"Detect Sequences"', 'default':True},
                                                                     "use_udim_detecting": {'type':'bpy.props.BoolProperty', 'name':'"Detect UDIMs"', 'default':True} }] ]},
-                            'ref':{'command':'bpy.ops.object.load_reference_image', 'module':'OBJECT_OT_load_reference_image'},
-                            'background':{'command':'bpy.ops.object.load_background_image', 'module':'OBJECT_OT_load_background_image'}},
+                            'ref':{'command':'bpy.ops.object.load_reference_image', 'module':'OBJECT_OT_load_reference_image', 'addon_name' : None, 'pkg_id' : None },
+                            'background':{'command':'bpy.ops.object.load_background_image', 'module':'OBJECT_OT_load_background_image', 'addon_name' : None, 'pkg_id' : None }},
             'ignore': ['files', 'directory', 'filepath'],
             'generate_filter_glob':False
             }
         
         x3d = {'name' : 'x3d',
             'ext' : ['.x3d', '.wrl'],
-            'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : 'IMPORT_SCENE_OT_x3d', 'addon_name' : 'web3d_x3d_vrml2_format', 'pkg_id' : None}},
+            'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : 'IMPORT_SCENE_OT_x3d', 'addon_name' : 'io_scene_x3d', 'pkg_id' : None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':True}
         
             
         stl = {'name' : 'stl',
                 'ext' : ['.stl'],
-                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':
+                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : 'io_mesh_stl', 'pkg_id' : None, 'import_settings':
                                             [['Options', 
                                             {"global_scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0},
                                             "use_scene_unit": {'type':'bpy.props.BoolProperty', 'name':'"Scene Unit"', 'default':False},
@@ -93,7 +93,7 @@ class FormatDefinition():
                                             "forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"Y"', 'enum_items':axis()},
                                             "up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Z"', 'enum_items':axis()},
                                             "use_mesh_validate": {'type':'bpy.props.BoolProperty', 'name':'"Validate Mesh"', 'default':False}}]]},
-                                'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl'}},
+                                'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl', 'addon_name' : None, 'pkg_id' : None}},
                 'ignore': ['files', 'directory'],
                 'generate_filter_glob':False}
         
