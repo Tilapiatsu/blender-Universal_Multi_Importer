@@ -80,6 +80,17 @@ class CompatibleFormats():
         return valid
 
     @property
+    def need_reboot(self):
+        try:
+            for f in self.all_formats:
+                exec(f"from . import UMI_{f}_module")
+        except ImportError as e:
+            return True
+        
+        return False
+
+
+    @property
     def extensions(self):
         if self._extensions is None:
             extensions = []
@@ -111,7 +122,10 @@ class CompatibleFormats():
             module = []
             for f in self.formats:
                 if isinstance(f[1], dict):
-                    module.append(f[1]['module'])
+                    for m in f[1]['operator'].values():
+                        if m['module'] is None:
+                            continue
+                        module.append(m['module'])
             self._module = module
         return self._module
     

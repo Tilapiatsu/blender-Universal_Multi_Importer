@@ -14,6 +14,10 @@ PREFERENCE_TABS = [ ("FORMATS", "Formats", ""),
 def update_log_drawing(self, context):
     LOG.show_log = self.umi_settings.umi_global_import_settings.show_log_on_3d_view
 
+def update_addon_dependency(self, context):
+    if self.tabs == 'FORMATS':
+        bpy.ops.preferences.umi_check_addon_dependency()
+
 class Preferences(bpy.types.AddonPreferences):
     bl_idname = ADDON_PACKAGE
 
@@ -21,7 +25,7 @@ class Preferences(bpy.types.AddonPreferences):
 
     umi_colors 	 : bpy.props.PointerProperty(type= PG_UMIColors)
 
-    tabs: bpy.props.EnumProperty(name="Tabs", items=PREFERENCE_TABS, default="FORMATS")
+    tabs: bpy.props.EnumProperty(name="Tabs", items=PREFERENCE_TABS, default="FORMATS", update=update_addon_dependency)
     
     
     def draw(self, context):
@@ -29,17 +33,27 @@ class Preferences(bpy.types.AddonPreferences):
         column = layout.column(align=True)
         row = column.row()
         row.prop(self, "tabs", expand=True)
-        
 
+        addon_dependencies = self.umi_settings.umi_addon_dependencies
+        
         box = column.box()
         box.use_property_split = True
         box.use_property_decorate = False
         if self.tabs == 'FORMATS':
             col = box.row(align=True)
             col.label(text='Installed Formats', icon='DOCUMENTS')
-            if COMPATIBLE_FORMATS.is_all_formats_installed and COMPATIBLE_FORMATS.is_all_formats_enabled:
+            col.operator('preferences.umi_check_addon_dependency', icon='FILE_REFRESH')
+            
+            if self.umi_settings.umi_all_addon_dependencies_installed and self.umi_settings.umi_all_addon_dependencies_enabled and not self.umi_settings.umi_addon_dependency_need_reboot:
                 bbox = box.box()
                 bbox.label(text=f'All formats are installed/enabled properly', icon='CHECKMARK')
+            elif self.umi_settings.umi_all_addon_dependencies_installed and self.umi_settings.umi_all_addon_dependencies_enabled and self.umi_settings.umi_addon_dependency_need_reboot:
+                bbox = box.box()
+                bbox.label(text=f'All formats are installed/enabled properly, but before it fully works, you will have to :', icon='ERROR')
+                col = bbox.column(align=True)
+                col.label(text=f'Disable Universal Multi Importer Addon', icon='RADIOBUT_ON')
+                col.label(text=f'Restart Blender', icon='RADIOBUT_ON')
+                col.label(text=f'Enable Universal Multi Importer Addon again', icon='RADIOBUT_ON')
             else:
                 bbox = box.box()
                 bbox.label(text=f'Some formats are currently not installed/enabled. If you want to use them with this addon, you will have to :', icon='ERROR')
@@ -49,37 +63,37 @@ class Preferences(bpy.types.AddonPreferences):
                 col.label(text=f'Restart Blender', icon='RADIOBUT_ON')
                 col.label(text=f'Enable Universal Multi Importer Addon again', icon='RADIOBUT_ON')
 
-            for name in COMPATIBLE_FORMATS.all_formats.keys():
-                for module_name, module  in COMPATIBLE_FORMATS.all_formats[name]['operator'].items():
-                    addon_name = module['addon_name'] if module['addon_name'] is not None else module_name
+            for ad in addon_dependencies.values():
+                name = ad.format_name
+                addon_name = ad.addon_name if len(ad.module_name) else f'Builtin {ad.module_name}'
 
-                    if module['addon_name'] is None:
-                        box.label(text=f'{name} : {addon_name} addon installed/enabled properly', icon='CHECKMARK')
+                if not len(addon_name):
+                    box.label(text=f'{name} : {addon_name} addon installed/enabled properly', icon='CHECKMARK')
 
-                    elif COMPATIBLE_FORMATS.is_format_enabled(addon_name):
-                        box.label(text=f'{name} : {addon_name} addon installed/enabled properly', icon='CHECKMARK')
+                elif ad.is_enabled:
+                    box.label(text=f'{name} : {addon_name} addon installed/enabled properly', icon='CHECKMARK')
 
-                    elif COMPATIBLE_FORMATS.is_format_installed(addon_name) and not COMPATIBLE_FORMATS.is_format_enabled(addon_name):
-                        bbox = box.box()
-                        row = bbox.row(align=True)
-                        row.label(text=f'{name} : {addon_name} addon is NOT enabled', icon='X')
-                        op = row.operator('preferences.addon_enable', text=f'Enable {addon_name} addon')
-                        op.module = addon_name
+                elif ad.is_installed and not ad.is_enabled:
+                    bbox = box.box()
+                    row = bbox.row(align=True)
+                    row.label(text=f'{name} : {addon_name} addon is NOT enabled', icon='X')
+                    op = row.operator('preferences.umi_addon_enable', text=f'Enable {addon_name} addon')
+                    op.module = addon_name
 
-                    else:
-                        bbox = box.box()
-                        row = bbox.row(align=True)
-                        row.label(text=f'{name} : {addon_name} addon is NOT Installed', icon='X')
-                        if BVERSION < 4.2:
-                            continue
+                else:
+                    bbox = box.box()
+                    row = bbox.row(align=True)
+                    row.label(text=f'{name} : {addon_name} addon is NOT Installed', icon='X')
+                    if BVERSION < 4.2:
+                        continue
 
-                        if not context.preferences.system.use_online_access:
-                            row.operator('extensions.userpref_allow_online')
-                        
-                        if COMPATIBLE_FORMATS.is_format_extension(name, module_name):
-                            op = row.operator('extensions.package_install', text=f'Install {name} Extension')
-                            op.pkg_id = module['pkg_id']
-                            op.repo_index = 0
+                    if not context.preferences.system.use_online_access:
+                        row.operator('extensions.userpref_allow_online', text='Allow Online Access')
+                    
+                    elif ad.is_extension:
+                        op = row.operator('extensions.umi_install_extension', text=f'Install {name} Extension')
+                        op.pkg_id = ad.pkg_id
+                        op.repo_index = 0
 
 
         elif self.tabs == "COLORS":
