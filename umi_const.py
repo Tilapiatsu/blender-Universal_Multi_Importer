@@ -7,7 +7,7 @@ AUTOSAVE_PATH = os.path.join(pathlib.Path(bpy.utils.script_paths()[1]).parent.ab
 
 if not os.path.exists(AUTOSAVE_PATH):
     print(f'UMI : Creating Preset Folder : {AUTOSAVE_PATH}')
-    os.mkdir(AUTOSAVE_PATH)
+    os.makedirs(AUTOSAVE_PATH, exist_ok=True)
 
 def get_prefs():
     return bpy.context.preferences.addons[ADDON_PACKAGE].preferences

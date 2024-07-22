@@ -1,5 +1,10 @@
 # Universal Multi Importer
 [![Teaser](https://img.youtube.com/vi/pFKmG-QfxGg/0.jpg)](https://youtu.be/pFKmG-QfxGg)
+
+
+<span style="font-size:3em;">[Download on Extention Platform](https://extensions.blender.org/add-ons/universal-multi-importer/)</span>
+
+
 ## Key Features
 
 - With this addon, you can import multiple files of different formats from the same import dialog.
@@ -14,6 +19,7 @@
 ![Theme Settings](https://i.postimg.cc/Y9mdfBgG/blender-7qd3o6bgs-W.png)
 ### v2.1.0 : Bug Fixes
 ----
+### v2.0 : Overview
 [![Teaser](https://img.youtube.com/vi/Ciz48xzeO-0/0.jpg)](https://youtu.be/Ciz48xzeO-0)
 [![Feature Breackdown](https://img.youtube.com/vi/gn0fUx0Idjc/0.jpg)](https://youtu.be/gn0fUx0Idjc)
 
@@ -81,7 +87,7 @@ You can batch process imported files right after each import combining the capab
 | **Import Folder** ||
 | Recursion Depth | ( Folder mode only ) Determine how many subfolders will be scaned for compatible files to import. `0` will grab all files in current folder, `1` will grab everything in current folder and all dirrect subfolders, `2` will grab all files in the current folder, the dirrect subfolders and the subfolders of each direct subfolders etc ... |
 | **File Count** ||
-| Max Simultaneously | Determine the max number of file to import simultaneously. Each group of files to be imported simultaneously is called a "Batch". Importing multiple file at the same time allow to reduce the import time for small file, but can cause screen freezing or memory issue for biger file. To smartly ballance this, you can check `Max batch size` and `inimize batch number`|
+| Max Simultaneously | Determine the max number of file to import simultaneously. Each group of files to be imported simultaneously is called a "Batch". Importing multiple file at the same time allow to reduce the import time for small file, but can cause screen freezing or memory issue for biger file. To smartly ballance this, you can check `Max batch size` and `Minimize batch number`|
 | Max batch size | Determine the max batch file size to Import. If a file is a candidate to be include in the current batch, but his filesize would make the batch bigger than `Max batch size`, then the file will be included in the next batch |
 | Minimize batch number | The importer will smartly group files in batches in order to be as close as possible to `Max batch size` for each batch without exceeding it and without exceeding `Max Import Simultaneously`|
 |||
