@@ -63,38 +63,51 @@ class Preferences(bpy.types.AddonPreferences):
                 col.label(text=f'Restart Blender', icon='RADIOBUT_ON')
                 col.label(text=f'Enable Universal Multi Importer Addon again', icon='RADIOBUT_ON')
 
+            main_box = box.box()
+            main_box.alignment = 'CENTER'
+            grid = main_box.grid_flow(row_major= True, columns = 4, align=True, even_columns=True)
+            grid.label(text='File Format')
+            grid.label(text='Addon')
+            grid.label(text='Installed')
+            grid.label(text='Enable')
+
+            for x in range(4):
+                grid.label(text='_____')
+
             for ad in addon_dependencies.values():
                 name = ad.format_name
                 addon_name = ad.addon_name if len(ad.addon_name) else f'Builtin {ad.module_name}'
 
+                grid.label(text=f'{name}')
+                grid.label(text=f'{addon_name}')
+                
+                # installed
                 if not len(ad.addon_name):
-                    box.label(text=f'{name} : {addon_name} addon installed/enabled properly', icon='CHECKMARK')
+                    grid.label(text='', icon='CHECKMARK')
 
-                elif ad.is_enabled:
-                    box.label(text=f'{name} : {addon_name} addon installed/enabled properly', icon='CHECKMARK')
-
-                elif ad.is_installed and not ad.is_enabled:
-                    bbox = box.box()
-                    row = bbox.row(align=True)
-                    row.label(text=f'{name} : {addon_name} addon is NOT enabled', icon='X')
-                    op = row.operator('preferences.umi_addon_enable', text=f'Enable {addon_name} addon')
-                    op.module = addon_name
-
+                elif ad.is_installed:
+                    grid.label(text='', icon='CHECKMARK')
                 else:
-                    bbox = box.box()
-                    row = bbox.row(align=True)
-                    row.label(text=f'{name} : {addon_name} addon is NOT Installed', icon='X')
                     if BVERSION < 4.2:
                         continue
 
                     if not context.preferences.system.use_online_access:
-                        row.operator('extensions.userpref_allow_online', text='Allow Online Access')
+                        grid.operator('extensions.userpref_allow_online', text='Allow Online Access')
                     
                     elif ad.is_extension:
-                        op = row.operator('extensions.umi_install_extension', text=f'Install {name} Extension')
+                        op = grid.operator('extensions.umi_install_extension', text=f'Install {name} Extension')
                         op.pkg_id = ad.pkg_id
                         op.repo_index = 0
+                    
+                    grid.label(text='', icon='X')
 
+                # Enabled
+                if ad.is_installed and ad.is_enabled or not len(ad.addon_name):
+                    grid.label(text='', icon='CHECKMARK')
+                elif ad.is_installed and not ad.is_enabled:
+                    op = grid.operator('preferences.umi_addon_enable', text=f'Enable {addon_name} addon')
+                    op.module = addon_name
+  
 
         elif self.tabs == "COLORS":
             col = box.row(align=True)
