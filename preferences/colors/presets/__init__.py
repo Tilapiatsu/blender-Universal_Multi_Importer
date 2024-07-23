@@ -1,7 +1,11 @@
 from . import color_preset
 
+modules = (color_preset,)
+
 def register():
-    color_preset.register()
+    for m in modules:
+        m.register()
 
 def unregister():
-    color_preset.unregister()
+    for m in reversed(modules):
+        m.unregister()

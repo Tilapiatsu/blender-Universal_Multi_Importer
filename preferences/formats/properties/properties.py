@@ -60,6 +60,16 @@ def update_log_drawing(self, context):
     umi_settings = get_umi_settings()
     LOG.show_log = umi_settings.umi_global_import_settings.show_log_on_3d_view
 
+class PG_AddonDependency(bpy.types.PropertyGroup):
+    name            : bpy.props.StringProperty(name='Name', default='')
+    format_name     : bpy.props.StringProperty(name='Format Name', default='')
+    module_name     : bpy.props.StringProperty(name='Format Name', default='')
+    addon_name      : bpy.props.StringProperty(name='Addon Name', default='')
+    pkg_id          : bpy.props.StringProperty(name='Package Index', default='')
+    is_extension    : bpy.props.BoolProperty(name='Is Extension', default=False)
+    is_installed    : bpy.props.BoolProperty(name='Is Installed', default=False)
+    is_enabled      : bpy.props.BoolProperty(name='Is Enabled', default=False)
+
 class PG_ImportSettings(bpy.types.PropertyGroup):
     umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)
     umi_import_cancelled : bpy.props.BoolProperty(name='Import settings registered', default=False)
@@ -127,6 +137,10 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_file_stat_selected_count : bpy.props.IntProperty(name='file(s)', default=0)
     umi_file_stat_selected_size : bpy.props.FloatProperty(name='Mb', default=0)
     umi_file_stat_selected_formats : bpy.props.StringProperty(name='format(s)', default='')
+    umi_addon_dependencies : bpy.props.CollectionProperty(type = PG_AddonDependency)
+    umi_all_addon_dependencies_installed : bpy.props.BoolProperty(name='All Addon Dependencies Installed', default=False)
+    umi_all_addon_dependencies_enabled : bpy.props.BoolProperty(name='All Addon Dependencies Installed', default=False)
+    umi_addon_dependency_need_reboot : bpy.props.BoolProperty(name='Need Reboot', default=False)
 
 class UMI_UL_OperatorList(bpy.types.UIList):
     bl_idname = "UMI_UL_operator_list"
@@ -191,6 +205,7 @@ classes = ( PG_ImportSettings,
             PG_Preset,
             PG_FilePathSelection,
             PG_GlobalSettings,
+            PG_AddonDependency,
             PG_UMISettings,
             UMI_UL_OperatorList, 
             UMI_UL_PresetList,

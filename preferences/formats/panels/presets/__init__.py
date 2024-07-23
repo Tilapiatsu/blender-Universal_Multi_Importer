@@ -1,9 +1,11 @@
 from . import format_preset, import_preset
 
+modules = (format_preset, import_preset)
+
 def register():
-    format_preset.register()
-    import_preset.register()
+    for m in modules:
+        m.register()
 
 def unregister():
-    import_preset.unregister()
-    format_preset.unregister()
+    for m in reversed(modules):
+        m.unregister()

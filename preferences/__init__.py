@@ -7,15 +7,12 @@ from . import preferences
 from . import colors
 from . import operators
 
-def register():
-    formats.register()
-    colors.register()
-    preferences.register()
-    operators.register()
+modules = (formats, colors, preferences, operators)
 
+def register():
+    for m in modules:
+        m.register()
 
 def unregister():
-    operators.unregister()
-    preferences.unregister()
-    colors.unregister()
-    formats.unregister()
+    for m in reversed(modules):
+        m.unregister()

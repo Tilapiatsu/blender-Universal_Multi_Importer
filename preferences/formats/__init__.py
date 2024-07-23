@@ -39,9 +39,20 @@ def unregister():
     panels.unregister()
     class_parser = FormatClassCreator()
     class_parser.unregister_compatible_formats()
-    
-for f in COMPATIBLE_FORMATS.formats:
-    module_items = [(m.upper(), m.title().replace('_', ' '), '') for m in f[1]['operator'].keys()]
-    exec(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import Module")')
-    for name in f[1]['operator'].keys():
-        exec(f'class UMI_{f[0]}_{name}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[0]}_{name}")')
+
+def get_import_modules():
+    modules = []
+    for f in COMPATIBLE_FORMATS.formats:
+        module_items = [(m.upper(), m.title().replace('_', ' '), '') for m in f[1]['operator'].keys()]
+        modules.append(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import Module")')
+        # exec(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import Module")')
+        for name in f[1]['operator'].keys():
+            modules.append(f'class UMI_{f[0]}_{name}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[0]}_{name}")')
+            # exec(f'class UMI_{f[0]}_{name}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[0]}_{name}")')
+
+    return modules
+
+modules = get_import_modules()
+
+for m in modules:
+    exec(m)

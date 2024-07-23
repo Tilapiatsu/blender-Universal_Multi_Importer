@@ -3,10 +3,10 @@ import bpy
 
 ADDON_FOLDER_PATH = os.path.dirname(__file__)
 ADDON_PACKAGE = __package__
-AUTOSAVE_PATH = os.path.join(pathlib.Path(bpy.utils.script_paths()[1]).parent.absolute(), 'autosave')
+AUTOSAVE_PATH = os.path.join(pathlib.Path(bpy.utils.script_path_user()).parent.absolute(), 'autosave')
 
 if not os.path.exists(AUTOSAVE_PATH):
-    print(f'UMI : Creating Preset Folder : {AUTOSAVE_PATH}')
+    print(f'UMI : Creating Autosave Folder : {AUTOSAVE_PATH}')
     os.makedirs(AUTOSAVE_PATH, exist_ok=True)
 
 def get_prefs():

@@ -30,7 +30,10 @@ class FormatClassCreator():
         if self._classes is None:
             self._classes = {'classes':[], 'modules':[]}
             for f in COMPATIBLE_FORMATS.formats:
-                exec(f'from . import UMI_{f[0]}_module')
+                try:
+                    exec(f'from . import UMI_{f[0]}_module')
+                except ImportError as e:
+                    continue
                 import_module = eval(f'UMI_{f[0]}_module')
                 self._classes['modules'].append(import_module)
                 for name, operator in f[1]['operator'].items():

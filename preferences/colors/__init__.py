@@ -1,11 +1,12 @@
 from . import presets
 from . import colors
 
-def register():
-    presets.register()
-    colors.register()
+modules = (presets, colors)
 
+def register():
+    for m in modules:
+        m.register()
 
 def unregister():
-    colors.unregister()
-    presets.unregister()
+    for m in reversed(modules):
+        m.unregister()
