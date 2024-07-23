@@ -54,8 +54,7 @@ class FormatDefinition():
                                             "use_facet_normal": {'type':'bpy.props.BoolProperty', 'name':'"Facet Normals"', 'default':False},
                                             "forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"Y"', 'enum_items':axis()},
                                             "up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Z"', 'enum_items':axis()},
-                                            "use_mesh_validate": {'type':'bpy.props.BoolProperty', 'name':'"Validate Mesh"', 'default':False}}]]},
-                                'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl', 'addon_name' : None, 'pkg_id' : None}},
+                                            "use_mesh_validate": {'type':'bpy.props.BoolProperty', 'name':'"Validate Mesh"', 'default':False}}]]}},
                 'ignore': ['files', 'directory'],
                 'generate_filter_glob':False}
         
