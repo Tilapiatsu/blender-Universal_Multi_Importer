@@ -27,7 +27,12 @@ class Preferences(bpy.types.AddonPreferences):
 
     tabs: bpy.props.EnumProperty(name="Tabs", items=PREFERENCE_TABS, default="FORMATS", update=update_addon_dependency)
     
-    
+    def grid_layout(self, layout, alignment, size):
+        row = layout.row()
+        row.alignment = alignment
+        row.ui_units_x = size
+        return row
+        
     def draw(self, context):
         layout = self.layout
         column = layout.column(align=True)
@@ -42,20 +47,21 @@ class Preferences(bpy.types.AddonPreferences):
         if self.tabs == 'FORMATS':
             col = box.row(align=True)
             col.label(text='Installed Formats', icon='DOCUMENTS')
-            col.operator('preferences.umi_check_addon_dependency', icon='FILE_REFRESH')
+            col.ui_units_x = 4
             
-            if self.umi_settings.umi_all_addon_dependencies_installed and self.umi_settings.umi_all_addon_dependencies_enabled and not self.umi_settings.umi_addon_dependency_need_reboot:
-                bbox = box.box()
+            bbox = box.box()
+            bbox.operator('preferences.umi_check_addon_dependency', icon='FILE_REFRESH')
+            if not len(addon_dependencies):
+                bbox.label(text=f'Addon dependency status have to be refreshed', icon='FILE_REFRESH')
+            elif self.umi_settings.umi_all_addon_dependencies_installed and self.umi_settings.umi_all_addon_dependencies_enabled and not self.umi_settings.umi_addon_dependency_need_reboot:
                 bbox.label(text=f'All formats are installed/enabled properly', icon='CHECKMARK')
             elif self.umi_settings.umi_all_addon_dependencies_installed and self.umi_settings.umi_all_addon_dependencies_enabled and self.umi_settings.umi_addon_dependency_need_reboot:
-                bbox = box.box()
                 bbox.label(text=f'All formats are installed/enabled properly, but before it fully works, you will have to :', icon='ERROR')
                 col = bbox.column(align=True)
                 col.label(text=f'Disable Universal Multi Importer Addon', icon='RADIOBUT_ON')
                 col.label(text=f'Restart Blender', icon='RADIOBUT_ON')
                 col.label(text=f'Enable Universal Multi Importer Addon again', icon='RADIOBUT_ON')
             else:
-                bbox = box.box()
                 bbox.label(text=f'Some formats are currently not installed/enabled. If you want to use them with this addon, you will have to :', icon='ERROR')
                 col = bbox.column(align=True)
                 col.label(text=f'Install/Enable the missing formats by clicking on the install/enable button bellow', icon='RADIOBUT_ON')
@@ -63,49 +69,68 @@ class Preferences(bpy.types.AddonPreferences):
                 col.label(text=f'Restart Blender', icon='RADIOBUT_ON')
                 col.label(text=f'Enable Universal Multi Importer Addon again', icon='RADIOBUT_ON')
 
+            
             main_box = box.box()
-            main_box.alignment = 'CENTER'
-            grid = main_box.grid_flow(row_major= True, columns = 4, align=True, even_columns=True)
-            grid.label(text='File Format')
-            grid.label(text='Addon')
-            grid.label(text='Installed')
-            grid.label(text='Enable')
+            
+            col1 = main_box.column(align=True)
+            col2 = main_box.column(align=True)
+            col3 = main_box.column(align=True)
+            col4 = main_box.column(align=True)
 
-            for x in range(4):
-                grid.label(text='_____')
+            
+            row1 = col1.row()
+            row2 = col2.row()
 
+            self.grid_layout(row1, alignment='CENTER', size=4).label(text='File Format')
+
+            self.grid_layout(row1, alignment='CENTER', size=6).label(text='Addon')
+
+            self.grid_layout(row1, alignment='CENTER', size=4).label(text='Installed')
+
+            self.grid_layout(row1, alignment='CENTER', size=4).label(text='Enable')
+
+            self.grid_layout(row2, alignment='CENTER', size=4).label(text='_____')
+            self.grid_layout(row2, alignment='CENTER', size=6).label(text='_____')
+            self.grid_layout(row2, alignment='CENTER', size=4).label(text='_____')
+            self.grid_layout(row2, alignment='CENTER', size=4).label(text='_____')
+
+            
             for ad in addon_dependencies.values():
                 name = ad.format_name
-                addon_name = ad.addon_name if len(ad.addon_name) else f'Builtin {ad.module_name}'
+                addon_name = ad.addon_name if len(ad.addon_name) else f'Built-in {ad.module_name}'
+                
+                addon_diplay_name = addon_name.split('.')[2] if ad.is_extension else addon_name
+                row = col3.row()
 
-                grid.label(text=f'{name}')
-                grid.label(text=f'{addon_name}')
+
+                self.grid_layout(row, alignment='CENTER', size=4).label(text=f'{name}')
+                self.grid_layout(row, alignment='CENTER', size=6).label(text=f'{addon_diplay_name}')
                 
                 # installed
                 if not len(ad.addon_name):
-                    grid.label(text='', icon='CHECKMARK')
+                    self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='CHECKMARK')
 
                 elif ad.is_installed:
-                    grid.label(text='', icon='CHECKMARK')
+                    self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='CHECKMARK')
                 else:
                     if BVERSION < 4.2:
                         continue
 
                     if not context.preferences.system.use_online_access:
-                        grid.operator('extensions.userpref_allow_online', text='Allow Online Access')
+                        self.grid_layout(row, alignment='CENTER', size=4).operator('extensions.userpref_allow_online', text='Allow Online Access')
                     
                     elif ad.is_extension:
-                        op = grid.operator('extensions.umi_install_extension', text=f'Install {name} Extension')
+                        op = self.grid_layout(row, alignment='CENTER', size=4).operator('extensions.umi_install_extension', text=f'Install {name} Extension')
                         op.pkg_id = ad.pkg_id
                         op.repo_index = 0
                     
-                    grid.label(text='', icon='X')
+                    self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='X')
 
                 # Enabled
                 if ad.is_installed and ad.is_enabled or not len(ad.addon_name):
-                    grid.label(text='', icon='CHECKMARK')
+                    self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='CHECKMARK')
                 elif ad.is_installed and not ad.is_enabled:
-                    op = grid.operator('preferences.umi_addon_enable', text=f'Enable {addon_name} addon')
+                    op = self.grid_layout(row, alignment='CENTER', size=4).operator('preferences.umi_addon_enable', text=f'Enable {addon_name} addon')
                     op.module = addon_name
   
 
