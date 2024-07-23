@@ -82,8 +82,10 @@ class CompatibleFormats():
     @property
     def need_reboot(self):
         try:
-            for f in self.all_formats:
-                exec(f"from . import UMI_{f}_module")
+            
+            for f in self.all_formats.values():
+                for name in f['operator'].keys():
+                    exec(f'from . import UMI_{f["name"]}_{name}_settings')
         except ImportError as e:
             return True
         
@@ -159,6 +161,14 @@ class CompatibleFormats():
     @property
     def all_formats(self):
         attributes = inspect.getmembers(FormatDefinition, lambda a:not(inspect.isroutine(a)))
+        formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
+
+        all_formats = {a[0]:a[1] for a in formats}
+        return all_formats
+    
+    @property
+    def all_registered_formats(self):
+        attributes = inspect.getmembers(CompatibleFormats, lambda a:not(inspect.isroutine(a)))
         formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
 
         all_formats = {a[0]:a[1] for a in formats}
