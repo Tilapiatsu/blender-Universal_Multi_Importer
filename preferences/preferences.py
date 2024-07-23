@@ -114,13 +114,15 @@ class Preferences(bpy.types.AddonPreferences):
                     self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='CHECKMARK')
                 else:
                     if BVERSION < 4.2:
+                        self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='X')
+                        self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='X')
                         continue
 
                     if not context.preferences.system.use_online_access:
                         self.grid_layout(row, alignment='CENTER', size=4).operator('extensions.userpref_allow_online', text='Allow Online Access')
                     
                     elif ad.is_extension:
-                        op = self.grid_layout(row, alignment='CENTER', size=4).operator('extensions.umi_install_extension', text=f'Install {name} Extension')
+                        op = self.grid_layout(row, alignment='CENTER', size=4).operator('extensions.umi_install_extension', text=f'Install {name}')
                         op.pkg_id = ad.pkg_id
                         op.repo_index = 0
                     
@@ -130,7 +132,7 @@ class Preferences(bpy.types.AddonPreferences):
                 if ad.is_installed and ad.is_enabled or not len(ad.addon_name):
                     self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='CHECKMARK')
                 elif ad.is_installed and not ad.is_enabled:
-                    op = self.grid_layout(row, alignment='CENTER', size=4).operator('preferences.umi_addon_enable', text=f'Enable {addon_name} addon')
+                    op = self.grid_layout(row, alignment='CENTER', size=4).operator('preferences.umi_addon_enable', text=f'Enable {addon_name}')
                     op.module = addon_name
   
 

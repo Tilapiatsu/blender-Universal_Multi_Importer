@@ -64,7 +64,7 @@ class FormatDefinition():
             'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                         '.hdr', '.exr',
                          '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-            'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane', 'addon_name' : 'is_import_image_as_planes', 'pkg_id' : None},
+            'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane', 'addon_name' : 'io_import_images_as_planes', 'pkg_id' : None},
                             'data':{'command':'bpy.ops.image.open', 'module':None, 'addon_name' : None, 'pkg_id' : None ,
                                                                 'import_settings':[['options',
                                                                 {	"relative_path": {'type':'bpy.props.BoolProperty', 'name':'"Relative Path"', 'default':True},
