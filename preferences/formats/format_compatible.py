@@ -158,7 +158,7 @@ class CompatibleFormats():
 
     @property
     def all_formats(self):
-        attributes = inspect.getmembers(CompatibleFormats, lambda a:not(inspect.isroutine(a)))
+        attributes = inspect.getmembers(FormatDefinition, lambda a:not(inspect.isroutine(a)))
         formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], dict))]
 
         all_formats = {a[0]:a[1] for a in formats}
