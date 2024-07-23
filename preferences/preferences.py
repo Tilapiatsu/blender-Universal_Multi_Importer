@@ -65,9 +65,9 @@ class Preferences(bpy.types.AddonPreferences):
 
             for ad in addon_dependencies.values():
                 name = ad.format_name
-                addon_name = ad.addon_name if len(ad.module_name) else f'Builtin {ad.module_name}'
+                addon_name = ad.addon_name if len(ad.addon_name) else f'Builtin {ad.module_name}'
 
-                if not len(addon_name):
+                if not len(ad.addon_name):
                     box.label(text=f'{name} : {addon_name} addon installed/enabled properly', icon='CHECKMARK')
 
                 elif ad.is_enabled:
