@@ -14,6 +14,9 @@
 - You can process the imported files with python command durring import that opens a lot of possibilities
 
 ## Changelog
+### v2.1.5 : Add Addon Dependency Checker to easily fix any missing import formats
+[![Addon-Dependency-Checker-03.webp](https://i.postimg.cc/qMzp19SL/Addon-Dependency-Checker-03.webp)](https://postimg.cc/kBPr4hn6)
+
 ### v2.1.0 : Support for Blender 4.2 and the extension plateform
 ### v2.1.0 : Add Settings to choose text colors in the addon preferences
 ![Theme Settings](https://i.postimg.cc/Y9mdfBgG/blender-7qd3o6bgs-W.png)
