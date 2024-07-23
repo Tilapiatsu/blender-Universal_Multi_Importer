@@ -82,11 +82,8 @@ class Preferences(bpy.types.AddonPreferences):
             row2 = col2.row()
 
             self.grid_layout(row1, alignment='CENTER', size=4).label(text='File Format')
-
             self.grid_layout(row1, alignment='CENTER', size=6).label(text='Addon')
-
             self.grid_layout(row1, alignment='CENTER', size=4).label(text='Installed')
-
             self.grid_layout(row1, alignment='CENTER', size=4).label(text='Enable')
 
             self.grid_layout(row2, alignment='CENTER', size=4).label(text='_____')
@@ -101,7 +98,6 @@ class Preferences(bpy.types.AddonPreferences):
                 
                 addon_diplay_name = addon_name.split('.')[2] if ad.is_extension else addon_name
                 row = col3.row()
-
 
                 self.grid_layout(row, alignment='CENTER', size=4).label(text=f'{name}')
                 self.grid_layout(row, alignment='CENTER', size=6).label(text=f'{addon_diplay_name}')

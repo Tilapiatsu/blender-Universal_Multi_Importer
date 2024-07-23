@@ -24,11 +24,14 @@ class IMPORT_SCENE_IMAGESettings():
             material.label(text='Material Settings', icon='MATERIAL')
             row = material.row(align=True)
             row.prop(operator, 'shader', expand=True)
-            row = material.row(align=True)
-            row.prop(operator, 'blend_method', expand=True)
+            if BVERSION < 4.2:
+                row = material.row(align=True)
+                row.prop(operator, 'blend_method', expand=True)
             material.prop(operator, 'show_transparent_back')
-            row = material.row(align=True)
-            row.prop(operator, 'shadow_method', expand=True)
+
+            if BVERSION < 4.2:
+                row = material.row(align=True)
+                row.prop(operator, 'shadow_method', expand=True)
             material.prop(operator, 'use_backface_culling')
             material.prop(operator, 'overwrite_material')
 
