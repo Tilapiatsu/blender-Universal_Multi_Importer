@@ -228,7 +228,7 @@ class FormatDefinition():
                 'operator' : {'default':{'command':'bpy.ops.wm.obj_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':
                                     [['Transform',
                                     {"global_scale": {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0},
-                                    "clamp_size" : {'type':'bpy.props.FloatProperty', 'name':'"Clamp Bounding Box"', 'default':1.0},
+                                    "clamp_size" : {'type':'bpy.props.FloatProperty', 'name':'"Clamp Bounding Box"', 'default':0.0},
                                     "forward_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Forward Axis"', 'default':'"NEGATIVE_Z"', 'enum_items':axis()},
                                     "up_axis" : {'type':'bpy.props.EnumProperty', 'name':'"Up Axis"', 'default':'"Y"', 'enum_items':axis()}}],
 
@@ -236,7 +236,7 @@ class FormatDefinition():
                                     {"use_split_objects": {'type':'bpy.props.BoolProperty', 'name':'"Split By Object"', 'default':True},
                                     "use_split_groups": {'type':'bpy.props.BoolProperty', 'name':'"Split By Group"', 'default':False},
                                     "import_vertex_groups": {'type':'bpy.props.BoolProperty', 'name':'"Vertex Groups"', 'default':False},
-                                    "validate_meshes": {'type':'bpy.props.BoolProperty', 'name':'"Validate Meshes"', 'default':False}
+                                    "validate_meshes": {'type':'bpy.props.BoolProperty', 'name':'"Validate Meshes"', 'default':True}
                                     }]]}},
                 'ignore': ['files', 'directory'],
                 'generate_filter_glob':False
