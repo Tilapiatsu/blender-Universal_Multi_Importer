@@ -1,20 +1,23 @@
+from . import draw_panel
 
 class IMPORT_SCENE_DAESettings():
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        data = layout.box()
-        data.label(text='Import Data Options', icon='MESH_DATA')
-        data.prop(operator, 'import_units')
-        data.prop(operator, 'custom_normals')
+        op = [[operator, 'import_units'],
+              [operator, 'custom_normals']]
+        
+        draw_panel(layout, op, 'DAESettings_Options', 'Import Data Options', icon='MESH_DATA')
 
-        armature = layout.box()
-        armature.label(text='Armature', icon='ARMATURE_DATA')
-        armature.prop(operator, 'fix_orientation')
-        armature.prop(operator, 'find_chains')
-        armature.prop(operator, 'auto_connect')
-        armature.prop(operator, 'min_chain_length')
+        op = [[operator, 'fix_orientation'],
+              [operator, 'find_chains'],
+              [operator, 'auto_connect'],
+              [operator, 'min_chain_length']]
+        
+        draw_panel(layout, op, 'DAESettings_Armature', 'Armature', icon='ARMATURE_DATA')
 
-        misc = layout.box()
-        misc.prop(operator, 'keep_bind_info')
+        op = [[operator, 'keep_bind_info']]
+        
+        draw_panel(layout, op, 'DAESettings_Misc', 'Miscandelous', icon='PRESET')
+

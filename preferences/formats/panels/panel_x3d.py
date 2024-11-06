@@ -1,3 +1,4 @@
+from . import draw_panel
 
 class IMPORT_SCENE_X3DSettings():
     def draw(self, operator, module_name,  layout):

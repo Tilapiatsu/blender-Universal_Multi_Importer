@@ -1,49 +1,59 @@
+from . import draw_panel
 
 class IMPORT_SCENE_FBXSettings():
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        include = layout.box()
-        include.label(text='Include', icon='IMPORT')
-        include.prop(operator, "use_custom_normals")
-        include.prop(operator, "use_subsurf")
-        include.prop(operator, "use_custom_props")
-        sub = include.row()
-        sub.enabled = operator.use_custom_props
-        sub.prop(operator, "use_custom_props_enum_as_string")
-        include.prop(operator, "use_image_search")
-        include.prop(operator, "colors_type")
+        ##### Include
+        op = [[operator, 'use_custom_normals'],
+              [operator, 'use_subsurf'],
+              [operator, 'use_custom_props']]
+        
+        header, panel = draw_panel(layout, op, 'FBXSettings_Include', 'Include', icon='IMPORT')
+        
+        if panel:
+            sub = panel.row()
+            sub.enabled = operator.use_custom_props
+            sub.prop(operator, "use_custom_props_enum_as_string")
 
-        transform = layout.box()
-        transform.label(text='Transform', icon='OBJECT_DATA')
-        transform.prop(operator, "global_scale")
-        transform.prop(operator, "decal_offset")
-        row = transform.row()
-        row.prop(operator, "bake_space_transform")
-        row.label(text="", icon='ERROR')
-        transform.prop(operator, "use_prepost_rot")
+            op = [[operator, 'use_image_search'],
+                [operator, 'colors_type']]
+            
+            draw_panel(layout, op, 'FBXSettings_Include', 'Include', icon='IMPORT', panel=panel)
 
-        transform.prop(operator, "use_manual_orientation")
+        #### Transform
+        op = [[operator, 'global_scale'],
+              [operator, 'decal_offset']]
+        
+        header, panel = draw_panel(layout, op, 'FBXSettings_Transform', 'Transform', icon='OBJECT_DATA')
+        if panel:
+            row = panel.row()
+            row.prop(operator, "bake_space_transform")
+            row.label(text="", icon='ERROR')
+            panel.prop(operator, "use_prepost_rot")
 
-        manual_transform = transform.box()
-        manual_transform.enabled = operator.use_manual_orientation
-        manual_transform.prop(operator, "axis_forward")
-        manual_transform.prop(operator, "axis_up")
+        #### Manual Orientation
+        op = [[operator, 'axis_forward'],
+            [operator, 'axis_up']]
 
-        animation = layout.box()
-        animation.prop(operator, "use_anim")
-        col = animation.column()
-        col.enabled = operator.use_anim
-        col.prop(operator, "anim_offset")
+        draw_panel(layout, op, 'FBXSettings_Transform_Manual_Orientation', 'Manual Orientation', default_closed=True, set_header_boolean=True, header_bool=[operator, 'use_manual_orientation'])
 
-        armature = layout.box()
-        armature.label(text='Armature', icon='ARMATURE_DATA')
-        armature.prop(operator, "ignore_leaf_bones")
-        armature.prop(operator, "force_connect_children"),
-        armature.prop(operator, "automatic_bone_orientation")
+        #### Animation
+        op = [[operator, 'anim_offset'],
+              [operator, 'colors_type']]
+        
+        header, panel = draw_panel(layout, op, 'FBXSettings_Animation', 'Animation', icon='ANIM', default_closed=True, set_header_boolean=True, header_bool=[operator, 'use_anim'])
 
-        sub = armature.column()
-        sub.enabled = not operator.automatic_bone_orientation
-        sub.prop(operator, "primary_bone_axis")
-        sub.prop(operator, "secondary_bone_axis")
+        op = [[operator, 'ignore_leaf_bones'],
+              [operator, 'force_connect_children'],
+              [operator, 'automatic_bone_orientation']]
+        
+        #### Armature
+        header, panel = draw_panel(layout, op, 'FBXSettings_Armature', 'Armature', icon='ARMATURE_DATA', default_closed=True)
+
+        if panel:
+            sub = panel.column()
+            sub.enabled = not operator.automatic_bone_orientation
+            sub.prop(operator, "primary_bone_axis")
+            sub.prop(operator, "secondary_bone_axis")

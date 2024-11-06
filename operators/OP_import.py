@@ -191,6 +191,7 @@ class UMI_FileSelection(bpy.types.Operator):
     bl_label = "Universal Multi Importer"
     bl_options = {'REGISTER', 'INTERNAL'}
     bl_region_type = "UI"
+    bl_space_type = "TILA_SETTINGS"
 
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
