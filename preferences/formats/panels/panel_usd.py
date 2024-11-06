@@ -155,26 +155,25 @@ class IMPORT_SCENE_USDSettings():
         
             draw_panel(layout, op, 'USDSettings_General', 'General', icon='IMPORT')
 
-            header, object_type = layout.panel(idname='USDSettings_ObjectTypes')
+            object_type = layout.box()
+            header = object_type.row(align=True)
             header.label(text='Object Types', icon='IMPORT')
 
-            if object_type:
-                row = object_type.row(align=True)
-                col = row.column(align=True)
-                col.prop(operator, 'import_cameras')
-                col.prop(operator, 'import_curves')
-                col.prop(operator, 'import_lights')
-                col.prop(operator, 'import_materials')
-                col = row.column(align=True)
-                col.prop(operator, 'import_meshes')
-                col.prop(operator, 'import_volumes')
-                col.prop(operator, 'import_points')
-                col.prop(operator, 'import_shapes')
+            row = object_type.row(align=True)
+            col = row.column(align=True)
+            col.prop(operator, 'import_cameras')
+            col.prop(operator, 'import_curves')
+            col.prop(operator, 'import_lights')
+            col.prop(operator, 'import_materials')
+            col = row.column(align=True)
+            col.prop(operator, 'import_meshes')
+            col.prop(operator, 'import_volumes')
+            col.prop(operator, 'import_points')
+            col.prop(operator, 'import_shapes')
 
             op = [[operator,    'import_render'],
                 [operator,     'import_proxy'],
-                [operator,     'import_guide'],
-                [operator,     'mtl_purpose']]
+                [operator,     'import_guide']]
     
             draw_panel(layout, op, 'USDSettings_DisplayPurpose', 'Display Purpose', icon='RESTRICT_VIEW_OFF')
 
