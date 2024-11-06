@@ -5,7 +5,7 @@ class IMPORT_SCENE_X3DSettings():
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        transform = layout.box()
-        transform.label(text='Transform', icon='OBJECT_DATA')
-        transform.prop(operator, 'axis_forward')
-        transform.prop(operator, 'axis_up')
+        op = [  [operator, 'axis_forward'],
+                [operator, 'axis_up']]
+        
+        draw_panel(layout, op, 'X3DSettings_Transform', 'Transform', icon='OBJECT_DATA')

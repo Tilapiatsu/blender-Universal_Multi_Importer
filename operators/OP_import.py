@@ -11,6 +11,7 @@ from ..umi_const import get_umi_settings, AUTOSAVE_PATH
 from ..preferences.formats.panels.presets import import_preset
 from ..logger import LOG, LoggerColors, MessageType
 from ..blender_version import BVERSION
+from ..ui.panel import draw_panel
 
 if BVERSION >= 4.1:
     class IMPORT_SCENE_FH_UMI_3DVIEW(bpy.types.FileHandler):
@@ -336,44 +337,49 @@ class UMI_FileSelection(bpy.types.Operator):
         layout.use_property_split = True
         layout.use_property_decorate = False
         col = layout.column()
-        import_count = col.box()
-        import_count.label(text='File Count', icon='LONGDISPLAY')
-        import_count.prop(self.umi_settings.umi_global_import_settings, 'import_simultaneously_count')
-        import_count.prop(self.umi_settings.umi_global_import_settings, 'max_batch_size')
-        if self.umi_settings.umi_global_import_settings.max_batch_size:
-            import_count.prop(self.umi_settings.umi_global_import_settings, 'minimize_batch_number')
 
-        settings = col.box()
-        settings.label(text='Options', icon='OPTIONS')
-        settings.prop(self.umi_settings.umi_global_import_settings, 'create_collection_per_file')
-        
-        if self.umi_settings.umi_global_import_settings.create_collection_per_file:
-            row = settings.row()
-            split = row.split(factor=0.1, align=True)
-            split.label(text='')
-            split = split.split()
-            split.prop(self.umi_settings.umi_global_import_settings, 'skip_already_imported_files')
+        header, import_count = col.panel(idname='UMI_Filecount')
+        header.label(text='File Count', icon='LONGDISPLAY')
+        if import_count:
+            import_count.prop(self.umi_settings.umi_global_import_settings, 'import_simultaneously_count')
+            import_count.prop(self.umi_settings.umi_global_import_settings, 'max_batch_size')
+            if self.umi_settings.umi_global_import_settings.max_batch_size:
+                import_count.prop(self.umi_settings.umi_global_import_settings, 'minimize_batch_number')
 
-        log = col.box()
-        log.label(text='Log Display', icon='WORDWRAP_ON')
+        header, settings = col.panel(idname='UMI_Options')
+        header.label(text='Options', icon='OPTIONS')
+        if settings:
+            settings.prop(self.umi_settings.umi_global_import_settings, 'create_collection_per_file')
+            
+            if self.umi_settings.umi_global_import_settings.create_collection_per_file:
+                row = settings.row()
+                split = row.split(factor=0.1, align=True)
+                split.label(text='')
+                split = split.split()
+                split.prop(self.umi_settings.umi_global_import_settings, 'skip_already_imported_files')
 
-        column = log.column(align=True)
+        header, log = col.panel(idname='UMI_LogDisplay')
+        header.label(text='Log Display', icon='WORDWRAP_ON')
+        if log:
 
-        column.prop(self.umi_settings.umi_global_import_settings, 'show_log_on_3d_view')
-        if self.umi_settings.umi_global_import_settings.show_log_on_3d_view:
-            column.prop(self.umi_settings.umi_global_import_settings, 'auto_hide_text_when_finished')
-            if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
-                column.prop(self.umi_settings.umi_global_import_settings, 'wait_before_hiding')
-        column.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_each_import')
+            column = log.column(align=True)
 
-        backup = col.box()
-        col1 = backup.column()
-        col1.label(text='backup', icon='FILE_TICK')
-        col1.prop(self.umi_settings.umi_global_import_settings, 'save_file_after_import')
-        col1.prop(self.umi_settings.umi_global_import_settings, 'backup_file_after_import')
+            column.prop(self.umi_settings.umi_global_import_settings, 'show_log_on_3d_view')
+            if self.umi_settings.umi_global_import_settings.show_log_on_3d_view:
+                column.prop(self.umi_settings.umi_global_import_settings, 'auto_hide_text_when_finished')
+                if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
+                    column.prop(self.umi_settings.umi_global_import_settings, 'wait_before_hiding')
+            column.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_each_import')
 
-        if self.umi_settings.umi_global_import_settings.backup_file_after_import:
-            backup.prop(self.umi_settings.umi_global_import_settings, 'backup_step')
+        header, backup = col.panel(idname='UMI_backup')
+        header.label(text='backup', icon='FILE_TICK')
+        if backup:
+            col1 = backup.column()
+            col1.prop(self.umi_settings.umi_global_import_settings, 'save_file_after_import')
+            col1.prop(self.umi_settings.umi_global_import_settings, 'backup_file_after_import')
+
+            if self.umi_settings.umi_global_import_settings.backup_file_after_import:
+                backup.prop(self.umi_settings.umi_global_import_settings, 'backup_step')
 
     def cancel(self, context):
         self.umi_settings.umi_current_format_setting_cancelled = True
