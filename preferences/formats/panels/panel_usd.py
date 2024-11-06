@@ -150,8 +150,7 @@ class IMPORT_SCENE_USDSettings():
                  [operator,     'create_collection'],
                  [operator,     'relative_path'],
                  [operator,     'scale'],
-                 [operator,     'light_intensity_scale'],
-                 [operator,     'attr_import_mode']]
+                 [operator,     'light_intensity_scale']]
         
             draw_panel(layout, op, 'USDSettings_General', 'General', icon='IMPORT')
 

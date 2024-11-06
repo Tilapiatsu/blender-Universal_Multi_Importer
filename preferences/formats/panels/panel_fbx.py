@@ -20,7 +20,7 @@ class IMPORT_SCENE_FBXSettings():
             op = [[operator, 'use_image_search'],
                 [operator, 'colors_type']]
             
-            draw_panel(layout, op, 'FBXSettings_Include', 'Include', icon='IMPORT', panel=panel)
+            draw_panel(layout, op, 'FBXSettings_Include', 'Include', icon='IMPORT', panel=panel, header=header)
 
         #### Transform
         op = [[operator, 'global_scale'],

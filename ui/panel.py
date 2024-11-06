@@ -21,8 +21,8 @@ def draw_panel(layout, props:list, idname:str, header_name:str, icon='NONE', def
         return header, panel
     
     else:
-        box = layout.box()
         if header is None and panel is None:
+            box = layout.box()
             header = box.row(align=True)
             if set_header_boolean:
                 header.use_property_split = False
