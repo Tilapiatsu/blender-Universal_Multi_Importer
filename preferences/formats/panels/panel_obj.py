@@ -16,6 +16,7 @@ class IMPORT_SCENE_OBJSettings():
         op =    [[operator, 'use_split_objects'],
                 [operator, 'use_split_groups'],
                 [operator, 'import_vertex_groups'],
-                [operator, 'validate_meshes']]
+                [operator, 'validate_meshes']
+                [operator, 'collection_separator']]
         
         draw_panel(layout, op, 'OBJSettings_Options', 'Options', icon='OPTIONS')

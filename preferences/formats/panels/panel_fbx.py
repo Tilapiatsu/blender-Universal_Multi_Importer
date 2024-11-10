@@ -40,8 +40,7 @@ class IMPORT_SCENE_FBXSettings():
         draw_panel(layout, op, 'FBXSettings_Transform_Manual_Orientation', 'Manual Orientation', default_closed=True, set_header_boolean=True, header_bool=[operator, 'use_manual_orientation'])
 
         #### Animation
-        op = [[operator, 'anim_offset'],
-              [operator, 'colors_type']]
+        op = [[operator, 'anim_offset']]
         
         header, panel = draw_panel(layout, op, 'FBXSettings_Animation', 'Animation', icon='ANIM', default_closed=True, set_header_boolean=True, header_bool=[operator, 'use_anim'])
 

@@ -66,11 +66,16 @@ class IMPORT_SCENE_USDSettings():
         
             draw_panel(layout, op, 'USDSettings_Materials', 'Materials', icon='MATERIAL', default_closed=True)
 
-            op = [[operator,    'import_textures_mode'],
-                 [operator,     'import_textures_dir'],
-                 [operator,     'tex_name_collision_mode']]
-        
-            draw_panel(layout, op, 'USDSettings_Textures', 'Textures', icon='TEXTURE', default_closed=True)
+            op = [[operator,    'import_textures_mode']]
+
+            header, panel = draw_panel(layout, op, 'USDSettings_Textures', 'Textures', icon='TEXTURE', default_closed=True)
+
+            if panel:
+                col = panel.column()
+                col.enabled = operator.import_textures_mode in ['IMPORT_COPY']
+
+                col.prop(operator, 'import_textures_dir')
+                col.prop(operator, 'tex_name_collision_mode')
             
             op = [[operator,    'support_scene_instancing']]
         
@@ -132,11 +137,16 @@ class IMPORT_SCENE_USDSettings():
         
             draw_panel(layout, op, 'USDSettings_Materials', 'Materials', icon='MATERIAL', default_closed=True)
 
-            op = [[operator,    'import_textures_mode'],
-                 [operator,     'import_textures_dir'],
-                 [operator,     'tex_name_collision_mode']]
-        
-            draw_panel(layout, op, 'USDSettings_Textures', 'Textures', icon='TEXTURE', default_closed=True)
+            op = [[operator,    'import_textures_mode']]
+
+            header, panel = draw_panel(layout, op, 'USDSettings_Textures', 'Textures', icon='TEXTURE', default_closed=True)
+
+            if panel:
+                col = panel.column()
+                col.enabled = operator.import_textures_mode in ['IMPORT_COPY']
+
+                col.prop(operator, 'import_textures_dir')
+                col.prop(operator, 'tex_name_collision_mode')
             
             op = [[operator,    'support_scene_instancing']]
         

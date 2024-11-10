@@ -17,6 +17,7 @@ def draw_panel(layout, props:list, idname:str, header_name:str, icon='NONE', def
             col = panel.column(align=True)
             for p in props:
                 col.prop(p[0], p[1])
+                col.separator(factor=0.5)
         
         return header, panel
     

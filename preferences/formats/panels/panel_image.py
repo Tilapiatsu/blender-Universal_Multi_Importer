@@ -38,6 +38,16 @@ class IMPORT_SCENE_IMAGESettings():
         
                 draw_panel(layout, op, 'IMAGESettings_TextureSettings', 'Texture Settings', icon='TEXTURE', panel=panel, header=header)
 
+                op =    [[operator, 'size_mode'], 
+                         [operator, 'height'], 
+                         [operator, 'align_axis'], 
+                         [operator, 'align_track'], 
+                         [operator, 'offset'], 
+                         [operator, 'offset_axis'], 
+                         [operator, 'offset_amount']]
+        
+                draw_panel(layout, op, 'IMAGESettings_Transform', 'Transform', icon='OBJECT_DATA', default_closed=True)
+
             elif BVERSION >= 4.2:
                 op =    [[operator, 'relative'],
                         [operator, 'force_reload'],
@@ -66,6 +76,16 @@ class IMPORT_SCENE_IMAGESettings():
                 op =    [[operator, 'use_auto_refresh']]
         
                 draw_panel(layout, op, 'IMAGESettings_TextureSettings', 'Texture Settings', icon='TEXTURE', panel=panel, header=header)
+
+                op =    [[operator, 'size_mode'], 
+                         [operator, 'height'], 
+                         [operator, 'align_axis'], 
+                         [operator, 'align_track'], 
+                         [operator, 'offset'], 
+                         [operator, 'offset_axis'], 
+                         [operator, 'offset_amount']]
+        
+                draw_panel(layout, op, 'IMAGESettings_Transform', 'Transform', icon='OBJECT_DATA', default_closed=True)
 
             elif BVERSION >= 4.1:
                 op =    [[operator, 'relative'],

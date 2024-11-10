@@ -8,9 +8,12 @@ class IMPORT_SCENE_STLSettings():
         if module_name == 'default':
             op = [[operator, 'global_scale'],
                  [operator, 'use_scene_unit'],
-                 [operator, 'use_facet_normal'],
                  [operator, 'forward_axis'],
-                 [operator, 'up_axis'],
+                 [operator, 'up_axis']]
+        
+            draw_panel(layout, op, 'STLSettings_General', 'General', icon='OBJECT_DATA')
+
+            op = [[operator, 'use_facet_normal'],
                  [operator, 'use_mesh_validate']]
         
             draw_panel(layout, op, 'STLSettings_Options', 'Options', icon='OPTIONS')
