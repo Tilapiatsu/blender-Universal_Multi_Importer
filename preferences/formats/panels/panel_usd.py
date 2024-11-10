@@ -145,7 +145,6 @@ class IMPORT_SCENE_USDSettings():
         elif BVERSION >= 4.1:
             op = [[operator,    'prim_path_mask'],
                  [operator,     'import_visible_only'],
-                 [operator,     'import_defined_only'],
                  [operator,     'set_frame_range'],
                  [operator,     'create_collection'],
                  [operator,     'relative_path'],
@@ -167,7 +166,6 @@ class IMPORT_SCENE_USDSettings():
             col = row.column(align=True)
             col.prop(operator, 'import_meshes')
             col.prop(operator, 'import_volumes')
-            col.prop(operator, 'import_points')
             col.prop(operator, 'import_shapes')
 
             op = [[operator,    'import_render'],
@@ -179,8 +177,7 @@ class IMPORT_SCENE_USDSettings():
             op = [[operator,    'read_mesh_uvs'],
                  [operator,     'read_mesh_colors'],
                  [operator,     'read_mesh_attributes'],
-                 [operator,     'import_subdiv'],
-                 [operator,     'validate_meshes']]
+                 [operator,     'import_subdiv']]
         
             draw_panel(layout, op, 'USDSettings_Geometry', 'Geometry', icon='MESH_DATA', default_closed=True)
 
@@ -191,7 +188,6 @@ class IMPORT_SCENE_USDSettings():
 
             op = [[operator,    'import_all_materials'],
                  [operator,     'import_usd_preview'],
-                 [operator,     'create_world_material'],
                  [operator,     'set_material_blend'],
                  [operator,     'mtl_name_collision_mode']]
         
