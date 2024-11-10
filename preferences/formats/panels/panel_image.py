@@ -111,9 +111,27 @@ class IMPORT_SCENE_IMAGESettings():
             draw_panel(layout, op, 'IMAGESettings_Options', 'Import Options', icon='OPTIONS')
 
         
-        elif module_name in ['ref', 'background', 'empty']:
+        elif module_name in ['ref', 'background']:
+            if BVERSION >= 4.3:
+                op =    [[operator, 'align']]
+            
+                draw_panel(layout, op, 'IMAGESettings_Options', 'Options', icon='OPTIONS')
+
+            elif BVERSION >= 4.2:
+                op =    [[operator, 'align'],
+                        [operator, 'background']]
+            
+                draw_panel(layout, op, 'IMAGESettings_Options', 'Options', icon='OPTIONS')
+            else:
+                op =    [[operator, 'view_align']]
+            
+                draw_panel(layout, op, 'IMAGESettings_Options', 'Options', icon='OPTIONS')
+
+        elif module_name in ['empty']:
             if BVERSION >= 4.2:
                 op =    [[operator, 'align'],
+                        [operator, 'location'],
+                        [operator, 'rotation'],
                         [operator, 'background']]
             
                 draw_panel(layout, op, 'IMAGESettings_Options', 'Options', icon='OPTIONS')

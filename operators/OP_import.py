@@ -1,4 +1,5 @@
 import bpy
+from mathutils import Vector, Euler, Color
 from bpy_extras.io_utils import ImportHelper
 import os, time
 from os import path
@@ -853,6 +854,15 @@ class UMI(bpy.types.Operator, ImportHelper):
                 col_as_string += ']'
 
                 args_as_string += f' {k}={col_as_string}'
+            elif isinstance(v, Vector) or isinstance(v, Euler) or isinstance(v, Color):
+                val = '['
+                for i in range(len(v)):
+                    if i == 0:
+                        val += f'{v[i]}'
+                    else:
+                        val += f', {v[i]}'
+                val += ']'
+                args_as_string += f' {k}={val}'
             else:
                 args_as_string += f' {k}={v}'
             if arg_number >= 2:
