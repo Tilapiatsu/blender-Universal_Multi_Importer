@@ -103,7 +103,7 @@ class FormatDefinition():
             'operator' : {  'plane':{'command':'bpy.ops.image.import_as_mesh_planes', 'module':'IMAGE_OT_import_as_mesh_planes', 'addon_name' : None, 'pkg_id' : None},
 
                             'data':{'command':'bpy.ops.image.open', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None},
-                            'empty':{'command':'bpy.ops.object.empty_add', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None}
+                            'empty':{'command':'bpy.ops.object.empty_image_add', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None}
                         },
             'ignore': ['files', 'directory', 'filepath'],
             'generate_filter_glob':False
