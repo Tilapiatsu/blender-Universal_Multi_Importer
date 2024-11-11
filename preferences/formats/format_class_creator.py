@@ -50,9 +50,6 @@ class FormatClassCreator():
                         format_class = self.create_format_class_from_module(operator, format_class)
                     else:
                         format_class = self.create_format_class_from_operator(operator, format_class)
-
-                    if format_class is None:
-                        continue
                     
                     self._classes['classes'].append(format_class)
 
@@ -73,7 +70,6 @@ class FormatClassCreator():
         return format_class
     
     def create_format_class_hierarchy_from_module(self, f, format_class, format_module):
-
         if format_module is None:
             print(f"Invalid module name passed : {f['module']}\nOr importer addon is disable")
             return None
@@ -105,12 +101,14 @@ class FormatClassCreator():
 
     def create_format_class_from_operator(self, f, format_class):
         print(f'create class from operator {f["command"]}')
+
         if 'import_settings' in f.keys() :
             if f['import_settings'] is None:
                 try:
                     properties = eval(f['command']).get_rna_type().properties
                 except KeyError:
-                    return None
+                    format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
+                    return format_class
                 # print(f['command'])
                 for p in properties:
                     if p.is_hidden or p.is_readonly:

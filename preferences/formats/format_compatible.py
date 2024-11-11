@@ -82,7 +82,6 @@ class CompatibleFormats():
     @property
     def need_reboot(self):
         try:
-            
             for f in self.all_formats.values():
                 for name in f['operator'].keys():
                     exec(f'from . import UMI_{f["name"]}_{name}_settings')
@@ -143,6 +142,8 @@ class CompatibleFormats():
         if self._filter_glob_extensions is None:
             filter_glob_extensions = []
             for f in self.formats:
+                if not self.is_format_valid(f[0]):
+                    continue
                 if isinstance(f[1], dict):
                     if not f[1]['generate_filter_glob']:
                         continue
@@ -231,6 +232,16 @@ class CompatibleFormats():
             formats[k] = v
         
         return formats
+    
+    def is_format_valid(self, format):
+        operators = self.formats_dict[format]['operator']
+        for v in operators.values():
+            try:
+                eval(v['command']).__repr__()
+                return True
+            except AttributeError:
+                continue
+
     
     def draw_format_settings(self, context, format_name, operator, module_name, layout):
         exec(f'from .panels import panel_{format_name}')
