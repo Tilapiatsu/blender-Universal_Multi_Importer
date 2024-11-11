@@ -1,4 +1,14 @@
 from . import BVERSION
+
+def axis():
+    return [
+        ("X", "X", "X"),
+        ("Y", "Y", "Y"),
+        ("Z", "Z", "Z"),
+        ("-X", "-X", "-X"),
+        ("-Y", "-Y", "-Y"),
+        ("-Z", "-Z", "-Z")
+    ]
 class FormatDefinition():
     
     fbx = {'name' : 'fbx',
@@ -58,35 +68,48 @@ class FormatDefinition():
         
     svg = {'name' : 'svg',
         'ext' : ['.svg'],
-        'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'addon_name' : 'io_curve_svg', 'pkg_id' : None, 'import_settings':None}
-                        },
+        'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'addon_name' : 'io_curve_svg', 'pkg_id' : None, 'import_settings':None}},
         'ignore': ['files', 'directory'],
         'generate_filter_glob':False}
     
     x3d = {'name' : 'x3d',
         'ext' : ['.x3d', '.wrl'],
-        'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : 'IMPORT_SCENE_OT_x3d', 'addon_name' : 'io_scene_x3d', 'pkg_id' : None}},
+        'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : 'IMPORT_SCENE_OT_x3d', 'addon_name' : 'bl_ext.blender_org.web3d_x3d_vrml2_format', 'pkg_id' : 'web3d_x3d_vrml2_format'}},
         'ignore': ['files', 'directory'],
         'generate_filter_glob':True}
                 
-    stl = {'name' : 'stl',
-            'ext' : ['.stl'],
-            'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : 'io_mesh_stl', 'pkg_id' : None, 'import_settings':None},
-                            'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl', 'addon_name' : None, 'pkg_id' : None}},
-            'ignore': ['files', 'directory'],
-            'generate_filter_glob':False}
 
     usd = {'name' : 'usd',
         'ext' : ['.usd', '.usda', '.usdc', '.usdz'],
         'operator' : {'default':{'command':'bpy.ops.wm.usd_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None}},
         'ignore': ['files', 'directory'],
         'generate_filter_glob':False}
-
+    
+    max = {'name' : 'max',
+        'ext' : ['.max'],
+        'operator' : {'default':{'command':'bpy.ops.import_scene.max', 'module':None, 'addon_name' : 'bl_ext.blender_org.io_scene_max', 'pkg_id' : 'io_scene_max', 'import_settings':
+                                            [['Include', 
+                                            {"use_image_search": {'type':'bpy.props.BoolProperty', 'name':'"Image Searcg"', 'default':True},
+                                            "object_filter": {'type':'bpy.props.EnumProperty', 'name':'"Object Filter"', 'default':{'MATERIAL', 'UV', 'EMPTY', 'ARMATURE'},
+                                                               'enum_items':(('MATERIAL', "Material".rjust(12), "", 'MATERIAL_DATA', 0x1),
+                                                                        ('UV', "UV Maps".rjust(11), "", 'UV_DATA', 0x2),
+                                                                        ('EMPTY', "Empty".rjust(11), "", 'EMPTY_AXIS', 0x4),
+                                                                        ('ARMATURE', "Armature".rjust(11), "", 'ARMATURE_DATA', 0x8),), 
+                                                                        'options':{'ENUM_FLAG'},},
+                                            "use_collection": {'type':'bpy.props.BoolProperty', 'name':'"Collection"', 'default':False}}],
+                                            ['Transform',
+                                            {"scale_objects" : {'type':'bpy.props.FloatProperty', 'name':'"Scale"', 'default':1.0},
+                                            "use_apply_matrix" : {'type':'bpy.props.BoolProperty', 'name':'"Apply Matrix"', 'default':True},
+                                            "axis_forward": {'type':'bpy.props.EnumProperty', 'name':'"Forward"', 'default':'"Y"', 'enum_items':axis()},
+                                            "axis_up": {'type':'bpy.props.EnumProperty', 'name':'"Up"', 'default':'"Z"', 'enum_items':axis()}}]]}},
+        'ignore': ['files', 'directory'],
+        'generate_filter_glob':True}
+    
     if BVERSION >=4.3:
         image = {'name' : 'image',
             'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                         '.hdr', '.exr',
-                         '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
+                        '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
             'operator' : {  'plane':{'command':'bpy.ops.image.import_as_mesh_planes', 'module':'IMAGE_OT_import_as_mesh_planes', 'addon_name' : None, 'pkg_id' : None},
 
                             'data':{'command':'bpy.ops.image.open', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None},
@@ -95,6 +118,13 @@ class FormatDefinition():
             'ignore': ['files', 'directory', 'filepath'],
             'generate_filter_glob':False
             }
+        
+        stl = {'name' : 'stl',
+                'ext' : ['.stl'],
+                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None}},
+                'ignore': ['files', 'directory'],
+                'generate_filter_glob':False}
+        
     elif BVERSION >=4.2:
         image = {'name' : 'image',
             'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
@@ -108,6 +138,13 @@ class FormatDefinition():
             'ignore': ['files', 'directory', 'filepath'],
             'generate_filter_glob':False
             }
+        
+        stl = {'name' : 'stl',
+                'ext' : ['.stl'],
+                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : 'io_mesh_stl', 'pkg_id' : None, 'import_settings':None}},
+                'ignore': ['files', 'directory'],
+                'generate_filter_glob':False}
+        
     else:
         image = {'name' : 'image',
         'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
@@ -120,3 +157,10 @@ class FormatDefinition():
         'ignore': ['files', 'directory', 'filepath'],
         'generate_filter_glob':False
         }
+
+        stl = {'name' : 'stl',
+                'ext' : ['.stl'],
+                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : 'io_mesh_stl', 'pkg_id' : None, 'import_settings':None},
+                                'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl', 'addon_name' : None, 'pkg_id' : None, 'import_settings':None}},
+                'ignore': ['files', 'directory'],
+                'generate_filter_glob':False}

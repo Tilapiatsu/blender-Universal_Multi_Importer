@@ -51,6 +51,9 @@ class FormatClassCreator():
                     else:
                         format_class = self.create_format_class_from_operator(operator, format_class)
 
+                    if format_class is None:
+                        continue
+                    
                     self._classes['classes'].append(format_class)
 
         return self._classes
@@ -104,7 +107,10 @@ class FormatClassCreator():
         print(f'create class from operator {f["command"]}')
         if 'import_settings' in f.keys() :
             if f['import_settings'] is None:
-                properties = eval(f['command']).get_rna_type().properties
+                try:
+                    properties = eval(f['command']).get_rna_type().properties
+                except KeyError:
+                    return None
                 # print(f['command'])
                 for p in properties:
                     if p.is_hidden or p.is_readonly:
@@ -166,6 +172,8 @@ class FormatClassCreator():
                             command += f', min={v["min"]}'
                         if 'max' in v.keys():
                             command += f', max={v["max"]}'
+                        if 'options' in v.keys():
+                            command += f', options={v["options"]}'
                             
                         command += f')'
                         
