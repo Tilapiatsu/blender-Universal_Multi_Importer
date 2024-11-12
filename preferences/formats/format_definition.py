@@ -100,22 +100,23 @@ class FormatDefinition():
         'generate_filter_glob':True}
     
     pes = {'name' : 'pes',
-        'ext' : ['.pes'],
-        'operator' : {'default':{'command':'bpy.ops.import.embroidery', 'module':None, 'addon_name' : 'bl_ext.blender_org.embroidery_importer', 'pkg_id' : 'embroidery_importer', 'pkg_url': 'https://extensions.blender.org/add-ons/embroidery-importer/', 'import_settings':
+        'ext' : ['.pes', '.dst', '.exp', '.jef', '.pec', '.jpx', '.phc', '.vp3', '.10o', '.100', '.bro', '.dat', '.dsb', '.dsz', '.emd', '.exy', '.fxy', '.gt', '.hus', '.inb', '.ksm', '.mit', '.new', '.pcd', '.pcm', '.pcq', '.pcs', '.phb', '.sew', '.shv', '.stc', '.stx', '.tap', '.tbf', '.u01', '.xxx', '.zhs', '.zxy', '.gcode'],
+        'operator' : {'default':{'command':'bpy.ops.wm.embroidery_import', 'module':None, 'addon_name' : 'bl_ext.blender_org.embroidery_importer', 'pkg_id' : 'embroidery_importer', 'pkg_url': 'https://extensions.blender.org/add-ons/embroidery-importer/', 'import_settings':
                                             [['Import', 
                                             {"show_jump_wires": {'type':'bpy.props.BoolProperty', 'name':'"Import Jump Wires"', 'default':True},
                                             "do_create_material": {'type':'bpy.props.BoolProperty', 'name':'"Create Matertial"', 'default':True},
-                                            "create_collection": {'type':'bpy.props.BoolProperty', 'name':'"Create a Collection"', 'default':True}}],
+                                            "create_collection": {'type':'bpy.props.BoolProperty', 'name':'"Create a Collection"', 'default':False}}],
                                             ['Thickness',
-                                            {"line_depth" : {'type':'bpy.props.EnumProperty', 'name':'"Thickness Type"', 'default':'GEOMETRY_NODES', 'items':[
+                                            {"line_depth" : {'type':'bpy.props.EnumProperty', 'name':'"Thickness Type"', 'default':'"GEOMETRY_NODES"', 'enum_items':
+                                                             [
                                                             ("NO_THICKNESS", "No thickness (curve only)", "Only curves, no thickness"),
                                                             (
                                                                 "GEOMETRY_NODES",
                                                                 "Using geometry nodes",
                                                                 "Create a geometry node setup to add thickness. Most versatile.",
                                                             ),
-                                                            ("BEVEL", "Using bevel", "Adds thickness through the bevel property"),
-                                                        ],},
+                                                            ("BEVEL", "Using bevel", "Adds thickness through the bevel property")]
+                                                            },
                                             "thread_thickness" : {'type':'bpy.props.FloatProperty', 'name':'"Thread Thickness"', 'default':0.2}}]]}},
         'ignore': ['files', 'directory'],
         'generate_filter_glob':True}

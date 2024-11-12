@@ -46,8 +46,6 @@ class FormatClassCreator():
                     exec(f'from . import UMI_{f[0]}_{name}_settings')
                     format_class = eval(f'UMI_{f[0]}_{name}_settings')
 
-                    print(f[0])
-
                     if operator['module'] is not None:
                         format_class = self.create_format_class_from_module(operator, format_class)
                     else:
