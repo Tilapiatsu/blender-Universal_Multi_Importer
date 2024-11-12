@@ -83,7 +83,7 @@ class FormatDefinition():
         'ext' : ['.max'],
         'operator' : {'default':{'command':'bpy.ops.import_scene.max', 'module':None, 'addon_name' : 'bl_ext.blender_org.io_scene_max', 'pkg_id' : 'io_scene_max', 'pkg_url': 'https://extensions.blender.org/add-ons/io-scene-max/', 'import_settings':
                                             [['Include', 
-                                            {"use_image_search": {'type':'bpy.props.BoolProperty', 'name':'"Image Searcg"', 'default':True},
+                                            {"use_image_search": {'type':'bpy.props.BoolProperty', 'name':'"Image Search"', 'default':True},
                                             "object_filter": {'type':'bpy.props.EnumProperty', 'name':'"Object Filter"', 'default':{'MATERIAL', 'UV', 'EMPTY', 'ARMATURE'},
                                                                'enum_items':(('MATERIAL', "Material".rjust(12), "", 'MATERIAL_DATA', 0x1),
                                                                         ('UV', "UV Maps".rjust(11), "", 'UV_DATA', 0x2),
@@ -96,6 +96,27 @@ class FormatDefinition():
                                             "use_apply_matrix" : {'type':'bpy.props.BoolProperty', 'name':'"Apply Matrix"', 'default':True},
                                             "axis_forward": {'type':'bpy.props.EnumProperty', 'name':'"Forward"', 'default':'"Y"', 'enum_items':axis()},
                                             "axis_up": {'type':'bpy.props.EnumProperty', 'name':'"Up"', 'default':'"Z"', 'enum_items':axis()}}]]}},
+        'ignore': ['files', 'directory'],
+        'generate_filter_glob':True}
+    
+    pes = {'name' : 'pes',
+        'ext' : ['.pes'],
+        'operator' : {'default':{'command':'bpy.ops.import.embroidery', 'module':None, 'addon_name' : 'bl_ext.blender_org.embroidery_importer', 'pkg_id' : 'embroidery_importer', 'pkg_url': 'https://extensions.blender.org/add-ons/embroidery-importer/', 'import_settings':
+                                            [['Import', 
+                                            {"show_jump_wires": {'type':'bpy.props.BoolProperty', 'name':'"Import Jump Wires"', 'default':True},
+                                            "do_create_material": {'type':'bpy.props.BoolProperty', 'name':'"Create Matertial"', 'default':True},
+                                            "create_collection": {'type':'bpy.props.BoolProperty', 'name':'"Create a Collection"', 'default':True}}],
+                                            ['Thickness',
+                                            {"line_depth" : {'type':'bpy.props.EnumProperty', 'name':'"Thickness Type"', 'default':'GEOMETRY_NODES', 'items':[
+                                                            ("NO_THICKNESS", "No thickness (curve only)", "Only curves, no thickness"),
+                                                            (
+                                                                "GEOMETRY_NODES",
+                                                                "Using geometry nodes",
+                                                                "Create a geometry node setup to add thickness. Most versatile.",
+                                                            ),
+                                                            ("BEVEL", "Using bevel", "Adds thickness through the bevel property"),
+                                                        ],},
+                                            "thread_thickness" : {'type':'bpy.props.FloatProperty', 'name':'"Thread Thickness"', 'default':0.2}}]]}},
         'ignore': ['files', 'directory'],
         'generate_filter_glob':True}
     

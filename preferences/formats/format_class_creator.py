@@ -46,6 +46,8 @@ class FormatClassCreator():
                     exec(f'from . import UMI_{f[0]}_{name}_settings')
                     format_class = eval(f'UMI_{f[0]}_{name}_settings')
 
+                    print(f[0])
+
                     if operator['module'] is not None:
                         format_class = self.create_format_class_from_module(operator, format_class)
                     else:
@@ -56,11 +58,11 @@ class FormatClassCreator():
         return self._classes
 
     def create_format_class_from_module(self, f, format_class):
-        print(f'create class from module {f["module"]}')
+        print(f'UMI : create class from module {f["module"]}')
         format_module = getattr(bpy.types, f['module'], None)
 
         if format_module is None:
-            print(f"Invalid module name passed : {f['module']}\nOr importer addon is disable")
+            print(f"UMI : Invalid module name passed : {f['module']}\nOr importer addon is disable")
             return None
         
         for sub_module in self.get_valid_submodule(format_module):
@@ -71,7 +73,7 @@ class FormatClassCreator():
     
     def create_format_class_hierarchy_from_module(self, f, format_class, format_module):
         if format_module is None:
-            print(f"Invalid module name passed : {f['module']}\nOr importer addon is disable")
+            print(f"UMI : Invalid module name passed : {f['module']}\nOr importer addon is disable")
             return None
         
         format_annotations = getattr(format_module, "__annotations__", None)
@@ -100,7 +102,7 @@ class FormatClassCreator():
         return format_class
 
     def create_format_class_from_operator(self, f, format_class):
-        print(f'create class from operator {f["command"]}')
+        print(f'UMI : create class from operator {f["command"]}')
 
         if 'import_settings' in f.keys() :
             if f['import_settings'] is None:
