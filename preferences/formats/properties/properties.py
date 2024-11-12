@@ -66,6 +66,7 @@ class PG_AddonDependency(bpy.types.PropertyGroup):
     module_name     : bpy.props.StringProperty(name='Format Name', default='')
     addon_name      : bpy.props.StringProperty(name='Addon Name', default='')
     pkg_id          : bpy.props.StringProperty(name='Package Index', default='')
+    pkg_url         : bpy.props.StringProperty(name='Package URL', default='')
     is_extension    : bpy.props.BoolProperty(name='Is Extension', default=False)
     is_installed    : bpy.props.BoolProperty(name='Is Installed', default=False)
     is_enabled      : bpy.props.BoolProperty(name='Is Enabled', default=False)

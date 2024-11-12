@@ -30,6 +30,11 @@ class CompatibleFormats():
     def is_format_extension(self, format_name, module):
         return self.all_formats[format_name]['operator'][module]['pkg_id'] != None
 
+    def get_format_extension_url(self, format_name, module):
+        if self.is_format_extension(format_name, module):
+            return self.all_formats[format_name]['operator'][module]['pkg_url']
+        else:
+            return None
     @property
     def all_valid_addons(self):
         all_valid_addons = []
@@ -89,7 +94,6 @@ class CompatibleFormats():
             return True
         
         return False
-
 
     @property
     def extensions(self):
@@ -242,7 +246,6 @@ class CompatibleFormats():
             except AttributeError:
                 continue
 
-    
     def draw_format_settings(self, context, format_name, operator, module_name, layout):
         exec(f'from .panels import panel_{format_name}')
         module = eval(f'panel_{format_name}.IMPORT_SCENE_{format_name.upper()}Settings')
