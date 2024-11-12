@@ -189,7 +189,7 @@ class CompatibleFormats():
                 if o['module'] is None:
                     # Check Command
                     try:
-                        eval(o['command'])
+                        eval(o['command']).__repr__()
                     except:
                         assigned.append(False)
                         print(o['command'], 'not found')
