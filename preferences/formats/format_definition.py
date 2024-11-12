@@ -141,7 +141,7 @@ class FormatDefinition():
         
         stl = {'name' : 'stl',
                 'ext' : ['.stl'],
-                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : 'io_mesh_stl', 'pkg_id' : None, 'import_settings':None}},
+                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None}},
                 'ignore': ['files', 'directory'],
                 'generate_filter_glob':False}
         
