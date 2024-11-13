@@ -101,7 +101,7 @@ class FormatDefinition():
     
     pes = {'name' : 'pes',
         'ext' : ['.pes', '.dst', '.exp', '.jef', '.pec', '.jpx', '.phc', '.vp3', '.10o', '.100', '.bro', '.dat', '.dsb', '.dsz', '.emd', '.exy', '.fxy', '.gt', '.hus', '.inb', '.ksm', '.mit', '.new', '.pcd', '.pcm', '.pcq', '.pcs', '.phb', '.sew', '.shv', '.stc', '.stx', '.tap', '.tbf', '.u01', '.xxx', '.zhs', '.zxy', '.gcode'],
-        'operator' : {'default':{'command':'bpy.ops.wm.embroidery_import', 'module':None, 'addon_name' : 'bl_ext.blender_org.embroidery_importer', 'pkg_id' : 'embroidery_importer', 'pkg_url': 'https://extensions.blender.org/add-ons/embroidery-importer/', 'import_settings':
+        'operator' : {'default':{'command':'bpy.ops.import_scene.embroidery', 'module':None, 'addon_name' : 'bl_ext.blender_org.embroidery_importer', 'pkg_id' : 'embroidery_importer', 'pkg_url': 'https://extensions.blender.org/add-ons/embroidery-importer/', 'import_settings':
                                             [['Import', 
                                             {"show_jump_wires": {'type':'bpy.props.BoolProperty', 'name':'"Import Jump Wires"', 'default':True},
                                             "do_create_material": {'type':'bpy.props.BoolProperty', 'name':'"Create Matertial"', 'default':True},
