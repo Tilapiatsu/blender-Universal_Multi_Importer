@@ -8,12 +8,95 @@
 ## Key Features
 
 - With this addon, you can import multiple files of different formats from the same import dialog.
-- (NEW) You can scan for files to import in a folder hierarchy.
-- (NEW) (Blender 4.1+ only) Drag and drop any file to import them.
+- You can scan for files to import in a folder hierarchy.
+- (Blender 4.1+ only) Drag and drop any file to import them.
 - The viewport stays interactive during the import process, you can setup autosaves during import. Everything is made to smooth the experience.
 - You can process the imported files with python command during import that opens a lot of possibilities
 
-## Changelog
+## Credits
+This addon is adding batch import features to existing importer for blender. The credits for the importers goes to each importer addon developers and to the blender team themself. You click on the link below to know more about the author of each importers.
+
+# Supported Formats
+| Mesh Formats | Image Formats | Video Formats | Animation Formats | Embroidery Formats[:link:](https://github.com/javl/blender-embroidery) |
+| -----------  | -----------   |  -----------  |   -----------     |   -----------      |
+| blend        | jpg           |  mov          | bvh               |  pes               |
+| obj          | jpeg          |  mp4          |                   |  dst               |
+| fbx          | gif           |  mkv          |                   |  exp               |
+| glb          | png           |  mpg          |                   |  jef               |
+| gltf         | tif           |  mpeg         |                   |  pec               |
+| x3d          | tiff          |  dvd          |                   |  jpx               |
+| wrl          | bmp           |  dvd          |                   |  phc               |
+| stl          | cin           |  vob          |                   |  vp3               |
+| ply          | dpx           |  avi          |                   |  10o               |
+| abc          | jp2           |  dv           |                   |  100               |
+| dae          | j2c           |  flv          |                   |  bro               |
+| svg          | sig           |  webm         |                   |  dat               |
+| usd          | rgb           |               |                   |  dsb               |
+| usda         | bw            |               |                   |  dsz               |
+| usdc         | exr           |               |                   |  emd               |
+| usdz         | hdr           |               |                   |  exy               |
+| max[:link:](https://github.com/nrgsille76/io_scene_max)|               |               |                   |  fxy               |
+|              |               |               |                   |  gt                |
+|              |               |               |                   |  hus               |
+|              |               |               |                   |  inb               |
+|              |               |               |                   |  ksm               |
+|              |               |               |                   |  mit               |
+|              |               |               |                   |  new               |
+|              |               |               |                   |  pcd               |
+|              |               |               |                   |  pcm               |
+|              |               |               |                   |  pcq               |
+|              |               |               |                   |  pcs               |
+|              |               |               |                   |  phb               |
+|              |               |               |                   |  sew               |
+|              |               |               |                   |  shv               |
+|              |               |               |                   |  stc               |
+|              |               |               |                   |  stx               |
+|              |               |               |                   |  tap               |
+|              |               |               |                   |  tbf               |
+|              |               |               |                   |  u01               |
+|              |               |               |                   |  xxx               |
+|              |               |               |                   |  zhs               |
+|              |               |               |                   |  zxy               |
+|              |               |               |                   |  gcode             |
+|              |               |               |                   |  max               |
+
+# Import Settings
+| Settings | Description |
+| ----------- | ----------- |
+| **Import Folder** ||
+| Recursion Depth | ( Folder mode only ) Determine how many subfolders will be scanned for compatible files to import. `0` will grab all files in current folder, `1` will grab everything in current folder and all direct subfolders, `2` will grab all files in the current folder, the direct subfolders and the subfolders of each direct subfolders etc ... |
+| **File Count** ||
+| Max Simultaneously | Determine the max number of file to import simultaneously. Each group of files to be imported simultaneously is called a "Batch". Importing multiple file at the same time allow to reduce the import time for small file, but can cause screen freezing or memory issue for bigger file. To smartly balance this, you can check `Max batch size` and `Minimize batch number`|
+| Max batch size | Determine the max batch file size to Import. If a file is a candidate to be include in the current batch, but his file size would make the batch bigger than `Max batch size`, then the file will be included in the next batch |
+| Minimize batch number | The importer will smartly group files in batches in order to be as close as possible to `Max batch size` for each batch without exceeding it and without exceeding `Max Import Simultaneously`|
+|||
+| **Options** ||
+| Create collection per file | Each imported file will be placed in a new collection named like the file |
+| Skip already imported files | if a file have already been imported, the import is skipped for this file, this option is only available if "`Create collection per file`" is Enable |
+|||
+| **Log Display** ||
+| Show Log on 3D View | Display the Log and Progress of the Importing files in the 3D viewport while importing |
+| Auto Hide Log When Finished | Automatic hide the log once the Import is Completed |
+| Wait Before Hiding (s) | How much time to wait before Hiding the Log |
+| Refresh viewport after each Import | Force refresh the viewport after each imported files. It improves interactivity, but will slow down the global import time |
+|||
+| **Backup** ||
+| Save file after import | At the end of the import process, save the current file |
+| Backup file after each import | A backup file is saved after each "`Backup Step`" file is imported |
+| Backup Step | The number of file that is imported before saving a backup |
+|||
+| **Command Batcher** ||
+|Commands | You create a macro like python commands list. These commands will be executed in a row to all the imported objects after each imported batch.<br><br> It will process in that order :<br> - Import Batch 1<br>-  Run all batch commands in order<br>-  Repeat for next Batches...  <br><br>For example, if you add this command "`bpy.ops.transform.translate(value=(10, 0, 0))`", each imported file will be translated 10 meters away on positive X axis <br><br> Please note how the commands are written with `bpy.ops` and all parameters in parentheses <br> You can't create variable, for loops or if statements. Just commands that blender will execute|
+| Ignore Command Batcher Errors | Batch Processing imported files can cause error. Enabling this will continue the import of the following files even if an error occurs. Otherwise, the import process will stop |
+| Presets | You can save any list of commands from `batch process Imported files` to a preset that will be saved on disk. Here you can manage the presets: <br>- Creating preset<br>- Loading Preset <br>- Removing Preset<br>- Renaming Preset|
+
+
+# Changelog
+### v2.1.6 : Support for Blender 4.3
+### v2.1.6 : Use Collapsable Panels for import settings
+### v2.1.6 : Support for new formats : Autodesk 3Dsmax, and Embroidery files
+### v2.1.5 : Add Addon Dependency Checker to easily fix any missing import formats
+[![Addon-Dependency-Checker-03.webp](https://i.postimg.cc/qMzp19SL/Addon-Dependency-Checker-03.webp)](https://postimg.cc/kBPr4hn6)
 ### v2.1.0 : Support for Blender 4.2 and the extension platform
 ### v2.1.0 : Add Settings to choose text colors in the addon preferences
 ![Theme Settings](https://i.postimg.cc/Y9mdfBgG/blender-7qd3o6bgs-W.png)
@@ -60,53 +143,3 @@ Here is a full breakdown of this feature :
 
 ### v1.0 : Import and Batch
 You can batch process imported files right after each import combining the capability of the Batch Importer and the Command Batcher
-
-# Supported Formats
-| Mesh Formats | Image Formats | Video Formats | Animation Formats |
-| ----------- | ----------- |  ----------- |   ----------- |
-| blend | jpg | mov  | bvh |
-| obj | jpeg |  mp4 |   |
-| fbx | gif |  mkv |   |
-| glb | png |  mpg |   |
-| gltf | tif |  mpeg |   |
-| x3d | tiff |  dvd |   |
-| wrl | bmp |  dvd |   |
-| stl | cin |  vob |   |
-| ply | dpx |  avi |   |
-| abc | jp2 | dv  |   |
-| dae | j2c | flv |   |
-| svg | sig |  webm |   |
-| usd | rgb |   |   |
-| usda | bw |   |   |
-| usdc | exr |   |   |
-| usdz | hdr |   |   |
-
-# Import Settings
-| Settings | Description |
-| ----------- | ----------- |
-| **Import Folder** ||
-| Recursion Depth | ( Folder mode only ) Determine how many subfolders will be scanned for compatible files to import. `0` will grab all files in current folder, `1` will grab everything in current folder and all direct subfolders, `2` will grab all files in the current folder, the direct subfolders and the subfolders of each direct subfolders etc ... |
-| **File Count** ||
-| Max Simultaneously | Determine the max number of file to import simultaneously. Each group of files to be imported simultaneously is called a "Batch". Importing multiple file at the same time allow to reduce the import time for small file, but can cause screen freezing or memory issue for bigger file. To smartly balance this, you can check `Max batch size` and `Minimize batch number`|
-| Max batch size | Determine the max batch file size to Import. If a file is a candidate to be include in the current batch, but his file size would make the batch bigger than `Max batch size`, then the file will be included in the next batch |
-| Minimize batch number | The importer will smartly group files in batches in order to be as close as possible to `Max batch size` for each batch without exceeding it and without exceeding `Max Import Simultaneously`|
-|||
-| **Options** ||
-| Create collection per file | Each imported file will be placed in a new collection named like the file |
-| Skip already imported files | if a file have already been imported, the import is skipped for this file, this option is only available if "`Create collection per file`" is Enable |
-|||
-| **Log Display** ||
-| Show Log on 3D View | Display the Log and Progress of the Importing files in the 3D viewport while importing |
-| Auto Hide Log When Finished | Automatic hide the log once the Import is Completed |
-| Wait Before Hiding (s) | How much time to wait before Hiding the Log |
-| Refresh viewport after each Import | Force refresh the viewport after each imported files. It improves interactivity, but will slow down the global import time |
-|||
-| **Backup** ||
-| Save file after import | At the end of the import process, save the current file |
-| Backup file after each import | A backup file is saved after each "`Backup Step`" file is imported |
-| Backup Step | The number of file that is imported before saving a backup |
-|||
-| **Command Batcher** ||
-|Commands | You create a macro like python commands list. These commands will be executed in a row to all the imported objects after each imported batch.<br><br> It will process in that order :<br> - Import Batch 1<br>-  Run all batch commands in order<br>-  Repeat for next Batches...  <br><br>For example, if you add this command "`bpy.ops.transform.translate(value=(10, 0, 0))`", each imported file will be translated 10 meters away on positive X axis <br><br> Please note how the commands are written with `bpy.ops` and all parameters in parentheses <br> You can't create variable, for loops or if statements. Just commands that blender will execute|
-| Ignore Command Batcher Errors | Batch Processing imported files can cause error. Enabling this will continue the import of the following files even if an error occurs. Otherwise, the import process will stop |
-| Presets | You can save any list of commands from `batch process Imported files` to a preset that will be saved on disk. Here you can manage the presets: <br>- Creating preset<br>- Loading Preset <br>- Removing Preset<br>- Renaming Preset|
