@@ -12,7 +12,7 @@ from ..umi_const import get_umi_settings, AUTOSAVE_PATH
 from ..preferences.formats.panels.presets import import_preset
 from ..logger import LOG, LoggerColors, MessageType
 from ..blender_version import BVERSION
-from ..ui.panel import draw_panel
+
 
 if BVERSION >= 4.1:
     class IMPORT_SCENE_FH_UMI_3DVIEW(bpy.types.FileHandler):
@@ -188,6 +188,88 @@ def register_import_format(self, context):
         for i,name in enumerate(f[1]['operator'].keys()):
             current_format[name] = FormatHandler(import_format=f"{f[0]}", module_name=name, context=context)
 
+class UMI_MD5Check(bpy.types.Operator):
+    bl_idname = "import_scene.tila_universal_multi_importer_md5_check"
+    bl_label = "Check MD5"
+    bl_options = {'REGISTER', 'INTERNAL'}
+
+    force : bpy.props.BoolProperty(name='Force Recompute MD5', default=False)
+
+    file_to_process = []
+    current_file = None
+
+    # from https://stackoverflow.com/questions/3431825/how-to-generate-an-md5-checksum-of-a-file
+    def md5(self, filepath):
+        import hashlib
+        hash_md5 = hashlib.md5()
+        with open(filepath, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    
+    def generate_md5(self):
+        if not self.force and len(self.current_file.md5):
+            self.current_file_processed = True
+            return
+
+        self.current_file.md5 = self.md5(self.current_file.path)
+        LOG.info(f'MD5 for {self.current_file.path} = {self.current_file.md5}')
+        bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+        
+        self.current_file_processed = True
+    
+    def init(self):
+        self.umi_settings.umi_md5_generation_status = 'IN_PROGRESS'
+        self.generating = False
+        self.done = False
+        self.canceled = False
+        self.file_to_process = [f for f in self.umi_settings.umi_file_selection]
+        self.current_file = self.file_to_process.pop()
+        self.current_file_processed = False
+    
+    def finish(self, context, canceled=False):
+        self.done = False
+        self.generating = False
+        context.window_manager.event_timer_remove(self._timer)
+        bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+        self.umi_settings.umi_md5_generation_status = 'DONE'
+        if canceled:
+            return {'CANCELLED'}
+        else:
+            return {'FINISHED'}
+
+    def execute(self, context):
+        self.umi_settings = get_umi_settings()
+        self.init()
+        wm = context.window_manager
+        self._timer = wm.event_timer_add(0.01, window=context.window)
+        wm.modal_handler_add(self)
+        return {'RUNNING_MODAL'}
+
+    def modal(self, context, event):
+        if event.type in {'ESC'} and event.value == 'PRESS':
+            return self.finish(context, canceled=True)
+        elif event.type in {'TIMER'}:
+            if not len(self.file_to_process) and self.current_file_processed:
+                self.done = True
+
+            if self.done:
+                return self.finish(context)
+            
+            if not self.generating:
+                self.generating = True
+                self.generate_md5()
+
+            else:
+                if self.current_file_processed:
+                    self.current_file = self.file_to_process.pop()
+                    self.current_file_processed = False
+                    self.generate_md5()
+
+            return {'RUNNING_MODAL'}
+
+        return {'PASS_THROUGH'}
+
 class UMI_FileSelection(bpy.types.Operator):
     bl_idname = "import_scene.tila_universal_multi_importer_file_selection"
     bl_label = "Universal Multi Importer"
@@ -269,7 +351,8 @@ class UMI_FileSelection(bpy.types.Operator):
         
         row1.separator()
         
-        box = file_selection_box.box()
+        row1 = file_selection_box.row(align=True)
+        box = row1.box()
         box.label(text='Name')
         row2 = box.row(align=True)
         op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
@@ -282,6 +365,17 @@ class UMI_FileSelection(bpy.types.Operator):
         row2.prop(self.umi_settings, 'umi_file_name_selection', text='')
         row2.prop(self.umi_settings, 'umi_file_name_case_sensitive_selection', text='', icon='SYNTAX_OFF')
         row2.prop(self.umi_settings, 'umi_file_name_include_folder_selection', text='', icon='FILEBROWSER')
+
+        box = row1.box()
+        box.ui_units_x = 2
+        box.label(text='Duplicates')
+        row2 = box.row(align=True)
+        op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
+        op.action = 'SELECT'
+        op.mode = "MD5"
+        op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_DEHLT')
+        op.action = 'DESELECT'
+        op.mode = "MD5"
         
         row2 = file_selection_box.row(align=True)
         row2.alignment = 'LEFT'
@@ -1199,7 +1293,7 @@ def menu_func_import(self, context):
     op.filter_stl = False
     op.filter_svg = False
 
-classes = (UMI_OT_Settings, UMI_FileSelection, UMI)
+classes = (UMI_OT_Settings, UMI_FileSelection, UMI, UMI_MD5Check)
 
 if BVERSION >= 4.1:
     classes = classes + (IMPORT_SCENE_FH_UMI_3DVIEW, IMPORT_SCENE_FH_UMI_OUTLINER, UMI_OT_Drop_In_Outliner)

@@ -91,6 +91,7 @@ class PG_FilePathSelection(bpy.types.PropertyGroup):
     path : bpy.props.StringProperty(name='File Path', default='', subtype='FILE_PATH')
     check : bpy.props.BoolProperty(name='Check', default=True, update=update_file_stats)
     size : bpy.props.FloatProperty(name='FileSize', default=0.0)
+    md5 : bpy.props.StringProperty(name='MD5')
 
 class PG_GlobalSettings(bpy.types.PropertyGroup):
     import_simultaneously_count : bpy.props.IntProperty(name="Max Simultaneously Files", default=200, min=1, description='Maximum number of file to import simultaneously')
@@ -142,6 +143,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_all_addon_dependencies_installed : bpy.props.BoolProperty(name='All Addon Dependencies Installed', default=False)
     umi_all_addon_dependencies_enabled : bpy.props.BoolProperty(name='All Addon Dependencies Installed', default=False)
     umi_addon_dependency_need_reboot : bpy.props.BoolProperty(name='Need Reboot', default=False)
+    umi_md5_generation_status : bpy.props.EnumProperty(name='MD5 Generation Status', default='NOT_STARTED', items=[('NOT_STARTED', 'Not Started', ''), ('IN_PROGRESS', 'In Progress', ''), ('DONE', 'Done', '')])
 
 class UMI_UL_OperatorList(bpy.types.UIList):
     bl_idname = "UMI_UL_operator_list"
