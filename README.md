@@ -16,6 +16,13 @@
 ## Credits
 This addon is adding batch import features to existing importer for blender. The credits for the importers goes to each importer addon developers and to the blender team themself. You click on the link below to know more about the author of each importers.
 
+- [Web3D X3D/VRML2](https://projects.blender.org/extensions/io_scene_x3d) by Bujus Krachus
+- [Autodesk 3D Studio](https://projects.blender.org/extensions/io_scene_3ds) by Bob Holcomb, Campbell Barton, Sebastian Schrand, Sebastian Sille
+- [Autodesk MAX Importer](https://github.com/nrgsille76/io_scene_max) by Sebastian Sille
+- [Atomic Blender PDB/XYZ](https://projects.blender.org/extensions/io_mesh_atomic) by Clemens Barth
+- [AutoCAD DXF](https://projects.blender.org/extensions/io_import_dxf) by Lukas Treyer, Manfred Moitzi, Vladimir Elistratov, Bastien Montagne, Remigiusz Fiedler
+- [Blender Ebroidery](https://github.com/javl/blender-embroidery) by Jasper van Loenen
+
 # Supported Formats
 | Mesh Formats | Image Formats | Video Formats | Animation Formats | Embroidery Formats[:link:](https://github.com/javl/blender-embroidery) |
 | -----------  | -----------   |  -----------  |   -----------     |   -----------      |
@@ -24,23 +31,21 @@ This addon is adding batch import features to existing importer for blender. The
 | fbx          | gif           |  mkv          |                   |  exp               |
 | glb          | png           |  mpg          |                   |  jef               |
 | gltf         | tif           |  mpeg         |                   |  pec               |
-| x3d          | tiff          |  dvd          |                   |  jpx               |
+| x3d[:link:](https://projects.blender.org/extensions/io_scene_x3d)| tiff|  dvd          |                   |  jpx               |
 | wrl          | bmp           |  dvd          |                   |  phc               |
 | stl          | cin           |  vob          |                   |  vp3               |
 | ply          | dpx           |  avi          |                   |  10o               |
-| abc          | jp2           |  dv           |                   |  100               |
+| abc          | jp2           |  dv           |                   |  zxy               |
 | dae          | j2c           |  flv          |                   |  bro               |
 | svg          | sig           |  webm         |                   |  dat               |
 | usd          | rgb           |               |                   |  dsb               |
 | usda         | bw            |               |                   |  dsz               |
 | usdc         | exr           |               |                   |  emd               |
 | usdz         | hdr           |               |                   |  exy               |
-| max[:link:](https://github.com/nrgsille76/io_scene_max)|               |               |                   |  fxy               |
-|              |               |               |                   |  gt                |
-|              |               |               |                   |  hus               |
-|              |               |               |                   |  inb               |
-|              |               |               |                   |  ksm               |
-|              |               |               |                   |  mit               |
+| max[:link:](https://github.com/nrgsille76/io_scene_max) |||       |  fxy              |
+| pdb[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  gcode       |
+| xyz[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  hus         |
+| dxf[:link:](https://projects.blender.org/extensions/io_import_dxf) ||||  inb          |
 |              |               |               |                   |  new               |
 |              |               |               |                   |  pcd               |
 |              |               |               |                   |  pcm               |
@@ -53,12 +58,8 @@ This addon is adding batch import features to existing importer for blender. The
 |              |               |               |                   |  stx               |
 |              |               |               |                   |  tap               |
 |              |               |               |                   |  tbf               |
-|              |               |               |                   |  u01               |
 |              |               |               |                   |  xxx               |
 |              |               |               |                   |  zhs               |
-|              |               |               |                   |  zxy               |
-|              |               |               |                   |  gcode             |
-|              |               |               |                   |  max               |
 
 # Import Settings
 | Settings | Description |
