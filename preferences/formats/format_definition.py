@@ -13,13 +13,13 @@ class FormatDefinition():
     
     fbx = {'name' : 'fbx',
             'ext' : ['.fbx'],
-            'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : 'IMPORT_SCENE_OT_fbx', 'addon_name' : 'io_scene_fbx', 'pkg_id' : None, 'pkg_url':None}},
+            'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : None, 'addon_name' : 'io_scene_fbx', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
     
     gltf = {'name' : 'gltf',
             'ext' : ['.glb', '.gltf'],
-            'operator' : {'default':{'command':'bpy.ops.import_scene.gltf','module' : 'IMPORT_SCENE_OT_gltf', 'addon_name' : 'io_scene_gltf2', 'pkg_id' : None, 'pkg_url':None}},
+            'operator' : {'default':{'command':'bpy.ops.import_scene.gltf','module' : None, 'addon_name' : 'io_scene_gltf2', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
     
@@ -39,14 +39,14 @@ class FormatDefinition():
 
     blend = {'name' : 'blend',
             'ext' : ['.blend'],
-            'operator' : {'default':{'command':'bpy.ops.import_scene.tila_import_blend', 'module':'IMPORT_SCENE_OT_tila_import_blend', 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None}},
+            'operator' : {'default':{'command':'bpy.ops.import_scene.tila_import_blend', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False		
             }
     
     bvh = {'name' : 'bvh',
             'ext' : ['.bvh'],
-            'operator' : {'default':{'command':'bpy.ops.import_anim.bvh', 'module':'IMPORT_ANIM_OT_bvh', 'addon_name' : 'io_anim_bvh', 'pkg_id' : None, 'pkg_url':None}},
+            'operator' : {'default':{'command':'bpy.ops.import_anim.bvh', 'module':None, 'addon_name' : 'io_anim_bvh', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':True		
             }
@@ -100,7 +100,7 @@ class FormatDefinition():
         'generate_filter_glob':True}
     
     pes = {'name' : 'pes',
-        'ext' : ['.pes', '.dst', '.exp', '.jef', '.pec', '.jpx', '.phc', '.vp3', '.10o', '.100', '.bro', '.dat', '.dsb', '.dsz', '.emd', '.exy', '.fxy', '.gt', '.hus', '.inb', '.ksm', '.mit', '.new', '.pcd', '.pcm', '.pcq', '.pcs', '.phb', '.sew', '.shv', '.stc', '.stx', '.tap', '.tbf', '.u01', '.xxx', '.zhs', '.zxy', '.gcode'],
+        'ext' : ['.pes', '.dst', '.exp', '.jef', '.pec', '.jpx', '.phc', '.vp3', '.10o', '.bro', '.dat', '.dsb', '.dsz', '.emd', '.exy', '.fxy', '.hus', '.inb', '.new', '.pcd', '.pcm', '.pcq', '.pcs', '.phb', '.sew', '.shv', '.stc', '.stx', '.tap', '.tbf', '.xxx', '.zhs', '.zxy', '.gcode'], # '.100', '.mit', '.ksm', '.u01', '.gt', 
         'operator' : {'default':{'command':'bpy.ops.import_scene.embroidery', 'module':None, 'addon_name' : 'bl_ext.blender_org.embroidery_importer', 'pkg_id' : 'embroidery_importer', 'pkg_url': 'https://extensions.blender.org/add-ons/embroidery-importer/', 'import_settings':
                                             [['Import', 
                                             {"show_jump_wires": {'type':'bpy.props.BoolProperty', 'name':'"Import Jump Wires"', 'default':True},
@@ -123,7 +123,25 @@ class FormatDefinition():
     
     x3d = {'name' : 'x3d',
         'ext' : ['.x3d', '.wrl'],
-        'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : 'IMPORT_SCENE_OT_x3d', 'addon_name' : 'bl_ext.blender_org.web3d_x3d_vrml2_format', 'pkg_id' : 'web3d_x3d_vrml2_format', 'pkg_url':'https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/'}},
+        'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : None, 'addon_name' : 'bl_ext.blender_org.web3d_x3d_vrml2_format', 'pkg_id' : 'web3d_x3d_vrml2_format', 'pkg_url':'https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/', 'import_settings':None}},
+        'ignore': ['files', 'directory'],
+        'generate_filter_glob':True}
+    
+    pdb = {'name' : 'pdb',
+        'ext' : ['.pdb'],
+        'operator' : {'default':{'command':'bpy.ops.import_mesh.pdb','module' : None, 'addon_name' : 'bl_ext.blender_org.atomic_blender_pdb_xyz', 'pkg_id' : 'atomic_blender_pdb_xyz', 'pkg_url':'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/', 'import_settings':None}},
+        'ignore': ['files', 'directory'],
+        'generate_filter_glob':True}
+    
+    xyz = {'name' : 'xyz',
+        'ext' : ['.xyz'],
+        'operator' : {'default':{'command':'bpy.ops.import_mesh.xyz','module' : None, 'addon_name' : 'bl_ext.blender_org.atomic_blender_pdb_xyz', 'pkg_id' : 'atomic_blender_pdb_xyz', 'pkg_url':'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/', 'import_settings': None}},
+        'ignore': ['files', 'directory'],
+        'generate_filter_glob':True}
+
+    dxf = {'name' : 'dxf',
+        'ext' : ['.dxf'],
+        'operator' : {'default':{'command':'bpy.ops.import_scene.dxf','module' : None, 'addon_name' : 'bl_ext.blender_org.import_autocad_dxf_format_dxf', 'pkg_id' : 'import_autocad_dxf_format_dxf', 'pkg_url':'https://extensions.blender.org/add-ons/import-autocad-dxf-format-dxf/', 'import_settings':None}},
         'ignore': ['files', 'directory'],
         'generate_filter_glob':True}
     
@@ -132,7 +150,7 @@ class FormatDefinition():
             'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                         '.hdr', '.exr',
                         '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-            'operator' : {  'plane':{'command':'bpy.ops.image.import_as_mesh_planes', 'module':'IMAGE_OT_import_as_mesh_planes', 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None},
+            'operator' : {  'plane':{'command':'bpy.ops.image.import_as_mesh_planes', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None},
 
                             'data':{'command':'bpy.ops.image.open', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None, 'pkg_url':None},
                             'empty':{'command':'bpy.ops.object.empty_image_add', 'module':None, 'addon_name' : None, 'pkg_id' : None , 'import_settings':None, 'pkg_url':None}
@@ -152,7 +170,7 @@ class FormatDefinition():
             'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                         '.hdr', '.exr',
                          '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-            'operator' : {  'plane':{'command':'bpy.ops.image.import_as_mesh_planes', 'module':'IMAGE_OT_import_as_mesh_planes', 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None},
+            'operator' : {  'plane':{'command':'bpy.ops.image.import_as_mesh_planes', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None},
                             'data':{'command':'bpy.ops.image.open', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None, 'pkg_url':None},
                             'empty':{'command':'bpy.ops.object.empty_image_add', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None, 'pkg_url':None}
                         },
@@ -171,10 +189,10 @@ class FormatDefinition():
         'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                     '.hdr', '.exr',
                     '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-        'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':'IMPORT_IMAGE_OT_to_plane', 'addon_name' : 'io_import_images_as_planes', 'pkg_id' : None, 'pkg_url':None},
-                        'data':{'command':'bpy.ops.image.open', 'module':None, 'addon_name' : None, 'pkg_id' : None , 'import_settings':None, 'pkg_url':None},
-                        'ref':{'command':'bpy.ops.object.load_reference_image', 'module':'OBJECT_OT_load_reference_image', 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None},
-                        'background':{'command':'bpy.ops.object.load_background_image', 'module':'OBJECT_OT_load_background_image', 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None}},
+        'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':None, 'addon_name' : 'io_import_images_as_planes', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None},
+                        'data':{'command':'bpy.ops.image.open', 'module':None, 'addon_name' : None, 'pkg_id' : None , 'import_settings':None, 'pkg_url':None, 'import_settings':None},
+                        'ref':{'command':'bpy.ops.object.load_reference_image', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None},
+                        'background':{'command':'bpy.ops.object.load_background_image', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None}},
         'ignore': ['files', 'directory', 'filepath'],
         'generate_filter_glob':False
         }
@@ -182,12 +200,12 @@ class FormatDefinition():
         stl = {'name' : 'stl',
                 'ext' : ['.stl'],
                 'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : 'io_mesh_stl', 'pkg_id' : None, 'import_settings':None, 'pkg_url':None},
-                                'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : 'IMPORT_MESH_OT_stl', 'addon_name' : None, 'pkg_id' : None, 'import_settings':None, 'pkg_url':None}},
+                                'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None, 'pkg_url':None}},
                 'ignore': ['files', 'directory'],
                 'generate_filter_glob':False}
         
         x3d = {'name' : 'x3d',
             'ext' : ['.x3d', '.wrl'],
-            'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : 'IMPORT_SCENE_OT_x3d', 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None}},
+            'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':True}

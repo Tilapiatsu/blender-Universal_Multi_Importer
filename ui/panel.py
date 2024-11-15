@@ -16,7 +16,10 @@ def draw_panel(layout, props:list, idname:str, header_name:str, icon='NONE', def
                 panel.enabled = getattr(header_bool[0], header_bool[1])
             col = panel.column(align=True)
             for p in props:
-                col.prop(p[0], p[1])
+                if len(p) == 2:
+                    col.prop(p[0], p[1])
+                elif len(p) == 3:
+                    col.prop(p[0], p[1], text=p[2])
                 col.separator(factor=0.5)
         
         return header, panel
@@ -38,6 +41,9 @@ def draw_panel(layout, props:list, idname:str, header_name:str, icon='NONE', def
             if set_header_boolean:
                 panel.enabled = getattr(header_bool[0], header_bool[1])
             for p in props:
-                panel.prop(p[0], p[1])
+                if len(p) == 2:
+                    panel.prop(p[0], p[1])
+                elif len(p) == 3:
+                    panel.prop(p[0], p[1], text=p[2])
         
         return header, panel
