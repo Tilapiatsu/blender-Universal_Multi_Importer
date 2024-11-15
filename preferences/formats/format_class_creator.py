@@ -131,13 +131,15 @@ class FormatClassCreator():
                                                                                                 'size':len(p.default_array),
                                                                                                 'min': p.soft_min,
                                                                                                 'max':p.soft_max,
-                                                                                                'unit':f'"{p.unit}"'})
+                                                                                                'unit':f'"{p.unit}"',
+                                                                                                'precision':p.precision})
                         else:
                             command = self._property_type[p.type]
                             command += self.get_property_command_string(p,  additionnal_props={ 'subtype': f'"{p.subtype}"', 
                                                                                                 'min': p.soft_min,
                                                                                                 'max':p.soft_max,
-                                                                                                'unit':f'"{p.unit}"'})
+                                                                                                'unit':f'"{p.unit}"',
+                                                                                                'precision':p.precision})
                     elif p.type == 'INT':
                         is_array = getattr(p, 'is_array', None)
                         if is_array: # Vector field
