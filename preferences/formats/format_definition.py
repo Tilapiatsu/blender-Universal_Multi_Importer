@@ -126,25 +126,7 @@ class FormatDefinition():
         'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : None, 'addon_name' : 'bl_ext.blender_org.web3d_x3d_vrml2_format', 'pkg_id' : 'web3d_x3d_vrml2_format', 'pkg_url':'https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/', 'import_settings':None}},
         'ignore': ['files', 'directory'],
         'generate_filter_glob':True}
-    
-    pdb = {'name' : 'pdb',
-        'ext' : ['.pdb'],
-        'operator' : {'default':{'command':'bpy.ops.import_mesh.pdb','module' : None, 'addon_name' : 'bl_ext.blender_org.atomic_blender_pdb_xyz', 'pkg_id' : 'atomic_blender_pdb_xyz', 'pkg_url':'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/', 'import_settings':None}},
-        'ignore': ['files', 'directory'],
-        'generate_filter_glob':True}
-    
-    xyz = {'name' : 'xyz',
-        'ext' : ['.xyz'],
-        'operator' : {'default':{'command':'bpy.ops.import_mesh.xyz','module' : None, 'addon_name' : 'bl_ext.blender_org.atomic_blender_pdb_xyz', 'pkg_id' : 'atomic_blender_pdb_xyz', 'pkg_url':'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/', 'import_settings': None}},
-        'ignore': ['files', 'directory'],
-        'generate_filter_glob':True}
 
-    dxf = {'name' : 'dxf',
-        'ext' : ['.dxf'],
-        'operator' : {'default':{'command':'bpy.ops.import_scene.dxf','module' : None, 'addon_name' : 'bl_ext.blender_org.import_autocad_dxf_format_dxf', 'pkg_id' : 'import_autocad_dxf_format_dxf', 'pkg_url':'https://extensions.blender.org/add-ons/import-autocad-dxf-format-dxf/', 'import_settings':None}},
-        'ignore': ['files', 'directory'],
-        'generate_filter_glob':True}
-    
     if BVERSION >=4.3:
         image = {'name' : 'image',
             'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
@@ -184,6 +166,25 @@ class FormatDefinition():
                 'ignore': ['files', 'directory'],
                 'generate_filter_glob':False}
         
+        dxf = {'name' : 'dxf',
+        'ext' : ['.dxf'],
+        'operator' : {'default':{'command':'bpy.ops.import_scene.dxf','module' : None, 'addon_name' : 'bl_ext.blender_org.import_autocad_dxf_format_dxf', 'pkg_id' : 'import_autocad_dxf_format_dxf', 'pkg_url':'https://extensions.blender.org/add-ons/import-autocad-dxf-format-dxf/', 'import_settings':None}},
+        'ignore': ['files', 'directory'],
+        'generate_filter_glob':True}
+
+        pdb = {'name' : 'pdb',
+        'ext' : ['.pdb'],
+        'operator' : {'default':{'command':'bpy.ops.import_mesh.pdb','module' : None, 'addon_name' : 'bl_ext.blender_org.atomic_blender_pdb_xyz', 'pkg_id' : 'atomic_blender_pdb_xyz', 'pkg_url':'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/', 'import_settings':None}},
+        'ignore': ['files', 'directory'],
+        'generate_filter_glob':True}
+    
+        xyz = {'name' : 'xyz',
+            'ext' : ['.xyz'],
+            'operator' : {'default':{'command':'bpy.ops.import_mesh.xyz','module' : None, 'addon_name' : 'bl_ext.blender_org.atomic_blender_pdb_xyz', 'pkg_id' : 'atomic_blender_pdb_xyz', 'pkg_url':'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/', 'import_settings': None}},
+            'ignore': ['files', 'directory'],
+            'generate_filter_glob':True}
+    
+    # 4.1 and below
     else:
         image = {'name' : 'image',
         'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
@@ -207,5 +208,23 @@ class FormatDefinition():
         x3d = {'name' : 'x3d',
             'ext' : ['.x3d', '.wrl'],
             'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None}},
+            'ignore': ['files', 'directory'],
+            'generate_filter_glob':True}
+        
+        dxf = {'name' : 'dxf',
+        'ext' : ['.dxf'],
+        'operator' : {'default':{'command':'bpy.ops.import_scene.dxf','module' : None, 'addon_name' : 'io_import_dxf', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None}},
+        'ignore': ['files', 'directory'],
+        'generate_filter_glob':True}
+
+        pdb = {'name' : 'pdb',
+        'ext' : ['.pdb'],
+        'operator' : {'default':{'command':'bpy.ops.import_mesh.pdb','module' : None, 'addon_name' : 'io_mesh_atomic', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None}},
+        'ignore': ['files', 'directory'],
+        'generate_filter_glob':True}
+    
+        xyz = {'name' : 'xyz',
+            'ext' : ['.xyz'],
+            'operator' : {'default':{'command':'bpy.ops.import_mesh.xyz','module' : None, 'addon_name' : 'io_mesh_atomic', 'pkg_id' : None, 'pkg_url':None, 'import_settings': None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':True}
