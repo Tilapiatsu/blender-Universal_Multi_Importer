@@ -26,7 +26,7 @@ class LoggerColors():
     @staticmethod
     @safe_get_color
     def CANCELLED_COLOR (): 
-        return 'mi_cancelled_color'
+        return 'umi_cancelled_color'
 
     @staticmethod
     @safe_get_color
