@@ -440,6 +440,7 @@ class UMI_FileSelection(bpy.types.Operator):
                 import_count.prop(self.umi_settings.umi_global_import_settings, 'max_batch_size')
                 if self.umi_settings.umi_global_import_settings.max_batch_size:
                     import_count.prop(self.umi_settings.umi_global_import_settings, 'minimize_batch_number')
+                import_count.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_time')
 
             header, settings = col.panel(idname='UMI_Options')
             header.label(text='Options', icon='OPTIONS')
@@ -579,6 +580,7 @@ class UMI(bpy.types.Operator, ImportHelper):
     counter = 0
     counter_start_time = 0.0
     counter_end_time = 0.0
+    _timer_start_time = 0.0
     delta = 0.0
     previous_counter = 0
 
@@ -644,6 +646,21 @@ class UMI(bpy.types.Operator, ImportHelper):
     def store_delta_end(self):
         self.counter_end_time = time.perf_counter()
     
+    @property
+    def refresh_timer(self):
+        if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_time:
+            return self.timer_start_time + self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_time - time.perf_counter()
+        return 1
+
+    @property
+    def timer_start_time(self):
+        if self._timer_start_time == 0:
+            self._timer_start_time = time.perf_counter()
+        return self._timer_start_time
+
+    def store_timer_start(self):
+        self._timer_start_time = time.perf_counter()
+
     def log_end_text(self):
         LOG.info('-----------------------------------')
         if self.import_complete:
@@ -1005,6 +1022,9 @@ class UMI(bpy.types.Operator, ImportHelper):
         self.current_backup_step += current_file_size
         
         if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_each_import:
+            bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+        elif self.refresh_timer <= 0:
+            self.store_timer_start()
             bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
             
         import_col = self.root_collection

@@ -101,12 +101,13 @@ class PG_GlobalSettings(bpy.types.PropertyGroup):
     backup_file_after_import : bpy.props.BoolProperty(name='Backup file during import', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
     backup_step : bpy.props.FloatProperty(name='Backup Step (MB)', description='Backup file after X file(s) imported', default=100, min=1)
     skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
-    save_file_after_import : bpy.props.BoolProperty(name='Save file after import complete', description='Save the original file when the entire import process is compete', default=False)
+    save_file_after_import : bpy.props.BoolProperty(name='Save file after import completed', description='Save the original file when the entire import process is complete', default=False)
     ignore_command_batcher_errors : bpy.props.BoolProperty(name='Ignore Command Batcher Errors', default=True)
     show_log_on_3d_view : bpy.props.BoolProperty(name="Show Log on 3D View", default=True, update=update_log_drawing)
     auto_hide_text_when_finished : bpy.props.BoolProperty(name="Auto Hide Log When Finished", default=False)
     wait_before_hiding : bpy.props.FloatProperty(name="Wait Before Hiding (s)", default=5.0)
     force_refresh_viewport_after_each_import : bpy.props.BoolProperty(name="Refresh Viewport After Each Imported Files", default=False)
+    force_refresh_viewport_after_time : bpy.props.FloatProperty(name="Refresh Viewport After time (s)", default=1.0, min=0, description='The viewport will refresh after the X seconds. It help to control viewport interactivity. A value of 0 will disable it, and the viewport will refresh after each batch')
 
 class PG_UMISettings(bpy.types.PropertyGroup):
     umi_file_selected_format_items : bpy.props.StringProperty(name='Selected format items')

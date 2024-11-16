@@ -70,6 +70,7 @@ This addon is adding batch import features to existing importers for blender. Th
 | Max Simultaneously | Determine the max number of file to import simultaneously. Each group of files to be imported simultaneously is called a "Batch". Importing multiple file at the same time allow to reduce the import time for small file, but can cause screen freezing or memory issue for bigger file. To smartly balance this, you can check `Max batch size` and `Minimize batch number`|
 | Max batch size | Determine the max batch file size to Import. If a file is a candidate to be include in the current batch, but his file size would make the batch bigger than `Max batch size`, then the file will be included in the next batch |
 | Minimize batch number | The importer will smartly group files in batches in order to be as close as possible to `Max batch size` for each batch without exceeding it and without exceeding `Max Import Simultaneously`|
+| Refresh Viewport After time (s) | The viewport will refresh after the X seconds. It help to control viewport interactivity. A value of 0 will disable it, and the viewport will refresh after each batch`|
 |||
 | **Options** ||
 | Create collection per file | Each imported file will be placed in a new collection named like the file |
@@ -95,7 +96,8 @@ This addon is adding batch import features to existing importers for blender. Th
 # Changelog
 ### v2.1.6 : Support for Blender 4.3
 ### v2.1.6 : Use Collapsable Panels for import settings
-### v2.1.6 : Support for new formats : Autodesk 3Dsmax, and Embroidery files
+### v2.1.6 : Support for new formats : Autodesk 3Dsmax, Embroidery files, AutoCAD DXF, Atomic PBD and XYZ
+### v2.1.6 : Add Timer for refresh viewport to better control its interactivity
 ### v2.1.5 : Add Addon Dependency Checker to easily fix any missing import formats
 [![Addon-Dependency-Checker-03.webp](https://i.postimg.cc/qMzp19SL/Addon-Dependency-Checker-03.webp)](https://postimg.cc/kBPr4hn6)
 ### v2.1.0 : Support for Blender 4.2 and the extension platform
