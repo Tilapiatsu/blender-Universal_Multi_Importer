@@ -2,8 +2,6 @@ import bpy
 from . import BVERSION
 from . import draw_panel
 
-pannels=()
-
 class IMPORT_SCENE_USDSettings():
     def draw(self, operator, module_name,  layout):
         layout.use_property_split = True
