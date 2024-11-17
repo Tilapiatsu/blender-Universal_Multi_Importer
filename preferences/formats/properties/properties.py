@@ -142,7 +142,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_file_stat_selected_formats : bpy.props.StringProperty(name='format(s)', default='')
     umi_addon_dependencies : bpy.props.CollectionProperty(type = PG_AddonDependency)
     umi_all_addon_dependencies_installed : bpy.props.BoolProperty(name='All Addon Dependencies Installed', default=False)
-    umi_all_addon_dependencies_enabled : bpy.props.BoolProperty(name='All Addon Dependencies Installed', default=False)
+    umi_all_addon_dependencies_enabled : bpy.props.BoolProperty(name='All Addon Dependencies Enabled', default=False)
     umi_addon_dependency_need_reboot : bpy.props.BoolProperty(name='Need Reboot', default=False)
     umi_md5_generation_status : bpy.props.EnumProperty(name='MD5 Generation Status', default='NOT_STARTED', items=[('NOT_STARTED', 'Not Started', ''), ('IN_PROGRESS', 'In Progress', ''), ('DONE', 'Done', '')])
 
