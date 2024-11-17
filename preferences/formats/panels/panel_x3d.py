@@ -5,7 +5,7 @@ class IMPORT_SCENE_X3DSettings():
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        if BVERSION >= 4.3:
+        if BVERSION >= 4.2:
 
             header, panel = layout.panel(idname='X3DSettings_Transform')
             header.label(text='Transform', icon='OBJECT_DATA')
@@ -35,7 +35,7 @@ class IMPORT_SCENE_X3DSettings():
             
             draw_panel(layout, op, 'X3DSettings_Mesh', 'Solidify', icon='MOD_SOLIDIFY', set_header_boolean=True, header_bool=[operator, 'solidify'])
         
-        elif BVERSION >= 4.2:
+        elif BVERSION >= 4.1:
             op = [  [operator, 'axis_forward'],
                 [operator, 'axis_up']]
         
