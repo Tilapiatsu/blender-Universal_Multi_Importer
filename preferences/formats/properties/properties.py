@@ -28,7 +28,7 @@ def update_file_stats(self, context):
     
     if len(formats) and not len(umi_settings.umi_file_format_current_settings):
         f = COMPATIBLE_FORMATS.get_format_from_extension(formats[0])['name'].upper()
-        umi_settings.umi_file_format_current_settings = {f}
+        umi_settings.umi_file_format_current_settings = f
         
 def update_file_format_current_settings(self, context):
     umi_settings = get_umi_settings()
@@ -129,8 +129,8 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_global_import_settings : bpy.props.PointerProperty(type=PG_GlobalSettings)
     umi_skip_settings : bpy.props.BoolProperty(name='Skip Setting Windows', default=False)
     umi_file_extension_selection : bpy.props.EnumProperty(name='ext', items=get_file_extension_selection)
-    umi_import_batch_settings : bpy.props.EnumProperty(items=[('GLOBAL', 'Global Settings', ''), ('BATCHER', 'Command Batcher', '')], options={"ENUM_FLAG"}, update=update_file_format_current_settings)
-    umi_file_format_current_settings : bpy.props.EnumProperty(items=get_file_selected_items, options={"ENUM_FLAG"}, update=update_import_batch_settings)
+    umi_import_batch_settings : bpy.props.EnumProperty(items=[('IMPORT', 'Format Settings', ''), ('GLOBAL', 'Global Settings', ''), ('BATCHER', 'Command Batcher', '')])
+    umi_file_format_current_settings : bpy.props.EnumProperty(items=get_file_selected_items)
     umi_file_size_min_selection : bpy.props.FloatProperty( min=0, name='min (Mb)', default=0.0)
     umi_file_size_max_selection : bpy.props.FloatProperty( min=0, name='max (Mb)', default=1.0)
     umi_file_name_selection : bpy.props.StringProperty(name='name', default='')

@@ -395,24 +395,28 @@ class UMI_FileSelection(bpy.types.Operator):
         box = col1.box()
         col2 = box.column(align=True)
         row1 = col2.row(align=True)
-        row1.prop(self.umi_settings, 'umi_import_batch_settings', expand=True)
+        row1.prop_tabs_enum(self.umi_settings, 'umi_import_batch_settings')
         row1 = col2.row(align=True)
+        
+        if self.umi_settings.umi_import_batch_settings == 'IMPORT':
+            if len(self.umi_settings.umi_file_extension_selection) and len(get_file_selected_items(self, context)):
+                row1.prop_tabs_enum(self.umi_settings, 'umi_file_format_current_settings')
+                col1.separator()
+                
+                if len(self.umi_settings.umi_file_format_current_settings):
+                    current_setting_name = self.umi_settings.umi_file_format_current_settings.lower()
+                    self.draw_current_settings(context, box, current_setting_name)
+            else:
+                row1.alignment = 'CENTER'
+                row1.label(text='Select at least one file')
 
-        if len(self.umi_settings.umi_file_extension_selection) and len(get_file_selected_items(self, context)):
-            row1.prop(self.umi_settings, 'umi_file_format_current_settings', expand=True)
-        else:
-            row1.alignment = 'CENTER'
-            row1.label(text='Select at least one file')
-        col1.separator()
-        if len(self.umi_settings.umi_file_format_current_settings):
-            current_setting_name = self.umi_settings.umi_file_format_current_settings.copy().pop().lower()
-            self.draw_current_settings(context, box, current_setting_name)
-        elif len(self.umi_settings.umi_import_batch_settings):
-            if self.umi_settings.umi_import_batch_settings == {'GLOBAL'}:
-                import_preset.panel_func(box)
-                self.draw_global_settings(context, box)
-            elif self.umi_settings.umi_import_batch_settings == {'BATCHER'}:
-                draw_command_batcher(self, context, box)
+        elif self.umi_settings.umi_import_batch_settings == 'GLOBAL':
+            col1.separator()
+            import_preset.panel_func(box)
+            self.draw_global_settings(context, box)
+        elif self.umi_settings.umi_import_batch_settings == 'BATCHER':
+            col1.separator()
+            draw_command_batcher(self, context, box)
     
     def draw_current_settings(self, context, layout, format_name):
         layout.use_property_split = True
