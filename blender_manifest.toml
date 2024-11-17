@@ -14,7 +14,7 @@ tags = ["Import-Export", "Pipeline"]
 blender_version_min = "4.2.0"
 
 license = [
-  "SPDX:MIT",
+  "SPDX:GPL-3.0-or-later",
 ]
 
 copyright = [
