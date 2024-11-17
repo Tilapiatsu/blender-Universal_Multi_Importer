@@ -94,6 +94,7 @@ This addon is adding batch import features to existing importers for blender. Th
 
 
 # Changelog
+### v2.1.7 : add Support for 3DS files
 ### v2.1.6 : Support for Blender 4.3
 ### v2.1.6 : Use Collapsable Panels for import settings
 ### v2.1.6 : Support for new formats : Autodesk 3Dsmax, Embroidery files, AutoCAD DXF, Atomic PBD and XYZ
