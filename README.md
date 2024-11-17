@@ -46,7 +46,7 @@ This addon is adding batch import features to existing importers for blender. Th
 | pdb[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  gcode       |
 | xyz[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  hus         |
 | dxf[:link:](https://projects.blender.org/extensions/io_import_dxf) ||||  inb          |
-|              |               |               |                   |  new               |
+| 3ds[:link:](https://projects.blender.org/extensions/io_scene_3ds)  ||||  new          |
 |              |               |               |                   |  pcd               |
 |              |               |               |                   |  pcm               |
 |              |               |               |                   |  pcq               |
