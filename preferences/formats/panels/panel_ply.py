@@ -1,15 +1,18 @@
+from . import draw_panel
 
 class IMPORT_SCENE_PLYSettings():
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        options = layout.box()
-        options.label(text='Options', icon='OPTIONS')
+        op =    [[operator, 'global_scale'],
+                 [operator, 'use_scene_unit'],
+                 [operator, 'forward_axis'],
+                 [operator, 'up_axis']]
+        
+        draw_panel(layout, op, 'PLYSettings_General', 'General', icon='OBJECT_DATA')
 
-        options.prop(operator, 'global_scale')
-        options.prop(operator, 'use_scene_unit')
-        options.prop(operator, 'forward_axis')
-        options.prop(operator, 'up_axis')
-        options.prop(operator, 'merge_verts')
-        options.prop(operator, 'import_colors')
+        op =    [[operator, 'merge_verts'],
+                 [operator, 'import_colors']]
+        
+        draw_panel(layout, op, 'PLYSettings_Options', 'Options', icon='OPTIONS')

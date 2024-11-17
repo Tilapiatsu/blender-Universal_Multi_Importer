@@ -28,7 +28,7 @@ def update_file_stats(self, context):
     
     if len(formats) and not len(umi_settings.umi_file_format_current_settings):
         f = COMPATIBLE_FORMATS.get_format_from_extension(formats[0])['name'].upper()
-        umi_settings.umi_file_format_current_settings = {f}
+        umi_settings.umi_file_format_current_settings = f
         
 def update_file_format_current_settings(self, context):
     umi_settings = get_umi_settings()
@@ -66,6 +66,7 @@ class PG_AddonDependency(bpy.types.PropertyGroup):
     module_name     : bpy.props.StringProperty(name='Format Name', default='')
     addon_name      : bpy.props.StringProperty(name='Addon Name', default='')
     pkg_id          : bpy.props.StringProperty(name='Package Index', default='')
+    pkg_url         : bpy.props.StringProperty(name='Package URL', default='')
     is_extension    : bpy.props.BoolProperty(name='Is Extension', default=False)
     is_installed    : bpy.props.BoolProperty(name='Is Installed', default=False)
     is_enabled      : bpy.props.BoolProperty(name='Is Enabled', default=False)
@@ -90,6 +91,7 @@ class PG_FilePathSelection(bpy.types.PropertyGroup):
     path : bpy.props.StringProperty(name='File Path', default='', subtype='FILE_PATH')
     check : bpy.props.BoolProperty(name='Check', default=True, update=update_file_stats)
     size : bpy.props.FloatProperty(name='FileSize', default=0.0)
+    md5 : bpy.props.StringProperty(name='MD5')
 
 class PG_GlobalSettings(bpy.types.PropertyGroup):
     import_simultaneously_count : bpy.props.IntProperty(name="Max Simultaneously Files", default=200, min=1, description='Maximum number of file to import simultaneously')
@@ -99,18 +101,19 @@ class PG_GlobalSettings(bpy.types.PropertyGroup):
     backup_file_after_import : bpy.props.BoolProperty(name='Backup file during import', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
     backup_step : bpy.props.FloatProperty(name='Backup Step (MB)', description='Backup file after X file(s) imported', default=100, min=1)
     skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
-    save_file_after_import : bpy.props.BoolProperty(name='Save file after import complete', description='Save the original file when the entire import process is compete', default=False)
+    save_file_after_import : bpy.props.BoolProperty(name='Save file after import completed', description='Save the original file when the entire import process is complete', default=False)
     ignore_command_batcher_errors : bpy.props.BoolProperty(name='Ignore Command Batcher Errors', default=True)
     show_log_on_3d_view : bpy.props.BoolProperty(name="Show Log on 3D View", default=True, update=update_log_drawing)
     auto_hide_text_when_finished : bpy.props.BoolProperty(name="Auto Hide Log When Finished", default=False)
     wait_before_hiding : bpy.props.FloatProperty(name="Wait Before Hiding (s)", default=5.0)
     force_refresh_viewport_after_each_import : bpy.props.BoolProperty(name="Refresh Viewport After Each Imported Files", default=False)
+    force_refresh_viewport_after_time : bpy.props.FloatProperty(name="Refresh Viewport After time (s)", default=1.0, min=0, description='The viewport will refresh after the X seconds. It help to control viewport interactivity. A value of 0 will disable it, and the viewport will refresh after each batch')
 
 class PG_UMISettings(bpy.types.PropertyGroup):
     umi_file_selected_format_items : bpy.props.StringProperty(name='Selected format items')
-    umi_file_extension_selection_items : bpy.props.StringProperty(name='Selected format items')
+    umi_file_extension_selection_items : bpy.props.StringProperty(name='Selected extension items')
     umi_ready_to_import : bpy.props.BoolProperty(name='Ready to Import', default=False)
-    umi_last_setting_to_get : bpy.props.BoolProperty(name='Ready to Import', default=False)
+    umi_last_setting_to_get : bpy.props.BoolProperty(name='Last Setting to get', default=False)
     umi_batcher_is_processing : bpy.props.BoolProperty(name="Is Batcher Processing", default=False)
     umi_current_format_setting_imported : bpy.props.BoolProperty(name='Current Format Settings Imported', default=False)
     umi_current_format_setting_cancelled : bpy.props.BoolProperty(name='Current Format Settings cancelled', default=False)
@@ -126,8 +129,8 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_global_import_settings : bpy.props.PointerProperty(type=PG_GlobalSettings)
     umi_skip_settings : bpy.props.BoolProperty(name='Skip Setting Windows', default=False)
     umi_file_extension_selection : bpy.props.EnumProperty(name='ext', items=get_file_extension_selection)
-    umi_import_batch_settings : bpy.props.EnumProperty(items=[('GLOBAL', 'Global Settings', ''), ('BATCHER', 'Command Batcher', '')], options={"ENUM_FLAG"}, update=update_file_format_current_settings)
-    umi_file_format_current_settings : bpy.props.EnumProperty(items=get_file_selected_items, options={"ENUM_FLAG"}, update=update_import_batch_settings)
+    umi_import_batch_settings : bpy.props.EnumProperty(items=[('IMPORT', 'Format Settings', ''), ('GLOBAL', 'Global Settings', ''), ('BATCHER', 'Command Batcher', '')])
+    umi_file_format_current_settings : bpy.props.EnumProperty(items=get_file_selected_items)
     umi_file_size_min_selection : bpy.props.FloatProperty( min=0, name='min (Mb)', default=0.0)
     umi_file_size_max_selection : bpy.props.FloatProperty( min=0, name='max (Mb)', default=1.0)
     umi_file_name_selection : bpy.props.StringProperty(name='name', default='')
@@ -139,8 +142,9 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_file_stat_selected_formats : bpy.props.StringProperty(name='format(s)', default='')
     umi_addon_dependencies : bpy.props.CollectionProperty(type = PG_AddonDependency)
     umi_all_addon_dependencies_installed : bpy.props.BoolProperty(name='All Addon Dependencies Installed', default=False)
-    umi_all_addon_dependencies_enabled : bpy.props.BoolProperty(name='All Addon Dependencies Installed', default=False)
+    umi_all_addon_dependencies_enabled : bpy.props.BoolProperty(name='All Addon Dependencies Enabled', default=False)
     umi_addon_dependency_need_reboot : bpy.props.BoolProperty(name='Need Reboot', default=False)
+    umi_md5_generation_status : bpy.props.EnumProperty(name='MD5 Generation Status', default='NOT_STARTED', items=[('NOT_STARTED', 'Not Started', ''), ('IN_PROGRESS', 'In Progress', ''), ('DONE', 'Done', '')])
 
 class UMI_UL_OperatorList(bpy.types.UIList):
     bl_idname = "UMI_UL_operator_list"

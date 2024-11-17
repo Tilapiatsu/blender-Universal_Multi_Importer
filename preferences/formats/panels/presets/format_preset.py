@@ -22,7 +22,7 @@ class WM_MT_UMIFormatPresets(Menu):
 	@property
 	def preset_subdir(self):
 		umi_settings = get_umi_settings()
-		current_format = umi_settings.umi_file_format_current_settings.copy().pop().lower()
+		current_format = umi_settings.umi_file_format_current_settings.lower()
 		current_module = eval(f'umi_settings.umi_format_import_settings.{current_format}_import_module', {'umi_settings':umi_settings}).name.lower()
 		return AddUMIFormatPreset.operator_path(current_format, current_module)
 
@@ -40,7 +40,7 @@ class AddUMIFormatPreset(AddPresetBase, Operator):
 	@property
 	def preset_subdir(self):
 		umi_settings = get_umi_settings()
-		current_format = umi_settings.umi_file_format_current_settings.copy().pop().lower()
+		current_format = umi_settings.umi_file_format_current_settings.lower()
 		current_module = eval(f'umi_settings.umi_format_import_settings.{current_format}_import_module', {'umi_settings':umi_settings}).name.lower()
 		return AddUMIFormatPreset.operator_path(current_format, current_module)
 
@@ -48,7 +48,7 @@ class AddUMIFormatPreset(AddPresetBase, Operator):
 	def preset_values(self):
 		properties_blacklist = Operator.bl_rna.properties.keys()
 		umi_settings = get_umi_settings()
-		current_format = umi_settings.umi_file_format_current_settings.copy().pop().lower()
+		current_format = umi_settings.umi_file_format_current_settings.lower()
 		current_module = eval(f'umi_settings.umi_format_import_settings.{current_format}_import_module', {'umi_settings':umi_settings}).name.lower()
 		from ...format_handler import FormatHandler
 		settings = FormatHandler(import_format=f"{current_format}", module_name=current_module, context=bpy.context).format_settings

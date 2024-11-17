@@ -27,6 +27,9 @@ class UI_UMICheckAddonDependencies(bpy.types.Operator):
                 pkg_id          = module['pkg_id'] if module['pkg_id'] is not None else ''
                 ad.pkg_id       = pkg_id
 
+                pkg_url         = module['pkg_url'] if module['pkg_url'] is not None else ''
+                ad.pkg_url      = pkg_url
+
                 ad.is_extension = COMPATIBLE_FORMATS.is_format_extension(name, module_name)
                 ad.is_installed = COMPATIBLE_FORMATS.is_format_installed(addon_name)
                 ad.is_enabled   = COMPATIBLE_FORMATS.is_format_enabled(addon_name)
@@ -50,7 +53,7 @@ class UI_UMIInstallExtension(bpy.types.Operator):
         bpy.ops.extensions.package_install(pkg_id=self.pkg_id, repo_index=self.repo_index)
         bpy.ops.preferences.umi_check_addon_dependency()
         return {'FINISHED'}
-    
+
 class UI_UMIEnableAddon(bpy.types.Operator):
     bl_idname = "preferences.umi_addon_enable"
     bl_label = "Enable Addon"

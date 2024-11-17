@@ -1,4 +1,5 @@
 import bpy
+from ...blender_version import BVERSION
 from . import panels
 
 

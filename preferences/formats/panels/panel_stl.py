@@ -1,22 +1,30 @@
+from . import draw_panel
 
 class IMPORT_SCENE_STLSettings():
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
         
-
-        options = layout.box()
-        options.label(text='Options', icon='OPTIONS')
-
-        options.prop(operator, 'global_scale')
-        options.prop(operator, 'use_scene_unit')
-        options.prop(operator, 'use_facet_normal')
-        
         if module_name == 'default':
-            options.prop(operator, 'forward_axis')
-            options.prop(operator, 'up_axis')
-            options.prop(operator, 'use_mesh_validate')
+            op = [[operator, 'global_scale'],
+                 [operator, 'use_scene_unit'],
+                 [operator, 'forward_axis'],
+                 [operator, 'up_axis']]
+        
+            draw_panel(layout, op, 'STLSettings_General', 'General', icon='OBJECT_DATA')
+
+            op = [[operator, 'use_facet_normal'],
+                 [operator, 'use_mesh_validate']]
+        
+            draw_panel(layout, op, 'STLSettings_Options', 'Options', icon='OPTIONS')
+
         
         if module_name == 'legacy':
-            options.prop(operator, 'axis_forward')
-            options.prop(operator, 'axis_up')
+            op = [[operator, 'global_scale'],
+                 [operator, 'use_scene_unit'],
+                 [operator, 'use_facet_normal'],
+                 [operator, 'axis_forward'],
+                 [operator, 'axis_up']]
+        
+            draw_panel(layout, op, 'STLSettings_Options', 'Options', icon='OPTIONS')
+

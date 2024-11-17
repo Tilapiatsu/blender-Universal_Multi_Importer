@@ -1,3 +1,4 @@
+from . import draw_panel
 
 class IMPORT_SCENE_BVHSettings():
     def draw(self, operator, module_name, layout):
@@ -6,18 +7,17 @@ class IMPORT_SCENE_BVHSettings():
 
         layout.prop(operator, 'target')
 
-        transform = layout.box()
-        transform.label(text='Transform', icon='OBJECT_DATA')
+        op = [[operator, 'global_scale'],
+              [operator, 'rotate_mode'],
+              [operator, 'axis_forward'],
+              [operator, 'axis_up']]
+        
+        draw_panel(layout, op, 'BVHSettings_Transform', 'Transform', icon='OBJECT_DATA')
 
-        transform.prop(operator, 'global_scale')
-        transform.prop(operator, 'rotate_mode')
-        transform.prop(operator, 'axis_forward')
-        transform.prop(operator, 'axis_up')
-
-        animation = layout.box()
-        animation.label(text='Animation', icon='ARMATURE_DATA')
-        animation.prop(operator, 'frame_start')
-        animation.prop(operator, 'use_fps_scale')
-        animation.prop(operator, 'use_cyclic')
-        animation.prop(operator, 'update_scene_fps')
-        animation.prop(operator, 'update_scene_duration')
+        op = [[operator, 'frame_start'],
+              [operator, 'use_fps_scale'],
+              [operator, 'use_cyclic'],
+              [operator, 'update_scene_fps'],
+              [operator, 'update_scene_duration']]
+        
+        draw_panel(layout, op, 'BVHSettings_Animation', 'Animation', icon='ARMATURE_DATA')

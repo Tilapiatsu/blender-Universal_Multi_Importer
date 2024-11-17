@@ -3,7 +3,6 @@ import os
 from ...umi_const import get_umi_settings
 from ...preferences.formats.properties import update_file_stats
 
-
 def get_file_selection():
     umi_settings = get_umi_settings()
     idx = umi_settings.umi_file_selection_idx
@@ -21,7 +20,7 @@ class UI_Select(bpy.types.Operator):
     bl_description = "Select Files"
 
     action: bpy.props.EnumProperty(items=[("SELECT", "Select", ""), ("DESELECT", "Deselect", "")])
-    mode: bpy.props.EnumProperty(items=[('ALL', 'All', ''), ('EXTENSION', 'Extension', ''), ('SIZE', 'Size', ''), ('NAME', 'name', '')])
+    mode: bpy.props.EnumProperty(items=[('ALL', 'All', ''), ('EXTENSION', 'Extension', ''), ('SIZE', 'Size', ''), ('NAME', 'name', ''), ('MD5', 'md5', '')])
 
     @classmethod
     def poll(cls, context):
@@ -37,23 +36,23 @@ class UI_Select(bpy.types.Operator):
         return self.execute(context)
 
     def execute(self, context):
-        _, file_selection, _ = get_file_selection()
+        _, self.file_selection, _ = get_file_selection()
         
         self.umi_settings.umi_file_stat_update = False
 
         if self.mode == "ALL":
-            for f in file_selection:
+            for f in self.file_selection:
                 f.check = self.bool_action
         elif self.mode == "EXTENSION":
-            for f in file_selection:
+            for f in self.file_selection:
                 if os.path.splitext(f.name)[1].lower() == self.umi_settings.umi_file_extension_selection:
                     f.check = self.bool_action
         elif self.mode == "SIZE":
-            for f in file_selection:
+            for f in self.file_selection:
                 if f.size > self.umi_settings.umi_file_size_min_selection and f.size < self.umi_settings.umi_file_size_max_selection:
                     f.check = self.bool_action
         elif self.mode == "NAME":
-            for f in file_selection:
+            for f in self.file_selection:
                 name = os.path.splitext(f.name)[0]
                 ref = self.umi_settings.umi_file_name_selection
 
@@ -66,10 +65,48 @@ class UI_Select(bpy.types.Operator):
                     
                 if ref in name:
                     f.check = self.bool_action
+        elif self.mode == 'MD5':
+            bpy.ops.import_scene.tila_universal_multi_importer_md5_check()
+            wm = context.window_manager
+            self._timer = wm.event_timer_add(0.01, window=context.window)
+            wm.modal_handler_add(self)
+            return {'RUNNING_MODAL'}
+            
 
         self.umi_settings.umi_file_stat_update = True
         update_file_stats(self, context)
         return {'FINISHED'}
+    
+    def modal(self, context, event):
+        if self.umi_settings.umi_md5_generation_status != 'DONE':
+            return {'RUNNING_MODAL'}
+        else:
+            self.check_md5(self.file_selection)
+            self.umi_settings.umi_md5_generation_status != 'NOT_STARTED'
+            context.window_manager.event_timer_remove(self._timer)
+            self.umi_settings.umi_file_stat_update = True
+            update_file_stats(self, context)
+            bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+            return {'FINISHED'}
+
+    def check_md5(self, file_selection):
+        md5 = [f.md5 for f in file_selection]
+        duplicates = self.list_duplicates(md5)
+        
+        for d in duplicates:
+            for dd in range(len(d[1])):
+                if dd == 0 and file_selection[d[1][dd]].check:
+                    continue
+                file_selection[d[1][dd]].check = self.bool_action
+    
+    # from https://stackoverflow.com/questions/5419204/index-of-duplicates-items-in-a-python-list
+    def list_duplicates(self, seq):
+        from collections import defaultdict
+        tally = defaultdict(list)
+        for i,item in enumerate(seq):
+            tally[item].append(i)
+        return ((key,locs) for key,locs in tally.items() 
+                                if len(locs)>1)
 
 classes = ( UI_Select, 
             )

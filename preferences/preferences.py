@@ -110,7 +110,8 @@ class Preferences(bpy.types.AddonPreferences):
                     self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='CHECKMARK')
                 else:
                     if BVERSION < 4.2:
-                        self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='X')
+                        op = self.grid_layout(row, alignment='CENTER', size=4).operator('wm.url_open', text=f'Open {name} url')
+                        op.url = ad.pkg_url
                         self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='X')
                         continue
 

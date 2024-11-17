@@ -1,20 +1,22 @@
+from . import draw_panel
 
 class IMPORT_SCENE_OBJSettings():
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        transorm = layout.box()
-        transorm.label(text='Transform', icon='OBJECT_DATA')
-        transorm.prop(operator, 'global_scale')
-        transorm.prop(operator, 'clamp_size')
-        transorm.prop(operator, 'forward_axis')
-        transorm.prop(operator, 'up_axis')
+        op =    [[operator, 'global_scale'],
+                 [operator, 'clamp_size'],
+                 [operator, 'forward_axis'],
+                 [operator, 'up_axis']]
+        
+        draw_panel(layout, op, 'OBJSettings_Transform', 'Transform', icon='OBJECT_DATA')
 
-        options = layout.box()
-        options.label(text='Options', icon='OPTIONS')
-        options.prop(operator, 'use_split_objects')
-        options.prop(operator, 'use_split_groups')
-        options.prop(operator, 'import_vertex_groups')
-        options.prop(operator, 'validate_meshes')
-        # options.prop(operator, 'collection_separator')
+
+        op =    [[operator, 'use_split_objects'],
+                [operator, 'use_split_groups'],
+                [operator, 'import_vertex_groups'],
+                [operator, 'validate_meshes'],
+                [operator, 'collection_separator']]
+        
+        draw_panel(layout, op, 'OBJSettings_Options', 'Options', icon='OPTIONS')

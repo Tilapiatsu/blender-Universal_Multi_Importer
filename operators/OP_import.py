@@ -1,4 +1,5 @@
 import bpy
+from mathutils import Vector, Euler, Color
 from bpy_extras.io_utils import ImportHelper
 import os, time
 from os import path
@@ -11,6 +12,7 @@ from ..umi_const import get_umi_settings, AUTOSAVE_PATH
 from ..preferences.formats.panels.presets import import_preset
 from ..logger import LOG, LoggerColors, MessageType
 from ..blender_version import BVERSION
+
 
 if BVERSION >= 4.1:
     class IMPORT_SCENE_FH_UMI_3DVIEW(bpy.types.FileHandler):
@@ -186,11 +188,94 @@ def register_import_format(self, context):
         for i,name in enumerate(f[1]['operator'].keys()):
             current_format[name] = FormatHandler(import_format=f"{f[0]}", module_name=name, context=context)
 
+class UMI_MD5Check(bpy.types.Operator):
+    bl_idname = "import_scene.tila_universal_multi_importer_md5_check"
+    bl_label = "Check MD5"
+    bl_options = {'REGISTER', 'INTERNAL'}
+
+    force : bpy.props.BoolProperty(name='Force Recompute MD5', default=False)
+
+    file_to_process = []
+    current_file = None
+
+    # from https://stackoverflow.com/questions/3431825/how-to-generate-an-md5-checksum-of-a-file
+    def md5(self, filepath):
+        import hashlib
+        hash_md5 = hashlib.md5()
+        with open(filepath, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    
+    def generate_md5(self):
+        if not self.force and len(self.current_file.md5):
+            self.current_file_processed = True
+            return
+
+        self.current_file.md5 = self.md5(self.current_file.path)
+        LOG.info(f'MD5 for {self.current_file.path} = {self.current_file.md5}')
+        bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+        
+        self.current_file_processed = True
+    
+    def init(self):
+        self.umi_settings.umi_md5_generation_status = 'IN_PROGRESS'
+        self.generating = False
+        self.done = False
+        self.canceled = False
+        self.file_to_process = [f for f in self.umi_settings.umi_file_selection]
+        self.current_file = self.file_to_process.pop()
+        self.current_file_processed = False
+    
+    def finish(self, context, canceled=False):
+        self.done = False
+        self.generating = False
+        context.window_manager.event_timer_remove(self._timer)
+        bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+        self.umi_settings.umi_md5_generation_status = 'DONE'
+        if canceled:
+            return {'CANCELLED'}
+        else:
+            return {'FINISHED'}
+
+    def execute(self, context):
+        self.umi_settings = get_umi_settings()
+        self.init()
+        wm = context.window_manager
+        self._timer = wm.event_timer_add(0.01, window=context.window)
+        wm.modal_handler_add(self)
+        return {'RUNNING_MODAL'}
+
+    def modal(self, context, event):
+        if event.type in {'ESC'} and event.value == 'PRESS':
+            return self.finish(context, canceled=True)
+        elif event.type in {'TIMER'}:
+            if not len(self.file_to_process) and self.current_file_processed:
+                self.done = True
+
+            if self.done:
+                return self.finish(context)
+            
+            if not self.generating:
+                self.generating = True
+                self.generate_md5()
+
+            else:
+                if self.current_file_processed:
+                    self.current_file = self.file_to_process.pop()
+                    self.current_file_processed = False
+                    self.generate_md5()
+
+            return {'RUNNING_MODAL'}
+
+        return {'PASS_THROUGH'}
+
 class UMI_FileSelection(bpy.types.Operator):
     bl_idname = "import_scene.tila_universal_multi_importer_file_selection"
     bl_label = "Universal Multi Importer"
     bl_options = {'REGISTER', 'INTERNAL'}
     bl_region_type = "UI"
+    bl_space_type = "TILA_SETTINGS"
 
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
@@ -266,7 +351,8 @@ class UMI_FileSelection(bpy.types.Operator):
         
         row1.separator()
         
-        box = file_selection_box.box()
+        row1 = file_selection_box.row(align=True)
+        box = row1.box()
         box.label(text='Name')
         row2 = box.row(align=True)
         op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
@@ -279,6 +365,17 @@ class UMI_FileSelection(bpy.types.Operator):
         row2.prop(self.umi_settings, 'umi_file_name_selection', text='')
         row2.prop(self.umi_settings, 'umi_file_name_case_sensitive_selection', text='', icon='SYNTAX_OFF')
         row2.prop(self.umi_settings, 'umi_file_name_include_folder_selection', text='', icon='FILEBROWSER')
+
+        box = row1.box()
+        box.ui_units_x = 2
+        box.label(text='Duplicates')
+        row2 = box.row(align=True)
+        op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_HLT', )
+        op.action = 'SELECT'
+        op.mode = "MD5"
+        op = row2.operator('scene.umi_select_file', text='', icon='CHECKBOX_DEHLT')
+        op.action = 'DESELECT'
+        op.mode = "MD5"
         
         row2 = file_selection_box.row(align=True)
         row2.alignment = 'LEFT'
@@ -298,24 +395,28 @@ class UMI_FileSelection(bpy.types.Operator):
         box = col1.box()
         col2 = box.column(align=True)
         row1 = col2.row(align=True)
-        row1.prop(self.umi_settings, 'umi_import_batch_settings', expand=True)
+        row1.prop_tabs_enum(self.umi_settings, 'umi_import_batch_settings')
         row1 = col2.row(align=True)
+        
+        if self.umi_settings.umi_import_batch_settings == 'IMPORT':
+            if len(self.umi_settings.umi_file_extension_selection) and len(get_file_selected_items(self, context)):
+                row1.prop_tabs_enum(self.umi_settings, 'umi_file_format_current_settings')
+                col1.separator()
+                
+                if len(self.umi_settings.umi_file_format_current_settings):
+                    current_setting_name = self.umi_settings.umi_file_format_current_settings.lower()
+                    self.draw_current_settings(context, box, current_setting_name)
+            else:
+                row1.alignment = 'CENTER'
+                row1.label(text='Select at least one file')
 
-        if len(self.umi_settings.umi_file_extension_selection) and len(get_file_selected_items(self, context)):
-            row1.prop(self.umi_settings, 'umi_file_format_current_settings', expand=True)
-        else:
-            row1.alignment = 'CENTER'
-            row1.label(text='Select at least one file')
-        col1.separator()
-        if len(self.umi_settings.umi_file_format_current_settings):
-            current_setting_name = self.umi_settings.umi_file_format_current_settings.copy().pop().lower()
-            self.draw_current_settings(context, box, current_setting_name)
-        elif len(self.umi_settings.umi_import_batch_settings):
-            if self.umi_settings.umi_import_batch_settings == {'GLOBAL'}:
-                import_preset.panel_func(box)
-                self.draw_global_settings(context, box)
-            elif self.umi_settings.umi_import_batch_settings == {'BATCHER'}:
-                draw_command_batcher(self, context, box)
+        elif self.umi_settings.umi_import_batch_settings == 'GLOBAL':
+            col1.separator()
+            import_preset.panel_func(box)
+            self.draw_global_settings(context, box)
+        elif self.umi_settings.umi_import_batch_settings == 'BATCHER':
+            col1.separator()
+            draw_command_batcher(self, context, box)
     
     def draw_current_settings(self, context, layout, format_name):
         layout.use_property_split = True
@@ -335,44 +436,94 @@ class UMI_FileSelection(bpy.types.Operator):
         layout.use_property_split = True
         layout.use_property_decorate = False
         col = layout.column()
-        import_count = col.box()
-        import_count.label(text='File Count', icon='LONGDISPLAY')
-        import_count.prop(self.umi_settings.umi_global_import_settings, 'import_simultaneously_count')
-        import_count.prop(self.umi_settings.umi_global_import_settings, 'max_batch_size')
-        if self.umi_settings.umi_global_import_settings.max_batch_size:
-            import_count.prop(self.umi_settings.umi_global_import_settings, 'minimize_batch_number')
+        if BVERSION >= 4.2:
+            header, import_count = col.panel(idname='UMI_Filecount')
+            header.label(text='File Count', icon='LONGDISPLAY')
+            if import_count:
+                import_count.prop(self.umi_settings.umi_global_import_settings, 'import_simultaneously_count')
+                import_count.prop(self.umi_settings.umi_global_import_settings, 'max_batch_size')
+                if self.umi_settings.umi_global_import_settings.max_batch_size:
+                    import_count.prop(self.umi_settings.umi_global_import_settings, 'minimize_batch_number')
+                import_count.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_time')
 
-        settings = col.box()
-        settings.label(text='Options', icon='OPTIONS')
-        settings.prop(self.umi_settings.umi_global_import_settings, 'create_collection_per_file')
-        
-        if self.umi_settings.umi_global_import_settings.create_collection_per_file:
-            row = settings.row()
-            split = row.split(factor=0.1, align=True)
-            split.label(text='')
-            split = split.split()
-            split.prop(self.umi_settings.umi_global_import_settings, 'skip_already_imported_files')
+            header, settings = col.panel(idname='UMI_Options')
+            header.label(text='Options', icon='OPTIONS')
+            if settings:
+                settings.prop(self.umi_settings.umi_global_import_settings, 'create_collection_per_file')
+                
+                if self.umi_settings.umi_global_import_settings.create_collection_per_file:
+                    row = settings.row()
+                    split = row.split(factor=0.1, align=True)
+                    split.label(text='')
+                    split = split.split()
+                    split.prop(self.umi_settings.umi_global_import_settings, 'skip_already_imported_files')
 
-        log = col.box()
-        log.label(text='Log Display', icon='WORDWRAP_ON')
+            header, log = col.panel(idname='UMI_LogDisplay')
+            header.label(text='Log Display', icon='WORDWRAP_ON')
+            if log:
 
-        column = log.column(align=True)
+                column = log.column(align=True)
 
-        column.prop(self.umi_settings.umi_global_import_settings, 'show_log_on_3d_view')
-        if self.umi_settings.umi_global_import_settings.show_log_on_3d_view:
-            column.prop(self.umi_settings.umi_global_import_settings, 'auto_hide_text_when_finished')
-            if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
-                column.prop(self.umi_settings.umi_global_import_settings, 'wait_before_hiding')
-        column.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_each_import')
+                column.prop(self.umi_settings.umi_global_import_settings, 'show_log_on_3d_view')
+                if self.umi_settings.umi_global_import_settings.show_log_on_3d_view:
+                    column.prop(self.umi_settings.umi_global_import_settings, 'auto_hide_text_when_finished')
+                    if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
+                        column.prop(self.umi_settings.umi_global_import_settings, 'wait_before_hiding')
+                column.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_each_import')
 
-        backup = col.box()
-        col1 = backup.column()
-        col1.label(text='backup', icon='FILE_TICK')
-        col1.prop(self.umi_settings.umi_global_import_settings, 'save_file_after_import')
-        col1.prop(self.umi_settings.umi_global_import_settings, 'backup_file_after_import')
+            header, backup = col.panel(idname='UMI_backup')
+            header.label(text='backup', icon='FILE_TICK')
+            if backup:
+                col1 = backup.column()
+                col1.prop(self.umi_settings.umi_global_import_settings, 'save_file_after_import')
+                col1.prop(self.umi_settings.umi_global_import_settings, 'backup_file_after_import')
 
-        if self.umi_settings.umi_global_import_settings.backup_file_after_import:
-            backup.prop(self.umi_settings.umi_global_import_settings, 'backup_step')
+                if self.umi_settings.umi_global_import_settings.backup_file_after_import:
+                    backup.prop(self.umi_settings.umi_global_import_settings, 'backup_step')
+        else:
+            import_count = layout.box()
+            header = import_count.row(align=True)
+            header.label(text='File Count', icon='LONGDISPLAY')
+            import_count.prop(self.umi_settings.umi_global_import_settings, 'import_simultaneously_count')
+            import_count.prop(self.umi_settings.umi_global_import_settings, 'max_batch_size')
+            if self.umi_settings.umi_global_import_settings.max_batch_size:
+                import_count.prop(self.umi_settings.umi_global_import_settings, 'minimize_batch_number')
+
+
+            settings = layout.box()
+            header = settings.row(align=True)
+            header.label(text='Options', icon='OPTIONS')
+            settings.prop(self.umi_settings.umi_global_import_settings, 'create_collection_per_file')
+            
+            if self.umi_settings.umi_global_import_settings.create_collection_per_file:
+                row = settings.row()
+                split = row.split(factor=0.1, align=True)
+                split.label(text='')
+                split = split.split()
+                split.prop(self.umi_settings.umi_global_import_settings, 'skip_already_imported_files')
+
+            log = layout.box()
+            header = log.row(align=True)
+            header.label(text='Log Display', icon='WORDWRAP_ON')
+            column = log.column(align=True)
+
+            column.prop(self.umi_settings.umi_global_import_settings, 'show_log_on_3d_view')
+            if self.umi_settings.umi_global_import_settings.show_log_on_3d_view:
+                column.prop(self.umi_settings.umi_global_import_settings, 'auto_hide_text_when_finished')
+                if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
+                    column.prop(self.umi_settings.umi_global_import_settings, 'wait_before_hiding')
+            column.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_each_import')
+
+
+            backup = layout.box()
+            header = backup.row(align=True)
+            header.label(text='Backup', icon='FILE_TICK')
+            col1 = backup.column()
+            col1.prop(self.umi_settings.umi_global_import_settings, 'save_file_after_import')
+            col1.prop(self.umi_settings.umi_global_import_settings, 'backup_file_after_import')
+
+            if self.umi_settings.umi_global_import_settings.backup_file_after_import:
+                backup.prop(self.umi_settings.umi_global_import_settings, 'backup_step')
 
     def cancel(self, context):
         self.umi_settings.umi_current_format_setting_cancelled = True
@@ -433,6 +584,7 @@ class UMI(bpy.types.Operator, ImportHelper):
     counter = 0
     counter_start_time = 0.0
     counter_end_time = 0.0
+    _timer_start_time = 0.0
     delta = 0.0
     previous_counter = 0
 
@@ -498,6 +650,21 @@ class UMI(bpy.types.Operator, ImportHelper):
     def store_delta_end(self):
         self.counter_end_time = time.perf_counter()
     
+    @property
+    def refresh_timer(self):
+        if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_time:
+            return self.timer_start_time + self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_time - time.perf_counter()
+        return 1
+
+    @property
+    def timer_start_time(self):
+        if self._timer_start_time == 0:
+            self._timer_start_time = time.perf_counter()
+        return self._timer_start_time
+
+    def store_timer_start(self):
+        self._timer_start_time = time.perf_counter()
+
     def log_end_text(self):
         LOG.info('-----------------------------------')
         if self.import_complete:
@@ -802,6 +969,15 @@ class UMI(bpy.types.Operator, ImportHelper):
                 col_as_string += ']'
 
                 args_as_string += f' {k}={col_as_string}'
+            elif isinstance(v, Vector) or isinstance(v, Euler) or isinstance(v, Color):
+                val = '['
+                for i in range(len(v)):
+                    if i == 0:
+                        val += f'{v[i]}'
+                    else:
+                        val += f', {v[i]}'
+                val += ']'
+                args_as_string += f' {k}={val}'
             else:
                 args_as_string += f' {k}={v}'
             if arg_number >= 2:
@@ -850,6 +1026,9 @@ class UMI(bpy.types.Operator, ImportHelper):
         self.current_backup_step += current_file_size
         
         if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_each_import:
+            bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+        elif self.refresh_timer <= 0:
+            self.store_timer_start()
             bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
             
         import_col = self.root_collection
@@ -1138,7 +1317,7 @@ def menu_func_import(self, context):
     op.filter_stl = False
     op.filter_svg = False
 
-classes = (UMI_OT_Settings, UMI_FileSelection, UMI)
+classes = (UMI_OT_Settings, UMI_FileSelection, UMI, UMI_MD5Check)
 
 if BVERSION >= 4.1:
     classes = classes + (IMPORT_SCENE_FH_UMI_3DVIEW, IMPORT_SCENE_FH_UMI_OUTLINER, UMI_OT_Drop_In_Outliner)
