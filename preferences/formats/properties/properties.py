@@ -111,9 +111,9 @@ class PG_GlobalSettings(bpy.types.PropertyGroup):
 
 class PG_UMISettings(bpy.types.PropertyGroup):
     umi_file_selected_format_items : bpy.props.StringProperty(name='Selected format items')
-    umi_file_extension_selection_items : bpy.props.StringProperty(name='Selected format items')
+    umi_file_extension_selection_items : bpy.props.StringProperty(name='Selected extension items')
     umi_ready_to_import : bpy.props.BoolProperty(name='Ready to Import', default=False)
-    umi_last_setting_to_get : bpy.props.BoolProperty(name='Ready to Import', default=False)
+    umi_last_setting_to_get : bpy.props.BoolProperty(name='Last Setting to get', default=False)
     umi_batcher_is_processing : bpy.props.BoolProperty(name="Is Batcher Processing", default=False)
     umi_current_format_setting_imported : bpy.props.BoolProperty(name='Current Format Settings Imported', default=False)
     umi_current_format_setting_cancelled : bpy.props.BoolProperty(name='Current Format Settings cancelled', default=False)
