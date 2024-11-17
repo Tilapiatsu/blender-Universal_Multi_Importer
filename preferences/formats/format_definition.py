@@ -252,3 +252,28 @@ class FormatDefinition():
             'operator' : {'default':{'command':'bpy.ops.import_mesh.xyz','module' : None, 'addon_name' : 'io_mesh_atomic', 'pkg_id' : None, 'pkg_url':None, 'import_settings': None}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':True}
+        
+        max3ds = {'name' : 'max3ds',
+                'ext' : ['.3ds'],
+                'operator' : {'default':{'command':'bpy.ops.import_scene.max3ds','module' : None, 'addon_name' : 'io_scene_3ds', 'pkg_id' : None, 'pkg_url':None, 'import_settings': 
+                                        [['Include', 
+                                                    {"use_image_search": {'type':'bpy.props.BoolProperty', 'name':'"Image Search"', 'default':True},
+                                                    "object_filter": {'type':'bpy.props.EnumProperty', 'name':'"Object Filter"', 'default':{'WORLD', 'MESH', 'LIGHT', 'CAMERA', 'EMPTY'},
+                                                                    'enum_items':(('WORLD', "World".rjust(11), "", 'WORLD_DATA', 0x1),
+                                                                                    ('MESH', "Mesh".rjust(11), "", 'MESH_DATA', 0x2),
+                                                                                    ('LIGHT', "Light".rjust(12), "", 'LIGHT_DATA', 0x4),
+                                                                                    ('CAMERA', "Camera".rjust(11), "", 'CAMERA_DATA', 0x8),
+                                                                                    ('EMPTY', "Empty".rjust(11), "", 'EMPTY_AXIS', 0x10),), 
+                                                                                'options':{'ENUM_FLAG'},},
+                                                    "use_keyframes":{'type':'bpy.props.BoolProperty', 'name':'"Collection"', 'default':True},
+                                                    "use_cursor":{'type':'bpy.props.BoolProperty', 'name':'"Cursor Origin"', 'default':False}}],
+                                                    ['Transform',
+                                                    {"constrain_size" : {'type':'bpy.props.FloatProperty', 'name':'"Constrain Size"', 'default':1.0},
+                                                    "use_scene_unit" : {'type':'bpy.props.BoolProperty', 'name':'"Scene Unit"', 'default':False},
+                                                    "use_center_pivot" : {'type':'bpy.props.BoolProperty', 'name':'"Pivot Origin"', 'default':False},
+                                                    "use_apply_transform" : {'type':'bpy.props.BoolProperty', 'name':'"Apply Transform"', 'default':True},
+                                                    "use_world_matrix" : {'type':'bpy.props.BoolProperty', 'name':'"World Space"', 'default':False},
+                                                    "axis_forward": {'type':'bpy.props.EnumProperty', 'name':'"Forward"', 'default':'"Y"', 'enum_items':axis()},
+                                                    "axis_up": {'type':'bpy.props.EnumProperty', 'name':'"Up"', 'default':'"Z"', 'enum_items':axis()}}]]}},
+                'ignore': ['files', 'directory'],
+                'generate_filter_glob':False}
