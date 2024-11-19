@@ -1,45 +1,35 @@
 import addon_utils
 from bl_pkg import repo_cache_store_ensure
-
+        
 repo_cache_store = None
-local_pkg = None
-remote_pkg = None
-        
-def get_packages():
-    global repo_cache_store
-    global local_pkg
-    global remote_pkg
     
-    repo_cache_store = repo_cache_store_ensure()
-    local_pkg  = [p for p in repo_cache_store.pkg_manifest_from_local_ensure(error_fn=print)]
-    remote_pkg = [p for p in repo_cache_store.pkg_manifest_from_remote_ensure(error_fn=print)]
-    
-    return local_pkg, remote_pkg
-    
-
 class AddonVersion:
-    def __init__(self, addon_name):
+    def __init__(self, addon_name, repo_id=0):
         self.addon_name = addon_name
-        
+        self.repo_if = repo_id
+
+        self.local_pkg, self.remote_pkg = self.get_packages(repo_id)
+    
+    def get_packages(self, repo_id=0):
         global repo_cache_store
-        global local_pkg
-        global remote_pkg
+
         
-        if repo_cache_store is None or local_pkg is None or remote_pkg is None:
-            get_packages()
+        if repo_cache_store is None:
+            repo_cache_store = repo_cache_store_ensure()
+        packages = list(zip( repo_cache_store.pkg_manifest_from_local_ensure(error_fn=print), repo_cache_store.pkg_manifest_from_remote_ensure(error_fn=print), strict=True))
         
-        print(local_pkg)
-        self.repo_cache_store = repo_cache_store_ensure()
-        self.local_pkg = local_pkg[addon_name]
-        self.remote_pkg = remote_pkg[addon_name]
-        print(self.local_pkg)
-#        for pkg_id, (item_local, item_remote) in pkg_manifest_zip_all_items(self.local_pkg, self.remote_pkg):
-#            item = item_local or item_remote
-#            print(item_local.keys())
+        local_pkg = packages[repo_id][0]
+        remote_pkg = packages[repo_id][1]
+        
+        return local_pkg, remote_pkg
         
     @property
     def is_extension(self):
         return self.addon_name.startswith('bl_ext')
+    
+    @property
+    def pkg_name(self):
+        return self.addon_name.split('.')[-1] if self.is_extension else self.addon_name
     
     @property
     def module(self):
@@ -53,8 +43,24 @@ class AddonVersion:
     @property
     def version(self):
         if self.module is None:
-            return (0,0,0)
+            return BlenderVersion((0,0,0))
         return BlenderVersion(self.module.bl_info['version'])
+    
+    @property
+    def local_version(self):
+        if not self.is_extension:
+            return self.version
+        assert self.addon_name in self.local_pkg.keys()
+        return self.local_pkg[self.pkg_name].version
+    
+    @property
+    def remote_version(self):
+        if not self.is_extension:
+            return BlenderVersion((0,0,0))
+        
+        assert self.addon_name in self.remote_pkg.keys()
+        return self.remote_pkg[self.pkg_name].version
+        
     
 
 class BlenderVersion:
@@ -64,6 +70,9 @@ class BlenderVersion:
     @property
     def version(self):
         return self._version
+    
+    def __str__(self):
+        return f'{self.version[0]}.{self.version[1]}.{self.version[2]}'
     
     def __repr__(self):
         return self._version
@@ -88,5 +97,7 @@ class BlenderVersion:
 
 if __name__ == '__main__'  :
     a = AddonVersion('bl_ext.blender_org.io_scene_max')
-    print(a)
+    print(a.module)
+    print(a.pkg_name)
+    print(a.local_version)
 
