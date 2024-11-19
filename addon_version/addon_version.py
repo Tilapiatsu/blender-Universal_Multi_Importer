@@ -1,8 +1,6 @@
 import addon_utils
 from bl_pkg import repo_cache_store_ensure
-        
-repo_cache_store = None
-    
+
 class AddonVersion:
     def __init__(self, addon_name, repo_id=0):
         self.addon_name = addon_name
@@ -11,11 +9,7 @@ class AddonVersion:
         self.local_pkg, self.remote_pkg = self.get_packages(repo_id)
     
     def get_packages(self, repo_id=0):
-        global repo_cache_store
-
-        
-        if repo_cache_store is None:
-            repo_cache_store = repo_cache_store_ensure()
+        repo_cache_store = repo_cache_store_ensure()
         packages = list(zip( repo_cache_store.pkg_manifest_from_local_ensure(error_fn=print), repo_cache_store.pkg_manifest_from_remote_ensure(error_fn=print), strict=True))
         
         local_pkg = packages[repo_id][0]
