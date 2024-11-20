@@ -67,9 +67,12 @@ class PG_AddonDependency(bpy.types.PropertyGroup):
     addon_name      : bpy.props.StringProperty(name='Addon Name', default='')
     pkg_id          : bpy.props.StringProperty(name='Package Index', default='')
     pkg_url         : bpy.props.StringProperty(name='Package URL', default='')
+    local_version   : bpy.props.StringProperty(name='Local Version', default='')
+    remote_version  : bpy.props.StringProperty(name='Remote Version', default='')
     is_extension    : bpy.props.BoolProperty(name='Is Extension', default=False)
     is_installed    : bpy.props.BoolProperty(name='Is Installed', default=False)
     is_enabled      : bpy.props.BoolProperty(name='Is Enabled', default=False)
+    is_outdated     : bpy.props.BoolProperty(name='Is Outdated', default=False)
 
 class PG_ImportSettings(bpy.types.PropertyGroup):
     umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)

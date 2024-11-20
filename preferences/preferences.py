@@ -83,10 +83,12 @@ class Preferences(bpy.types.AddonPreferences):
 
             self.grid_layout(row1, alignment='CENTER', size=4).label(text='File Format')
             self.grid_layout(row1, alignment='CENTER', size=6).label(text='Addon')
+            self.grid_layout(row1, alignment='CENTER', size=6).label(text='Version')
             self.grid_layout(row1, alignment='CENTER', size=4).label(text='Installed')
             self.grid_layout(row1, alignment='CENTER', size=4).label(text='Enable')
 
             self.grid_layout(row2, alignment='CENTER', size=4).label(text='_____')
+            self.grid_layout(row2, alignment='CENTER', size=6).label(text='_____')
             self.grid_layout(row2, alignment='CENTER', size=6).label(text='_____')
             self.grid_layout(row2, alignment='CENTER', size=4).label(text='_____')
             self.grid_layout(row2, alignment='CENTER', size=4).label(text='_____')
@@ -95,13 +97,24 @@ class Preferences(bpy.types.AddonPreferences):
             for ad in addon_dependencies.values():
                 name = ad.format_name
                 addon_name = ad.addon_name if len(ad.addon_name) else f'Built-in {ad.module_name}'
+                version = f'{ad.local_version} (outdated {ad.remote_version})' if ad.is_outdated else f'{ad.local_version}'
                 
                 addon_diplay_name = addon_name.split('.')[2] if ad.is_extension else addon_name
                 row = col3.row()
 
-                self.grid_layout(row, alignment='CENTER', size=4).label(text=f'{name}')
-                self.grid_layout(row, alignment='CENTER', size=6).label(text=f'{addon_diplay_name}')
-                
+                self.grid_layout(row, alignment='CENTER', size=4).label(text=name)
+                self.grid_layout(row, alignment='CENTER', size=6).label(text=addon_diplay_name)
+                if ad.is_outdated:
+                    if not context.preferences.system.use_online_access:
+                        self.grid_layout(row, alignment='CENTER', size=6).operator('extensions.userpref_allow_online', text=version, icon='INTERNET_OFFLINE')
+                    else:
+                        op = self.grid_layout(row, alignment='CENTER', size=6).operator('extensions.umi_install_extension', text=version, icon='FILE_REFRESH')
+                        op.pkg_id = ad.pkg_id
+                        op.repo_index = 0
+                    
+                else:
+                    self.grid_layout(row, alignment='CENTER', size=6).label(text=version)
+  
                 # installed
                 if not len(ad.addon_name):
                     self.grid_layout(row, alignment='CENTER', size=4).label(text='', icon='CHECKMARK')

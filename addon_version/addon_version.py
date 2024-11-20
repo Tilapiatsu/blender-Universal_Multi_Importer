@@ -1,14 +1,18 @@
 import addon_utils
-from bl_pkg import repo_cache_store_ensure
+from ..blender_version import BVERSION
 
 class AddonVersion:
     def __init__(self, addon_name, repo_id=0):
         self.addon_name = addon_name
         self.repo_if = repo_id
 
-        self.local_pkg, self.remote_pkg = self.get_packages(repo_id)
+        if BVERSION >= 4.2:
+            self.local_pkg, self.remote_pkg = self.get_packages(repo_id)
+        else:
+            self.local_pkg, self.remote_pkg = {}, {}
     
     def get_packages(self, repo_id=0):
+        from bl_pkg import repo_cache_store_ensure
         repo_cache_store = repo_cache_store_ensure()
         packages = list(zip( repo_cache_store.pkg_manifest_from_local_ensure(error_fn=print), repo_cache_store.pkg_manifest_from_remote_ensure(error_fn=print), strict=True))
         
@@ -37,27 +41,29 @@ class AddonVersion:
     @property
     def version(self):
         if self.module is None:
-            return BlenderVersion((0,0,0))
-        return BlenderVersion(self.module.bl_info['version'])
-    
+            return Version((0,0,0))
+        return Version(self.module.bl_info['version']) if self.module.bl_info['version'] else Version((0,0,0))
+        
     @property
     def local_version(self):
         if not self.is_extension:
             return self.version
-        assert self.addon_name in self.local_pkg.keys()
+        assert self.pkg_name in self.local_pkg.keys()
         return self.local_pkg[self.pkg_name].version
     
     @property
     def remote_version(self):
         if not self.is_extension:
-            return BlenderVersion((0,0,0))
+            return Version((0,0,0))
         
-        assert self.addon_name in self.remote_pkg.keys()
+        assert self.pkg_name in self.remote_pkg.keys()
         return self.remote_pkg[self.pkg_name].version
-        
-    
 
-class BlenderVersion:
+    @property
+    def is_outdated(self):
+        return self.remote_version > self.local_version
+
+class Version:
     def __init__(self, version:set):
         self._version = version
     

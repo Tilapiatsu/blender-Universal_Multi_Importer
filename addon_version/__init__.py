@@ -1,1 +1,1 @@
-from addon_version import AddonVersion
+from .addon_version import AddonVersion
