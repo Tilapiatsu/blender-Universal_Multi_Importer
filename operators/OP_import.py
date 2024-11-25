@@ -11,7 +11,7 @@ from .OP_command_batcher import draw_command_batcher
 from ..umi_const import get_umi_settings, AUTOSAVE_PATH
 from ..preferences.formats.panels.presets import import_preset
 from ..logger import LOG, LoggerColors, MessageType
-from ..blender_version import BVERSION
+from ..bversion import BVERSION
 
 
 if BVERSION >= 4.1:

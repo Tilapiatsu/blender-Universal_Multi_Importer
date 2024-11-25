@@ -1,5 +1,5 @@
 import bpy
-from ..blender_version import BVERSION
+from ..bversion import BVERSION
 from ..logger import LOG
 from .formats.properties import PG_UMISettings
 from .colors.presets import color_preset

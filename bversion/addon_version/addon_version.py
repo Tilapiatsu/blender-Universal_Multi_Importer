@@ -1,5 +1,5 @@
 import addon_utils
-from ..blender_version import BVERSION
+from .. import BVERSION
 
 class AddonVersion:
     def __init__(self, addon_name, repo_id=0):

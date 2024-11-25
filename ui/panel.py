@@ -1,4 +1,4 @@
-from ..blender_version import BVERSION
+from ..bversion import BVERSION
 
 def draw_panel(layout, props:list, idname:str, header_name:str, icon='NONE', default_closed=False, panel=None, header=None, set_header_boolean:bool=False, header_bool:str=None):
     if BVERSION >= 4.2:
