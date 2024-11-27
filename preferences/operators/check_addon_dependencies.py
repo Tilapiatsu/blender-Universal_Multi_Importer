@@ -1,7 +1,7 @@
 import bpy
 from ..formats import COMPATIBLE_FORMATS
 from ...umi_const import get_umi_settings
-from ...addon_version.addon_version import AddonVersion
+from ...bversion import AddonVersion
 
 class UI_UMICheckAddonDependencies(bpy.types.Operator):
     bl_idname = "preferences.umi_check_addon_dependency"

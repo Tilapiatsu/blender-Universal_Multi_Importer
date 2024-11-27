@@ -1,5 +1,6 @@
 import addon_utils
 from .. import BVERSION
+from typing import Union
 
 class AddonVersion:
     def __init__(self, addon_name, repo_id=0):
@@ -48,24 +49,31 @@ class AddonVersion:
     def local_version(self):
         if not self.is_extension:
             return self.version
-        assert self.pkg_name in self.local_pkg.keys()
-        return self.local_pkg[self.pkg_name].version
+        
+        if self.pkg_name not in self.local_pkg.keys():
+            return Version((0,0,0))
+        return Version(self.local_pkg[self.pkg_name].version)
     
     @property
     def remote_version(self):
         if not self.is_extension:
             return Version((0,0,0))
         
-        assert self.pkg_name in self.remote_pkg.keys()
-        return self.remote_pkg[self.pkg_name].version
+        if self.pkg_name not in self.remote_pkg.keys():
+            return Version((0,0,0))
+        
+        return Version(self.remote_pkg[self.pkg_name].version)
 
     @property
     def is_outdated(self):
         return self.remote_version > self.local_version
 
 class Version:
-    def __init__(self, version:set):
-        self._version = version
+    def __init__(self, version:Union[tuple[int], str]):
+        if type(version) is str:
+            self._version = (int(i) for i in version.split('.'))
+        elif type(version) is tuple:
+            self._version = version
     
     @property
     def version(self):
