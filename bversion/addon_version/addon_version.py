@@ -71,7 +71,7 @@ class AddonVersion:
 class Version:
     def __init__(self, version:Union[tuple[int], str]):
         if type(version) is str:
-            self._version = (int(i) for i in version.split('.'))
+            self._version = tuple(int(i) for i in version.split('.'))
         elif type(version) is tuple:
             self._version = version
     
