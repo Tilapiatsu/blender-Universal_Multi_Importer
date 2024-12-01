@@ -2,13 +2,13 @@ import bpy
 from ..formats import COMPATIBLE_FORMATS
 from ...umi_const import get_umi_settings
 from ...bversion import AddonVersion
+from ..preferences import draw_addon_formats
 
 class UI_UMICheckAddonDependencies(bpy.types.Operator):
     bl_idname = "preferences.umi_check_addon_dependency"
     bl_label = "Check Addon Dependency"
     bl_options = {'REGISTER', 'UNDO'}
     bl_description = "Check if Importers addons are installed and enable"
-
 
     def execute(self, context):
         umi_settings = get_umi_settings()
@@ -73,11 +73,31 @@ class UI_UMIEnableAddon(bpy.types.Operator):
         bpy.ops.preferences.addon_enable(module=self.module)
         bpy.ops.preferences.umi_check_addon_dependency()
         return {'FINISHED'}
-    
-classes = (UI_UMICheckAddonDependencies, UI_UMIInstallExtension, UI_UMIEnableAddon)
+
+class UI_UMIDrawAddonDependencies(bpy.types.Operator):
+    bl_idname = "preferences.umi_draw_addon_dependency"
+    bl_label = "Check Addon Dependency"
+    bl_options = {'REGISTER'}
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+    def draw(self, context):
+        layout = self.layout
+        box = layout.box()
+        umi_settings = get_umi_settings()
+
+        draw_addon_formats(context, box, umi_settings.umi_addon_dependencies, umi_settings)
+
+    def invoke(self, context, event):
+        bpy.ops.preferences.umi_check_addon_dependency()
+        wm = context.window_manager
+        return wm.invoke_props_dialog(self, width = 700)
+
+classes = (UI_UMICheckAddonDependencies, UI_UMIInstallExtension, UI_UMIEnableAddon, UI_UMIDrawAddonDependencies)
 
 def register():
-    
+
 	from bpy.utils import register_class
 	for cls in classes:
 		register_class(cls)

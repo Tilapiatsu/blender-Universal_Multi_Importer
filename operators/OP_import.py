@@ -170,7 +170,7 @@ class UMI_OT_Settings(bpy.types.Operator):
         if len(self.format_handler.format_annotations):
             col.separator()
             for k in self.__class__.__annotations__.keys():
-                if not k in ['name', 'settings_imported', 'import_format', 'ui_tab']:
+                if not k in ['name', 'settings_imported', 'import_format', 'ui_tab', 'addon_name', 'supported_version']:
                     col.prop(self, k)
 
     def cancel(self, context):
@@ -952,7 +952,7 @@ class UMI(bpy.types.Operator, ImportHelper):
         args_as_string = ''
         arg_number = len(args.keys())
         for k,v in args.items():
-            if k in ['settings_imported', 'name']:
+            if k in ['settings_imported', 'name', 'addon_name', 'supported_version']:
                 arg_number -= 1
                 continue
             if isinstance(v, bpy.types.bpy_prop_collection):

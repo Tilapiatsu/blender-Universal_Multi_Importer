@@ -6,17 +6,17 @@ from bpy.types import Menu, Operator, Panel
 from bl_operators.presets import AddPresetBase
 
 class UMI_PT_format_presets(PresetPanel, Panel):
-	bl_label = 'UMI Presets' 
-	preset_subdir = 'UMI/presets' 
-	preset_operator = 'script.execute_preset' 
+	bl_label = 'UMI Presets'
+	preset_subdir = 'UMI/presets'
+	preset_operator = 'script.execute_preset'
 	preset_add_operator = 'umi.add_format_preset'
-	
+
 
 #  From https://sinestesia.co/blog/tutorials/using-blenders-presets-in-python/
 class WM_MT_UMIFormatPresets(Menu):
 	bl_label = 'Format Presets'
 	preset_subdir = 'UMI/presets'
-	preset_operator = 'script.execute_preset' 
+	preset_operator = 'script.execute_preset'
 	draw = Menu.draw_preset
 
 	@property
@@ -26,16 +26,16 @@ class WM_MT_UMIFormatPresets(Menu):
 		current_module = eval(f'umi_settings.umi_format_import_settings.{current_format}_import_module', {'umi_settings':umi_settings}).name.lower()
 		return AddUMIFormatPreset.operator_path(current_format, current_module)
 
-class AddUMIFormatPreset(AddPresetBase, Operator): 
-	bl_idname = 'umi.add_format_preset' 
-	bl_label = 'Add UMI Format Preset' 
-	preset_menu = 'WM_MT_UMIFormatPresets' 
-	
+class AddUMIFormatPreset(AddPresetBase, Operator):
+	bl_idname = 'umi.add_format_preset'
+	bl_label = 'Add UMI Format Preset'
+	preset_menu = 'WM_MT_UMIFormatPresets'
+
 	preset_defines = [
 		f"umi_settings = bpy.context.preferences.addons['{ADDON_PACKAGE}'].preferences.umi_settings.umi_format_import_settings"
 	]
 
-	skip_prop = ['name', 'settings_imported', 'bl_rna']
+	skip_prop = ['name', 'settings_imported', 'bl_rna', 'addon_name', 'supported_version']
 
 	@property
 	def preset_subdir(self):
@@ -70,7 +70,7 @@ class AddUMIFormatPreset(AddPresetBase, Operator):
 		folder = f'{current_format}_{current_module}_presets'
 		return os.path.join("umi", folder)
 
-def panel_func(self, context): 
+def panel_func(self, context):
 	row = self.layout.row(align=True)
 	row.menu(WM_MT_UMIFormatPresets.__name__, text=WM_MT_UMIFormatPresets.bl_label)
 	row.operator(AddUMIFormatPreset.bl_idname, text="", icon='ADD')

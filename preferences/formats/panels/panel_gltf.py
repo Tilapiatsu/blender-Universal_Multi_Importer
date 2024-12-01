@@ -1,12 +1,11 @@
 from . import BVERSION
-from . import draw_panel
+from . import draw_panel, draw_version_warning
 
 class IMPORT_SCENE_GLTFSettings():
+    @draw_version_warning
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
-
-        
 
         if BVERSION >= 4.2:
             op =    [[operator, 'import_pack_images'],
@@ -15,16 +14,15 @@ class IMPORT_SCENE_GLTFSettings():
                     [operator, 'guess_original_bind_pose'],
                     [operator, 'export_import_convert_lighting_mode'],
                     [operator, 'import_webp_texture']]
-        
+
             draw_panel(layout, op, 'GLTFSettings_Options', 'Options', icon='OPTIONS')
 
             op =    [[operator, 'bone_heuristic'],
                     [operator, 'disable_bone_shape'],
                     [operator, 'bone_shape_scale_factor']]
-        
+
             draw_panel(layout, op, 'GLTFSettings_Bones', 'Bones', icon='BONE_DATA')
 
-        
         else:
             op =    [[operator, 'import_pack_images'],
                     [operator, 'merge_vertices'],
@@ -33,7 +31,6 @@ class IMPORT_SCENE_GLTFSettings():
                     [operator, 'bone_heuristic'],
                     [operator, 'export_import_convert_lighting_mode'],
                     [operator, 'import_webp_texture']]
-        
+
             draw_panel(layout, op, 'GLTFSettings_Options', 'Options', icon='OPTIONS')
 
-        

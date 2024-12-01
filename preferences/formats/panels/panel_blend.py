@@ -1,14 +1,15 @@
 from . import BVERSION
-from . import draw_panel
+from . import draw_version_warning
 
 class IMPORT_SCENE_BLENDSettings():
+    @draw_version_warning
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
         module = layout.row(align=True)
         module.prop(operator, 'import_module', expand=True)
-        
+
         layout.separator()
         if BVERSION >= 4.2:
             header, panel = layout.panel(idname='BLENDSettings_ImportData')

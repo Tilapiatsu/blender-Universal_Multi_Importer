@@ -6,33 +6,33 @@ from bpy.types import Menu, Operator, Panel
 from bl_operators.presets import AddPresetBase
 
 class UMI_PT_import_presets(PresetPanel, Panel):
-	bl_label = 'UMI Presets' 
-	preset_subdir = 'UMI/presets' 
-	preset_operator = 'script.execute_preset' 
+	bl_label = 'UMI Presets'
+	preset_subdir = 'UMI/presets'
+	preset_operator = 'script.execute_preset'
 	preset_add_operator = 'umi.add_import_preset'
-	
+
 
 #  From https://sinestesia.co/blog/tutorials/using-blenders-presets-in-python/
 class WM_MT_UMIImportPresets(Menu):
 	bl_label = 'Import Presets'
 	preset_subdir = 'UMI/presets'
-	preset_operator = 'script.execute_preset' 
+	preset_operator = 'script.execute_preset'
 	draw = Menu.draw_preset
 
 	@property
 	def preset_subdir(self):
 		return AddUMIImportPreset.operator_path()
 
-class AddUMIImportPreset(AddPresetBase, Operator): 
-	bl_idname = 'umi.add_import_preset' 
-	bl_label = 'Add UMI preset' 
-	preset_menu = 'WM_MT_UMIImportPresets' 
+class AddUMIImportPreset(AddPresetBase, Operator):
+	bl_idname = 'umi.add_import_preset'
+	bl_label = 'Add UMI preset'
+	preset_menu = 'WM_MT_UMIImportPresets'
 
 	preset_defines = [
 		f"umi_settings = bpy.context.preferences.addons['{ADDON_PACKAGE}'].preferences.umi_settings.umi_global_import_settings"
 	]
 
-	skip_prop = ['name', 'settings_imported', 'bl_rna']
+	skip_prop = ['name', 'settings_imported', 'bl_rna', 'addon_name', 'supported_version']
 
 	@property
 	def preset_subdir(self):
@@ -60,7 +60,7 @@ class AddUMIImportPreset(AddPresetBase, Operator):
 		folder = f'umi_import_presets'
 		return os.path.join("umi", folder)
 
-def panel_func(layout): 
+def panel_func(layout):
 	row = layout.row(align=True)
 	row.menu(WM_MT_UMIImportPresets.__name__, text=WM_MT_UMIImportPresets.bl_label)
 	row.operator(AddUMIImportPreset.bl_idname, text="", icon='ADD')

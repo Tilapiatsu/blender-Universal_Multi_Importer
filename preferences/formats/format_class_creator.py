@@ -12,7 +12,7 @@ from . import COMPATIBLE_FORMATS
 #             # here, the argnames variable is the one passed to the
 #             # ClassFactory call
 #             if key not in argnames:
-#                 raise TypeError("Argument %s not valid for %s" 
+#                 raise TypeError("Argument %s not valid for %s"
 #                     % (key, self.__class__.__name__))
 #             setattr(self, key, value)
 #         BaseClass.__init__(self, name[:-len("Class")])
@@ -30,7 +30,7 @@ class FormatClassCreator():
                         'BOOLEAN': 'bpy.props.BoolProperty',
                         'FLOAT': 'bpy.props.FloatProperty',
                         'INT': 'bpy.props.IntProperty'}
-    
+
     @property
     def compatible_formats_class(self):
         if self._classes is None:
@@ -50,7 +50,7 @@ class FormatClassCreator():
                         format_class = self.create_format_class_from_module(operator, format_class)
                     else:
                         format_class = self.create_format_class_from_operator(operator, format_class)
-                    
+
                     self._classes['classes'].append(format_class)
 
         return self._classes
@@ -62,18 +62,20 @@ class FormatClassCreator():
         if format_module is None:
             print(f"UMI : Invalid module name passed : {f['module']}\nOr importer addon is disable")
             return None
-        
+
         for sub_module in self.get_valid_submodule(format_module):
             self.create_format_class_hierarchy_from_module(f, format_class, sub_module)
 
         format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
+        format_class.__annotations__['addon_name'] = bpy.props.StringProperty(name='Addon Name', default=f['addon_name'] if f['addon_name'] else '')
+        format_class.__annotations__['supported_version'] = bpy.props.StringProperty(name='Addon Name', default=f['supported_version'])
         return format_class
-    
+
     def create_format_class_hierarchy_from_module(self, f, format_class, format_module):
         if format_module is None:
             print(f"UMI : Invalid module name passed : {f['module']}\nOr importer addon is disable")
             return None
-        
+
         format_annotations = getattr(format_module, "__annotations__", None)
 
         key_to_delete = []
@@ -82,7 +84,7 @@ class FormatClassCreator():
                 v.keywords
             except AttributeError:
                 continue
-            
+
             if 'options' in v.keywords.keys():
                 options = v.keywords['options']
             else:
@@ -108,6 +110,8 @@ class FormatClassCreator():
                     properties = eval(f['command']).get_rna_type().properties
                 except KeyError:
                     format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
+                    format_class.__annotations__['addon_name'] = bpy.props.StringProperty(name='Addon Name', default=f['addon_name'] if f['addon_name'] else '')
+                    format_class.__annotations__['supported_version'] = bpy.props.StringProperty(name='Addon Name', default=f['supported_version'])
                     return format_class
                 # print(f['command'])
                 for p in properties:
@@ -135,7 +139,7 @@ class FormatClassCreator():
                                                                                                 'precision':p.precision})
                         else:
                             command = self._property_type[p.type]
-                            command += self.get_property_command_string(p,  additionnal_props={ 'subtype': f'"{p.subtype}"', 
+                            command += self.get_property_command_string(p,  additionnal_props={ 'subtype': f'"{p.subtype}"',
                                                                                                 'min': p.soft_min,
                                                                                                 'max':p.soft_max,
                                                                                                 'unit':f'"{p.unit}"',
@@ -151,7 +155,7 @@ class FormatClassCreator():
                                                                                                 'unit':f'"{p.unit}"'})
                         else:
                             command = self._property_type[p.type]
-                            command += self.get_property_command_string(p,  additionnal_props={'subtype': f'"{p.subtype}"', 
+                            command += self.get_property_command_string(p,  additionnal_props={'subtype': f'"{p.subtype}"',
                                                                                                 'min': p.soft_min,
                                                                                                 'max':p.soft_max})
                     # print(p.identifier, " = ", command)
@@ -165,7 +169,7 @@ class FormatClassCreator():
                         continue
                     for k,v in g[1].items():
                         command = f'{v["type"]}(name={v["name"]}, default={v["default"]}'
-                        
+
                         if 'enum_items' in v.keys():
                             command += f', items={v["enum_items"]}'
                         if 'min' in v.keys():
@@ -174,14 +178,16 @@ class FormatClassCreator():
                             command += f', max={v["max"]}'
                         if 'options' in v.keys():
                             command += f', options={v["options"]}'
-                            
+
                         command += f')'
-                        
+
                         format_class.__annotations__[k] = eval(command)
-        
+
         format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
+        format_class.__annotations__['addon_name'] = bpy.props.StringProperty(name='Addon Name', default=f['addon_name'] if f['addon_name'] else '')
+        format_class.__annotations__['supported_version'] = bpy.props.StringProperty(name='Addon Name', default=f['supported_version'])
         return format_class
-    
+
     def get_property_command_string(self, prop, additionnal_props:dict={}):
         command = f'(name="{prop.name}", description="{prop.description}"'
         if prop.type in ['ENUM', 'STRING']:
@@ -204,10 +210,10 @@ class FormatClassCreator():
         if len(additionnal_props.keys()):
             for k,v in additionnal_props.items():
                 command += f', {k}={v}'
-        
+
         command += f')'
         return command
-    
+
     def get_enum_items(self, enum):
         command = []
         for e in enum:
@@ -233,7 +239,7 @@ class FormatClassCreator():
                 bpy.utils.register_class(c)
             except ValueError:
                 continue
-    
+
     def unregister_compatible_formats(self):
         for c in reversed(self.compatible_formats_class['classes']):
             if c is None:
@@ -250,4 +256,3 @@ class FormatClassCreator():
                 bpy.utils.unregister_class(c)
             except ValueError:
                 continue
-        

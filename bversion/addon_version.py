@@ -1,4 +1,4 @@
-import addon_utils
+import addon_utils, bpy
 from . import BVERSION
 from .version import Version
 
@@ -88,6 +88,17 @@ class AddonVersion:
         :returns: -> bool
         '''
         return self.remote_version > self.local_version
+
+    @property
+    def is_enable(self) -> bool:
+        '''
+        Return True if the addon is enable
+        '''
+        return self.addon_name in bpy.context.preferences.addons if self.addon_name else True
+
+
+    def __str__(self):
+        return str(self.local_version)
 
 
 if __name__ == '__main__':

@@ -1,16 +1,7 @@
-
-def draw_no_settings(layout):
-    box = layout.box()
-    col = box.column(align=True)
-    row = col.row(align=True)
-    row.alignment = 'CENTER'
-    row.label(text='No Settings')
-
 from . import presets
 from ....bversion import BVERSION
-from ....ui.panel import draw_panel
+from ....ui.panel import draw_panel, draw_no_settings, draw_version_warning, draw_prop
 from . import panel_abc, panel_blend, panel_dae, panel_fbx, panel_gltf, panel_obj, panel_ply, panel_stl, panel_svg, panel_usd, panel_x3d
-
 
 modules = (presets,)
 
