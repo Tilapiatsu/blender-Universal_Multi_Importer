@@ -1,4 +1,4 @@
-from . import draw_panel, draw_version_warning, draw_prop
+from . import draw_panel, draw_version_warning
 
 class IMPORT_SCENE_FBXSettings():
     @draw_version_warning
