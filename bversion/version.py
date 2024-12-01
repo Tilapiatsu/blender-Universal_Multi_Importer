@@ -1,0 +1,68 @@
+from typing import Union
+
+class Version:
+    '''
+    This class allow basic representation of blender version as tuple of 3 ints.
+    you can easily compare versions together
+    '''
+
+    def __init__(self, version: Union[tuple[int], str]):
+        if isinstance(version, str):
+            self._version = tuple(int(i) for i in version.split('.'))
+        elif isinstance(version, tuple):
+            self._version = version
+        elif isinstance(version, float):
+            self._version = tuple(int(i) for i in str(version).split('.')) + (0,)
+
+    @property
+    def version(self) -> tuple[int]:
+        '''
+        :returns: the version formatted as a tuple of 3 int elements
+        '''
+        return self._version
+
+    @property
+    def as_float(self) -> float:
+        '''
+        :returns: the version as float
+        '''
+        return float(self._version[0] + self._version[1] * 0.1 + self._version[2] * 0.001)
+
+    def __str__(self):
+        return f'{self.version[0]}.{self.version[1]}.{self.version[2]}'
+
+    def __repr__(self):
+        return self._version
+
+    def __eq__(self, other):
+        if isinstance(other, float):
+            other = tuple(int(i) for i in str(other).split('.')) + (0,)
+
+        if (self.version[0] == other.version[0] and
+            self.version[1] == other.version[1] and
+            self.version[2] == other.version[2]):
+            return True
+
+        return False
+
+    def __gt__(self, other):
+        if isinstance(other, float):
+            other = tuple(int(i) for i in str(other).split('.')) + (0,)
+
+        if (self.version[0] > other.version[0] and
+            self.version[1] > other.version[1] and
+            self.version[2] > other.version[2]):
+            return True
+
+        return False
+
+    def __lt__(self, other):
+        if isinstance(other, float):
+            other = tuple(int(i) for i in str(other).split('.')) + (0,)
+
+        if (self.version[0] < other.version[0] and
+            self.version[1] < other.version[1] and
+            self.version[2] < other.version[2]):
+            return True
+
+        return False

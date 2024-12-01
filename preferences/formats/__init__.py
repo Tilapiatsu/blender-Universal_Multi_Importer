@@ -25,9 +25,9 @@ def register_import_setting_class():
             cl_name = f'UMI_{f[0]}_{name}_settings'
             cl = eval(cl_name)
             properties.PG_ImportSettings.__annotations__[f'{f[0]}_{name}_import_settings'] = bpy.props.PointerProperty(type=cl)
-            
+
     properties.PG_ImportSettings.umi_import_settings_registered = True
-    
+
 def register():
     class_parser = FormatClassCreator()
     class_parser.register_compatible_formats()
