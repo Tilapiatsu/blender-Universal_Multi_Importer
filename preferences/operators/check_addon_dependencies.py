@@ -28,6 +28,7 @@ class UI_UMICheckAddonDependencies(bpy.types.Operator):
                 av = AddonVersion(addon_name)
                 ad.local_version    = str(av.local_version)
                 ad.remote_version   = str(av.remote_version)
+                ad.supported_version   = module['supported_version']
                 ad.is_outdated      = av.is_outdated
 
                 pkg_id              = module['pkg_id'] if module['pkg_id'] is not None else ''

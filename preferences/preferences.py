@@ -1,5 +1,6 @@
 import bpy
 from ..bversion import BVERSION
+from ..bversion.version import Version
 from ..logger import LOG
 from .formats.properties import PG_UMISettings
 from .colors.presets import color_preset
@@ -73,8 +74,12 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
     for ad in addon_dependencies.values():
         name = ad.format_name
         addon_name = ad.addon_name if len(ad.addon_name) else f'Built-in {ad.module_name}'
+        supported_version = Version(ad.supported_version)
+        local_version = Version(ad.local_version)
 
-        if ad.is_outdated:
+        need_update = ad.is_outdated and local_version < supported_version
+
+        if need_update:
             version = f'{ad.local_version} (outdated {ad.remote_version})'
         elif not ad.is_installed and len(ad.addon_name) > 0:
             version = f'{ad.remote_version} available'
@@ -87,7 +92,7 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
         grid_layout(row, alignment='CENTER', size=4).label(text=name)
         grid_layout(row, alignment='CENTER', size=6).label(text=addon_diplay_name)
 
-        if ad.is_outdated:
+        if need_update:
             if not context.preferences.system.use_online_access:
                 grid_layout(row, alignment='CENTER', size=6).operator('extensions.userpref_allow_online', text=version, icon='INTERNET_OFFLINE')
             else:

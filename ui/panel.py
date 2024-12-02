@@ -81,28 +81,36 @@ def draw_version_warning(f) -> Callable:
         addon_version = AddonVersion(operator.addon_name)
         supported_version = Version(operator.supported_version)
         if addon_version.local_version != supported_version:
-            box = layout.box()
-            box.label(text=f'Installed {operator.addon_name} version : {addon_version.local_version}')
-            box.label(text=f'supported {operator.addon_name} version : {operator.supported_version}')
-            box.label(text=f'{operator.addon_name} version does NOT match the one supported by Universal Multi Importer.')
-            box.label(text=f'Please check the update the {operator.name} in the preferences of the addon')
+            header, panel = layout.panel(idname='VersionMissmatch')
+            header.label(text='Addon Version Missmatch', icon='WARNING_LARGE')
+            if panel:
+                panel.label(text=f'Installed {operator.addon_name} version : {addon_version.local_version}')
+                panel.label(text=f'supported {operator.addon_name} version : {operator.supported_version}')
+                panel.label(text=f'Installed version does NOT match the one supported by Universal Multi Importer.')
+                panel.label(text=f'Please update the {operator.name} in the preferences of the addon')
+                panel.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
 
         elif not addon_version.is_enable:
-            box = layout.box()
-            box.label(text=f'{operator.addon_name} is disable, please enable it before moving forward', icon='WARNING_LARGE')
-            box.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
+            header, panel = layout.panel(idname='AddonDisabled')
+            header.label(text='Addon Disabled', icon='WARNING_LARGE')
+            if panel:
+                panel.label(text=f'{operator.addon_name} is disable, please enable it before moving forward', icon='WARNING_LARGE')
+                panel.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
 
         try:
             return f(self, operator, module_name, layout)
         except ValueError as e:
-            layout.label(text=str(e), icon='WARNING_LARGE')
-            box = layout.box()
-            box.label(text=f'Please check the installed version of the addon "{operator.addon_name}":')
-            box.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
+            header, panel = layout.panel(idname='ImportSettingMissmatch')
+            header.label(text='Import Settings not found', icon='WARNING_LARGE')
+            if panel:
+                panel.label(text=str(e), icon='WARNING_LARGE')
+                box = panel.box()
+                box.label(text=f'Please check the installed version of the addon "{operator.addon_name}":')
+                box.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
 
-            box = layout.box()
-            box.label(text='Or report an issue :')
-            box.operator('wm.url_open', icon='WARNING_LARGE', text='Report Issue').url='https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/issues/new'
+                box = panel.box()
+                box.label(text='Or report an issue :')
+                box.operator('wm.url_open', icon='WARNING_LARGE', text='Report Issue').url='https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/issues/new'
 
             return None
             # return f(self, operator, module_name, layout)
