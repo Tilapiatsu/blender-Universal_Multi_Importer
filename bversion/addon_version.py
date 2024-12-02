@@ -90,6 +90,24 @@ class AddonVersion:
         return self.remote_version > self.local_version
 
     @property
+    def is_newer(self) -> bool:
+        '''
+        An addon version is considered newer if the remote version is older than the local version
+
+        :returns: -> bool
+        '''
+        return self.remote_version < self.local_version
+
+    @property
+    def is_matching(self) -> bool:
+        '''
+        An addon version is considered as matching if the remote version and the local version are the same
+
+        :returns: -> bool
+        '''
+        return self.remote_version == self.local_version
+
+    @property
     def is_enable(self) -> bool:
         '''
         Return True if the addon is enable
