@@ -83,7 +83,7 @@ class FormatDefinition():
 
     max = {'name' : 'max',
         'ext' : ['.max'],
-        'operator' : {'default':{'command':'bpy.ops.import_scene.max', 'module':None, 'addon_name' : 'bl_ext.blender_org.io_scene_max', 'pkg_id' : 'io_scene_max', 'pkg_url': 'https://extensions.blender.org/add-ons/io-scene-max/', 'supported_version':'1.5.5', 'import_settings':
+        'operator' : {'default':{'command':'bpy.ops.import_scene.max', 'module':None, 'addon_name' : 'bl_ext.blender_org.io_scene_max', 'pkg_id' : 'io_scene_max', 'pkg_url': 'https://extensions.blender.org/add-ons/io-scene-max/', 'supported_version':'1.6.0', 'import_settings':
                                             [['Include',
                                             {"use_image_search": {'type':'bpy.props.BoolProperty', 'name':'"Image Search"', 'default':True},
                                             "object_filter": {'type':'bpy.props.EnumProperty', 'name':'"Object Filter"', 'default':{'MATERIAL', 'UV', 'EMPTY', 'ARMATURE'},
