@@ -49,10 +49,9 @@ class Version:
         if isinstance(other, float):
             other = tuple(int(i) for i in str(other).split('.')) + (0,)
 
-        if (self.version[0] > other.version[0] and
-            self.version[1] > other.version[1] and
-            self.version[2] > other.version[2]):
-            return True
+        if self.version[0] > other.version[0]: return True
+        elif self.version[1] > other.version[1]: return True
+        elif self.version[2] > other.version[2]: return True
 
         return False
 
@@ -60,9 +59,8 @@ class Version:
         if isinstance(other, float):
             other = tuple(int(i) for i in str(other).split('.')) + (0,)
 
-        if (self.version[0] < other.version[0] and
-            self.version[1] < other.version[1] and
-            self.version[2] < other.version[2]):
-            return True
+        if self.version[0] < other.version[0]: return True
+        elif self.version[1] < other.version[1]: return True
+        elif self.version[2] < other.version[2]: return True
 
         return False
