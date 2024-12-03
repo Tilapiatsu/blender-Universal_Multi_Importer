@@ -32,18 +32,21 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
     bbox = layout.box()
     bbox.operator('preferences.umi_check_addon_dependency', icon='FILE_REFRESH')
     if not len(addon_dependencies):
+        bbox.alert = True
         bbox.label(text=f'Addon dependency status have to be refreshed', icon='FILE_REFRESH')
     elif umi_settings.umi_all_addon_dependencies_installed and umi_settings.umi_all_addon_dependencies_enabled and not umi_settings.umi_addon_dependency_need_reboot:
         bbox.label(text=f'All formats are installed/enabled properly', icon='CHECKMARK')
     elif umi_settings.umi_all_addon_dependencies_installed and umi_settings.umi_all_addon_dependencies_enabled and umi_settings.umi_addon_dependency_need_reboot:
         bbox.label(text=f'All formats are installed/enabled properly, but before it fully works, you will have to :', icon='ERROR')
         col = bbox.column(align=True)
+        col.alert = True
         col.label(text=f'Disable Universal Multi Importer Addon', icon='RADIOBUT_ON')
         col.label(text=f'Restart Blender', icon='RADIOBUT_ON')
         col.label(text=f'Enable Universal Multi Importer Addon again', icon='RADIOBUT_ON')
     else:
         bbox.label(text=f'Some formats are currently not installed/enabled. If you want to use them with this addon, you will have to :', icon='ERROR')
         col = bbox.column(align=True)
+        col.alert = True
         col.label(text=f'Install/Enable the missing formats by clicking on the install/enable button bellow', icon='RADIOBUT_ON')
         col.label(text=f'Disable Universal Multi Importer Addon', icon='RADIOBUT_ON')
         col.label(text=f'Restart Blender', icon='RADIOBUT_ON')
@@ -79,10 +82,10 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
 
         need_update = ad.is_outdated and local_version < supported_version
 
-        if need_update:
-            version = f'{ad.local_version} (outdated {ad.remote_version})'
-        elif not ad.is_installed and len(ad.addon_name) > 0:
+        if not ad.is_installed and len(ad.addon_name) > 0:
             version = f'{ad.remote_version} available'
+        elif need_update:
+            version = f'{ad.local_version} (outdated {ad.remote_version})'
         else:
             version = f'{ad.local_version}' if ad.local_version != '0.0.0' else '-----'
 
@@ -92,7 +95,9 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
         grid_layout(row, alignment='CENTER', size=4).label(text=name)
         grid_layout(row, alignment='CENTER', size=6).label(text=addon_diplay_name)
 
-        if need_update:
+        if not ad.is_installed and len(ad.addon_name) > 0:
+            grid_layout(row, alignment='CENTER', size=6).label(text=version)
+        elif need_update:
             if not context.preferences.system.use_online_access:
                 grid_layout(row, alignment='CENTER', size=6).operator('extensions.userpref_allow_online', text=version, icon='INTERNET_OFFLINE')
             else:

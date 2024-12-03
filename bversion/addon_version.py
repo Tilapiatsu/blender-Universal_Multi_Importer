@@ -114,6 +114,13 @@ class AddonVersion:
         '''
         return self.addon_name in bpy.context.preferences.addons if self.addon_name else True
 
+    @property
+    def is_installed(self) -> bool:
+        '''
+        Return True if the addon is installed
+        '''
+        return self.is_enable or self.module is not None
+
 
     def __str__(self):
         return str(self.local_version)

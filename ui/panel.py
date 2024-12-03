@@ -80,32 +80,48 @@ def draw_version_warning(f) -> Callable:
     def __wrapper(self, operator, module_name, layout):
         addon_version = AddonVersion(operator.addon_name)
         supported_version = Version(operator.supported_version)
-        if addon_version.local_version != supported_version:
+
+        if not addon_version.is_installed:
+            header, panel = layout.panel(idname='NotInstalled')
+            header.alert = True
+            header.label(text='Addon Not Installed', icon='WARNING_LARGE')
+            if panel:
+                panel.alert = True
+                panel.label(text=f'{operator.name} addon is not installed, you can fix dependencies with the button bellow')
+                panel.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
+
+        elif addon_version.local_version != supported_version:
             header, panel = layout.panel(idname='VersionMissmatch')
+            header.alert = True
             header.label(text='Addon Version Missmatch', icon='WARNING_LARGE')
             if panel:
-                panel.label(text=f'Installed {operator.addon_name} version : {addon_version.local_version}')
-                panel.label(text=f'supported {operator.addon_name} version : {operator.supported_version}')
-                panel.label(text=f'Installed version does NOT match the one supported by Universal Multi Importer.')
-                panel.label(text=f'Please update the {operator.name} in the preferences of the addon')
-                panel.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
+                panel.alert = True
+                panel.label(text=f'Installed {addon_version.pkg_name} version : {addon_version.local_version}')
+                panel.label(text=f'supported {addon_version.pkg_name} version : {operator.supported_version}')
+                panel.label(text='Installed version does NOT match the one supported by Universal Multi Importer.')
+                panel.label(text=f'Please update the {addon_version.pkg_name}')
+                panel.operator('extensions.umi_install_extension', icon='FILE_REFRESH', text=f'Update {addon_version.pkg_name} addon').pkg_id = operator.addon_name
 
         elif not addon_version.is_enable:
             header, panel = layout.panel(idname='AddonDisabled')
+            header.alert = True
             header.label(text='Addon Disabled', icon='WARNING_LARGE')
             if panel:
-                panel.label(text=f'{operator.addon_name} is disable, please enable it before moving forward', icon='WARNING_LARGE')
-                panel.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
+                panel.alert = True
+                panel.label(text=f'{addon_version.pkg_name} is disable, please enable it before moving forward', icon='WARNING_LARGE')
+                panel.operator('preferences.umi_addon_enable', icon='CHECKMARK', text=f'Enable {addon_version.pkg_name} addon')
 
         try:
             return f(self, operator, module_name, layout)
         except ValueError as e:
             header, panel = layout.panel(idname='ImportSettingMissmatch')
+            header.alert = True
             header.label(text='Import Settings not found', icon='WARNING_LARGE')
             if panel:
+                panel.alert = True
                 panel.label(text=str(e), icon='WARNING_LARGE')
                 box = panel.box()
-                box.label(text=f'Please check the installed version of the addon "{operator.addon_name}":')
+                box.label(text=f'Please check the installed version of the addon "{addon_version.pkg_name}":')
                 box.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
 
                 box = panel.box()
