@@ -52,7 +52,10 @@ class AddonVersion:
         if self.module is None:
             return Version((0, 0, 0))
 
-        return Version(self.module.bl_info['version']) if self.module.bl_info['version'] else Version((0, 0, 0))
+        if self.module is None or 'version' not in self.module.bl_info.keys():
+            return Version((0, 0, 0))
+        
+        return Version(self.module.bl_info['version'])
 
     @property
     def local_version(self) -> Version:

@@ -214,6 +214,12 @@ class FormatDefinition():
             'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'addon_name' : 'io_curve_svg', 'pkg_id' : None, 'import_settings':None, 'pkg_url':None, 'supported_version':'0.0.0'}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
+        
+        fbx = {'name' : 'fbx',
+            'ext' : ['.fbx'],
+            'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : None, 'addon_name' : 'io_scene_fbx', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'5.12.4'}},
+            'ignore': ['files', 'directory'],
+            'generate_filter_glob':False}
 
     # 4.1 and below
     else:
@@ -288,5 +294,11 @@ class FormatDefinition():
         svg = {'name' : 'svg',
             'ext' : ['.svg'],
             'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'addon_name' : 'io_curve_svg', 'pkg_id' : None, 'import_settings':None, 'pkg_url':None, 'supported_version':'0.0.0'}},
+            'ignore': ['files', 'directory'],
+            'generate_filter_glob':False}
+        
+        fbx = {'name' : 'fbx',
+            'ext' : ['.fbx'],
+            'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : None, 'addon_name' : 'io_scene_fbx', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'5.12.3'}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}

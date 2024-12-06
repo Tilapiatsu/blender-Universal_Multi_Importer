@@ -2,6 +2,7 @@ from typing import Callable
 from ..bversion import BVERSION
 from ..bversion.addon_version import AddonVersion
 from ..bversion.version import Version
+from ..umi_const import WARNING_ICON
 
 def draw_prop(layout, operator, prop, text=None) -> None:
     if prop not in dir(operator):
@@ -84,7 +85,7 @@ def draw_version_warning(f) -> Callable:
         if not addon_version.is_installed:
             header, panel = layout.panel(idname='NotInstalled')
             header.alert = True
-            header.label(text='Addon Not Installed', icon='WARNING_LARGE')
+            header.label(text='Addon Not Installed', icon=WARNING_ICON)
             if panel:
                 panel.alert = True
                 panel.label(text=f'{operator.name} addon is not installed, you can fix dependencies with the button bellow')
@@ -93,7 +94,7 @@ def draw_version_warning(f) -> Callable:
         elif addon_version.local_version != supported_version:
             header, panel = layout.panel(idname='VersionMissmatch')
             header.alert = True
-            header.label(text='Addon Version Missmatch', icon='WARNING_LARGE')
+            header.label(text='Addon Version Missmatch', icon=WARNING_ICON)
             if panel:
                 panel.alert = True
                 panel.label(text=f'Installed {addon_version.pkg_name} version : {addon_version.local_version}')
@@ -105,10 +106,10 @@ def draw_version_warning(f) -> Callable:
         elif not addon_version.is_enable:
             header, panel = layout.panel(idname='AddonDisabled')
             header.alert = True
-            header.label(text='Addon Disabled', icon='WARNING_LARGE')
+            header.label(text='Addon Disabled', icon=WARNING_ICON)
             if panel:
                 panel.alert = True
-                panel.label(text=f'{addon_version.pkg_name} is disable, please enable it before moving forward', icon='WARNING_LARGE')
+                panel.label(text=f'{addon_version.pkg_name} is disable, please enable it before moving forward', icon=WARNING_ICON)
                 panel.operator('preferences.umi_addon_enable', icon='CHECKMARK', text=f'Enable {addon_version.pkg_name} addon')
 
         try:
@@ -116,17 +117,17 @@ def draw_version_warning(f) -> Callable:
         except ValueError as e:
             header, panel = layout.panel(idname='ImportSettingMissmatch')
             header.alert = True
-            header.label(text='Import Settings not found', icon='WARNING_LARGE')
+            header.label(text='Import Settings not found', icon=WARNING_ICON)
             if panel:
                 panel.alert = True
-                panel.label(text=str(e), icon='WARNING_LARGE')
+                panel.label(text=str(e), icon=WARNING_ICON)
                 box = panel.box()
                 box.label(text=f'Please check the installed version of the addon "{addon_version.pkg_name}":')
                 box.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
 
                 box = panel.box()
                 box.label(text='Or report an issue :')
-                box.operator('wm.url_open', icon='WARNING_LARGE', text='Report Issue').url='https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/issues/new'
+                box.operator('wm.url_open', icon=WARNING_ICON, text='Report Issue').url='https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/issues/new'
 
             return None
             # return f(self, operator, module_name, layout)
