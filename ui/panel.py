@@ -58,6 +58,7 @@ def draw_panel(layout,
         panel = box.column(align=True)
 
     if panel:
+        col = panel.column(align=True)
         if set_header_boolean:
             panel.enabled = getattr(header_bool[0], header_bool[1])
         for p in props:
@@ -69,6 +70,23 @@ def draw_panel(layout,
                 # panel.prop(p[0], p[1], text=p[2])
 
     return header, panel
+
+def draw_custom_panel(  layout,
+                        idname,
+                        header_name:str,
+                        icon='NONE') -> tuple:
+
+    if BVERSION >= 4.2:
+        header, panel = layout.panel(idname=idname)
+        header.label(text=header_name, icon=icon)
+        return header, panel
+
+    panel = layout.box()
+    header = panel.row(align=True)
+    header.label(text=header_name, icon=icon)
+    return header, panel
+
+
 
 def draw_no_settings(layout) -> None:
     box = layout.box()
@@ -83,18 +101,16 @@ def draw_version_warning(f) -> Callable:
         supported_version = Version(operator.supported_version)
 
         if not addon_version.is_installed:
-            header, panel = layout.panel(idname='NotInstalled')
+            header, panel = draw_custom_panel(layout, 'NotInstalled', 'Addon Not Installed', icon=WARNING_ICON)
             header.alert = True
-            header.label(text='Addon Not Installed', icon=WARNING_ICON)
             if panel:
                 panel.alert = True
                 panel.label(text=f'{operator.name} addon is not installed, you can fix dependencies with the button bellow')
                 panel.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
 
         elif addon_version.local_version != supported_version:
-            header, panel = layout.panel(idname='VersionMissmatch')
+            header, panel = draw_custom_panel(layout, 'VersionMissmatch', 'Addon Version Missmatch', icon=WARNING_ICON)
             header.alert = True
-            header.label(text='Addon Version Missmatch', icon=WARNING_ICON)
             if panel:
                 panel.alert = True
                 panel.label(text=f'Installed {addon_version.pkg_name} version : {addon_version.local_version}')
@@ -104,9 +120,8 @@ def draw_version_warning(f) -> Callable:
                 panel.operator('extensions.umi_install_extension', icon='FILE_REFRESH', text=f'Update {addon_version.pkg_name} addon').pkg_id = operator.addon_name
 
         elif not addon_version.is_enable:
-            header, panel = layout.panel(idname='AddonDisabled')
+            header, panel = draw_custom_panel(layout, 'AddonDisabled', 'Addon Disabled', icon=WARNING_ICON)
             header.alert = True
-            header.label(text='Addon Disabled', icon=WARNING_ICON)
             if panel:
                 panel.alert = True
                 panel.label(text=f'{addon_version.pkg_name} is disable, please enable it before moving forward', icon=WARNING_ICON)
@@ -115,9 +130,8 @@ def draw_version_warning(f) -> Callable:
         try:
             return f(self, operator, module_name, layout)
         except ValueError as e:
-            header, panel = layout.panel(idname='ImportSettingMissmatch')
+            header, panel = draw_custom_panel(layout, 'ImportSettingMissmatch', 'Import Settings not found', icon=WARNING_ICON)
             header.alert = True
-            header.label(text='Import Settings not found', icon=WARNING_ICON)
             if panel:
                 panel.alert = True
                 panel.label(text=str(e), icon=WARNING_ICON)
