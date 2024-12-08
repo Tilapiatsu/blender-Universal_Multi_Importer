@@ -221,8 +221,7 @@ class FormatDefinition():
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
 
-    # 4.1 and below
-    else:
+    elif BVERSION >= 4.1:
         image = {'name' : 'image',
         'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                     '.hdr', '.exr',
@@ -308,3 +307,19 @@ class FormatDefinition():
             'operator' : {'default':{'command':'bpy.ops.import_scene.gltf','module' : None, 'addon_name' : 'io_scene_gltf2', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'4.1.62'}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
+
+    elif BVERSION >= 4.0:
+        fbx = {'name' : 'fbx',
+            'ext' : ['.fbx'],
+            'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : None, 'addon_name' : 'io_scene_fbx', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'5.8.13'}},
+            'ignore': ['files', 'directory'],
+            'generate_filter_glob':False}
+
+        gltf = {'name' : 'gltf',
+            'ext' : ['.glb', '.gltf'],
+            'operator' : {'default':{'command':'bpy.ops.import_scene.gltf','module' : None, 'addon_name' : 'io_scene_gltf2', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'4.0.44'}},
+            'ignore': ['files', 'directory'],
+            'generate_filter_glob':False}
+
+    else:
+        pass
