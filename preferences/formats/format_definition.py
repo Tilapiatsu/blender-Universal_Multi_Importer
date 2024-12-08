@@ -214,7 +214,7 @@ class FormatDefinition():
             'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'addon_name' : 'io_curve_svg', 'pkg_id' : None, 'import_settings':None, 'pkg_url':None, 'supported_version':'0.0.0'}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
-        
+
         fbx = {'name' : 'fbx',
             'ext' : ['.fbx'],
             'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : None, 'addon_name' : 'io_scene_fbx', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'5.12.4'}},
@@ -227,7 +227,7 @@ class FormatDefinition():
         'ext' : [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                     '.hdr', '.exr',
                     '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-        'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':None, 'addon_name' : 'io_import_images_as_planes', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'0.0.0'},
+        'operator' : {  'plane':{'command':'bpy.ops.import_image.to_plane', 'module':None, 'addon_name' : 'io_import_images_as_planes', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'3.5.1'},
                         'data':{'command':'bpy.ops.image.open', 'module':None, 'addon_name' : None, 'pkg_id' : None , 'import_settings':None, 'pkg_url':None, 'supported_version':'0.0.0'},
                         'ref':{'command':'bpy.ops.object.load_reference_image', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'0.0.0'},
                         'background':{'command':'bpy.ops.object.load_background_image', 'module':None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'0.0.0'}},
@@ -237,38 +237,38 @@ class FormatDefinition():
 
         stl = {'name' : 'stl',
                 'ext' : ['.stl'],
-                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : 'io_mesh_stl', 'pkg_id' : None, 'import_settings':None, 'pkg_url':None, 'supported_version':'0.0.0'},
+                'operator' : {  'default':{'command':'bpy.ops.wm.stl_import', 'module':None, 'addon_name' : 'io_mesh_stl', 'pkg_id' : None, 'import_settings':None, 'pkg_url':None, 'supported_version':'1.1.3'},
                                 'legacy':{'command':'bpy.ops.import_mesh.stl', 'module' : None, 'addon_name' : None, 'pkg_id' : None, 'import_settings':None, 'pkg_url':None, 'supported_version':'0.0.0'}},
                 'ignore': ['files', 'directory'],
                 'generate_filter_glob':False}
 
         x3d = {'name' : 'x3d',
             'ext' : ['.x3d', '.wrl'],
-            'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'2.4.3'}},
+            'operator' : {'default':{'command':'bpy.ops.import_scene.x3d','module' : None, 'addon_name' : None, 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'0.0.0'}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':True}
 
         dxf = {'name' : 'dxf',
         'ext' : ['.dxf'],
-        'operator' : {'default':{'command':'bpy.ops.import_scene.dxf','module' : None, 'addon_name' : 'io_import_dxf', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'0.9.10'}},
+        'operator' : {'default':{'command':'bpy.ops.import_scene.dxf','module' : None, 'addon_name' : 'io_import_dxf', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'0.9.8'}},
         'ignore': ['files', 'directory'],
         'generate_filter_glob':True}
 
         pdb = {'name' : 'pdb',
         'ext' : ['.pdb'],
-        'operator' : {'default':{'command':'bpy.ops.import_mesh.pdb','module' : None, 'addon_name' : 'io_mesh_atomic', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'1.9.1'}},
+        'operator' : {'default':{'command':'bpy.ops.import_mesh.pdb','module' : None, 'addon_name' : 'io_mesh_atomic', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'1.8.1'}},
         'ignore': ['files', 'directory'],
         'generate_filter_glob':True}
 
         xyz = {'name' : 'xyz',
             'ext' : ['.xyz'],
-            'operator' : {'default':{'command':'bpy.ops.import_mesh.xyz','module' : None, 'addon_name' : 'io_mesh_atomic', 'pkg_id' : None, 'pkg_url':None, 'import_settings': None, 'supported_version':'1.9.1'}},
+            'operator' : {'default':{'command':'bpy.ops.import_mesh.xyz','module' : None, 'addon_name' : 'io_mesh_atomic', 'pkg_id' : None, 'pkg_url':None, 'import_settings': None, 'supported_version':'1.8.1'}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':True}
 
         max3ds = {'name' : 'max3ds',
                 'ext' : ['.3ds'],
-                'operator' : {'default':{'command':'bpy.ops.import_scene.max3ds','module' : None, 'addon_name' : 'io_scene_3ds', 'pkg_id' : None, 'pkg_url':None, 'supported_version':'2.7.5', 'import_settings':
+                'operator' : {'default':{'command':'bpy.ops.import_scene.max3ds','module' : None, 'addon_name' : 'io_scene_3ds', 'pkg_id' : None, 'pkg_url':None, 'supported_version':'2.4.9', 'import_settings':
                                         [['Include',
                                                     {"use_image_search": {'type':'bpy.props.BoolProperty', 'name':'"Image Search"', 'default':True},
                                                     "object_filter": {'type':'bpy.props.EnumProperty', 'name':'"Object Filter"', 'default':{'WORLD', 'MESH', 'LIGHT', 'CAMERA', 'EMPTY'},
@@ -296,9 +296,15 @@ class FormatDefinition():
             'operator' : {  'default':{'command':'bpy.ops.import_curve.svg', 'module':None, 'addon_name' : 'io_curve_svg', 'pkg_id' : None, 'import_settings':None, 'pkg_url':None, 'supported_version':'0.0.0'}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
-        
+
         fbx = {'name' : 'fbx',
             'ext' : ['.fbx'],
-            'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : None, 'addon_name' : 'io_scene_fbx', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'5.12.3'}},
+            'operator' : {'default':{'command': 'bpy.ops.import_scene.fbx', 'module' : None, 'addon_name' : 'io_scene_fbx', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'5.11.7'}},
+            'ignore': ['files', 'directory'],
+            'generate_filter_glob':False}
+
+        gltf = {'name' : 'gltf',
+            'ext' : ['.glb', '.gltf'],
+            'operator' : {'default':{'command':'bpy.ops.import_scene.gltf','module' : None, 'addon_name' : 'io_scene_gltf2', 'pkg_id' : None, 'pkg_url':None, 'import_settings':None, 'supported_version':'4.1.62'}},
             'ignore': ['files', 'directory'],
             'generate_filter_glob':False}
