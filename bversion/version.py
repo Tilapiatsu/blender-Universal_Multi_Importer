@@ -8,11 +8,11 @@ class Version:
 
     def __init__(self, version: Union[tuple[int], str]):
         if isinstance(version, str):
-            self._version = tuple(int(i) for i in version.split('.'))
+            self._version = tuple(int(float(i)) for i in version.split('.'))
         elif isinstance(version, tuple):
             self._version = version
         elif isinstance(version, float):
-            self._version = tuple(int(i) for i in str(version).split('.')) + (0,)
+            self._version = tuple(int(float(i)) for i in str(version).split('.')) + (0,)
 
     @property
     def version(self) -> tuple[int]:

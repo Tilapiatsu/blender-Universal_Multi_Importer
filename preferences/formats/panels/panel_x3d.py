@@ -36,7 +36,7 @@ class IMPORT_SCENE_X3DSettings():
 
             draw_panel(layout, op, 'X3DSettings_Mesh', 'Solidify', icon='MOD_SOLIDIFY', set_header_boolean=True, header_bool=[operator, 'solidify'])
 
-        elif BVERSION >= 4.1:
+        elif BVERSION >= 3.6:
             op = [  [operator, 'axis_forward'],
                 [operator, 'axis_up']]
 
