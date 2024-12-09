@@ -69,7 +69,7 @@ class FormatHandler():
 
                 d[k] = getattr(self.format_settings, k)
                 if isinstance(d[k], str):
-                    d[k] = '"{}"'.format(d[k])
+                    d[k] = f'"{d[k]}"'
 
 
             self._format_settings_dict = d

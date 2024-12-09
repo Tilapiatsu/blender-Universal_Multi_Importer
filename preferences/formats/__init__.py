@@ -4,7 +4,7 @@ from . import panels
 
 
 from .format_definition import FormatDefinition
-FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('__')]
+FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('_')]
 
 from .format_compatible import CompatibleFormats
 COMPATIBLE_FORMATS = CompatibleFormats()

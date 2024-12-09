@@ -38,7 +38,7 @@ class FormatClassCreator():
             for f in COMPATIBLE_FORMATS.formats:
                 try:
                     exec(f'from . import UMI_{f[0]}_module')
-                except ImportError as e:
+                except ImportError:
                     continue
                 import_module = eval(f'UMI_{f[0]}_module')
                 self._classes['modules'].append(import_module)
@@ -113,7 +113,7 @@ class FormatClassCreator():
                     format_class.__annotations__['addon_name'] = bpy.props.StringProperty(name='Addon Name', default=f['addon_name'] if f['addon_name'] else '')
                     format_class.__annotations__['supported_version'] = bpy.props.StringProperty(name='Addon Name', default=f['supported_version'])
                     return format_class
-                # print(f['command'])
+
                 for p in properties:
                     if p.is_hidden or p.is_readonly:
                         continue
@@ -162,12 +162,10 @@ class FormatClassCreator():
                     format_class.__annotations__[p.identifier] = eval(command)
             else:
                 # TODO : create a pointer to a settings for each g[0]
-                for g in f['import_settings']:
-                    if not len(g):
+                for s in f['import_settings'].values():
+                    if len(s.keys()) == 0:
                         continue
-                    if not len(g[1].keys()):
-                        continue
-                    for k,v in g[1].items():
+                    for k,v in s.items():
                         command = f'{v["type"]}(name={v["name"]}, default={v["default"]}'
 
                         if 'enum_items' in v.keys():
@@ -179,7 +177,7 @@ class FormatClassCreator():
                         if 'options' in v.keys():
                             command += f', options={v["options"]}'
 
-                        command += f')'
+                        command += ')'
 
                         format_class.__annotations__[k] = eval(command)
 

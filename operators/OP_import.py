@@ -185,7 +185,7 @@ def register_import_format(self, context):
     for f in COMPATIBLE_FORMATS.formats:
         exec('self.{}_format = {{ }}'.format(f[0]), {'self':self})
         current_format = eval(f'self.{f[0]}_format')
-        for i,name in enumerate(f[1]['operator'].keys()):
+        for _,name in enumerate(f[1]['operator'].keys()):
             current_format[name] = FormatHandler(import_format=f"{f[0]}", module_name=name, context=context)
 
 class UMI_MD5Check(bpy.types.Operator):
