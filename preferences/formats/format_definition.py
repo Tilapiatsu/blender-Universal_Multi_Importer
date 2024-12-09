@@ -132,7 +132,7 @@ class FormatDefinition:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.x3d',
                            '2.3.1',
-                           addon_name='io_scene_gltf2')
+                           addon_name='io_scene_x3d')
 
         if BVERSION >= 4.2:
             f.addon_name = 'bl_ext.blender_org.web3d_x3d_vrml2_format'
@@ -140,6 +140,8 @@ class FormatDefinition:
             f.pkg_url = 'https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/'
             f.supported_version = '2.4.4'
         elif BVERSION >= 4.1:
+            f.supported_version = '2.3.1'
+        elif BVERSION >= 4.0:
             f.supported_version = '0.0.0'
 
         return FormatOperators(f)
