@@ -20,10 +20,8 @@ class FormatDefinition:
             f.supported_version = '5.12.4'
         elif BVERSION >= 4.1:
             f.supported_version = '5.11.7'
-        elif BVERSION >= 4.02:
-            f.supported_version = '5.8.12'
         elif BVERSION >= 4.0:
-            f.supported_version = '5.8.13'
+            f.supported_version = '5.8.12'
 
         return FormatOperators(f)
 
@@ -142,7 +140,7 @@ class FormatDefinition:
         elif BVERSION >= 4.1:
             f.supported_version = '2.3.1'
         elif BVERSION >= 4.0:
-            f.supported_version = '0.0.0'
+            f.supported_version = '2.3.1'
 
         return FormatOperators(f)
 
@@ -179,7 +177,7 @@ class FormatDefinition:
             f.pkg_id = 'atomic_blender_pdb_xyz'
             f.pkg_url = 'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/'
             f.supported_version = '1.9.1'
-        elif BVERSION >= 4.1:
+        elif BVERSION >= 4.0:
             f.command = 'bpy.ops.import_mesh.pdb'
             f.addon_name = 'io_mesh_atomic'
             f.supported_version = '1.8.1'
@@ -200,7 +198,7 @@ class FormatDefinition:
             f.pkg_id = 'atomic_blender_pdb_xyz'
             f.pkg_url = 'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/'
             f.supported_version = '1.9.1'
-        elif BVERSION >= 4.1:
+        elif BVERSION >= 4.0:
             f.command = 'bpy.ops.import_mesh.xyz'
             f.addon_name = 'io_mesh_atomic'
             f.supported_version = '1.8.1'
