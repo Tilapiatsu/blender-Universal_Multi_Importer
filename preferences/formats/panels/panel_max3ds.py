@@ -10,7 +10,6 @@ class IMPORT_SCENE_MAX3DSSettings():
             op = [[operator, 'use_image_search'],
                 [operator, 'object_filter'],
                 [operator, 'use_keyframes'],
-                [operator, 'use_collection'],
                 [operator, 'use_cursor']]
 
             draw_panel(layout, op, 'MAX3DSSettings_Include', 'Include', icon='IMPORT')

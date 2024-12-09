@@ -77,7 +77,7 @@ class FormatDefinition:
     @staticmethod
     def __get_bvh_operators() -> FormatOperator:
         f = FormatOperator('default',
-                           'bpy.ops.import_scene.tila_import_blend',
+                           'bpy.ops.import_anim.bvh',
                            '1.0.1',
                            addon_name='io_anim_bvh')
 
@@ -244,11 +244,7 @@ class FormatDefinition:
             f.pkg_url = 'https://extensions.blender.org/add-ons/autodesk-3ds-format/'
             f.supported_version = '2.7.5'
         elif BVERSION >= 4.1:
-            f.addon_name = 'io_scene_3ds'
             f.supported_version = '2.4.9'
-        elif BVERSION >= 4.0:
-            f.addon_name = 'io_scene_3ds'
-            f.supported_version = '2.4.8'
 
         f.import_settings = s
 
@@ -271,6 +267,7 @@ class FormatDefinition:
         if BVERSION >= 4.2:
             plane.command = 'bpy.ops.image.import_as_mesh_planes'
             plane.supported_version = '0.0.0'
+            plane.addon_name = None
 
             empty = FormatOperator( 'empty',
                                     'bpy.ops.object.empty_image_add',
@@ -333,10 +330,10 @@ class FormatDefinition:
                                'object_filter',
                                'Object Filter',
                                {'MATERIAL', 'UV', 'EMPTY', 'ARMATURE'},
-                               (('MATERIAL', "Material".rjust(12), "", 'MATERIAL_DATA', 0x1),
+                               [('MATERIAL', "Material".rjust(12), "", 'MATERIAL_DATA', 0x1),
                                 ('UV', "UV Maps".rjust(11), "", 'UV_DATA', 0x2),
                                 ('EMPTY', "Empty".rjust(11), "", 'EMPTY_AXIS', 0x4),
-                                ('ARMATURE', "Armature".rjust(11), "", 'ARMATURE_DATA', 0x8),),
+                                ('ARMATURE', "Armature".rjust(11), "", 'ARMATURE_DATA', 0x8),],
                                 options={'ENUM_FLAG'})
         s.add_set_boolean_setting('Include', 'use_collection', 'Collection', False)
 
@@ -411,7 +408,8 @@ class FormatDefinition:
 
     bvh     = Format('bvh',
                      ['.bvh'],
-                     __get_bvh_operators()).as_dict()
+                     __get_bvh_operators(),
+                     generate_filter_glob=True).as_dict()
 
     obj     = Format('obj',
                      ['.obj'],
@@ -431,11 +429,13 @@ class FormatDefinition:
 
     x3d     = Format('x3d',
                      ['.x3d', '.wrl'],
-                     __get_x3d_operators()).as_dict()
+                     __get_x3d_operators(),
+                     generate_filter_glob=True).as_dict()
 
     dxf     = Format('dxf',
                      ['.dxf'],
-                     __get_dxf_operators()).as_dict()
+                     __get_dxf_operators(),
+                     generate_filter_glob=True).as_dict()
 
     pdb     = Format('pdb',
                      ['.pdb'],
@@ -443,7 +443,8 @@ class FormatDefinition:
 
     xyz     = Format('xyz',
                      ['.xyz'],
-                     __get_xyz_operators()).as_dict()
+                     __get_xyz_operators(),
+                     generate_filter_glob=True).as_dict()
 
     stl     = Format('stl',
                      ['.stl'],
@@ -463,9 +464,10 @@ class FormatDefinition:
     if BVERSION >= 4.2:
         max     = Format('max',
                         ['.max'],
-                        __get_max_operators()).as_dict()
+                        __get_max_operators(),
+                        generate_filter_glob=True).as_dict()
 
         pes     = Format('pes',
                         ['.pes', '.dst', '.exp', '.jef', '.pec', '.jpx', '.phc', '.vp3', '.10o', '.bro', '.dat', '.dsb', '.dsz', '.emd', '.exy', '.fxy', '.hus', '.inb', '.new', '.pcd', '.pcm', '.pcq', '.pcs', '.phb', '.sew', '.shv', '.stc', '.stx', '.tap', '.tbf', '.xxx', '.zhs', '.zxy', '.gcode'], # '.100', '.mit', '.ksm', '.u01', '.gt',
-                        __get_pes_operators()).as_dict()
-
+                        __get_pes_operators(),
+                        generate_filter_glob=True).as_dict()

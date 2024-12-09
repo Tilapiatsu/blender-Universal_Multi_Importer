@@ -227,7 +227,8 @@ class FormatClassCreator():
                 continue
             try:
                 bpy.utils.register_class(c)
-            except ValueError:
+            except [ValueError, TypeError] as e:
+                print(e, c)
                 continue
 
         for c in self.compatible_formats_class['modules']:

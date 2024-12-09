@@ -50,6 +50,9 @@ class FormatImportSetting:
                                 default:bool,
                                 options:Optional[set]=None) -> None:
 
+        if options is None:
+            options = set()
+
         self.add_set_settings(section_name,
                               {name:{'type':'bpy.props.BoolProperty',
                                      'name':f'"{display_name}"',
@@ -63,6 +66,9 @@ class FormatImportSetting:
                               display_name:str,
                               default:float,
                               options:Optional[set]=None) -> None:
+
+        if options is None:
+            options = set()
 
         self.add_set_settings(section_name,
                               {name:{'type':'bpy.props.FloatProperty',
@@ -78,6 +84,9 @@ class FormatImportSetting:
                             default:int,
                             options:Optional[set]=None) -> None:
 
+        if options is None:
+            options = set()
+
         self.add_set_settings(section_name,
                               {name:{'type':'bpy.props.IntProperty',
                                      'name':f'"{display_name}"',
@@ -91,6 +100,9 @@ class FormatImportSetting:
                             display_name:str,
                             default:str,
                             options:Optional[set]=None) -> None:
+
+        if options is None:
+            options = set()
 
         self.add_set_settings(section_name,
                               {name:{'type':'bpy.props.StringProperty',
@@ -106,6 +118,9 @@ class FormatImportSetting:
                              default:Union[str,set],
                              enum_items:tuple,
                              options:Optional[set]=None) -> None:
+
+        if options is None:
+            options = set()
 
         self.add_set_settings(section_name,
                               {name:{'type':'bpy.props.EnumProperty',
