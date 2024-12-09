@@ -37,6 +37,8 @@ class FormatDefinition:
 
         if BVERSION >= 4.3:
             f.supported_version = '4.3.47'
+        elif BVERSION >= 4.2:
+            f.supported_version = '4.2.57'
         elif BVERSION >= 4.1:
             f.supported_version = '4.1.62'
         elif BVERSION >= 4.002:
@@ -136,7 +138,7 @@ class FormatDefinition:
             f.addon_name = 'bl_ext.blender_org.web3d_x3d_vrml2_format'
             f.pkg_id = 'web3d_x3d_vrml2_format'
             f.pkg_url = 'https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/'
-            f.supported_version = '2.4.3'
+            f.supported_version = '2.4.4'
         elif BVERSION >= 4.1:
             f.supported_version = '0.0.0'
 
@@ -150,7 +152,7 @@ class FormatDefinition:
                            '0.9.8',
                            addon_name='io_import_dxf')
 
-        if BVERSION >= 4.3:
+        if BVERSION >= 4.2:
             f.addon_name = 'bl_ext.blender_org.import_autocad_dxf_format_dxf'
             f.pkg_id = 'import_autocad_dxf_format_dxf'
             f.pkg_url = 'https://extensions.blender.org/add-ons/import-autocad-dxf-format-dxf/'
