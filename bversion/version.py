@@ -16,6 +16,10 @@ class Version:
         elif isinstance(version, float):
             self._version = tuple(int(float(i)) for i in str(version).split('.') if len(i)>0) + (0,)
 
+        if len(self._version) < 3:
+            for _ in range(3-len(self._version)):
+                self._version += (0,)
+
     @property
     def version(self) -> tuple[int]:
         '''

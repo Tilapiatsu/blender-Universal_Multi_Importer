@@ -28,6 +28,8 @@ class FormatDefinition:
             f.supported_version = '5.4.1'
         elif BVERSION >= 3.5:
             f.supported_version = '4.37.5'
+        elif BVERSION >= 3.4:
+            f.supported_version = '4.37.1'
 
         return FormatOperators(f)
 
@@ -55,6 +57,10 @@ class FormatDefinition:
             f.supported_version = '3.6.28'
         elif BVERSION >= 3.5:
             f.supported_version = '3.5.30'
+        elif BVERSION >= 3.401:
+            f.supported_version = '3.4.50'
+        elif BVERSION >= 3.4:
+            f.supported_version = '3.4.49'
 
         return FormatOperators(f)
 
@@ -172,6 +178,12 @@ class FormatDefinition:
         elif BVERSION >= 4.1:
             f.addon_anme = 'io_import_dxf'
             f.supported_version = '0.9.8'
+        elif BVERSION >= 3.5:
+            f.supported_version = '0.9.8'
+            f.addon_name = 'io_import_dxf'
+        elif BVERSION >= 3.4:
+            f.supported_version = '0.9.6'
+            f.addon_anme = 'io_import_dxf'
 
         return FormatOperators(f)
 
@@ -310,7 +322,7 @@ class FormatDefinition:
             operators.add_operator(ref)
             operators.add_operator(background)
             plane.supported_version = '3.5.0'
-        elif BVERSION >= 3.5:
+        elif BVERSION >= 3.4:
             ref = FormatOperator( 'ref',
                                     'bpy.ops.object.load_reference_image',
                                     '0.0.0')
