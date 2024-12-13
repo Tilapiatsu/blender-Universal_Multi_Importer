@@ -35,19 +35,19 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
         bbox.alert = True
         bbox.label(text=f'Addon dependency status have to be refreshed', icon='FILE_REFRESH')
     elif umi_settings.umi_all_addon_dependencies_installed and umi_settings.umi_all_addon_dependencies_enabled and not umi_settings.umi_addon_dependency_need_reboot:
-        bbox.label(text=f'All formats are installed/enabled properly', icon='CHECKMARK')
+        bbox.label(text=f'All formats are installed/enabled/updated properly', icon='CHECKMARK')
     elif umi_settings.umi_all_addon_dependencies_installed and umi_settings.umi_all_addon_dependencies_enabled and umi_settings.umi_addon_dependency_need_reboot:
-        bbox.label(text=f'All formats are installed/enabled properly, but before it fully works, you will have to :', icon='ERROR')
+        bbox.label(text=f'All formats are installed/enabled/updated properly, but before it fully works, you will have to :', icon='ERROR')
         col = bbox.column(align=True)
         col.alert = True
         col.label(text=f'Disable Universal Multi Importer Addon', icon='RADIOBUT_ON')
         col.label(text=f'Restart Blender', icon='RADIOBUT_ON')
         col.label(text=f'Enable Universal Multi Importer Addon again', icon='RADIOBUT_ON')
     else:
-        bbox.label(text=f'Some formats are currently not installed/enabled. If you want to use them with this addon, you will have to :', icon='ERROR')
+        bbox.label(text=f'Some formats are currently not installed/enabled/updated. If you want to use them with this addon, you will have to :', icon='ERROR')
         col = bbox.column(align=True)
         col.alert = True
-        col.label(text=f'Install/Enable the missing formats by clicking on the install/enable button bellow', icon='RADIOBUT_ON')
+        col.label(text=f'Install/Enable/Update the formats by clicking on the install/enable/update button below', icon='RADIOBUT_ON')
         col.label(text=f'Disable Universal Multi Importer Addon', icon='RADIOBUT_ON')
         col.label(text=f'Restart Blender', icon='RADIOBUT_ON')
         col.label(text=f'Enable Universal Multi Importer Addon again', icon='RADIOBUT_ON')

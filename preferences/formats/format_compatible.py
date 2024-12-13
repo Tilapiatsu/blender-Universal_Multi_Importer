@@ -1,9 +1,11 @@
-import bpy, addon_utils
+import inspect
+import bpy
+import addon_utils
 from .format_definition import FormatDefinition
 from . import FORMATS
 from ...logger import LOG
 from .panels.presets import format_preset
-import inspect
+from ...bversion import AddonVersion
 
 class CompatibleFormats():
     for format in FORMATS:
@@ -65,6 +67,12 @@ class CompatibleFormats():
                 continue
 
             if a not in valid_installed_addons:
+                valid = False
+                break
+
+            av = AddonVersion(a)
+
+            if av.is_outdated:
                 valid = False
                 break
 
