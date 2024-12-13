@@ -555,7 +555,6 @@ class UMI(bpy.types.Operator, ImportHelper):
     filter_x3d : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_stl : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_svg : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_3ds : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
 
 
     # Selected files

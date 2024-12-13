@@ -26,6 +26,8 @@ class FormatDefinition:
             f.supported_version = '5.8.12'
         elif BVERSION >= 3.608:
             f.supported_version = '5.4.1'
+        elif BVERSION >= 3.5:
+            f.supported_version = '4.37.5'
 
         return FormatOperators(f)
 
@@ -51,6 +53,8 @@ class FormatDefinition:
             f.supported_version = '4.0.43'
         elif BVERSION >= 3.605:
             f.supported_version = '3.6.28'
+        elif BVERSION >= 3.5:
+            f.supported_version = '3.5.30'
 
         return FormatOperators(f)
 
@@ -306,6 +310,17 @@ class FormatDefinition:
             operators.add_operator(ref)
             operators.add_operator(background)
             plane.supported_version = '3.5.0'
+        elif BVERSION >= 3.5:
+            ref = FormatOperator( 'ref',
+                                    'bpy.ops.object.load_reference_image',
+                                    '0.0.0')
+
+            background = FormatOperator('background',
+                                        'bpy.ops.object.load_background_image',
+                                        '0.0.0')
+            operators.add_operator(ref)
+            operators.add_operator(background)
+            plane.supported_version = '3.5.0'
 
         operators.add_operator(plane)
 
@@ -471,16 +486,18 @@ class FormatDefinition:
                      ['.stl'],
                      __get_stl_operators()).as_dict()
 
-    max3ds  = Format('max3ds',
-                     ['.3ds'],
-                     __get_max3ds_operators()).as_dict()
-
     image   = Format('image',
                      [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
                      '.hdr', '.exr',
                      '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
                      __get_image_operators(),
                      ignore=['files', 'filepath', 'directory']).as_dict()
+
+    if BVERSION >= 3.6:
+        max3ds  = Format('max3ds',
+                        ['.3ds'],
+                        __get_max3ds_operators(),
+                        generate_filter_glob=True).as_dict()
 
     if BVERSION >= 4.2:
         max     = Format('max',

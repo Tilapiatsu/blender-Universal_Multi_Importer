@@ -34,13 +34,13 @@ class IMPORT_SCENE_GLTFSettings():
 
             draw_panel(layout, op, 'GLTFSettings_Options', 'Options', icon='OPTIONS')
 
-        elif BVERSION >= 3.6:
+        elif BVERSION >= 3.5:
             op =    [[operator, 'import_pack_images'],
                     [operator, 'merge_vertices'],
                     [operator, 'import_shading'],
                     [operator, 'guess_original_bind_pose'],
                     [operator, 'bone_heuristic'],
-                    [operator, 'export_import_convert_lighting_mode']]
+                    [operator, 'convert_lighting_mode']]
 
             draw_panel(layout, op, 'GLTFSettings_Options', 'Options', icon='OPTIONS')
 
