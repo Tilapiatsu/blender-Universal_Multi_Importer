@@ -11,7 +11,7 @@ class FormatDefinition:
     def __get_fbx_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.fbx',
-                           '5.4.1',
+                           '5.4.0',
                            addon_name='io_scene_fbx')
 
         if BVERSION >= 4.3:
@@ -24,6 +24,8 @@ class FormatDefinition:
             f.supported_version = '5.8.13'
         elif BVERSION >= 4.0:
             f.supported_version = '5.8.12'
+        elif BVERSION >= 3.608:
+            f.supported_version = '5.4.1'
 
         return FormatOperators(f)
 
@@ -32,7 +34,7 @@ class FormatDefinition:
     def __get_gltf_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.gltf',
-                           '3.6.28',
+                           '3.6.27',
                            addon_name='io_scene_gltf2')
 
         if BVERSION >= 4.3:
@@ -47,6 +49,8 @@ class FormatDefinition:
             f.supported_version = '4.0.44'
         elif BVERSION >= 4.0:
             f.supported_version = '4.0.43'
+        elif BVERSION >= 3.605:
+            f.supported_version = '3.6.28'
 
         return FormatOperators(f)
 
@@ -291,6 +295,17 @@ class FormatDefinition:
 
             operators.add_operator(ref)
             operators.add_operator(background)
+        elif BVERSION >= 3.6:
+            ref = FormatOperator( 'ref',
+                                    'bpy.ops.object.load_reference_image',
+                                    '0.0.0')
+
+            background = FormatOperator('background',
+                                        'bpy.ops.object.load_background_image',
+                                        '0.0.0')
+            operators.add_operator(ref)
+            operators.add_operator(background)
+            plane.supported_version = '3.5.0'
 
         operators.add_operator(plane)
 
