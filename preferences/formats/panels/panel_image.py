@@ -106,7 +106,7 @@ class IMPORT_SCENE_IMAGESettings():
 
                 draw_panel(layout, op, 'IMAGESettings_MaterialSettings', 'Material Settings', icon='MATERIAL')
 
-            else:
+            elif BVERSION >= 3.4:
                 op =    [[operator, 'relative'],
                         [operator, 'force_reload'],
                         [operator, 'image_sequence']]
@@ -120,6 +120,24 @@ class IMPORT_SCENE_IMAGESettings():
                 op =    [[operator, 'shader'],
                         [operator, 'show_transparent_back'],
                         [operator, 'use_backface_culling'],
+                        [operator, 'overwrite_material']]
+
+                draw_panel(layout, op, 'IMAGESettings_MaterialSettings', 'Material Settings', icon='MATERIAL')
+
+            else:
+                op =    [[operator, 'relative'],
+                        [operator, 'force_reload'],
+                        [operator, 'image_sequence']]
+
+                draw_panel(layout, op, 'IMAGESettings_Options', 'Import Options', icon='IMPORT')
+
+                op =    [[operator, 'compositing_nodes']]
+
+                draw_panel(layout, op, 'IMAGESettings_Options', 'Compositing Nodes', icon='NODE_COMPOSITING')
+
+                op =    [[operator, 'shader'],
+                        [operator, 'use_transparency'],
+                        [operator, 'alpha_mode'],
                         [operator, 'overwrite_material']]
 
                 draw_panel(layout, op, 'IMAGESettings_MaterialSettings', 'Material Settings', icon='MATERIAL')

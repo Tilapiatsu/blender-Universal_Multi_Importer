@@ -51,3 +51,16 @@ class IMPORT_SCENE_OBJSettings():
                     [operator, 'validate_meshes']]
 
             draw_panel(layout, op, 'OBJSettings_Options', 'Options', icon='OPTIONS')
+
+        elif BVERSION >= 3.3:
+            op =    [[operator, 'clamp_size'],
+                    [operator, 'forward_axis'],
+                    [operator, 'up_axis']]
+
+            draw_panel(layout, op, 'OBJSettings_Transform', 'Transform', icon='OBJECT_DATA')
+
+
+            op =    [[operator, 'import_vertex_groups'],
+                    [operator, 'validate_meshes']]
+
+            draw_panel(layout, op, 'OBJSettings_Options', 'Options', icon='OPTIONS')

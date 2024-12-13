@@ -30,6 +30,8 @@ class FormatDefinition:
             f.supported_version = '4.37.5'
         elif BVERSION >= 3.4:
             f.supported_version = '4.37.1'
+        elif BVERSION >= 3.3:
+            f.supported_version = '4.36.3'
 
         return FormatOperators(f)
 
@@ -61,6 +63,8 @@ class FormatDefinition:
             f.supported_version = '3.4.50'
         elif BVERSION >= 3.4:
             f.supported_version = '3.4.49'
+        elif BVERSION >= 3.3:
+            f.supported_version = '3.3.27'
 
         return FormatOperators(f)
 
@@ -155,10 +159,10 @@ class FormatDefinition:
             f.pkg_id = 'web3d_x3d_vrml2_format'
             f.pkg_url = 'https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/'
             f.supported_version = '2.4.4'
-        elif BVERSION >= 4.1:
+        elif BVERSION >= 3.4:
             f.supported_version = '2.3.1'
-        elif BVERSION >= 4.0:
-            f.supported_version = '2.3.1'
+        elif BVERSION >= 3.3:
+            f.supported_version = '2.3.0'
 
         return FormatOperators(f)
 
@@ -181,9 +185,10 @@ class FormatDefinition:
         elif BVERSION >= 3.5:
             f.supported_version = '0.9.8'
             f.addon_name = 'io_import_dxf'
-        elif BVERSION >= 3.4:
+        elif BVERSION >= 3.3:
             f.supported_version = '0.9.6'
             f.addon_anme = 'io_import_dxf'
+
 
         return FormatOperators(f)
 
@@ -333,6 +338,17 @@ class FormatDefinition:
             operators.add_operator(ref)
             operators.add_operator(background)
             plane.supported_version = '3.5.0'
+        elif BVERSION >= 3.3:
+            ref = FormatOperator( 'ref',
+                                    'bpy.ops.object.load_reference_image',
+                                    '0.0.0')
+
+            background = FormatOperator('background',
+                                        'bpy.ops.object.load_background_image',
+                                        '0.0.0')
+            operators.add_operator(ref)
+            operators.add_operator(background)
+            plane.supported_version = '3.4.0'
 
         operators.add_operator(plane)
 

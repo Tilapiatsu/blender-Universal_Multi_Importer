@@ -82,7 +82,8 @@ class IMPORT_SCENE_DXFSettings():
 
             op = [[operator, 'represent_thickness_and_width']]
 
-            _, panel = draw_panel(layout, op, 'DXFSettings_Thickness', 'Line Thickness and Width', icon='MOD_OUTLINE')
+            icon = 'MOD_OUTLINE' if BVERSION >= 3.4 else 'PROP_CON'
+            _, panel = draw_panel(layout, op, 'DXFSettings_Thickness', 'Line Thickness and Width', icon=icon)
 
             if panel:
                 sub = panel.column()
