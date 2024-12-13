@@ -37,6 +37,8 @@ class FormatDefinition:
             f.supported_version = '4.3.47'
         elif BVERSION >= 4.2:
             f.supported_version = '4.2.57'
+        elif BVERSION >= 4.101:
+            f.supported_version = '4.1.63'
         elif BVERSION >= 4.1:
             f.supported_version = '4.1.62'
         elif BVERSION >= 4.002:
