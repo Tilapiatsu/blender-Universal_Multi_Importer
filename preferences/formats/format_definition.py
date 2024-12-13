@@ -20,6 +20,8 @@ class FormatDefinition:
             f.supported_version = '5.12.4'
         elif BVERSION >= 4.1:
             f.supported_version = '5.11.7'
+        elif BVERSION >= 4.002:
+            f.supported_version = '5.8.13'
         elif BVERSION >= 4.0:
             f.supported_version = '5.8.12'
 
