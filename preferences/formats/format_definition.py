@@ -133,7 +133,7 @@ class FormatDefinition:
 
         if BVERSION >= 3.3:
             pass
-        elif BVERSION >= 3.2:
+        else:
             f.command = 'bpy.ops.import_scene.obj'
 
         return FormatOperators(f)

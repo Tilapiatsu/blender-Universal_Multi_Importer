@@ -59,7 +59,8 @@ class IMPORT_SCENE_FBXSettings():
                 sub.prop(operator, "primary_bone_axis")
                 sub.prop(operator, "secondary_bone_axis")
 
-        elif BVERSION >= 3.1:
+        # elif BVERSION >= 3.1:
+        else:
             ##### Include
             op = [[operator, 'use_custom_normals'],
                 [operator, 'use_subsurf'],

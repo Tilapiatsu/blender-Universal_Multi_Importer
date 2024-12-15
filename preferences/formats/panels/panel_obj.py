@@ -1,4 +1,4 @@
-from . import draw_panel, draw_version_warning, BVERSION
+from . import draw_panel, draw_version_warning, draw_prop, BVERSION
 
 class IMPORT_SCENE_OBJSettings():
     @draw_version_warning
@@ -22,6 +22,7 @@ class IMPORT_SCENE_OBJSettings():
                     [operator, 'collection_separator']]
 
             draw_panel(layout, op, 'OBJSettings_Options', 'Options', icon='OPTIONS')
+
         elif BVERSION >= 3.5:
             op =    [[operator, 'global_scale'],
                     [operator, 'clamp_size'],
@@ -65,7 +66,7 @@ class IMPORT_SCENE_OBJSettings():
 
             draw_panel(layout, op, 'OBJSettings_Options', 'Options', icon='OPTIONS')
 
-        elif BVERSION >= 3.2:
+        else:
             op =    [[operator, 'use_image_search'],
                     [operator, 'use_smooth_groups'],
                     [operator, 'use_edges']]
@@ -81,11 +82,12 @@ class IMPORT_SCENE_OBJSettings():
 
             op =    [[operator, 'split_mode']]
 
-            header, panel = draw_panel(layout, op, 'OBJSettings_Options', 'Options', icon='OPTIONS', default_closed=True)
+            _, panel = draw_panel(layout, op, 'OBJSettings_Options', 'Options', icon='OPTIONS', default_closed=True)
 
             if panel:
                 if operator.split_mode == 'ON':
-                    panel.prop(operator, 'use_split_object')
-                    panel.prop(operator, 'use_split_group')
+                    draw_prop(panel, operator, 'use_split_objects')
+                    draw_prop(panel, operator, 'use_split_groups')
+
                 elif operator.split_mode == 'OFF':
-                    panel.prop(operator, 'use_groups_as_vgroups')
+                    draw_prop(panel, operator, 'use_groups_as_vgroups')

@@ -23,7 +23,8 @@ class IMPORT_SCENE_DAESettings():
 
             draw_panel(layout, op, 'DAESettings_Misc', 'Miscandelous', icon='PRESET')
 
-        elif BVERSION >= 3.1:
+        # elif BVERSION >= 3.1:
+        else:
             op = [[operator, 'import_units']]
 
             draw_panel(layout, op, 'DAESettings_Options', 'Import Data Options', icon='MESH_DATA')
