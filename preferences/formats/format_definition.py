@@ -305,7 +305,31 @@ def max3ds_operators() -> FormatOperator:
 
     s = FormatImportSetting()
 
-    if BVERSION >= 4.0:
+    if BVERSION >= 4.2:
+        # Include
+        s.add_set_boolean_setting('Include', 'use_image_search', 'Image Search', True)
+        s.add_set_enum_setting('Include',
+                                'object_filter',
+                                'Object Filter',
+                                {'WORLD', 'MESH', 'LIGHT', 'CAMERA', 'EMPTY'},
+                                (('WORLD', "World".rjust(11), "", 'WORLD_DATA', 0x1),
+                                ('MESH', "Mesh".rjust(11), "", 'MESH_DATA', 0x2),
+                                ('LIGHT', "Light".rjust(12), "", 'LIGHT_DATA', 0x4),
+                                ('CAMERA', "Camera".rjust(11), "", 'CAMERA_DATA', 0x8),
+                                ('EMPTY', "Empty".rjust(11), "", 'EMPTY_AXIS', 0x10),),
+                                options={'ENUM_FLAG'})
+
+        s.add_set_boolean_setting('Include', 'use_keyframes', 'Collection', True)
+        s.add_set_boolean_setting('Include', 'use_cursor', 'Cursor Origin', False)
+
+        # Transform
+        s.add_set_float_setting('Transform', 'constrain_size', 'Constrain Size', 1.0)
+        s.add_set_boolean_setting('Transform', 'use_scene_unit', 'Scene Unit', False)
+        s.add_set_boolean_setting('Transform', 'use_apply_transform', 'Apply Transform', True)
+        s.add_set_enum_setting('Transform', 'axis_forward', 'Forward', 'Y', enum_items=axis())
+        s.add_set_enum_setting('Transform', 'axis_up', 'Up', 'Z', enum_items=axis())
+
+    elif BVERSION >= 4.0:
         # Include
         s.add_set_boolean_setting('Include', 'use_image_search', 'Image Search', True)
         s.add_set_enum_setting('Include',
