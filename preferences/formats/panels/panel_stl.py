@@ -6,7 +6,7 @@ class IMPORT_SCENE_STLSettings():
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        if BVERSION >= 3.1:
+        if BVERSION >= 3.2:
             if module_name == 'default':
                 op = [[operator, 'global_scale'],
                     [operator, 'use_scene_unit'],
