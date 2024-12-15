@@ -166,7 +166,7 @@ def ply_operators() -> FormatOperator:
                         'bpy.ops.wm.ply_import',
                         '0.0.0')
 
-    if BVERSION >= 3.5:
+    if BVERSION >= 3.6:
         pass
 
     else:
@@ -233,9 +233,6 @@ def dxf_operators() -> FormatOperator:
     elif BVERSION >= 4.1:
         f.supported_version = '0.9.8'
 
-    elif BVERSION >= 3.5:
-        f.supported_version = '0.9.8'
-
     elif BVERSION >= 3.0:
         f.supported_version = '0.9.6'
 
@@ -255,7 +252,7 @@ def pdb_operators() -> FormatOperator:
         f.pkg_url = 'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/'
         f.supported_version = '1.9.1'
 
-    elif BVERSION >= 4.0:
+    elif BVERSION >= 3.5:
         f.command = 'bpy.ops.import_mesh.pdb'
         f.addon_name = 'io_mesh_atomic'
         f.supported_version = '1.8.1'
@@ -282,7 +279,7 @@ def xyz_operators() -> FormatOperator:
         f.pkg_url = 'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/'
         f.supported_version = '1.9.1'
 
-    elif BVERSION >= 4.0:
+    elif BVERSION >= 3.5:
         f.command = 'bpy.ops.import_mesh.xyz'
         f.addon_name = 'io_mesh_atomic'
         f.supported_version = '1.8.1'
@@ -580,7 +577,7 @@ class FormatDefinition:
     pdb     = Format('pdb',
                      ['.pdb'],
                      pdb_operators(),
-                     generate_filter_glob=BVERSION < 3.4).as_dict()
+                     generate_filter_glob=BVERSION < 3.6).as_dict()
 
     xyz     = Format('xyz',
                      ['.xyz'],
