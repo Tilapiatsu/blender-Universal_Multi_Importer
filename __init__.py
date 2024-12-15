@@ -6,7 +6,7 @@ bl_info = {
     "name"          : "Universal Multi Importer",
     "author"        : "Tilapiatsu",
     "description"   : "Batch Import many file formats at once, Batch process imported objects",
-    "blender"       : (4, 0, 0),
+    "blender"       : (3, 0, 0),
     "version"       : (2, 1, 8),
     "location"      : "File > Import > Universal Multi Importer (File / Folder) | Object > Command Batcher",
     "warning"       : "",

@@ -64,3 +64,28 @@ class IMPORT_SCENE_OBJSettings():
                     [operator, 'validate_meshes']]
 
             draw_panel(layout, op, 'OBJSettings_Options', 'Options', icon='OPTIONS')
+
+        elif BVERSION >= 3.2:
+            op =    [[operator, 'use_image_search'],
+                    [operator, 'use_smooth_groups'],
+                    [operator, 'use_edges']]
+
+            draw_panel(layout, op, 'OBJSettings_Include', 'Include', icon='IMPORT')
+
+            op =    [[operator, 'global_clamp_size'],
+                    [operator, 'axis_forward'],
+                    [operator, 'axis_up']]
+
+            draw_panel(layout, op, 'OBJSettings_Transform', 'Transform', icon='OBJECT_DATA')
+
+
+            op =    [[operator, 'split_mode']]
+
+            header, panel = draw_panel(layout, op, 'OBJSettings_Options', 'Options', icon='OPTIONS', default_closed=True)
+
+            if panel:
+                if operator.split_mode == 'ON':
+                    panel.prop(operator, 'use_split_object')
+                    panel.prop(operator, 'use_split_group')
+                elif operator.split_mode == 'OFF':
+                    panel.prop(operator, 'use_groups_as_vgroups')

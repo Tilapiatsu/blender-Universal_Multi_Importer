@@ -34,6 +34,8 @@ class FormatDefinition:
             f.supported_version = '4.36.4'
         elif BVERSION >= 3.3:
             f.supported_version = '4.36.3'
+        elif BVERSION >= 3.2:
+            f.supported_version = '4.36.0'
 
         return FormatOperators(f)
 
@@ -69,6 +71,10 @@ class FormatDefinition:
             f.supported_version = '3.3.36'
         elif BVERSION >= 3.3:
             f.supported_version = '3.3.27'
+        elif BVERSION >= 3.202:
+            f.supported_version = '3.2.43'
+        elif BVERSION >= 3.2:
+            f.supported_version = '3.2.40'
 
         return FormatOperators(f)
 
@@ -115,6 +121,11 @@ class FormatDefinition:
         f = FormatOperator('default',
                            'bpy.ops.wm.obj_import',
                            '0.0.0')
+
+        if BVERSION >= 3.3:
+            pass
+        elif BVERSION >= 3.2:
+            f.command = 'bpy.ops.import_scene.obj'
 
         return FormatOperators(f)
 
@@ -165,7 +176,7 @@ class FormatDefinition:
             f.supported_version = '2.4.4'
         elif BVERSION >= 3.4:
             f.supported_version = '2.3.1'
-        elif BVERSION >= 3.3:
+        elif BVERSION >= 3.2:
             f.supported_version = '2.3.0'
 
         return FormatOperators(f)
@@ -342,7 +353,7 @@ class FormatDefinition:
             operators.add_operator(ref)
             operators.add_operator(background)
             plane.supported_version = '3.5.0'
-        elif BVERSION >= 3.3:
+        elif BVERSION >= 3.2:
             ref = FormatOperator( 'ref',
                                     'bpy.ops.object.load_reference_image',
                                     '0.0.0')
