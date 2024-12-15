@@ -6,7 +6,7 @@ class IMPORT_SCENE_MAX3DSSettings():
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        if BVERSION >= 4.2:
+        if BVERSION >= 4.0:
             op = [[operator, 'use_image_search'],
                 [operator, 'object_filter'],
                 [operator, 'use_keyframes'],

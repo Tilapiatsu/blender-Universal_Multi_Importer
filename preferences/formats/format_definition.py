@@ -305,7 +305,7 @@ def max3ds_operators() -> FormatOperator:
 
     s = FormatImportSetting()
 
-    if BVERSION >= 4.1:
+    if BVERSION >= 4.0:
         # Include
         s.add_set_boolean_setting('Include', 'use_image_search', 'Image Search', True)
         s.add_set_enum_setting('Include',
@@ -349,6 +349,9 @@ def max3ds_operators() -> FormatOperator:
 
     elif BVERSION >= 4.1:
         f.supported_version = '2.4.9'
+
+    elif BVERSION >= 4.0:
+        f.supported_version = '2.4.8'
 
     elif BVERSION >= 3.6:
         f.command = 'bpy.ops.import_scene.autodesk_3ds'
