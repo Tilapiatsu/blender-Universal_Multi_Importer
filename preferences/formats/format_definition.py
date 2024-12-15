@@ -2,7 +2,6 @@ from . import BVERSION
 from .format import axis, Format, FormatOperators, FormatOperator, FormatImportSetting
 
 
-
 def fbx_operators() -> FormatOperator:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.fbx',
@@ -26,6 +25,9 @@ def fbx_operators() -> FormatOperator:
 
     elif BVERSION >= 3.608:
         f.supported_version = '5.4.1'
+
+    elif BVERSION >= 3.6:
+        f.supported_version = '5.4.0'
 
     elif BVERSION >= 3.5:
         f.supported_version = '4.37.5'
@@ -77,6 +79,9 @@ def gltf_operators() -> FormatOperator:
 
     elif BVERSION >= 3.605:
         f.supported_version = '3.6.28'
+
+    elif BVERSION >= 3.6:
+        f.supported_version = '3.6.27'
 
     elif BVERSION >= 3.5:
         f.supported_version = '3.5.30'
@@ -230,7 +235,7 @@ def dxf_operators() -> FormatOperator:
         f.pkg_url = 'https://extensions.blender.org/add-ons/import-autocad-dxf-format-dxf/'
         f.supported_version = '0.9.10'
 
-    elif BVERSION >= 4.1:
+    elif BVERSION >= 3.6:
         f.supported_version = '0.9.8'
 
     elif BVERSION >= 3.0:
@@ -300,30 +305,41 @@ def max3ds_operators() -> FormatOperator:
 
     s = FormatImportSetting()
 
-    # Include
-    s.add_set_boolean_setting('Include', 'use_image_search', 'Image Search', True)
-    s.add_set_enum_setting('Include',
-                            'object_filter',
-                            'Object Filter',
-                            {'WORLD', 'MESH', 'LIGHT', 'CAMERA', 'EMPTY'},
-                            (('WORLD', "World".rjust(11), "", 'WORLD_DATA', 0x1),
-                            ('MESH', "Mesh".rjust(11), "", 'MESH_DATA', 0x2),
-                            ('LIGHT', "Light".rjust(12), "", 'LIGHT_DATA', 0x4),
-                            ('CAMERA', "Camera".rjust(11), "", 'CAMERA_DATA', 0x8),
-                            ('EMPTY', "Empty".rjust(11), "", 'EMPTY_AXIS', 0x10),),
-                            options={'ENUM_FLAG'})
+    if BVERSION >= 4.1:
+        # Include
+        s.add_set_boolean_setting('Include', 'use_image_search', 'Image Search', True)
+        s.add_set_enum_setting('Include',
+                                'object_filter',
+                                'Object Filter',
+                                {'WORLD', 'MESH', 'LIGHT', 'CAMERA', 'EMPTY'},
+                                (('WORLD', "World".rjust(11), "", 'WORLD_DATA', 0x1),
+                                ('MESH', "Mesh".rjust(11), "", 'MESH_DATA', 0x2),
+                                ('LIGHT', "Light".rjust(12), "", 'LIGHT_DATA', 0x4),
+                                ('CAMERA', "Camera".rjust(11), "", 'CAMERA_DATA', 0x8),
+                                ('EMPTY', "Empty".rjust(11), "", 'EMPTY_AXIS', 0x10),),
+                                options={'ENUM_FLAG'})
 
-    s.add_set_boolean_setting('Include', 'use_keyframes', 'Collection', True)
-    s.add_set_boolean_setting('Include', 'use_cursor', 'Cursor Origin', False)
+        s.add_set_boolean_setting('Include', 'use_keyframes', 'Collection', True)
+        s.add_set_boolean_setting('Include', 'use_cursor', 'Cursor Origin', False)
 
-    # Transform
-    s.add_set_float_setting('Transform', 'constrain_size', 'Constrain Size', 1.0)
-    s.add_set_boolean_setting('Transform', 'use_scene_unit', 'Scene Unit', False)
-    s.add_set_boolean_setting('Transform', 'use_center_pivot', 'Pivot Origin', False)
-    s.add_set_boolean_setting('Transform', 'use_apply_transform', 'Apply Transform', True)
-    s.add_set_boolean_setting('Transform', 'use_world_matrix', 'World Space', False)
-    s.add_set_enum_setting('Transform', 'axis_forward', 'Forward', 'Y', enum_items=axis())
-    s.add_set_enum_setting('Transform', 'axis_up', 'Up', 'Z', enum_items=axis())
+        # Transform
+        s.add_set_float_setting('Transform', 'constrain_size', 'Constrain Size', 1.0)
+        s.add_set_boolean_setting('Transform', 'use_scene_unit', 'Scene Unit', False)
+        s.add_set_boolean_setting('Transform', 'use_center_pivot', 'Pivot Origin', False)
+        s.add_set_boolean_setting('Transform', 'use_apply_transform', 'Apply Transform', True)
+        s.add_set_boolean_setting('Transform', 'use_world_matrix', 'World Space', False)
+        s.add_set_enum_setting('Transform', 'axis_forward', 'Forward', 'Y', enum_items=axis())
+        s.add_set_enum_setting('Transform', 'axis_up', 'Up', 'Z', enum_items=axis())
+
+    else:
+        # Transform
+        s.add_set_float_setting('Transform', 'constrain_size', 'Constrain Size', 1.0)
+        s.add_set_boolean_setting('Transform', 'use_image_search', 'Image Search', True)
+        s.add_set_boolean_setting('Transform', 'use_apply_transform', 'Apply Transform', True)
+        s.add_set_boolean_setting('Transform', 'read_keyframe', 'Read Keyframe', True)
+        s.add_set_boolean_setting('Transform', 'use_world_matrix', 'World Space', False)
+        s.add_set_enum_setting('Transform', 'axis_forward', 'Forward', 'Y', enum_items=axis())
+        s.add_set_enum_setting('Transform', 'axis_up', 'Up', 'Z', enum_items=axis())
 
     if BVERSION >= 4.2:
         f.addon_name = 'bl_ext.blender_org.autodesk_3ds_format'
@@ -333,6 +349,10 @@ def max3ds_operators() -> FormatOperator:
 
     elif BVERSION >= 4.1:
         f.supported_version = '2.4.9'
+
+    elif BVERSION >= 3.6:
+        f.command = 'bpy.ops.import_scene.autodesk_3ds'
+        f.supported_version = '2.3.4'
 
     f.import_settings = s
 
@@ -428,6 +448,13 @@ def stl_operators() -> FormatOperator:
         default.supported_version = '0.0.0'
 
     elif BVERSION >= 4.0:
+        legacy = FormatOperator('legacy',
+                                'bpy.ops.import_mesh.stl',
+                                '0.0.0')
+
+        operators.add_operator(legacy)
+
+    elif BVERSION >= 3.6:
         legacy = FormatOperator('legacy',
                                 'bpy.ops.import_mesh.stl',
                                 '0.0.0')

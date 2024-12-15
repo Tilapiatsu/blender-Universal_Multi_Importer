@@ -34,6 +34,16 @@ class IMPORT_SCENE_GLTFSettings():
 
             draw_panel(layout, op, 'GLTFSettings_Options', 'Options', icon='OPTIONS')
 
+        elif BVERSION >= 3.6:
+            op =    [[operator, 'import_pack_images'],
+                    [operator, 'merge_vertices'],
+                    [operator, 'import_shading'],
+                    [operator, 'guess_original_bind_pose'],
+                    [operator, 'bone_heuristic'],
+                    [operator, 'export_import_convert_lighting_mode']]
+
+            draw_panel(layout, op, 'GLTFSettings_Options', 'Options', icon='OPTIONS')
+
         elif BVERSION >= 3.4:
             op =    [[operator, 'import_pack_images'],
                     [operator, 'merge_vertices'],

@@ -22,6 +22,17 @@ class IMPORT_SCENE_MAX3DSSettings():
 
             draw_panel(layout, op, 'MAX3DSSettings_Transform', 'Transform', icon='OBJECT_DATA')
 
+        elif BVERSION >= 3.6:
+
+            op = [[operator, 'constrain_size'],
+                [operator, 'use_image_search'],
+                [operator, 'use_apply_transform'],
+                [operator, 'read_keyframe'],
+                [operator, 'axis_forward'],
+                [operator, 'axis_up']]
+
+            draw_panel(layout, op, 'MAX3DSSettings_Transform', 'Transform', icon='OBJECT_DATA')
+
         else:
             op = [[operator, 'use_image_search'],
                 [operator, 'object_filter'],
