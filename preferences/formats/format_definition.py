@@ -7,7 +7,6 @@ class FormatDefinition:
     Stores all information to support import formats
     '''
 
-    @staticmethod
     def __get_fbx_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.fbx',
@@ -16,33 +15,46 @@ class FormatDefinition:
 
         if BVERSION >= 4.3:
             f.supported_version = '5.12.5'
+
         elif BVERSION >= 4.2:
             f.supported_version = '5.12.4'
+
         elif BVERSION >= 4.1:
             f.supported_version = '5.11.7'
+
         elif BVERSION >= 4.002:
             f.supported_version = '5.8.13'
+
         elif BVERSION >= 4.0:
             f.supported_version = '5.8.12'
+
         elif BVERSION >= 3.608:
             f.supported_version = '5.4.1'
+
         elif BVERSION >= 3.5:
             f.supported_version = '4.37.5'
+
         elif BVERSION >= 3.4:
             f.supported_version = '4.37.1'
+
         elif BVERSION >= 3.3021:
             f.supported_version = '4.36.4'
+
         elif BVERSION >= 3.3:
             f.supported_version = '4.36.3'
+
         elif BVERSION >= 3.2:
             f.supported_version = '4.36.0'
+
         elif BVERSION >= 3.1:
             f.supported_version = '4.29.1'
+
+        elif BVERSION >= 3.0:
+            f.supported_version = '4.27.0'
 
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_gltf_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.gltf',
@@ -51,39 +63,55 @@ class FormatDefinition:
 
         if BVERSION >= 4.3:
             f.supported_version = '4.3.47'
+
         elif BVERSION >= 4.2:
             f.supported_version = '4.2.57'
+
         elif BVERSION >= 4.101:
             f.supported_version = '4.1.63'
+
         elif BVERSION >= 4.1:
             f.supported_version = '4.1.62'
+
         elif BVERSION >= 4.002:
             f.supported_version = '4.0.44'
+
         elif BVERSION >= 4.0:
             f.supported_version = '4.0.43'
+
         elif BVERSION >= 3.605:
             f.supported_version = '3.6.28'
+
         elif BVERSION >= 3.5:
             f.supported_version = '3.5.30'
+
         elif BVERSION >= 3.401:
             f.supported_version = '3.4.50'
+
         elif BVERSION >= 3.4:
             f.supported_version = '3.4.49'
+
         elif BVERSION >= 3.3021:
             f.supported_version = '3.3.36'
+
         elif BVERSION >= 3.3:
             f.supported_version = '3.3.27'
+
         elif BVERSION >= 3.202:
             f.supported_version = '3.2.43'
+
         elif BVERSION >= 3.2:
             f.supported_version = '3.2.40'
+
         elif BVERSION >= 3.1:
             f.supported_version = '1.8.19'
+
+        elif BVERSION >= 3.0:
+            f.supported_version = '1.7.33'
 
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_abc_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.wm.alembic_import',
@@ -92,7 +120,6 @@ class FormatDefinition:
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_dae_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.wm.collada_import',
@@ -101,7 +128,6 @@ class FormatDefinition:
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_blend_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.tila_import_blend',
@@ -110,7 +136,6 @@ class FormatDefinition:
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_bvh_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_anim.bvh',
@@ -119,13 +144,13 @@ class FormatDefinition:
 
         if BVERSION >= 3.2:
             pass
-        elif BVERSION >= 3.1:
+
+        elif BVERSION >= 3.0:
             f.supported_version = '1.0.0'
 
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_obj_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.wm.obj_import',
@@ -133,22 +158,27 @@ class FormatDefinition:
 
         if BVERSION >= 3.3:
             pass
+
         else:
             f.command = 'bpy.ops.import_scene.obj'
 
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_ply_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.wm.ply_import',
                            '0.0.0')
 
+        if BVERSION >= 3.2:
+            pass
+
+        else:
+            f.command = 'bpy.ops.import_mesh.ply'
+
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_svg_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_curve.svg',
@@ -156,13 +186,13 @@ class FormatDefinition:
 
         if BVERSION >= 4.3:
             pass
+
         elif BVERSION >=4.0:
             f.addon_name = 'io_curve_svg'
 
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_usd_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.wm.usd_import',
@@ -171,7 +201,6 @@ class FormatDefinition:
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_x3d_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.x3d',
@@ -183,15 +212,16 @@ class FormatDefinition:
             f.pkg_id = 'web3d_x3d_vrml2_format'
             f.pkg_url = 'https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/'
             f.supported_version = '2.4.4'
+
         elif BVERSION >= 3.4:
             f.supported_version = '2.3.1'
-        elif BVERSION >= 3.1:
+
+        elif BVERSION >= 3.0:
             f.supported_version = '2.3.0'
 
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_dxf_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.dxf',
@@ -203,18 +233,19 @@ class FormatDefinition:
             f.pkg_id = 'import_autocad_dxf_format_dxf'
             f.pkg_url = 'https://extensions.blender.org/add-ons/import-autocad-dxf-format-dxf/'
             f.supported_version = '0.9.10'
+
         elif BVERSION >= 4.1:
             f.supported_version = '0.9.8'
+
         elif BVERSION >= 3.5:
             f.supported_version = '0.9.8'
-        elif BVERSION >= 3.1:
-            f.supported_version = '0.9.6'
 
+        elif BVERSION >= 3.0:
+            f.supported_version = '0.9.6'
 
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_pdb_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_mesh.atomic',
@@ -227,15 +258,21 @@ class FormatDefinition:
             f.pkg_id = 'atomic_blender_pdb_xyz'
             f.pkg_url = 'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/'
             f.supported_version = '1.9.1'
+
         elif BVERSION >= 4.0:
             f.command = 'bpy.ops.import_mesh.pdb'
             f.addon_name = 'io_mesh_atomic'
             f.supported_version = '1.8.1'
 
+        else:
+            f.command = 'bpy.ops.import_mesh.pdb'
+            f.addon_name = 'io_mesh_atomic'
+            f.supported_version = '1.8.0'
+
+
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_xyz_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_mesh.atomic',
@@ -248,15 +285,20 @@ class FormatDefinition:
             f.pkg_id = 'atomic_blender_pdb_xyz'
             f.pkg_url = 'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/'
             f.supported_version = '1.9.1'
+
         elif BVERSION >= 4.0:
             f.command = 'bpy.ops.import_mesh.xyz'
             f.addon_name = 'io_mesh_atomic'
             f.supported_version = '1.8.1'
 
+        else:
+            f.command = 'bpy.ops.import_mesh.xyz'
+            f.addon_name = 'io_mesh_atomic'
+            f.supported_version = '1.8.0'
+
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_max3ds_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.max3ds',
@@ -295,6 +337,7 @@ class FormatDefinition:
             f.pkg_id = 'autodesk_3ds_format'
             f.pkg_url = 'https://extensions.blender.org/add-ons/autodesk-3ds-format/'
             f.supported_version = '2.7.5'
+
         elif BVERSION >= 4.1:
             f.supported_version = '2.4.9'
 
@@ -303,7 +346,6 @@ class FormatDefinition:
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_image_operators() -> FormatOperator:
         data = FormatOperator(  'data',
                                 'bpy.ops.image.open',
@@ -326,6 +368,7 @@ class FormatDefinition:
                                     '0.0.0')
 
             operators.add_operator(empty)
+
         elif BVERSION >= 4.0 :
             ref = FormatOperator( 'ref',
                                     'bpy.ops.object.load_reference_image',
@@ -337,6 +380,7 @@ class FormatDefinition:
 
             operators.add_operator(ref)
             operators.add_operator(background)
+
         elif BVERSION >= 3.6:
             ref = FormatOperator( 'ref',
                                     'bpy.ops.object.load_reference_image',
@@ -348,6 +392,7 @@ class FormatDefinition:
             operators.add_operator(ref)
             operators.add_operator(background)
             plane.supported_version = '3.5.0'
+
         elif BVERSION >= 3.4:
             ref = FormatOperator( 'ref',
                                     'bpy.ops.object.load_reference_image',
@@ -359,7 +404,8 @@ class FormatDefinition:
             operators.add_operator(ref)
             operators.add_operator(background)
             plane.supported_version = '3.5.0'
-        elif BVERSION >= 3.1:
+
+        elif BVERSION >= 3.0:
             ref = FormatOperator( 'ref',
                                     'bpy.ops.object.load_reference_image',
                                     '0.0.0')
@@ -376,7 +422,6 @@ class FormatDefinition:
         return operators
 
 
-    @staticmethod
     def __get_stl_operators() -> FormatOperator:
         default = FormatOperator('default',
                            'bpy.ops.wm.stl_import',
@@ -388,17 +433,20 @@ class FormatDefinition:
         if BVERSION >= 4.2:
             default.addon_name = None
             default.supported_version = '0.0.0'
-        elif BVERSION >= 4.1:
+
+        elif BVERSION >= 4.0:
             legacy = FormatOperator('legacy',
                                     'bpy.ops.import_mesh.stl',
                                     '0.0.0')
 
             operators.add_operator(legacy)
 
+        else:
+            default.command = 'bpy.ops.import_mesh.stl'
+
         return operators
 
 
-    @staticmethod
     def __get_max_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.max',
@@ -433,7 +481,6 @@ class FormatDefinition:
         return FormatOperators(f)
 
 
-    @staticmethod
     def __get_pes_operators() -> FormatOperator:
         f = FormatOperator('default',
                            'bpy.ops.import_scene.embroidery',
@@ -472,11 +519,13 @@ class FormatDefinition:
 
     fbx     = Format('fbx',
                      ['.fbx'],
-                     __get_fbx_operators()).as_dict()
+                     __get_fbx_operators(),
+                     generate_filter_glob=BVERSION <= 3.2).as_dict()
 
     gltf    = Format('gltf',
                      ['.glb', '.gltf'],
-                     __get_gltf_operators()).as_dict()
+                     __get_gltf_operators(),
+                     generate_filter_glob=BVERSION <= 3.2).as_dict()
 
     abc     = Format('abc',
                      ['.abc'],
@@ -498,19 +547,23 @@ class FormatDefinition:
 
     obj     = Format('obj',
                      ['.obj'],
-                     __get_obj_operators()).as_dict()
+                     __get_obj_operators(),
+                     generate_filter_glob=BVERSION <= 3.2).as_dict()
 
     ply     = Format('ply',
                      ['.ply'],
-                     __get_ply_operators()).as_dict()
+                     __get_ply_operators(),
+                     generate_filter_glob=BVERSION <= 3.2).as_dict()
 
     svg     = Format('svg',
                      ['.svg'],
-                     __get_svg_operators()).as_dict()
+                     __get_svg_operators(),
+                     generate_filter_glob=BVERSION <= 3.2).as_dict()
 
     usd     = Format('usd',
                      ['.usd', '.usda', '.usdc', '.usdz'],
-                     __get_usd_operators()).as_dict()
+                     __get_usd_operators(),
+                     generate_filter_glob=BVERSION <= 3.2).as_dict()
 
     x3d     = Format('x3d',
                      ['.x3d', '.wrl'],
@@ -533,7 +586,8 @@ class FormatDefinition:
 
     stl     = Format('stl',
                      ['.stl'],
-                     __get_stl_operators()).as_dict()
+                     __get_stl_operators(),
+                     generate_filter_glob=BVERSION <= 3.2).as_dict()
 
     image   = Format('image',
                      [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
