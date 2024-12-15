@@ -166,7 +166,7 @@ def ply_operators() -> FormatOperator:
                         'bpy.ops.wm.ply_import',
                         '0.0.0')
 
-    if BVERSION >= 3.4:
+    if BVERSION >= 3.5:
         pass
 
     else:
@@ -555,7 +555,7 @@ class FormatDefinition:
     ply     = Format('ply',
                      ['.ply'],
                      ply_operators(),
-                     generate_filter_glob=BVERSION < 3.3).as_dict()
+                     generate_filter_glob=BVERSION < 3.4).as_dict()
 
     svg     = Format('svg',
                      ['.svg'],
@@ -580,7 +580,7 @@ class FormatDefinition:
     pdb     = Format('pdb',
                      ['.pdb'],
                      pdb_operators(),
-                     generate_filter_glob=BVERSION < 3.3).as_dict()
+                     generate_filter_glob=BVERSION < 3.4).as_dict()
 
     xyz     = Format('xyz',
                      ['.xyz'],
