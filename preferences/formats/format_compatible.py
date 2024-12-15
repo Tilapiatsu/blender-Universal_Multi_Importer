@@ -88,6 +88,7 @@ class CompatibleFormats():
 
             if a not in enabled_addons:
                 valid = False
+                LOG.debug(f'{a} is not enabled')
                 break
 
         return valid

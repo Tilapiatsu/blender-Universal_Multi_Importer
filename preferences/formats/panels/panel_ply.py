@@ -6,7 +6,7 @@ class IMPORT_SCENE_PLYSettings():
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        if BVERSION >= 3.2:
+        if BVERSION >= 3.3:
             op =    [[operator, 'global_scale'],
                     [operator, 'use_scene_unit'],
                     [operator, 'forward_axis'],

@@ -166,7 +166,7 @@ def ply_operators() -> FormatOperator:
                         'bpy.ops.wm.ply_import',
                         '0.0.0')
 
-    if BVERSION >= 3.2:
+    if BVERSION >= 3.3:
         pass
 
     else:
@@ -518,15 +518,16 @@ class FormatDefinition:
     '''
     Stores all information to support import formats
     '''
+
     fbx     = Format('fbx',
                      ['.fbx'],
                      fbx_operators(),
-                     generate_filter_glob=BVERSION <= 3.2).as_dict()
+                     generate_filter_glob=BVERSION < 3.3).as_dict()
 
     gltf    = Format('gltf',
                      ['.glb', '.gltf'],
                      gltf_operators(),
-                     generate_filter_glob=BVERSION <= 3.2).as_dict()
+                     generate_filter_glob=BVERSION < 3.2).as_dict()
 
     abc     = Format('abc',
                      ['.abc'],
@@ -549,22 +550,22 @@ class FormatDefinition:
     obj     = Format('obj',
                      ['.obj'],
                      obj_operators(),
-                     generate_filter_glob=BVERSION <= 3.2).as_dict()
+                     generate_filter_glob=BVERSION < 3.3).as_dict()
 
     ply     = Format('ply',
                      ['.ply'],
                      ply_operators(),
-                     generate_filter_glob=BVERSION <= 3.2).as_dict()
+                     generate_filter_glob=BVERSION < 3.3).as_dict()
 
     svg     = Format('svg',
                      ['.svg'],
                      svg_operators(),
-                     generate_filter_glob=BVERSION <= 3.2).as_dict()
+                     generate_filter_glob=BVERSION < 3.3).as_dict()
 
     usd     = Format('usd',
                      ['.usd', '.usda', '.usdc', '.usdz'],
                      usd_operators(),
-                     generate_filter_glob=BVERSION <= 3.2).as_dict()
+                     generate_filter_glob=BVERSION < 3.3).as_dict()
 
     x3d     = Format('x3d',
                      ['.x3d', '.wrl'],
@@ -578,7 +579,8 @@ class FormatDefinition:
 
     pdb     = Format('pdb',
                      ['.pdb'],
-                     pdb_operators()).as_dict()
+                     pdb_operators(),
+                     generate_filter_glob=BVERSION < 3.3).as_dict()
 
     xyz     = Format('xyz',
                      ['.xyz'],
@@ -588,7 +590,7 @@ class FormatDefinition:
     stl     = Format('stl',
                      ['.stl'],
                      stl_operators(),
-                     generate_filter_glob=BVERSION <= 3.2).as_dict()
+                     generate_filter_glob=BVERSION < 3.3).as_dict()
 
     image   = Format('image',
                      [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
