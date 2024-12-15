@@ -77,7 +77,8 @@ class IMPORT_SCENE_BLENDSettings():
             draw_import_data(col1, operator, 'Cameras', 'import_cameras', 'CAMERA_DATA')
             draw_import_data(col1, operator, 'Cache Files', 'import_cache_files', 'FILE_CACHE')
             draw_import_data(col1, operator, 'Curves', 'import_curves', 'OUTLINER_OB_CURVE')
-            draw_import_data(col1, operator, 'Hair Curves', 'import_hair_curves', 'OUTLINER_OB_CURVES')
+            if BVERSION >= 3.3:
+                draw_import_data(col1, operator, 'Hair Curves', 'import_hair_curves', 'OUTLINER_OB_CURVES')
             draw_import_data(col1, operator, 'Fonts', 'import_fonts', 'OUTLINER_OB_FONT')
             draw_import_data(col1, operator, 'Grease Pencils', 'import_grease_pencils', 'OUTLINER_OB_GREASEPENCIL')
             draw_import_data(col1, operator, 'Collections', 'import_collections', 'OUTLINER_COLLECTION')

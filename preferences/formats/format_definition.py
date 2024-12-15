@@ -36,6 +36,8 @@ class FormatDefinition:
             f.supported_version = '4.36.3'
         elif BVERSION >= 3.2:
             f.supported_version = '4.36.0'
+        elif BVERSION >= 3.1:
+            f.supported_version = '4.29.1'
 
         return FormatOperators(f)
 
@@ -75,6 +77,8 @@ class FormatDefinition:
             f.supported_version = '3.2.43'
         elif BVERSION >= 3.2:
             f.supported_version = '3.2.40'
+        elif BVERSION >= 3.1:
+            f.supported_version = '1.8.19'
 
         return FormatOperators(f)
 
@@ -112,6 +116,11 @@ class FormatDefinition:
                            'bpy.ops.import_anim.bvh',
                            '1.0.1',
                            addon_name='io_anim_bvh')
+
+        if BVERSION >= 3.2:
+            pass
+        elif BVERSION >= 3.1:
+            f.supported_version = '1.0.0'
 
         return FormatOperators(f)
 
@@ -176,7 +185,7 @@ class FormatDefinition:
             f.supported_version = '2.4.4'
         elif BVERSION >= 3.4:
             f.supported_version = '2.3.1'
-        elif BVERSION >= 3.2:
+        elif BVERSION >= 3.1:
             f.supported_version = '2.3.0'
 
         return FormatOperators(f)
@@ -195,14 +204,11 @@ class FormatDefinition:
             f.pkg_url = 'https://extensions.blender.org/add-ons/import-autocad-dxf-format-dxf/'
             f.supported_version = '0.9.10'
         elif BVERSION >= 4.1:
-            f.addon_anme = 'io_import_dxf'
             f.supported_version = '0.9.8'
         elif BVERSION >= 3.5:
             f.supported_version = '0.9.8'
-            f.addon_name = 'io_import_dxf'
-        elif BVERSION >= 3.3:
+        elif BVERSION >= 3.1:
             f.supported_version = '0.9.6'
-            f.addon_anme = 'io_import_dxf'
 
 
         return FormatOperators(f)
@@ -353,7 +359,7 @@ class FormatDefinition:
             operators.add_operator(ref)
             operators.add_operator(background)
             plane.supported_version = '3.5.0'
-        elif BVERSION >= 3.2:
+        elif BVERSION >= 3.1:
             ref = FormatOperator( 'ref',
                                     'bpy.ops.object.load_reference_image',
                                     '0.0.0')
