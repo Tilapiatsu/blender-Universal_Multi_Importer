@@ -166,7 +166,7 @@ def ply_operators() -> FormatOperator:
                         'bpy.ops.wm.ply_import',
                         '0.0.0')
 
-    if BVERSION >= 3.3:
+    if BVERSION >= 3.4:
         pass
 
     else:
