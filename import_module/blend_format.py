@@ -244,6 +244,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
         if len(to_append['Object']):
             override = {}
             override["selected_objects"] = to_append['Object']
+            # TODO : need to find an alternative to bpy.context.temp_override for blender 3.1 and bellow
             with bpy.context.temp_override(**override):
                 bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
 
