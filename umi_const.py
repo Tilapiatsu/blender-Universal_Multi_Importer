@@ -5,7 +5,7 @@ from .bversion import BVERSION
 ADDON_FOLDER_PATH = os.path.dirname(__file__)
 ADDON_PACKAGE = __package__
 AUTOSAVE_PATH = os.path.join(pathlib.Path(bpy.utils.script_path_user()).parent.absolute(), 'autosave')
-WARNING_ICON = 'ERROR' if BVERSION <= 4.2 else 'WARNING_LARGE'
+WARNING_ICON = 'ERROR' if BVERSION < 4.3 else 'WARNING_LARGE'
 
 if not os.path.exists(AUTOSAVE_PATH):
     print(f'UMI : Creating Autosave Folder : {AUTOSAVE_PATH}')
