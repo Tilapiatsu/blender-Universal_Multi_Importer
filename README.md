@@ -96,6 +96,7 @@ This addon is adding batch import features to existing importers for blender. Th
 # Changelog
 ### v2.1.8 : Better expose addon version inconsistency to the user, and propose solution to adress them
 ![UMI-Addon-Version-Missmatch.png](https://i.postimg.cc/PJp1Pncc/UMI-Addon-Version-Missmatch.png)
+### v2.1.8 : Rewrite format definition to simplify maintainance, and extending support to new formats
 ### v2.1.7 : Add support for 3DS files
 ### v2.1.6 : Support for Blender 4.3
 ### v2.1.6 : Use Collapsable Panels for import settings
