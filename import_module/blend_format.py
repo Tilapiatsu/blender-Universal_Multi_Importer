@@ -2,6 +2,7 @@ import bpy
 from os import path
 from .unique_name import UniqueName
 from ..logger import LOG
+from ..bversion import BVERSION
 
 
 class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
@@ -160,6 +161,10 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             if p.startswith('__'):
                 continue
 
+            print(src.name, p)
+            if p in ['layers_uv_select_src', 'layers_vcol_select_src']:
+                continue
+
             attr = getattr(src, p, None)
 
             if attr is None:
@@ -245,8 +250,23 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             override = {}
             override["selected_objects"] = to_append['Object']
             # TODO : need to find an alternative to bpy.context.temp_override for blender 3.1 and bellow
-            with bpy.context.temp_override(**override):
-                bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+            if BVERSION >=3.2:
+                with bpy.context.temp_override(**override):
+                    bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+
+                    for o in bpy.context.selected_objects:
+                        if o.data is None:
+                            continue
+
+                        # Make Fonts Local
+                        if o.data.rna_type.name == 'Text Curve':
+                            if not self.get_font_dependencies(o.data):
+                                continue
+
+                with bpy.context.temp_override(**override):
+                    bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+            else:
+                bpy.ops.object.make_local(override, type='SELECT_OBDATA_MATERIAL')
 
                 for o in bpy.context.selected_objects:
                     if o.data is None:
@@ -257,8 +277,8 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                         if not self.get_font_dependencies(o.data):
                             continue
 
-            with bpy.context.temp_override(**override):
-                bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+                bpy.ops.object.make_local(override, type='SELECT_OBDATA_MATERIAL')
+
 
         for d in dependencies:
             if d in local_data:
