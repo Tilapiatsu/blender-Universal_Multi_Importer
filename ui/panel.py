@@ -117,7 +117,8 @@ def draw_version_warning(f) -> Callable:
                 panel.label(text=f'supported {addon_version.pkg_name} version : {operator.supported_version}')
                 panel.label(text='Installed version does NOT match the one supported by Universal Multi Importer.')
                 panel.label(text=f'Please update the {addon_version.pkg_name}')
-                panel.operator('extensions.umi_install_extension', icon='FILE_REFRESH', text=f'Update {addon_version.pkg_name} addon').pkg_id = operator.addon_name
+                op = panel.operator('extensions.umi_install_extension', icon='FILE_REFRESH', text=f'Update {addon_version.pkg_name} addon')
+                op.pkg_id = addon_version.pkg_name
 
         elif not addon_version.is_enable:
             header, panel = draw_custom_panel(layout, 'AddonDisabled', 'Addon Disabled', icon=WARNING_ICON)

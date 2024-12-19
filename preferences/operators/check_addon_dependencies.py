@@ -55,9 +55,10 @@ class UI_UMIInstallExtension(bpy.types.Operator):
 
     pkg_id : bpy.props.StringProperty(name='Package ID', default='')
     repo_index : bpy.props.IntProperty(name='Repository Index', default=0)
+    enable_on_install : bpy.props.BoolProperty(name='Enable On Install', default=True)
 
     def execute(self, context):
-        bpy.ops.extensions.package_install(pkg_id=self.pkg_id, repo_index=self.repo_index)
+        bpy.ops.extensions.package_install('INVOKE_DEFAULT', pkg_id=self.pkg_id, repo_index=self.repo_index, enable_on_install=self.enable_on_install)
         bpy.ops.preferences.umi_check_addon_dependency()
         return {'FINISHED'}
 
