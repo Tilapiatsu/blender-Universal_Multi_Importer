@@ -71,6 +71,7 @@ if BVERSION >= 4.1:
                 if found:
                     return found
 
+
 # Legacy Settings Drawing
 class UMI_OT_Settings(bpy.types.Operator):
     bl_idname = "import_scene.tila_universal_multi_importer_settings"
@@ -188,6 +189,7 @@ def register_import_format(self, context):
         for _,name in enumerate(f[1]['operator'].keys()):
             current_format[name] = FormatHandler(import_format=f"{f[0]}", module_name=name, context=context)
 
+
 class UMI_MD5Check(bpy.types.Operator):
     bl_idname = "import_scene.tila_universal_multi_importer_md5_check"
     bl_label = "Check MD5"
@@ -269,6 +271,7 @@ class UMI_MD5Check(bpy.types.Operator):
             return {'RUNNING_MODAL'}
 
         return {'PASS_THROUGH'}
+
 
 class UMI_FileSelection(bpy.types.Operator):
     bl_idname = "import_scene.tila_universal_multi_importer_file_selection"
@@ -1009,6 +1012,7 @@ class UMI(bpy.types.Operator, ImportHelper):
         filename = path.basename(current_file)
         name = (path.splitext(current_file)[0])
         name = path.basename(name)
+        ext = path.splitext(filename)[1]
         self.current_filenames.append(path.basename(filename))
 
         if self.umi_settings.umi_global_import_settings.skip_already_imported_files:
@@ -1047,7 +1051,11 @@ class UMI(bpy.types.Operator, ImportHelper):
         # Running Import Command
         succeeded = self.import_command(context, filepath=current_file)
 
-        self.link_new_object_in_collection(import_col)
+        # Prevent to link object if no object imported
+        if ext.lower() == '.blend' and not self.blend_format['default'].format_settings.import_objects:
+            pass
+        else:
+            self.link_new_object_in_collection(import_col)
 
         self.imported_files.append(current_file)
         return succeeded
@@ -1281,6 +1289,7 @@ class UMI(bpy.types.Operator, ImportHelper):
     def cancel_finish(self, context):
         self.cancel(context)
         return self.finish(context, canceled=True)
+
 
 # function to append the operator in the File>Import menu
 def menu_func_import(self, context):
