@@ -1,14 +1,15 @@
 from . import BVERSION
-from . import draw_panel
+from . import draw_version_warning
 
 class IMPORT_SCENE_BLENDSettings():
+    @draw_version_warning
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
         module = layout.row(align=True)
         module.prop(operator, 'import_module', expand=True)
-        
+
         layout.separator()
         if BVERSION >= 4.2:
             header, panel = layout.panel(idname='BLENDSettings_ImportData')
@@ -76,7 +77,8 @@ class IMPORT_SCENE_BLENDSettings():
             draw_import_data(col1, operator, 'Cameras', 'import_cameras', 'CAMERA_DATA')
             draw_import_data(col1, operator, 'Cache Files', 'import_cache_files', 'FILE_CACHE')
             draw_import_data(col1, operator, 'Curves', 'import_curves', 'OUTLINER_OB_CURVE')
-            draw_import_data(col1, operator, 'Hair Curves', 'import_hair_curves', 'OUTLINER_OB_CURVES')
+            if BVERSION >= 3.3:
+                draw_import_data(col1, operator, 'Hair Curves', 'import_hair_curves', 'OUTLINER_OB_CURVES')
             draw_import_data(col1, operator, 'Fonts', 'import_fonts', 'OUTLINER_OB_FONT')
             draw_import_data(col1, operator, 'Grease Pencils', 'import_grease_pencils', 'OUTLINER_OB_GREASEPENCIL')
             draw_import_data(col1, operator, 'Collections', 'import_collections', 'OUTLINER_COLLECTION')

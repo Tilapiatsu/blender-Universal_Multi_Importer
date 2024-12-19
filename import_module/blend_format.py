@@ -2,6 +2,7 @@ import bpy
 from os import path
 from .unique_name import UniqueName
 from ..logger import LOG
+from ..bversion import BVERSION
 
 
 class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
@@ -46,7 +47,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
     import_volumes : bpy.props.BoolProperty(name="Volumes", default=False)
     import_worlds : bpy.props.BoolProperty(name="Worlds", default=False)
     import_workspaces : bpy.props.BoolProperty(name="Workspaces", default=False)
-    
+
     filepath : bpy.props.StringProperty(name="File Path", subtype='FILE_PATH', options={'HIDDEN'})
 
     import_to_collection_source = ['objects', 'collections']
@@ -94,7 +95,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                             'WINDOWMANAGER',
                             'WORKSPACE',
                             'WORLD']
-    
+
     @property
     def is_append(self):
         return self.import_module == 'APPEND'
@@ -102,7 +103,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
     @property
     def is_link(self):
         return self.import_module == 'LINK'
-    
+
     @property
     def filename(self):
         return path.basename(self.filepath)
@@ -111,7 +112,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
     def import_datas(self):
         if self._import_datas is None:
             self._import_datas = [m.replace('import_', '') for m in self.__annotations__.keys() if m.startswith('import_') and m != 'import_module' and getattr(self, m)]
-        
+
         return self._import_datas
 
     @property
@@ -122,19 +123,19 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             for datatype in dir(bpy.data):
                 if (datatype in self.excluded_datatypes or datatype.startswith('__')) or datatype not in self.import_datas :
                     continue
-                
+
                 data = getattr(bpy.data, datatype)
-                
+
                 local_names[datatype] = [d.name for d in data]
-            
+
             self._local_names = local_names
-            
+
         return self._local_names
-    
+
     @property
     def operation(self):
         return 'Appending' if self.is_append else 'Linking'
-    
+
     @property
     def library(self):
         if self._library is None:
@@ -153,18 +154,22 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
     def get_import_command(self):
         return bpy.ops.wm.append if self.is_append else bpy.ops.wm.link
-    
+
     def get_data_dependencies(self, src, object_to_import, dependencies, data):
         # Capture Dependencies
         for p in dir(src):
             if p.startswith('__'):
                 continue
-            
+
+            print(src.name, p)
+            if p in ['layers_uv_select_src', 'layers_vcol_select_src']:
+                continue
+
             attr = getattr(src, p, None)
-            
+
             if attr is None:
                 continue
-            
+
             try:
                 attr.rna_type
                 attr_type = attr.id_type
@@ -216,10 +221,10 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
             if node_tree.library is None:
                 continue
-            
+
             if node_tree in dep:
                 continue
-            
+
             dep.append(node_tree)
 
             new_dep = self.get_node_dependencies(node_tree, dep=[], local_data = local_data)
@@ -231,7 +236,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                 dep.append(nd)
 
         return dep
-    
+
     def get_font_dependencies(self, data):
         if data.font.library is None:
             return False
@@ -244,27 +249,43 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
         if len(to_append['Object']):
             override = {}
             override["selected_objects"] = to_append['Object']
-            with bpy.context.temp_override(**override):
-                bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL') 
+            # TODO : need to find an alternative to bpy.context.temp_override for blender 3.1 and bellow
+            if BVERSION >=3.2:
+                with bpy.context.temp_override(**override):
+                    bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+
+                    for o in bpy.context.selected_objects:
+                        if o.data is None:
+                            continue
+
+                        # Make Fonts Local
+                        if o.data.rna_type.name == 'Text Curve':
+                            if not self.get_font_dependencies(o.data):
+                                continue
+
+                with bpy.context.temp_override(**override):
+                    bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+            else:
+                bpy.ops.object.make_local(override, type='SELECT_OBDATA_MATERIAL')
 
                 for o in bpy.context.selected_objects:
                     if o.data is None:
                         continue
-                    
+
                     # Make Fonts Local
                     if o.data.rna_type.name == 'Text Curve':
                         if not self.get_font_dependencies(o.data):
                             continue
 
-            with bpy.context.temp_override(**override):
-                bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
-    
+                bpy.ops.object.make_local(override, type='SELECT_OBDATA_MATERIAL')
+
+
         for d in dependencies:
             if d in local_data:
                 continue
             d.make_local()
             local_data.append(d)
-            
+
         for d in data:
             if d in local_data:
                 continue
@@ -284,7 +305,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                     for dd in dep:
                         if dd in local_data:
                             continue
-                        
+
                         if dd.library is None:
                             continue
 
@@ -295,6 +316,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
     def prevent_name_collision(self, source):
         need_rename = {}
+        # TODO : Fix for Blender 3.3.21 : file save with newer version
         with bpy.data.libraries.load(self.filepath, link=self.is_link) as (data_from, data_to):
             data_source = getattr(data_from, source)
             data_target = getattr(bpy.data, source)
@@ -308,7 +330,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             element = getattr(bpy.data, source)[name]
             need_rename[name] = element
             element.name = new_name
-        
+
         return need_rename
 
     def revert_name_collision(self, source:str, duplicate_data_names:dict, import_data_names:list):
@@ -359,7 +381,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             LOG.warning(f'Blend format : ' + message)
             LOG.store_warning(message)
             return
-        
+
         if source == 'objects':
             source_data = self.library.users_id if self.is_link else getattr(bpy.data, source)
             library_objects = [o for o in source_data if o.rna_type.name in self.import_to_collection_rnatype_name]
@@ -416,14 +438,14 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                 if self.is_append:
                     if c not in to_append['Collection']:
                         to_append['Collection'].append(c)
-            
+
         # reorder data to ensure make local will work as expected
         lib = [d for d in self.library.users_id if d.name in data_names]
         for d in data_names:
             for l in lib:
                 if l.name !=d:
                     continue
-                
+
                 data.append(l)
 
         if self.is_append:
@@ -432,7 +454,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
         if source == 'objects':
             self.imported_objects = [bpy.data.objects[o] for o in imported_object_names]
         self._library = None
-    
+
     def import_data(self):
         if self.import_actions:
             self.import_command('actions')
@@ -515,15 +537,15 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             self.import_started = True
             self.importing = True
             self.import_data()
-        
+
         if not self.import_finished and not self.importing:
             if self.import_module == 'APPEND' and self.library is not None:
                 bpy.ops.data.tila_remove_library(library_name=self.library.name)
 
             self.import_finished = True
-            
+
             context.window_manager.event_timer_remove(self._timer)
-            
+
             return {'FINISHED'}
 
         return {'RUNNING_MODAL'}
@@ -545,7 +567,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             bpy.ops.data.tila_remove_library(library_name=self.library.name)
 
         return {'FINISHED'}
-    
+
         # wm = context.window_manager
         # self._timer = wm.event_timer_add(0.01, window=context.window)
         # wm.modal_handler_add(self)

@@ -94,7 +94,11 @@ This addon is adding batch import features to existing importers for blender. Th
 
 
 # Changelog
-### v2.1.7 : add Support for 3DS files
+### v2.1.8 : Better expose addon version inconsistency to the user, and propose solution to adress them
+![UMI-Addon-Version-Missmatch.png](https://i.postimg.cc/PJp1Pncc/UMI-Addon-Version-Missmatch.png)
+### v2.1.8 : Rewrite format definition to simplify maintainance, and extending support to new formats
+### v2.1.8 : Extend support from Blender 3.0 to 4.3
+### v2.1.7 : Add support for 3DS files
 ### v2.1.6 : Support for Blender 4.3
 ### v2.1.6 : Use Collapsable Panels for import settings
 ### v2.1.6 : Support for new formats : Autodesk 3Dsmax, Embroidery files, AutoCAD DXF, Atomic PBD and XYZ

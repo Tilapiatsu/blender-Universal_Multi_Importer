@@ -9,7 +9,7 @@ def update_file_stats(self, context):
     umi_settings = get_umi_settings()
     if not umi_settings.umi_file_stat_update:
         return
-    
+
     selected_files = [f for f in umi_settings.umi_file_selection if f.check]
     size = [f.size for f in selected_files]
     formats = []
@@ -19,17 +19,17 @@ def update_file_stats(self, context):
             continue
 
         formats.append(ext)
-    
+
     umi_settings.umi_file_stat_selected_count = len(selected_files)
     umi_settings.umi_file_stat_selected_size = sum(size)
     umi_settings.umi_file_stat_selected_formats = '( ' + ' | '.join(formats) + ' )' if len(formats) else 'no'
     file_selected_format_items = {( COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), '') for f in formats}
     umi_settings.umi_file_selected_format_items = str(list(file_selected_format_items))
-    
+
     if len(formats) and not len(umi_settings.umi_file_format_current_settings):
         f = COMPATIBLE_FORMATS.get_format_from_extension(formats[0])['name'].upper()
         umi_settings.umi_file_format_current_settings = f
-        
+
 def update_file_format_current_settings(self, context):
     umi_settings = get_umi_settings()
     if len(umi_settings.umi_file_format_current_settings):
@@ -55,21 +55,25 @@ def update_file_extension_selection(self, context):
 def get_file_extension_selection(self, context):
     file_extensions_selection_items = get_umi_settings().umi_file_extension_selection_items
     return eval(file_extensions_selection_items)
-    
+
 def update_log_drawing(self, context):
     umi_settings = get_umi_settings()
     LOG.show_log = umi_settings.umi_global_import_settings.show_log_on_3d_view
 
 class PG_AddonDependency(bpy.types.PropertyGroup):
-    name            : bpy.props.StringProperty(name='Name', default='')
-    format_name     : bpy.props.StringProperty(name='Format Name', default='')
-    module_name     : bpy.props.StringProperty(name='Format Name', default='')
-    addon_name      : bpy.props.StringProperty(name='Addon Name', default='')
-    pkg_id          : bpy.props.StringProperty(name='Package Index', default='')
-    pkg_url         : bpy.props.StringProperty(name='Package URL', default='')
-    is_extension    : bpy.props.BoolProperty(name='Is Extension', default=False)
-    is_installed    : bpy.props.BoolProperty(name='Is Installed', default=False)
-    is_enabled      : bpy.props.BoolProperty(name='Is Enabled', default=False)
+    name                : bpy.props.StringProperty(name='Name', default='')
+    format_name         : bpy.props.StringProperty(name='Format Name', default='')
+    module_name         : bpy.props.StringProperty(name='Format Name', default='')
+    addon_name          : bpy.props.StringProperty(name='Addon Name', default='')
+    pkg_id              : bpy.props.StringProperty(name='Package Index', default='')
+    pkg_url             : bpy.props.StringProperty(name='Package URL', default='')
+    local_version       : bpy.props.StringProperty(name='Local Version', default='')
+    remote_version      : bpy.props.StringProperty(name='Remote Version', default='')
+    supported_version   : bpy.props.StringProperty(name='Supported Version', default='')
+    is_extension        : bpy.props.BoolProperty(name='Is Extension', default=False)
+    is_installed        : bpy.props.BoolProperty(name='Is Installed', default=False)
+    is_enabled          : bpy.props.BoolProperty(name='Is Enabled', default=False)
+    is_outdated         : bpy.props.BoolProperty(name='Is Outdated', default=False)
 
 class PG_ImportSettings(bpy.types.PropertyGroup):
     umi_import_settings_registered : bpy.props.BoolProperty(name='Import settings registered', default=False)
@@ -84,7 +88,7 @@ class PG_Operator(bpy.types.PropertyGroup):
 class PG_Preset(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name='Name')
     path : bpy.props.StringProperty(name='File Path', default='', subtype='FILE_PATH')
-    
+
 class PG_FilePathSelection(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name='Name')
     ext : bpy.props.StringProperty(name='Extension')
@@ -188,7 +192,7 @@ class UMI_UL_PresetList(bpy.types.UIList):
         row.operator('scene.umi_save_preset_operator', text='', icon='PRESET_NEW').filepath = item.path
         row.separator()
         row.operator('scene.umi_remove_preset', text='', icon='PANEL_CLOSE').id = index
-        
+
 class UMI_UL_FileSelectionList(bpy.types.UIList):
     bl_idname = "UMI_UL_file_selection_list"
 
@@ -211,7 +215,7 @@ classes = ( PG_ImportSettings,
             PG_GlobalSettings,
             PG_AddonDependency,
             PG_UMISettings,
-            UMI_UL_OperatorList, 
+            UMI_UL_OperatorList,
             UMI_UL_PresetList,
             UMI_UL_FileSelectionList)
 

@@ -1,10 +1,10 @@
 import bpy
-from ...blender_version import BVERSION
+from ...bversion import BVERSION
 from . import panels
 
 
 from .format_definition import FormatDefinition
-FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('__')]
+FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('_')]
 
 from .format_compatible import CompatibleFormats
 COMPATIBLE_FORMATS = CompatibleFormats()
@@ -25,9 +25,9 @@ def register_import_setting_class():
             cl_name = f'UMI_{f[0]}_{name}_settings'
             cl = eval(cl_name)
             properties.PG_ImportSettings.__annotations__[f'{f[0]}_{name}_import_settings'] = bpy.props.PointerProperty(type=cl)
-            
+
     properties.PG_ImportSettings.umi_import_settings_registered = True
-    
+
 def register():
     class_parser = FormatClassCreator()
     class_parser.register_compatible_formats()

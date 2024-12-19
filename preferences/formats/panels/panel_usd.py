@@ -1,8 +1,8 @@
 import bpy
-from . import BVERSION
-from . import draw_panel
+from . import BVERSION, draw_panel, draw_version_warning
 
 class IMPORT_SCENE_USDSettings():
+    @draw_version_warning
     def draw(self, operator, module_name,  layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
@@ -17,7 +17,7 @@ class IMPORT_SCENE_USDSettings():
                  [operator,     'scale'],
                  [operator,     'light_intensity_scale'],
                  [operator,     'attr_import_mode']]
-        
+
             draw_panel(layout, op, 'USDSettings_General', 'General', icon='IMPORT')
 
             header, object_type = layout.panel(idname='USDSettings_ObjectTypes')
@@ -40,7 +40,7 @@ class IMPORT_SCENE_USDSettings():
                 [operator,     'import_proxy'],
                 [operator,     'import_guide'],
                 [operator,     'mtl_purpose']]
-    
+
             draw_panel(layout, op, 'USDSettings_DisplayPurpose', 'Display Purpose', icon='RESTRICT_VIEW_OFF')
 
             op = [[operator,    'read_mesh_uvs'],
@@ -48,12 +48,12 @@ class IMPORT_SCENE_USDSettings():
                  [operator,     'read_mesh_attributes'],
                  [operator,     'import_subdiv'],
                  [operator,     'validate_meshes']]
-        
+
             draw_panel(layout, op, 'USDSettings_Geometry', 'Geometry', icon='MESH_DATA', default_closed=True)
 
             op = [[operator,    'import_blendshapes'],
                  [operator,     'import_skeletons']]
-        
+
             draw_panel(layout, op, 'USDSettings_Rigging', 'Rigging', icon='BONE_DATA', default_closed=True)
 
             op = [[operator,    'import_all_materials'],
@@ -61,7 +61,7 @@ class IMPORT_SCENE_USDSettings():
                  [operator,     'create_world_material'],
                  [operator,     'set_material_blend'],
                  [operator,     'mtl_name_collision_mode']]
-        
+
             draw_panel(layout, op, 'USDSettings_Materials', 'Materials', icon='MATERIAL', default_closed=True)
 
             op = [[operator,    'import_textures_mode']]
@@ -74,9 +74,9 @@ class IMPORT_SCENE_USDSettings():
 
                 col.prop(operator, 'import_textures_dir')
                 col.prop(operator, 'tex_name_collision_mode')
-            
+
             op = [[operator,    'support_scene_instancing']]
-        
+
             draw_panel(layout, op, 'USDSettings_ParticlesAndInstancing', 'Particles and Instancing', icon='MOD_PARTICLE_INSTANCE', default_closed=True)
 
         elif BVERSION >= 4.2:
@@ -89,7 +89,7 @@ class IMPORT_SCENE_USDSettings():
                  [operator,     'scale'],
                  [operator,     'light_intensity_scale'],
                  [operator,     'attr_import_mode']]
-        
+
             draw_panel(layout, op, 'USDSettings_General', 'General', icon='IMPORT')
 
             header, object_type = layout.panel(idname='USDSettings_ObjectTypes')
@@ -111,7 +111,7 @@ class IMPORT_SCENE_USDSettings():
             op = [[operator,    'import_render'],
                 [operator,     'import_proxy'],
                 [operator,     'import_guide']]
-    
+
             draw_panel(layout, op, 'USDSettings_DisplayPurpose', 'Display Purpose', icon='RESTRICT_VIEW_OFF')
 
             op = [[operator,    'read_mesh_uvs'],
@@ -119,12 +119,12 @@ class IMPORT_SCENE_USDSettings():
                  [operator,     'read_mesh_attributes'],
                  [operator,     'import_subdiv'],
                  [operator,     'validate_meshes']]
-        
+
             draw_panel(layout, op, 'USDSettings_Geometry', 'Geometry', icon='MESH_DATA', default_closed=True)
 
             op = [[operator,    'import_blendshapes'],
                  [operator,     'import_skeletons']]
-        
+
             draw_panel(layout, op, 'USDSettings_Rigging', 'Rigging', icon='BONE_DATA', default_closed=True)
 
             op = [[operator,    'import_all_materials'],
@@ -132,7 +132,7 @@ class IMPORT_SCENE_USDSettings():
                  [operator,     'create_world_material'],
                  [operator,     'set_material_blend'],
                  [operator,     'mtl_name_collision_mode']]
-        
+
             draw_panel(layout, op, 'USDSettings_Materials', 'Materials', icon='MATERIAL', default_closed=True)
 
             op = [[operator,    'import_textures_mode']]
@@ -145,11 +145,11 @@ class IMPORT_SCENE_USDSettings():
 
                 col.prop(operator, 'import_textures_dir')
                 col.prop(operator, 'tex_name_collision_mode')
-            
+
             op = [[operator,    'support_scene_instancing']]
-        
+
             draw_panel(layout, op, 'USDSettings_ParticlesAndInstancing', 'Particles and Instancing', icon='MOD_PARTICLE_INSTANCE', default_closed=True)
-            
+
         elif BVERSION >= 4.1:
             op = [[operator,    'prim_path_mask'],
                  [operator,     'import_visible_only'],
@@ -158,7 +158,7 @@ class IMPORT_SCENE_USDSettings():
                  [operator,     'relative_path'],
                  [operator,     'scale'],
                  [operator,     'light_intensity_scale']]
-        
+
             draw_panel(layout, op, 'USDSettings_General', 'General', icon='IMPORT')
 
             object_type = layout.box()
@@ -179,97 +179,71 @@ class IMPORT_SCENE_USDSettings():
             op = [[operator,    'import_render'],
                 [operator,     'import_proxy'],
                 [operator,     'import_guide']]
-    
+
             draw_panel(layout, op, 'USDSettings_DisplayPurpose', 'Display Purpose', icon='RESTRICT_VIEW_OFF')
 
             op = [[operator,    'read_mesh_uvs'],
                  [operator,     'read_mesh_colors'],
                  [operator,     'read_mesh_attributes'],
                  [operator,     'import_subdiv']]
-        
+
             draw_panel(layout, op, 'USDSettings_Geometry', 'Geometry', icon='MESH_DATA', default_closed=True)
 
             op = [[operator,    'import_blendshapes'],
                  [operator,     'import_skeletons']]
-        
+
             draw_panel(layout, op, 'USDSettings_Rigging', 'Rigging', icon='BONE_DATA', default_closed=True)
 
             op = [[operator,    'import_all_materials'],
                  [operator,     'import_usd_preview'],
                  [operator,     'set_material_blend'],
                  [operator,     'mtl_name_collision_mode']]
-        
+
             draw_panel(layout, op, 'USDSettings_Materials', 'Materials', icon='MATERIAL', default_closed=True)
 
             op = [[operator,    'import_textures_mode'],
                  [operator,     'import_textures_dir'],
                  [operator,     'tex_name_collision_mode']]
-        
+
             draw_panel(layout, op, 'USDSettings_Textures', 'Textures', icon='TEXTURE', default_closed=True)
-            
+
             op = [[operator,    'support_scene_instancing']]
-        
+
             draw_panel(layout, op, 'USDSettings_ParticlesAndInstancing', 'Particles and Instancing', icon='MOD_PARTICLE_INSTANCE', default_closed=True)
 
         else:
-            include = layout.box()
-            include.label(text='Data Types', icon='IMPORT')
-            row = include.row(align=True)
-            col = row.column(align=True)
-            col.prop(operator, 'import_cameras')
-            col.prop(operator, 'import_curves')
-            col.prop(operator, 'import_lights')
-            col.prop(operator, 'import_materials')
-            col.prop(operator, 'import_meshes')
+            op = [[operator,    'import_cameras'],
+                 [operator,     'import_curves'],
+                 [operator,     'import_lights'],
+                 [operator,     'import_materials'],
+                 [operator,     'import_meshes'],
+                 [operator,     'import_volumes'],
+                 [operator,     'prim_path_mask'],
+                 [operator,     'scale']]
 
-            col = row.column(align=True)
-            col.prop(operator, 'import_volumes')
-            col.prop(operator, 'import_shapes')
-            col.prop(operator, 'import_shapes')
-            col = include.column(align=True)
-            col.prop(operator, 'prim_path_mask')
-            col.prop(operator, 'scale')
+            draw_panel(layout, op, 'USDSettings_General', 'Data Types', icon='IMPORT')
 
-            misc = layout.box()
-            base_col = misc.column(align=True)
-            base_col.label(text='Mesh Data', icon='MESH_DATA')
-            col = base_col.column(align=True)
-            col.prop(operator, 'read_mesh_uvs')
-            col.prop(operator, 'read_mesh_colors')
+            op = [[operator,    'read_mesh_uvs'],
+                 [operator,     'read_mesh_colors']]
 
-            base_col.separator()
+            draw_panel(layout, op, 'USDSettings_MeshData', 'Mesh Data', icon='OBJECT_DATA')
 
-            base_col = misc.column(align=True)
-            base_col.label(text='Include', icon='IMPORT')
-            col = base_col.column(align=True)
-            col.prop(operator, 'import_subdiv')
-            col.prop(operator, 'import_visible_only')
-            col.prop(operator, 'import_guide')
-            col.prop(operator, 'import_proxy')
-            col.prop(operator, 'import_render')
+            op = [[operator,    'import_subdiv'],
+                 [operator,     'import_instance_proxies'],
+                 [operator,     'import_visible_only'],
+                 [operator,     'import_guide'],
+                 [operator,     'import_proxy'],
+                 [operator,     'import_render']]
 
-            base_col.separator()
+            draw_panel(layout, op, 'USDSettings_MeshData', 'Include', icon='IMPORT')
 
-            base_col = misc.column(align=True)
-            base_col.label(text='Options', icon='OPTIONS')
-            col = base_col.column(align=True)
-            col.prop(operator, 'set_frame_range')
-            col.prop(operator, 'relative_path')
-            col.prop(operator, 'create_collection')
-            col.prop(operator, 'light_intensity_scale')
+            op = [[operator,    'set_frame_range'],
+                 [operator,     'relative_path'],
+                 [operator,     'light_intensity_scale']]
 
-            materials = layout.box()
-            materials.label(text='Materials', icon='MATERIAL')
+            draw_panel(layout, op, 'USDSettings_MeshData', 'Options', icon='OPTIONS')
 
-            col = materials.column(align=True)
-            col.prop(operator, 'import_all_materials')
-            col.prop(operator, 'import_usd_preview')
-            col.prop(operator, 'set_material_blend')
-            col.prop(operator, 'mtl_name_collision_mode')
+            op = [[operator,    'import_usd_preview'],
+                 [operator,     'set_material_blend']]
 
-            textures = layout.box()
-            textures.label(text='Textures', icon='TEXTURE')
-            col = textures.column(align=True)
-            col.prop(operator, 'import_textures_mode')
-            col.prop(operator, 'import_textures_dir')
-            col.prop(operator, 'tex_name_collision_mode')
+            draw_panel(layout, op, 'USDSettings_Experimental', 'Experimental', icon='ERROR')

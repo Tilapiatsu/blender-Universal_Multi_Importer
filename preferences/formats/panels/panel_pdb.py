@@ -1,18 +1,19 @@
-from . import draw_panel
+from . import draw_panel, draw_version_warning
 
 class IMPORT_SCENE_PDBSettings():
+    @draw_version_warning
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        op = [[operator, 'use_camera'], 
-              [operator, 'use_light'], 
+        op = [[operator, 'use_camera'],
+              [operator, 'use_light'],
               [operator, 'use_center']]
-        
+
         draw_panel(layout, op, 'PDBSettings_General', 'General', icon='OPTIONS')
 
         op = [[operator, 'ball']]
-        
+
         header, panel = draw_panel(layout, op, 'PDBSettings_BallsAtoms', 'Balls / Atoms', icon='NODE_MATERIAL')
 
         if panel:
@@ -29,7 +30,7 @@ class IMPORT_SCENE_PDBSettings():
         draw_panel(layout, op, 'PDBSettings_BallsAtoms', 'Balls /  Atoms', icon='NODE_MATERIAL', panel=panel, header=header)
 
         op = [[operator, 'use_sticks_type']]
-        
+
         _, panel = draw_panel(layout, op, 'PDBSettings_Frames', 'Frames', icon='SHADING_BBOX', set_header_boolean=True, header_bool=[operator, 'use_sticks'])
 
         if panel:

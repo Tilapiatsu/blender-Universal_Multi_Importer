@@ -1,6 +1,7 @@
-from . import draw_panel
+from . import draw_panel, draw_version_warning
 
 class IMPORT_SCENE_BVHSettings():
+    @draw_version_warning
     def draw(self, operator, module_name, layout):
         layout.use_property_split = True
         layout.use_property_decorate = False
@@ -11,7 +12,7 @@ class IMPORT_SCENE_BVHSettings():
               [operator, 'rotate_mode'],
               [operator, 'axis_forward'],
               [operator, 'axis_up']]
-        
+
         draw_panel(layout, op, 'BVHSettings_Transform', 'Transform', icon='OBJECT_DATA')
 
         op = [[operator, 'frame_start'],
@@ -19,5 +20,5 @@ class IMPORT_SCENE_BVHSettings():
               [operator, 'use_cyclic'],
               [operator, 'update_scene_fps'],
               [operator, 'update_scene_duration']]
-        
+
         draw_panel(layout, op, 'BVHSettings_Animation', 'Animation', icon='ARMATURE_DATA')
