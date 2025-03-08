@@ -1,4 +1,4 @@
-from . import draw_panel, BVERSION, draw_version_warning
+from . import draw_panel, BVERSION, draw_version_warning, AddonVersion
 
 class IMPORT_SCENE_X3DSettings():
     @draw_version_warning
@@ -7,6 +7,13 @@ class IMPORT_SCENE_X3DSettings():
         layout.use_property_decorate = False  # No animation.
 
         if BVERSION >= 4.2:
+            av = AddonVersion(operator.addon_name)
+            if av.version.as_float >= 2.5:
+                op = [
+                        [operator, 'as_collection']
+                    ]
+
+                draw_panel(layout, op, 'X3DSettings_General', 'General', icon='OPTIONS')
 
             header, panel = layout.panel(idname='X3DSettings_Transform')
             header.label(text='Transform', icon='OBJECT_DATA')

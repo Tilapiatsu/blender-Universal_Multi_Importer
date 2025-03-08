@@ -8,7 +8,10 @@ def fbx_operators() -> FormatOperator:
                         '5.4.0',
                         addon_name='io_scene_fbx')
 
-    if BVERSION >= 4.3:
+    if BVERSION >= 4.4:
+        f.supported_version = '5.12.7'
+
+    elif BVERSION >= 4.3:
         f.supported_version = '5.12.5'
 
     elif BVERSION >= 4.2:
@@ -59,7 +62,10 @@ def gltf_operators() -> FormatOperator:
                         '3.6.27',
                         addon_name='io_scene_gltf2')
 
-    if BVERSION >= 4.3:
+    if BVERSION >= 4.4:
+        f.supported_version = '4.4.54'
+
+    elif BVERSION >= 4.3:
         f.supported_version = '4.3.47'
 
     elif BVERSION >= 4.204:
@@ -221,7 +227,7 @@ def x3d_operators() -> FormatOperator:
         f.addon_name = 'bl_ext.blender_org.web3d_x3d_vrml2_format'
         f.pkg_id = 'web3d_x3d_vrml2_format'
         f.pkg_url = 'https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/'
-        f.supported_version = '2.4.4'
+        f.supported_version = '2.5.0'
 
     elif BVERSION >= 3.4:
         f.supported_version = '2.3.1'
@@ -378,7 +384,7 @@ def max3ds_operators() -> FormatOperator:
         f.addon_name = 'bl_ext.blender_org.autodesk_3ds_format'
         f.pkg_id = 'autodesk_3ds_format'
         f.pkg_url = 'https://extensions.blender.org/add-ons/autodesk-3ds-format/'
-        f.supported_version = '2.7.5'
+        f.supported_version = '2.7.6'
 
     elif BVERSION >= 4.1:
         f.supported_version = '2.4.9'
