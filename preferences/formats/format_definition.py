@@ -659,7 +659,7 @@ class FormatDefinition:
                      generate_filter_glob=BVERSION < 3.3).as_dict()
 
     image   = Format('image',
-                     [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw',
+                     [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw', '.webp',
                      '.hdr', '.exr',
                      '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
                      image_operators(),
