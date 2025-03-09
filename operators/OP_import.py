@@ -550,6 +550,7 @@ class UMI(bpy.types.Operator, ImportHelper):
     filter_fbx : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_image : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_movie : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+    filter_sound : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_collada : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_alembic : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_volume : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})

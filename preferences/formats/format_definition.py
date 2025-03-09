@@ -477,6 +477,16 @@ def image_operators() -> FormatOperator:
     return operators
 
 
+def sound_operators() -> FormatOperator:
+    data = FormatOperator(  'data',
+                            'bpy.ops.sound.open',
+                            '0.0.0')
+    operators = FormatOperators(data)
+    operators.add_operator(data)
+
+    return operators
+
+
 def stl_operators() -> FormatOperator:
     default = FormatOperator('default',
                         'bpy.ops.wm.stl_import',
@@ -664,6 +674,11 @@ class FormatDefinition:
                      '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
                      image_operators(),
                      ignore=['files', 'filepath', 'directory']).as_dict()
+
+    sound = Format('sound',
+                   ['.wav', '.flac', '.mp2', '.mp3', '.aac', '.ogg', '.pcm', '.opus', '.l16', '.aiff', '.au'],
+                   sound_operators(),
+                   ignore=['files', 'filepath', 'directory']).as_dict()
 
     if BVERSION >= 3.6:
         max3ds  = Format('max3ds',
