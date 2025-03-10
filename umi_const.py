@@ -24,3 +24,17 @@ def get_umi_colors():
     except Exception as e:
         return None
 
+def get_batcher_list_name() -> str:
+    umi_settings = get_umi_settings()
+    match umi_settings.umi_command_batcher_settings:
+        case "PRE_PROCESS":
+            target = 'umi_pre_operators'
+        case "EACH_ELEMENTS":
+            target = 'umi_each_operators'
+        case "POST_PROCESS":
+            target = 'umi_post_operators'
+
+    return target
+
+def get_batcher_index_name() -> str:
+    return get_batcher_list_name()+'_idx'
