@@ -1,7 +1,11 @@
 import bpy
 import os
-from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name
+from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST
 from .operators_const import COMMAND_BATCHER_PRESET_FOLDER
+
+def operators(self, context, edit_text):
+    return OPERTAOR_LIST
+
 
 if not os.path.exists(COMMAND_BATCHER_PRESET_FOLDER):
     print(f'UMI : Creating Preset Folder : {COMMAND_BATCHER_PRESET_FOLDER}')
@@ -133,7 +137,7 @@ class UI_UMIEditOperator(bpy.types.Operator):
     bl_description = "Edit current operator"
 
     id : bpy.props.IntProperty(name="Operator ID", default=0)
-    operator : bpy.props.StringProperty(name="Operator Command", default="")
+    operator : bpy.props.StringProperty(name="Operator Command", default="", search=operators )
 
     def draw(self, context):
         layout = self.layout
@@ -162,7 +166,7 @@ class UI_UMIAddOperator(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     bl_description = "Add a new operator"
 
-    operator : bpy.props.StringProperty(name="Operator Command", default="")
+    operator : bpy.props.StringProperty(name="Operator Command", default="", search=operators )
 
     def draw(self, context):
         layout = self.layout

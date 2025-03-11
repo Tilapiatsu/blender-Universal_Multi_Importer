@@ -7,6 +7,7 @@ ADDON_PACKAGE = __package__
 AUTOSAVE_PATH = os.path.join(pathlib.Path(bpy.utils.script_path_user()).parent.absolute(), 'autosave')
 WARNING_ICON = 'ERROR' if BVERSION < 4.3 else 'WARNING_LARGE'
 
+
 if not os.path.exists(AUTOSAVE_PATH):
     print(f'UMI : Creating Autosave Folder : {AUTOSAVE_PATH}')
     os.makedirs(AUTOSAVE_PATH, exist_ok=True)
@@ -38,3 +39,14 @@ def get_batcher_list_name() -> str:
 
 def get_batcher_index_name() -> str:
     return get_batcher_list_name()+'_idx'
+
+def get_operators_list():
+    i = 0
+    operators = []
+    for op in dir(bpy.ops):
+        for o in dir(getattr(bpy.ops, op)):
+            operators.append((f'bpy.ops.{op}.{o}("INVOKE_DEFAULT")', str(i)))
+            i += 1
+    return operators
+
+OPERTAOR_LIST = get_operators_list()
