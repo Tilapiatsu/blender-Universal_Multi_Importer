@@ -159,10 +159,8 @@ class UMI_UL_OperatorList(bpy.types.UIList):
     bl_idname = "UMI_UL_operator_list"
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        scn = context.scene
-        umi_settings = get_umi_settings()
-
         row = layout.row(align=True)
+
         row.label(text=f'{index + 1} : {item.operator}')
 
         row = row.row(align=True)
@@ -178,11 +176,11 @@ class UMI_UL_PresetList(bpy.types.UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row(align=True)
+
         row.label(text=f'{item.name}')
 
         row = row.row(align=True)
         row.alignment = 'RIGHT'
-        # row.ui_units_x = 5
 
         row.operator('scene.umi_edit_preset', text='', icon='GREASEPENCIL').id = index
         row.operator('scene.umi_duplicate_preset', text='', icon='PASTEDOWN').id = index
