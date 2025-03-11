@@ -196,7 +196,6 @@ class UMI_UL_FileSelectionList(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         scn = context.scene
         row = layout.row(align=True)
-        row.alignment = 'LEFT'
         row.prop(item, 'check', text='')
         row.separator()
         row.label(text=f'{item.path}')
