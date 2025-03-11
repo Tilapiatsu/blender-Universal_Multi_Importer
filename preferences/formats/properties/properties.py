@@ -83,6 +83,7 @@ class PG_ImportSettingsCreator(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name="Import Setting Name", default="")
 
 class PG_Operator(bpy.types.PropertyGroup):
+    enabled : bpy.props.BoolProperty(name='Enabled', default=True)
     operator : bpy.props.StringProperty(name='Operator', default='')
 
 class PG_Preset(bpy.types.PropertyGroup):
@@ -161,6 +162,7 @@ class UMI_UL_OperatorList(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row(align=True)
 
+        row.prop(item, 'enabled', text='')
         row.label(text=f'{index + 1} : {item.operator}')
 
         row = row.row(align=True)

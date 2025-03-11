@@ -124,6 +124,7 @@ class UI_UMIDuplicateOperator(bpy.types.Operator):
         self.umi_settings = get_umi_settings()
         target = eval(f'self.umi_settings.{get_batcher_list_name()}')
         o = target.add()
+        o.enabled = target[self.id].enabled
         o.operator = target[self.id].operator
         target.move(len(target) - 1, self.id + 1)
 

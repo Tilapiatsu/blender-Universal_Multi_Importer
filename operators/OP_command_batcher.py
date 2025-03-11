@@ -105,16 +105,16 @@ class CommandBatcher(bpy.types.Operator):
 
     def fill_operator_to_process(self, each_only=False):
         if self.execute_each_process:
-            self.operators_to_process = [o.operator for o in self.umi_settings.umi_each_operators]
+            self.operators_to_process = [o.operator for o in self.umi_settings.umi_each_operators if o.enabled]
             self.operators_to_process.reverse()
 
         if not each_only:
             if self.execute_pre_process:
-                self.pre_operators_to_process = [o.operator for o in self.umi_settings.umi_pre_operators]
+                self.pre_operators_to_process = [o.operator for o in self.umi_settings.umi_pre_operators if o.enabled]
                 self.pre_operators_to_process.reverse()
 
             if self.execute_post_process:
-                self.post_operators_to_process = [o.operator for o in self.umi_settings.umi_post_operators]
+                self.post_operators_to_process = [o.operator for o in self.umi_settings.umi_post_operators if o.enabled]
                 self.post_operators_to_process.reverse()
 
     def decrement_counter(self):
