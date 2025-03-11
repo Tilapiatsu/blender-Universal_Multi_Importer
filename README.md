@@ -94,9 +94,14 @@ This addon is adding batch import features to existing importers for blender. Th
 
 
 # Changelog
-### v2.2.0 : Support for Blender 4.4
-### v2.2.0 : Support for webp format, and audio formats
-### v2.2.0 : Command Batcher now have 3 lists : Pre-process which will be executed ONCE at the begining, Each-Process, which will be exectute for each Objects / Imported files, and Post-Process which will be exectued ONCE at the end of the process
+### v2.2.0 : Support for Blender 4.4.0
+### v2.2.0 : Support for webp and audio formats
+### v2.2.0 : Command Batcher now have 3 lists :
+- Pre-process : which will be executed ONCE at the begining
+- Each Elements : which will be exectute for each Objects / Imported files
+- Post-Process : which will be exectued ONCE at the end of the process
+### v2.2.0 : Command Batcher can now Search for valid operators. Each operators can be enabled or disabled
+![UMI-Command-Batcher-Improvements.png](https://i.postimg.cc/rs81wdqF/UMI-Command-Batcher-Improvements.png)
 ### v2.1.8 : Better expose addon version inconsistency to the user, and propose solution to adress them
 ![UMI-Addon-Version-Missmatch.png](https://i.postimg.cc/PJp1Pncc/UMI-Addon-Version-Missmatch.png)
 ### v2.1.8 : Rewrite format definition to simplify maintainance, and extending support to new formats
