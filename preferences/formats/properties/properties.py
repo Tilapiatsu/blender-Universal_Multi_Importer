@@ -163,13 +163,10 @@ class UMI_UL_OperatorList(bpy.types.UIList):
         umi_settings = get_umi_settings()
 
         row = layout.row(align=True)
-        split = row.split()
-        split.alignment = 'LEFT'
-        split.label(text=f'{index + 1} : {item.operator}')
+        row.label(text=f'{index + 1} : {item.operator}')
 
-        row = split.row(align=True)
+        row = row.row(align=True)
         row.alignment = 'RIGHT'
-        row.ui_units_x = 40
 
         row.operator('scene.umi_edit_operator', text='', icon='GREASEPENCIL').id = index
         row.operator('scene.umi_duplicate_operator', text='', icon='PASTEDOWN').id = index
@@ -181,13 +178,11 @@ class UMI_UL_PresetList(bpy.types.UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row(align=True)
-        split = row.split()
-        split.alignment = 'LEFT'
-        split.label(text=f'{item.name}')
+        row.label(text=f'{item.name}')
 
-        row = split.row(align=True)
+        row = row.row(align=True)
         row.alignment = 'RIGHT'
-        row.ui_units_x = 40
+        # row.ui_units_x = 5
 
         row.operator('scene.umi_edit_preset', text='', icon='GREASEPENCIL').id = index
         row.operator('scene.umi_duplicate_preset', text='', icon='PASTEDOWN').id = index
