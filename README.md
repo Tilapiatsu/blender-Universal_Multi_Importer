@@ -24,42 +24,42 @@ This addon is adding batch import features to existing importers for blender. Th
 - [Blender Embroidery](https://github.com/javl/blender-embroidery) by Jasper van Loenen
 
 # Supported Formats
-| Mesh Formats | Image Formats | Video Formats | Animation Formats | Embroidery Formats[:link:](https://github.com/javl/blender-embroidery) |
-| -----------  | -----------   |  -----------  |   -----------     |   -----------      |
-| blend        | jpg           |  mov          | bvh               |  pes               |
-| obj          | jpeg          |  mp4          |                   |  dst               |
-| fbx          | gif           |  mkv          |                   |  exp               |
-| glb          | png           |  mpg          |                   |  jef               |
-| gltf         | tif           |  mpeg         |                   |  pec               |
-| x3d[:link:](https://projects.blender.org/extensions/io_scene_x3d)| tiff|  dvd          |                   |  jpx               |
-| wrl          | bmp           |  dvd          |                   |  phc               |
-| stl          | cin           |  vob          |                   |  vp3               |
-| ply          | dpx           |  avi          |                   |  10o               |
-| abc          | jp2           |  dv           |                   |  zxy               |
-| dae          | j2c           |  flv          |                   |  bro               |
-| svg          | sig           |  webm         |                   |  dat               |
-| usd          | rgb           |               |                   |  dsb               |
-| usda         | bw            |               |                   |  dsz               |
-| usdc         | exr           |               |                   |  emd               |
-| usdz         | hdr           |               |                   |  exy               |
-| max[:link:](https://github.com/nrgsille76/io_scene_max) |||       |  fxy              |
-| pdb[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  gcode       |
-| xyz[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  hus         |
-| dxf[:link:](https://projects.blender.org/extensions/io_import_dxf) ||||  inb          |
-| 3ds[:link:](https://projects.blender.org/extensions/io_scene_3ds)  ||||  new          |
-|              |               |               |                   |  pcd               |
-|              |               |               |                   |  pcm               |
-|              |               |               |                   |  pcq               |
-|              |               |               |                   |  pcs               |
-|              |               |               |                   |  phb               |
-|              |               |               |                   |  sew               |
-|              |               |               |                   |  shv               |
-|              |               |               |                   |  stc               |
-|              |               |               |                   |  stx               |
-|              |               |               |                   |  tap               |
-|              |               |               |                   |  tbf               |
-|              |               |               |                   |  xxx               |
-|              |               |               |                   |  zhs               |
+| Mesh Formats | Image Formats | Video Formats | Animation Formats | Embroidery Formats[:link:](https://github.com/javl/blender-embroidery) | Audio Formats |
+| -----------  | -----------   |  -----------  |   -----------     |   -----------      | -----------  |
+| blend        | jpg           |  mov          | bvh               |  pes               | wav          |
+| obj          | jpeg          |  mp4          |                   |  dst               | flac         |
+| fbx          | gif           |  mkv          |                   |  exp               | mp2          |
+| glb          | png           |  mpg          |                   |  jef               | mp3          |
+| gltf         | tif           |  mpeg         |                   |  pec               | aac          |
+| x3d[:link:](https://projects.blender.org/extensions/io_scene_x3d)| tiff|  dvd         |                   |  jpx               | ogg        |
+| wrl          | bmp           |  dvd          |                   |  phc               | pcm          |
+| stl          | cin           |  vob          |                   |  vp3               | opus         |
+| ply          | dpx           |  avi          |                   |  10o               | l16          |
+| abc          | jp2           |  dv           |                   |  zxy               | aiff         |
+| dae          | j2c           |  flv          |                   |  bro               | au           |
+| svg          | sig           |  webm         |                   |  dat               |              |
+| usd          | rgb           |               |                   |  dsb               |              |
+| usda         | bw            |               |                   |  dsz               |              |
+| usdc         | exr           |               |                   |  emd               |              |
+| usdz         | hdr           |               |                   |  exy               |              |
+| max[:link:](https://github.com/nrgsille76/io_scene_max) |||       |  fxy              |              |
+| pdb[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  gcode       |              |
+| xyz[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  hus         |              |
+| dxf[:link:](https://projects.blender.org/extensions/io_import_dxf) ||||  inb          |              |
+| 3ds[:link:](https://projects.blender.org/extensions/io_scene_3ds)  ||||  new          |              |
+|              |               |               |                   |  pcd               |              |
+|              |               |               |                   |  pcm               |              |
+|              |               |               |                   |  pcq               |              |
+|              |               |               |                   |  pcs               |              |
+|              |               |               |                   |  phb               |              |
+|              |               |               |                   |  sew               |              |
+|              |               |               |                   |  shv               |              |
+|              |               |               |                   |  stc               |              |
+|              |               |               |                   |  stx               |              |
+|              |               |               |                   |  tap               |              |
+|              |               |               |                   |  tbf               |              |
+|              |               |               |                   |  xxx               |              |
+|              |               |               |                   |  zhs               |              |
 
 # Import Settings
 | Settings | Description |
@@ -94,6 +94,14 @@ This addon is adding batch import features to existing importers for blender. Th
 
 
 # Changelog
+### v2.2.0 : Support for Blender 4.4.0
+### v2.2.0 : Support for webp and audio formats
+### v2.2.0 : Command Batcher now have 3 lists :
+- Pre-process : which will be executed ONCE at the begining
+- Each Elements : which will be exectute for each Objects / Imported files
+- Post-Process : which will be exectued ONCE at the end of the process
+### v2.2.0 : Command Batcher can now Search for valid operators. Each operators can be enabled or disabled
+![UMI-Command-Batcher-Improvements.png](https://i.postimg.cc/rs81wdqF/UMI-Command-Batcher-Improvements.png)
 ### v2.1.8 : Better expose addon version inconsistency to the user, and propose solution to adress them
 ![UMI-Addon-Version-Missmatch.png](https://i.postimg.cc/PJp1Pncc/UMI-Addon-Version-Missmatch.png)
 ### v2.1.8 : Rewrite format definition to simplify maintainance, and extending support to new formats

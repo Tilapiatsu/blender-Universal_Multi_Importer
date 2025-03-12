@@ -550,6 +550,7 @@ class UMI(bpy.types.Operator, ImportHelper):
     filter_fbx : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_image : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_movie : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+    filter_sound : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_collada : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_alembic : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
     filter_volume : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
@@ -696,11 +697,18 @@ class UMI(bpy.types.Operator, ImportHelper):
             if found:
                 return found
 
+    def pre_process(self):
+        bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', importer_mode=True, execute_each_process=False, execute_pre_process=True, execute_post_process=False)
+
+    def post_process(self):
+        self.post_processing = True
+        bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', importer_mode=True, execute_each_process=False, execute_pre_process=False, execute_post_process=True)
+
     def post_import_command(self, objects):
         bpy.ops.object.select_all(action='DESELECT')
         for o in objects:
             bpy.data.objects[o.name].select_set(True)
-        bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', importer_mode=True)
+        bpy.ops.object.tila_umi_command_batcher('INVOKE_DEFAULT', importer_mode=True, execute_each_process=True, execute_pre_process=False, execute_post_process=False)
 
     def import_settings(self):
         self.current_format = self.formats_to_import.pop()
@@ -800,7 +808,7 @@ class UMI(bpy.types.Operator, ImportHelper):
                 self.umi_settings.umi_file_selection_done = True
                 self.umi_settings.umi_file_selection_started = False
                 self.umi_settings.umi_ready_to_import = True
-                self.operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
+                self.operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_each_operators]
 
             # Select files if in folder mode
             if not self.umi_settings.umi_file_selection_done:
@@ -822,10 +830,11 @@ class UMI(bpy.types.Operator, ImportHelper):
 
                 LOG.info(f'{len(self.filepaths)}  files selected')
 
-                self.operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_operators]
+                self.operator_list = [{'name':'operator', 'operator': o.operator} for o in self.umi_settings.umi_each_operators]
 
                 self.umi_settings.umi_file_selection.clear()
                 self.umi_settings.umi_file_selection_started = False
+                self.pre_process()
 
             # LEGACY : Loop through all import format settings
             if not self.umi_settings.umi_ready_to_import:
@@ -878,6 +887,8 @@ class UMI(bpy.types.Operator, ImportHelper):
                         self.next_batch()
                         self.log_next_batch()
 
+                    elif not self.post_processing:
+                        self.post_process()
                     # All Batches are imported and processed : init ending
                     else:
                         if self.umi_settings.umi_global_import_settings.save_file_after_import:
@@ -1140,6 +1151,7 @@ class UMI(bpy.types.Operator, ImportHelper):
         self.current_batch_imported = False
         self.files_succeeded = []
         self.umi_settings = get_umi_settings()
+        self.post_processing = False
         self.umi_settings.umi_format_import_settings.umi_import_cancelled = False
         self.umi_settings.umi_file_selection.clear()
         self.umi_settings.umi_file_selection_started = False

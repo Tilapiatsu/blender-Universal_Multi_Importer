@@ -7,7 +7,39 @@ class IMPORT_SCENE_GLTFSettings():
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        if BVERSION >= 4.2:
+        if BVERSION >= 4.4:
+            op =    [
+                    [operator, 'merge_vertices'],
+                    [operator, 'import_shading'],
+                    [operator, 'export_import_convert_lighting_mode']
+                    ]
+
+            draw_panel(layout, op, 'GLTFSettings_Options', 'Options', icon='OPTIONS')
+
+            op =    [
+                    [operator, 'import_pack_images'],
+                    [operator, 'import_webp_texture']
+                    ]
+
+            draw_panel(layout, op, 'GLTFSettings_Texture', 'Texture', icon='TEXTURE')
+
+            op =    [
+                    [operator, 'bone_heuristic'],
+                    [operator, 'guess_original_bind_pose'],
+                    [operator, 'disable_bone_shape'],
+                    [operator, 'bone_shape_scale_factor']
+                    ]
+
+            draw_panel(layout, op, 'GLTFSettings_BonesNSkin', 'Bone & Skin', icon='BONE_DATA')
+
+            op =    [
+                    [operator, 'import_select_created_objects'],
+                    [operator, 'import_scene_extras'],
+                    ]
+
+            draw_panel(layout, op, 'GLTFSettings_Pipeline', 'Pipeline', icon='SYSTEM')
+
+        elif BVERSION >= 4.2:
             op =    [[operator, 'import_pack_images'],
                     [operator, 'merge_vertices'],
                     [operator, 'import_shading'],

@@ -1,7 +1,7 @@
 import bpy
 from os import path
 from ....logger import LOG
-from ....umi_const import get_umi_settings
+from ....umi_const import get_umi_settings, get_batcher_list_name
 from .. import COMPATIBLE_FORMATS
 
 
@@ -83,6 +83,7 @@ class PG_ImportSettingsCreator(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name="Import Setting Name", default="")
 
 class PG_Operator(bpy.types.PropertyGroup):
+    enabled : bpy.props.BoolProperty(name='Enabled', default=True)
     operator : bpy.props.StringProperty(name='Operator', default='')
 
 class PG_Preset(bpy.types.PropertyGroup):
@@ -123,8 +124,12 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_current_format_setting_cancelled : bpy.props.BoolProperty(name='Current Format Settings cancelled', default=False)
     umi_file_selection_started : bpy.props.BoolProperty(name='File selection_started', default=False)
     umi_file_selection_done : bpy.props.BoolProperty(name='File Selected', default=False)
-    umi_operators : bpy.props.CollectionProperty(type = PG_Operator)
-    umi_operator_idx : bpy.props.IntProperty()
+    umi_pre_operators : bpy.props.CollectionProperty(type = PG_Operator)
+    umi_pre_operator_idx : bpy.props.IntProperty()
+    umi_each_operators : bpy.props.CollectionProperty(type = PG_Operator)
+    umi_each_operator_idx : bpy.props.IntProperty()
+    umi_post_operators : bpy.props.CollectionProperty(type = PG_Operator)
+    umi_post_operator_idx : bpy.props.IntProperty()
     umi_presets : bpy.props.CollectionProperty(type = PG_Preset)
     umi_preset_idx : bpy.props.IntProperty()
     umi_file_selection : bpy.props.CollectionProperty(type = PG_FilePathSelection)
@@ -134,6 +139,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_skip_settings : bpy.props.BoolProperty(name='Skip Setting Windows', default=False)
     umi_file_extension_selection : bpy.props.EnumProperty(name='ext', items=get_file_extension_selection)
     umi_import_batch_settings : bpy.props.EnumProperty(items=[('IMPORT', 'Format Settings', ''), ('GLOBAL', 'Global Settings', ''), ('BATCHER', 'Command Batcher', '')])
+    umi_command_batcher_settings : bpy.props.EnumProperty(items=[('PRE_PROCESS', 'Pre-Process', ''), ('EACH_ELEMENTS', 'Each Elements', ''), ('POST_PROCESS', 'Post-Process', '')], default='EACH_ELEMENTS')
     umi_file_format_current_settings : bpy.props.EnumProperty(items=get_file_selected_items)
     umi_file_size_min_selection : bpy.props.FloatProperty( min=0, name='min (Mb)', default=0.0)
     umi_file_size_max_selection : bpy.props.FloatProperty( min=0, name='max (Mb)', default=1.0)
@@ -154,16 +160,12 @@ class UMI_UL_OperatorList(bpy.types.UIList):
     bl_idname = "UMI_UL_operator_list"
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        scn = context.scene
+        row = layout.row(align=True)
 
-        col = layout.column(align=True)
-        col.alignment = 'LEFT'
-        col.label(text=f'{index + 1} : {item.operator}')
+        row.prop(item, 'enabled', text='')
+        row.label(text=f'{index + 1} : {item.operator}')
 
-        col = layout.column(align=True)
-        col.ui_units_x = 6
-        col.alignment = 'RIGHT'
-        row = col.row(align=True)
+        row = row.row(align=True)
         row.alignment = 'RIGHT'
 
         row.operator('scene.umi_edit_operator', text='', icon='GREASEPENCIL').id = index
@@ -175,14 +177,11 @@ class UMI_UL_PresetList(bpy.types.UIList):
     bl_idname = "UMI_UL_preset_list"
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        col = layout.column(align=True)
-        col.alignment = 'LEFT'
-        col.label(text=f'{item.name}')
+        row = layout.row(align=True)
 
-        col = layout.column(align=True)
-        col.ui_units_x = 10
-        col.alignment = 'RIGHT'
-        row = col.row(align=True)
+        row.label(text=f'{item.name}')
+
+        row = row.row(align=True)
         row.alignment = 'RIGHT'
 
         row.operator('scene.umi_edit_preset', text='', icon='GREASEPENCIL').id = index
@@ -199,7 +198,6 @@ class UMI_UL_FileSelectionList(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         scn = context.scene
         row = layout.row(align=True)
-        row.alignment = 'LEFT'
         row.prop(item, 'check', text='')
         row.separator()
         row.label(text=f'{item.path}')

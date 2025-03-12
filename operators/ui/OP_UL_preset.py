@@ -1,6 +1,6 @@
 import bpy
 import os, shutil
-from ...umi_const import get_umi_settings
+from ...umi_const import get_umi_settings, get_batcher_list_name
 from .operators_const import COMMAND_BATCHER_PRESET_FOLDER, UMIPRESET_EXTENSION
 
 def get_presets(context):
@@ -51,7 +51,7 @@ class UI_ClearPresets(bpy.types.Operator):
     def poll(cls, context):
         umi_settings = get_umi_settings()
         return len(umi_settings.umi_presets)
-    
+
     def invoke(self, context, event):
         wm = context.window_manager
         return wm.invoke_confirm(self, event)
@@ -68,25 +68,25 @@ class UI_RemovePreset(bpy.types.Operator):
     bl_label = "Remove Selected Preset"
     bl_options = {'REGISTER', 'UNDO'}
     bl_description = "Remove Selected Preset PERMANENTLY ?"
-    
+
     id : bpy.props.IntProperty(name="Preset ID", default=0)
 
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
         return len(umi_settings.umi_presets)
-    
+
     def invoke(self, context, event):
         wm = context.window_manager
         return wm.invoke_confirm(self, event)
-        
+
 
     def execute(self, context):
         umi_settings = get_umi_settings()
         _, self.presets, self.item = get_presets(context)
         if os.path.isfile(self.presets[self.id].path):
             os.remove(self.presets[self.id].path)
-            
+
         self.presets.remove(self.id)
 
         umi_settings.umi_preset_idx = min(self.id, len(umi_settings.umi_presets) - 1)
@@ -99,9 +99,9 @@ class UI_DuplicatePreset(bpy.types.Operator):
     bl_label = "Duplicate Selected Preset"
     bl_options = {'REGISTER', 'UNDO'}
     bl_description = "Duplicate selected Preset."
-    
+
     id : bpy.props.IntProperty(name="Preset ID", default=0)
-    
+
     def get_unique_name(self, name, name_list, separator='_', is_path=False):
         def name_exists(name_list_splited, suffix):
             exists = False
@@ -113,12 +113,12 @@ class UI_DuplicatePreset(bpy.types.Operator):
             else:
                 suffix = separator +  new_suffix
             return exists, suffix
-        
+
         if is_path:
             extension_size = len(UMIPRESET_EXTENSION)
         else:
             extension_size = 0
-            
+
         basename = name[0:-3-extension_size]
         suffix = name[-3-extension_size:]
         name_list_basenames = [n[0:-3-extension_size] for n in name_list]
@@ -130,12 +130,12 @@ class UI_DuplicatePreset(bpy.types.Operator):
             if suffix[0] == separator and suffix[1:3].isnumeric():
                 new_suffix = int(suffix[2:3]) + 1
                 new_suffix = f'{new_suffix:02}'
-                
+
                 exist, suffix = name_exists(name_list_splited, suffix)
 
                 if exist:
                     continue
-                        
+
                 if is_path:
                     new_name = name[0:-3-extension_size] + separator + new_suffix + UMIPRESET_EXTENSION
                 else:
@@ -163,7 +163,7 @@ class UI_DuplicatePreset(bpy.types.Operator):
             same_name_found = False
 
         return new_name
-    
+
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
@@ -198,14 +198,14 @@ class UI_EditPreset(bpy.types.Operator):
         layout = self.layout
         col = layout.column()
         col.prop(self, 'name', text='Preset Name')
-    
+
     def invoke(self, context, event):
         umi_settings = get_umi_settings()
         current_preset = umi_settings.umi_presets[self.id]
         self.name = current_preset.name
         wm = context.window_manager
         return wm.invoke_props_dialog(self, width=900)
-    
+
     def execute(self, context):
         umi_settings = get_umi_settings()
         o = umi_settings.umi_presets[self.id]
@@ -214,17 +214,18 @@ class UI_EditPreset(bpy.types.Operator):
         o.path = os.path.join(COMMAND_BATCHER_PRESET_FOLDER, self.name + UMIPRESET_EXTENSION)
 
         os.rename(old_name, o.path)
-        return {'FINISHED'}	
+        return {'FINISHED'}
 
 
 class UI_AddPreset(bpy.types.Operator):
     bl_idname = "scene.umi_add_preset"
-    bl_label = "Add Operator"
+    bl_label = "Add Preset"
     bl_options = {'REGISTER', 'UNDO'}
     bl_description = "Add a new operator"
 
     name : bpy.props.StringProperty(name="Preset name", default="")
     from_list : bpy.props.BoolProperty(name="From List", default=True)
+    target : bpy.props.StringProperty(name="Target List Name", default="")
 
     def draw(self, context):
         layout = self.layout
@@ -237,7 +238,12 @@ class UI_AddPreset(bpy.types.Operator):
 
     def execute(self, context):
         umi_settings = get_umi_settings()
-        o = umi_settings.umi_presets.add()
+
+        if self.name not in umi_settings.umi_presets:
+            o = umi_settings.umi_presets.add()
+        else:
+            o = umi_settings.umi_presets[self.name]
+
         o.name = self.name
         o.path = os.path.join(COMMAND_BATCHER_PRESET_FOLDER, self.name + UMIPRESET_EXTENSION)
         if self.from_list:
@@ -251,25 +257,25 @@ class UI_SavePresetOperator(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     bl_description = "Save a preset of the current operator list to a preset file on your disk"
 
-    filepath: bpy.props.StringProperty(name='Filepath', default='', subtype="FILE_PATH") 
+    filepath: bpy.props.StringProperty(name='Filepath', default='', subtype="FILE_PATH")
 
     def invoke(self, context, event):
         if os.path.exists(self.filepath):
             wm = context.window_manager
             return wm.invoke_confirm(self, event)
-        
+
         self.execute(context)
 
     def execute(self, context):
         print(f'Saving preset : {os.path.basename(self.filepath)}')
         self.umi_settings = get_umi_settings()
         with open(self.filepath, 'w') as f:
-            lines = [l.operator.replace('\n', '') for l in self.umi_settings.umi_operators]
+            lines = [l.operator.replace('\n', '') for l in eval(f'self.umi_settings.{get_batcher_list_name()}')]
 
             f.writelines('%s\n' % l for l in lines)
 
         return {'FINISHED'}
-    
+
 
 class UI_LoadPresetOperator(bpy.types.Operator):
     bl_idname = "scene.umi_load_preset_operator"
@@ -277,7 +283,8 @@ class UI_LoadPresetOperator(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     bl_description = "Load a preset and add the commands at the end of the current list"
 
-    filepath: bpy.props.StringProperty(name='Filepath', default='', subtype="FILE_PATH") 
+    filepath: bpy.props.StringProperty(name='Filepath', default='', subtype="FILE_PATH")
+    target : bpy.props.StringProperty(name="Target List Name", default="")
 
     def execute(self, context):
         print(f'Loading preset : {os.path.basename(self.filepath)}')
@@ -287,7 +294,7 @@ class UI_LoadPresetOperator(bpy.types.Operator):
                 bpy.ops.scene.umi_add_operator(operator=l)
 
         return {'FINISHED'}
-    
+
 
 class UI_LoadPresetList(bpy.types.Operator):
     bl_idname = "scene.umi_load_preset_list"
@@ -305,11 +312,11 @@ class UI_LoadPresetList(bpy.types.Operator):
             bpy.ops.scene.umi_add_preset('EXEC_DEFAULT', name=os.path.splitext(p)[0], from_list=False)
 
         return {'FINISHED'}
-    
 
-classes = ( UI_MovePreset, 
-            UI_ClearPresets, 
-            UI_RemovePreset, 
+
+classes = ( UI_MovePreset,
+            UI_ClearPresets,
+            UI_RemovePreset,
             UI_DuplicatePreset,
             UI_EditPreset,
             UI_AddPreset,
