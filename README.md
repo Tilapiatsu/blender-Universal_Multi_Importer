@@ -42,7 +42,7 @@ This addon is adding batch import features to existing importers for blender. Th
 | usda         | bw            |               |                   |  dsz               |              |
 | usdc         | exr           |               |                   |  emd               |              |
 | usdz         | hdr           |               |                   |  exy               |              |
-| max[:link:](https://github.com/nrgsille76/io_scene_max) |||       |  fxy              |              |
+| max[:link:](https://github.com/nrgsille76/io_scene_max) |webp||       |  fxy              |              |
 | pdb[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  gcode       |              |
 | xyz[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  hus         |              |
 | dxf[:link:](https://projects.blender.org/extensions/io_import_dxf) ||||  inb          |              |
