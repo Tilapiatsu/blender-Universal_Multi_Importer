@@ -102,6 +102,7 @@ This addon is adding batch import features to existing importers for blender. Th
 - Post-Process : which will be exectued ONCE at the end of the process
 ### v2.2.0 : Command Batcher can now Search for valid operators. Each operators can be enabled or disabled
 ![UMI-Command-Batcher-Improvements.png](https://i.postimg.cc/rs81wdqF/UMI-Command-Batcher-Improvements.png)
+### v2.2.0 : Allow to hide or resize import settings for more flexibility
 ### v2.1.8 : Better expose addon version inconsistency to the user, and propose solution to adress them
 ![UMI-Addon-Version-Missmatch.png](https://i.postimg.cc/PJp1Pncc/UMI-Addon-Version-Missmatch.png)
 ### v2.1.8 : Rewrite format definition to simplify maintainance, and extending support to new formats

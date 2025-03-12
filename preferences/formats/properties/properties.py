@@ -155,6 +155,8 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_all_addon_dependencies_enabled : bpy.props.BoolProperty(name='All Addon Dependencies Enabled', default=False)
     umi_addon_dependency_need_reboot : bpy.props.BoolProperty(name='Need Reboot', default=False)
     umi_md5_generation_status : bpy.props.EnumProperty(name='MD5 Generation Status', default='NOT_STARTED', items=[('NOT_STARTED', 'Not Started', ''), ('IN_PROGRESS', 'In Progress', ''), ('DONE', 'Done', '')])
+    umi_show_import_settings : bpy.props.BoolProperty(name='Show Import Settings', default=True)
+    umi_settings_dialog_width : bpy.props.FloatProperty(name='Dialog Width', min=0.0, max=1.0, default=0.65)
 
 class UMI_UL_OperatorList(bpy.types.UIList):
     bl_idname = "UMI_UL_operator_list"
