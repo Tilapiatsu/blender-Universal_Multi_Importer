@@ -11,8 +11,18 @@ from .OP_command_batcher import draw_command_batcher
 from ..umi_const import get_umi_settings, AUTOSAVE_PATH
 from ..preferences.formats.panels.presets import import_preset
 from ..logger import LOG, LoggerColors, MessageType
+from ..ui.panel import draw_panel
 from ..bversion import BVERSION
 
+# From https://gist.github.com/laundmo/b224b1f4c8ef6ca5fe47e132c8deab56
+def lerp(a: float, b: float, t: float) -> float:
+    """Linear interpolate on the scale given by a to b, using t as the point on that scale.
+    Examples
+    --------
+        50 == lerp(0, 100, 0.5)
+        4.2 == lerp(1, 5, 0.8)
+    """
+    return (1 - t) * a + t * b
 
 if BVERSION >= 4.1:
     class IMPORT_SCENE_FH_UMI_3DVIEW(bpy.types.FileHandler):
@@ -288,7 +298,7 @@ class UMI_FileSelection(bpy.types.Operator):
 
         update_file_stats(self, context)
         wm = context.window_manager
-        return wm.invoke_props_dialog(self, width=1100)
+        return wm.invoke_props_dialog(self, width=1300)
 
     def execute(self, context):
         self.umi_settings.umi_file_selection_done = True
@@ -300,8 +310,22 @@ class UMI_FileSelection(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         main_col = layout.column()
+        # draw_panel( main_col,
+        #             [[self.umi_settings, 'umi_settings_dialog_width', 'Setting Width']],
+        #              'FileImport_ShowImportSettings',
+        #              'Show Settings',
+        #              icon='OPTIONS',
+        #              default_closed=True,
+        #              set_header_boolean=True,
+        #              header_bool=[self.umi_settings, 'umi_show_import_settings'])
 
-        main_row = main_col.split(factor = 0.55)
+        row = main_col.row(align = True)
+        row.alignment = 'RIGHT'
+        row.prop(self.umi_settings, 'umi_show_import_settings', toggle=1, icon='OPTIONS')
+        row.prop(self.umi_settings, 'umi_settings_dialog_width', slider=True)
+
+
+        main_row = main_col.split(factor = lerp(0.1, 0.9, self.umi_settings.umi_settings_dialog_width) if self.umi_settings.umi_show_import_settings else 1.0)
         file_selection_col = main_row.column(align=True)
         file_selection_col.label(text='File Selection')
         file_selection_box = file_selection_col.box()
@@ -392,34 +416,35 @@ class UMI_FileSelection(bpy.types.Operator):
         col1 = file_selection_box.column()
         col1.template_list('UMI_UL_file_selection_list', '', self.umi_settings, 'umi_file_selection', self.umi_settings, 'umi_file_selection_idx', rows=rows)
 
-        col1 = main_row.column()
-        col1.label(text='Import Settings')
+        if self.umi_settings.umi_show_import_settings:
+            col1 = main_row.column()
+            col1.label(text='Import Settings')
 
-        box = col1.box()
-        col2 = box.column(align=True)
-        row1 = col2.row(align=True)
-        row1.prop_tabs_enum(self.umi_settings, 'umi_import_batch_settings')
-        row1 = col2.row(align=True)
+            box = col1.box()
+            col2 = box.column(align=True)
+            row1 = col2.row(align=True)
+            row1.prop_tabs_enum(self.umi_settings, 'umi_import_batch_settings')
+            row1 = col2.row(align=True)
 
-        if self.umi_settings.umi_import_batch_settings == 'IMPORT':
-            if len(self.umi_settings.umi_file_extension_selection) and len(get_file_selected_items(self, context)):
-                row1.prop_tabs_enum(self.umi_settings, 'umi_file_format_current_settings')
+            if self.umi_settings.umi_import_batch_settings == 'IMPORT':
+                if len(self.umi_settings.umi_file_extension_selection) and len(get_file_selected_items(self, context)):
+                    row1.prop_tabs_enum(self.umi_settings, 'umi_file_format_current_settings')
+                    col1.separator()
+
+                    if len(self.umi_settings.umi_file_format_current_settings):
+                        current_setting_name = self.umi_settings.umi_file_format_current_settings.lower()
+                        self.draw_current_settings(context, box, current_setting_name)
+                else:
+                    row1.alignment = 'CENTER'
+                    row1.label(text='Select at least one file')
+
+            elif self.umi_settings.umi_import_batch_settings == 'GLOBAL':
                 col1.separator()
-
-                if len(self.umi_settings.umi_file_format_current_settings):
-                    current_setting_name = self.umi_settings.umi_file_format_current_settings.lower()
-                    self.draw_current_settings(context, box, current_setting_name)
-            else:
-                row1.alignment = 'CENTER'
-                row1.label(text='Select at least one file')
-
-        elif self.umi_settings.umi_import_batch_settings == 'GLOBAL':
-            col1.separator()
-            import_preset.panel_func(box)
-            self.draw_global_settings(context, box)
-        elif self.umi_settings.umi_import_batch_settings == 'BATCHER':
-            col1.separator()
-            draw_command_batcher(self, context, box)
+                import_preset.panel_func(box)
+                self.draw_global_settings(context, box)
+            elif self.umi_settings.umi_import_batch_settings == 'BATCHER':
+                col1.separator()
+                draw_command_batcher(self, context, box)
 
     def draw_current_settings(self, context, layout, format_name):
         layout.use_property_split = True
