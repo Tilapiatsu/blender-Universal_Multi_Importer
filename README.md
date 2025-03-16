@@ -94,6 +94,7 @@ This addon is adding batch import features to existing importers for blender. Th
 
 
 # Changelog
+### v2.2.1 : Add feature to recreate folder structure as collections in import folder mode
 ### v2.2.0 : Support for Blender 4.4.0
 ### v2.2.0 : Support for webp and audio formats
 ### v2.2.0 : Command Batcher now have 3 lists :
