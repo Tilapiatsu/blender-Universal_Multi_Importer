@@ -103,6 +103,7 @@ class PG_GlobalSettings(bpy.types.PropertyGroup):
     max_batch_size : bpy.props.FloatProperty(name="Max batch size (MB)", description="Max size per import batch. An import batch represents the number of files imported simultaneously", default=20, min=0)
     minimize_batch_number : bpy.props.BoolProperty(name="Minimize batch number", description="Try to pack files per batch in a way to be as close as possible to the Max batch size, and then minimize the number of import batches", default=True)
     create_collection_per_file : bpy.props.BoolProperty(name='Create collection per file', description='Each imported file will be placed in a collection', default=False)
+    recreate_folder_structure_as_collections : bpy.props.BoolProperty(name='Recreate folder structure as collections', description='Recreate the folder structure from the hard drive into blender collections', default=False)
     backup_file_after_import : bpy.props.BoolProperty(name='Backup file during import', description='Backup file after importing file. The frequency will be made based on "Bakup Step Parameter"',  default=False)
     backup_step : bpy.props.FloatProperty(name='Backup Step (MB)', description='Backup file after X file(s) imported', default=100, min=1)
     skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
@@ -157,6 +158,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_md5_generation_status : bpy.props.EnumProperty(name='MD5 Generation Status', default='NOT_STARTED', items=[('NOT_STARTED', 'Not Started', ''), ('IN_PROGRESS', 'In Progress', ''), ('DONE', 'Done', '')])
     umi_show_import_settings : bpy.props.BoolProperty(name='Show Import Settings', default=True)
     umi_settings_dialog_width : bpy.props.FloatProperty(name='Dialog Width', min=0.0, max=1.0, default=0.65)
+    umi_import_directory : bpy.props.BoolProperty(name='Import Directory', default=False)
 
 class UMI_UL_OperatorList(bpy.types.UIList):
     bl_idname = "UMI_UL_operator_list"

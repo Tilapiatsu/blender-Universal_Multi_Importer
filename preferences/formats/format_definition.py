@@ -63,7 +63,7 @@ def gltf_operators() -> FormatOperator:
                         addon_name='io_scene_gltf2')
 
     if BVERSION >= 4.4:
-        f.supported_version = '4.4.54'
+        f.supported_version = '4.4.55'
 
     elif BVERSION >= 4.3:
         f.supported_version = '4.3.47'

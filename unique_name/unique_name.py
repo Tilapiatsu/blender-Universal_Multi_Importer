@@ -15,7 +15,7 @@ def unique_name_clean_func(name):
 class UniqueName():
     def __init__(self):
         self.element_correspondance = {}
-    
+
     @property
     def uuid(self):
         return uuid.uuid1().hex
@@ -27,15 +27,15 @@ class UniqueName():
             for name in data_from.objects:
                 if name in local_names:
                     name_collision[name] = f'{name}_{self.uuid}'
-            
+
         return name_collision
-        
-    def get_next_valid_name(self, name):
+
+    def get_next_valid_name(self, name:str):
         return self.unique_name(-11, name, self.element_correspondance, clean_func=unique_name_clean_func, register=False)
-    
-    def get_unique_name(self, name):
+
+    def get_unique_name(self, name:str):
         return name + '_' + self.uuid
-    
+
     def register_element_correspondance(self, elem):
         if elem not in self.element_correspondance.keys():
             self.element_correspondance[elem] = elem.name
