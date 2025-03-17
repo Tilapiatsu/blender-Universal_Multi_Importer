@@ -1111,29 +1111,51 @@ class UMI(bpy.types.Operator, ImportHelper):
 
         for i,c in enumerate(collection_hierarcy):
             if c not in bpy.data.collections:
-                print(f'create collection "{c}"')
+                # print(f'create collection "{c}"')
                 collection = bpy.data.collections.new(name=c)
+                self.unique_name.register_element_correspondance(collection)
 
             else:
-                print(f'using collection "{c}"')
-                collection = bpy.data.collections[c]
+                if i > 0 and parent_collection.name in self.parent_names_dict.keys():
+                    # print(f'using collection "{parent_collection.name}"')
+                    collection = bpy.data.collections[self.parent_names_dict[parent_collection.name]]
+                elif i > 0 and parent_collection not in self.get_collection_parents(bpy.data.collections[c]):
+                    name = self.unique_name.get_next_valid_name(c)
+                    # print(f'create collection "{name}"')
+                    collection = bpy.data.collections.new(name=name)
+                    self.unique_name.register_element_correspondance(collection)
+                    self.parent_names_dict[parent_collection.name] = name
+                else:
+                    # print(f'using collection "{c}"')
+                    collection = bpy.data.collections[c]
 
             if i == 0:
                 parent_collection = collection
                 if collection.name not in self.root_collection.children:
                     root_collection = self.root_collection
                     if root_collection not in collection.children_recursive:
-                        print(f'Link collection "{collection.name}" to "{root_collection.name}"')
+                        # print(f'Link collection "{collection.name}" to "{root_collection.name}"')
                         root_collection.children.link(collection)
                 continue
 
             if collection.name not in parent_collection.children:
-                print(f'Link collection "{collection.name}" to "{parent_collection.name}"')
+                # print(f'Link collection "{collection.name}" to "{parent_collection.name}"')
                 parent_collection.children.link(collection)
 
             parent_collection = collection
 
         return collection
+
+    def get_collection_parents(self, collection: bpy.types.Collection) -> list[bpy.types.Collection]:
+        parent_list:list[bpy.types.Collection] = []
+        for c in bpy.data.collections:
+            if c == collection:
+                continue
+
+            if collection.name in c.children:
+                parent_list.append(c)
+
+        return parent_list
 
     def get_new_objects(self):
         return [o for o in bpy.data.objects if o not in self._stored_objects]
@@ -1221,6 +1243,11 @@ class UMI(bpy.types.Operator, ImportHelper):
         LOG.revert_parameters()
         LOG.esc_message = '[Esc] to Cancel'
         LOG.message_offset = 15
+        if self.umi_settings.umi_import_directory:
+            self.unique_name = UniqueName()
+            for c in bpy.data.collections:
+                self.unique_name.register_element_correspondance(c)
+                self.parent_names_dict = {}
 
     def execute(self,context):
         self.init_importer(context)
