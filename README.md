@@ -73,6 +73,7 @@ This addon is adding batch import features to existing importers for blender. Th
 | Refresh Viewport After time (s) | The viewport will refresh after the X seconds. It help to control viewport interactivity. A value of 0 will disable it, and the viewport will refresh after each batch`|
 |||
 | **Options** ||
+| Recreate folder structure as collections | ( `Import Folder` mode only ) Recreate the folder structure from the hard drive into blender collections |
 | Create collection per file | Each imported file will be placed in a new collection named like the file |
 | Skip already imported files | if a file have already been imported, the import is skipped for this file, this option is only available if "`Create collection per file`" is Enable |
 |||
