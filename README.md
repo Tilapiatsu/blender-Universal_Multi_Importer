@@ -62,33 +62,40 @@ This addon is adding batch import features to existing importers for blender. Th
 |              |               |               |                   |  zhs               |              |
 
 # Import Settings
-| Settings | Description |
+## Import Folder
+|  |  |
 | ----------- | ----------- |
-| **Import Folder** ||
 | Recursion Depth | ( Folder mode only ) Determine how many subfolders will be scanned for compatible files to import. `0` will grab all files in current folder, `1` will grab everything in current folder and all direct subfolders, `2` will grab all files in the current folder, the direct subfolders and the subfolders of each direct subfolders etc ... |
-| **File Count** ||
+## File Count
+|  |  |
+| ----------- | ----------- |
 | Max Simultaneously | Determine the max number of file to import simultaneously. Each group of files to be imported simultaneously is called a "Batch". Importing multiple file at the same time allow to reduce the import time for small file, but can cause screen freezing or memory issue for bigger file. To smartly balance this, you can check `Max batch size` and `Minimize batch number`|
 | Max batch size | Determine the max batch file size to Import. If a file is a candidate to be include in the current batch, but his file size would make the batch bigger than `Max batch size`, then the file will be included in the next batch |
 | Minimize batch number | The importer will smartly group files in batches in order to be as close as possible to `Max batch size` for each batch without exceeding it and without exceeding `Max Import Simultaneously`|
 | Refresh Viewport After time (s) | The viewport will refresh after the X seconds. It help to control viewport interactivity. A value of 0 will disable it, and the viewport will refresh after each batch`|
-|||
-| **Options** ||
+## Options
+|  |  |
+| ----------- | ----------- |
 | Recreate folder structure as collections | ( `Import Folder` mode only ) Recreate the folder structure from the hard drive into blender collections |
 | Create collection per file | Each imported file will be placed in a new collection named like the file |
 | Skip already imported files | if a file have already been imported, the import is skipped for this file, this option is only available if "`Create collection per file`" is Enable |
 |||
-| **Log Display** ||
+## Log Display
+|  |  |
+| ----------- | ----------- |
 | Show Log on 3D View | Display the Log and Progress of the Importing files in the 3D viewport while importing |
 | Auto Hide Log When Finished | Automatic hide the log once the Import is Completed |
 | Wait Before Hiding (s) | How much time to wait before Hiding the Log |
 | Refresh viewport after each Import | Force refresh the viewport after each imported files. It improves interactivity, but will slow down the global import time |
-|||
-| **Backup** ||
+## Backup
+|  |  |
+| ----------- | ----------- |
 | Save file after import | At the end of the import process, save the current file |
 | Backup file after each import | A backup file is saved after each "`Backup Step`" file is imported |
 | Backup Step | The number of file that is imported before saving a backup |
-|||
-| **Command Batcher** ||
+## Command Batcher
+|  |  |
+| ----------- | ----------- |
 |Commands | You create a macro like python commands list. These commands will be executed in a row to all the imported objects after each imported batch.<br><br> It will process in that order :<br> - Execute all commands in `Pre-Process` list<br> - Import Batch 1<br>-  Run all Commands in `Each Element` list<br>-  Repeat for next Batches until the last bacth...<br>-  Execute all commands in `Post-Process` list  <br><br>For example, if you add this command "`bpy.ops.transform.translate(value=(10, 0, 0))`", each imported file will be translated 10 meters away on positive X axis <br><br> Please note how the commands are written with `bpy.ops` and all parameters in parentheses <br> You can't create variable, for loops or if statements. Just commands that blender will execute|
 | Ignore Command Batcher Errors | Batch Processing imported files can cause error. Enabling this will continue the import of the following files even if an error occurs. Otherwise, the import process will stop |
 | Presets | You can save any list of commands from `batch process Imported files` to a preset that will be saved on disk. Here you can manage the presets: <br>- Creating preset<br>- Loading Preset <br>- Removing Preset<br>- Renaming Preset|
