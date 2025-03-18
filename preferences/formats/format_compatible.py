@@ -6,6 +6,7 @@ from . import FORMATS
 from ...logger import LOG
 from .panels.presets import format_preset
 from ...bversion import AddonVersion
+from ...bversion.version import Version
 
 class CompatibleFormats():
     for format in FORMATS:
@@ -30,6 +31,8 @@ class CompatibleFormats():
         return addon_name in self.enabled_addons
 
     def is_format_extension(self, format_name, module):
+        if format_name not in self.all_formats:
+            return False
         return self.all_formats[format_name]['operator'][module]['pkg_id'] != None
 
     def get_format_extension_url(self, format_name, module):
@@ -37,6 +40,21 @@ class CompatibleFormats():
             return self.all_formats[format_name]['operator'][module]['pkg_url']
         else:
             return None
+
+    def get_format_supported_version(self, format_name, module) -> Version:
+        if self.is_format_extension(format_name, module):
+            return Version(self.all_formats[format_name]['operator'][module]['supported_version'])
+        else:
+            return Version((0, 0, 0))
+
+    def get_format_from_addon_name(self, addon_name):
+        result_formant = None
+        for f in self.all_formats.values():
+            for m in f['operator'].values():
+                if m['addon_name'] == addon_name:
+                    return m
+        return result_formant
+
     @property
     def all_valid_addons(self):
         all_valid_addons = []
@@ -70,9 +88,11 @@ class CompatibleFormats():
                 valid = False
                 break
 
+            supported_version = Version(self.get_format_from_addon_name(a)['supported_version'])
+
             av = AddonVersion(a)
 
-            if av.is_outdated:
+            if av.local_version < supported_version:
                 valid = False
                 break
 

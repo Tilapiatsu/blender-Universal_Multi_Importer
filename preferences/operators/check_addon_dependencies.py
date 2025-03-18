@@ -59,7 +59,7 @@ class UI_UMIInstallExtension(bpy.types.Operator):
 
     def execute(self, context):
         bpy.ops.extensions.package_install('INVOKE_DEFAULT', pkg_id=self.pkg_id, repo_index=self.repo_index, enable_on_install=self.enable_on_install)
-        bpy.ops.preferences.umi_check_addon_dependency()
+        bpy.ops.preferences.umi_check_addon_dependency('INVOKE_DEFAULT')
         return {'FINISHED'}
 
 class UI_UMIEnableAddon(bpy.types.Operator):

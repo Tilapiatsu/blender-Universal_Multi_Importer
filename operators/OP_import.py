@@ -3,6 +3,7 @@ from mathutils import Vector, Euler, Color
 from bpy_extras.io_utils import ImportHelper
 import os, time
 from os import path
+from pathlib import Path
 import math
 from string import punctuation
 from ..preferences.formats import FormatHandler, COMPATIBLE_FORMATS
@@ -13,6 +14,7 @@ from ..preferences.formats.panels.presets import import_preset
 from ..logger import LOG, LoggerColors, MessageType
 from ..ui.panel import draw_panel
 from ..bversion import BVERSION
+from ..unique_name import UniqueName
 
 # From https://gist.github.com/laundmo/b224b1f4c8ef6ca5fe47e132c8deab56
 def lerp(a: float, b: float, t: float) -> float:
@@ -310,15 +312,6 @@ class UMI_FileSelection(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         main_col = layout.column()
-        # draw_panel( main_col,
-        #             [[self.umi_settings, 'umi_settings_dialog_width', 'Setting Width']],
-        #              'FileImport_ShowImportSettings',
-        #              'Show Settings',
-        #              icon='OPTIONS',
-        #              default_closed=True,
-        #              set_header_boolean=True,
-        #              header_bool=[self.umi_settings, 'umi_show_import_settings'])
-
         row = main_col.row(align = True)
         row.alignment = 'RIGHT'
         row.prop(self.umi_settings, 'umi_show_import_settings', toggle=1, icon='OPTIONS')
@@ -477,6 +470,9 @@ class UMI_FileSelection(bpy.types.Operator):
             header, settings = col.panel(idname='UMI_Options')
             header.label(text='Options', icon='OPTIONS')
             if settings:
+                if self.umi_settings.umi_import_directory:
+                    settings.prop(self.umi_settings.umi_global_import_settings, 'recreate_folder_structure_as_collections')
+
                 settings.prop(self.umi_settings.umi_global_import_settings, 'create_collection_per_file')
 
                 if self.umi_settings.umi_global_import_settings.create_collection_per_file:
@@ -521,6 +517,8 @@ class UMI_FileSelection(bpy.types.Operator):
             settings = layout.box()
             header = settings.row(align=True)
             header.label(text='Options', icon='OPTIONS')
+            if self.umi_settings.umi_import_directory:
+                settings.prop(self.umi_settings.umi_global_import_settings, 'recreate_folder_structure_as_collections')
             settings.prop(self.umi_settings.umi_global_import_settings, 'create_collection_per_file')
 
             if self.umi_settings.umi_global_import_settings.create_collection_per_file:
@@ -591,9 +589,6 @@ class UMI(bpy.types.Operator, ImportHelper):
     # Support Folder selection
     import_folders : bpy.props.BoolProperty(name="Import Folder",default=False, options={'SKIP_SAVE'})
     directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
-    # Support for Image and movie file
-    # filter_image: bpy.props.BoolProperty(default=True, options={'HIDDEN', 'SKIP_SAVE'})
-    # filter_movie: bpy.props.BoolProperty(default=True, options={'HIDDEN', 'SKIP_SAVE'})
     # Import Settings
     recursion_depth : bpy.props.IntProperty(name='Recursion Depth', default=0, min=0, description='How many Subfolders will be used to search for compatible files to import.\n/!\ WARNING : A too big number may result of a huge number of files to import and may cause instability')
 
@@ -1073,9 +1068,20 @@ class UMI(bpy.types.Operator, ImportHelper):
 
         import_col = self.root_collection
 
+        if self.umi_settings.umi_global_import_settings.recreate_folder_structure_as_collections and self.import_folders:
+            hierarchy_path = str(Path(path.dirname(current_file).replace(str(Path(self.directory).parent.absolute()), '')))
+
+            herarchy_list = hierarchy_path.split("\\")[1:]
+
+            import_col = self.create_collection_hierarchy(herarchy_list)
+
+            root_layer_col = self.view_layer.layer_collection
+            layer_col = self.recur_layer_collection(root_layer_col, import_col.name)
+            self.view_layer.active_layer_collection = layer_col
+
         if self.umi_settings.umi_global_import_settings.create_collection_per_file:
             collection = bpy.data.collections.new(name=filename)
-            self.root_collection.children.link(collection)
+            import_col.children.link(collection)
 
             root_layer_col = self.view_layer.layer_collection
             layer_col = self.recur_layer_collection(root_layer_col, collection.name)
@@ -1096,8 +1102,60 @@ class UMI(bpy.types.Operator, ImportHelper):
         self.imported_files.append(current_file)
         return succeeded
 
-    def store_objects(self):
+    def store_objects(self) -> None:
         self._stored_objects = [o for o in bpy.data.objects]
+
+    def create_collection_hierarchy(self, collection_hierarcy:list) -> bpy.types.Collection:
+        collection: bpy.types.Collection
+        parent_collection: bpy.types.Collection
+
+        for i,c in enumerate(collection_hierarcy):
+            if c not in bpy.data.collections:
+                # print(f'create collection "{c}"')
+                collection = bpy.data.collections.new(name=c)
+                self.unique_name.register_element_correspondance(collection)
+
+            else:
+                if i > 0 and parent_collection.name in self.parent_names_dict.keys():
+                    # print(f'using collection "{parent_collection.name}"')
+                    collection = bpy.data.collections[self.parent_names_dict[parent_collection.name]]
+                elif i > 0 and parent_collection not in self.get_collection_parents(bpy.data.collections[c]):
+                    name = self.unique_name.get_next_valid_name(c)
+                    # print(f'create collection "{name}"')
+                    collection = bpy.data.collections.new(name=name)
+                    self.unique_name.register_element_correspondance(collection)
+                    self.parent_names_dict[parent_collection.name] = name
+                else:
+                    # print(f'using collection "{c}"')
+                    collection = bpy.data.collections[c]
+
+            if i == 0:
+                parent_collection = collection
+                if collection.name not in self.root_collection.children:
+                    root_collection = self.root_collection
+                    if root_collection not in collection.children_recursive:
+                        # print(f'Link collection "{collection.name}" to "{root_collection.name}"')
+                        root_collection.children.link(collection)
+                continue
+
+            if collection.name not in parent_collection.children:
+                # print(f'Link collection "{collection.name}" to "{parent_collection.name}"')
+                parent_collection.children.link(collection)
+
+            parent_collection = collection
+
+        return collection
+
+    def get_collection_parents(self, collection: bpy.types.Collection) -> list[bpy.types.Collection]:
+        parent_list:list[bpy.types.Collection] = []
+        for c in bpy.data.collections:
+            if c == collection:
+                continue
+
+            if collection.name in c.children:
+                parent_list.append(c)
+
+        return parent_list
 
     def get_new_objects(self):
         return [o for o in bpy.data.objects if o not in self._stored_objects]
@@ -1181,9 +1239,15 @@ class UMI(bpy.types.Operator, ImportHelper):
         self.umi_settings.umi_file_selection.clear()
         self.umi_settings.umi_file_selection_started = False
         self.umi_settings.umi_file_selection_done = False
+        self.umi_settings.umi_import_directory = self.import_folders
         LOG.revert_parameters()
         LOG.esc_message = '[Esc] to Cancel'
         LOG.message_offset = 15
+        if self.umi_settings.umi_import_directory:
+            self.unique_name = UniqueName()
+            for c in bpy.data.collections:
+                self.unique_name.register_element_correspondance(c)
+                self.parent_names_dict = {}
 
     def execute(self,context):
         self.init_importer(context)

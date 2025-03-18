@@ -1,6 +1,6 @@
 import bpy
 from os import path
-from .unique_name import UniqueName
+from ..unique_name import UniqueName
 from ..logger import LOG
 from ..bversion import BVERSION
 
