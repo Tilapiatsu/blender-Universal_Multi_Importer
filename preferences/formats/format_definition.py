@@ -227,7 +227,7 @@ def x3d_operators() -> FormatOperator:
         f.addon_name = 'bl_ext.blender_org.web3d_x3d_vrml2_format'
         f.pkg_id = 'web3d_x3d_vrml2_format'
         f.pkg_url = 'https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/'
-        f.supported_version = '2.5.0'
+        f.supported_version = '2.5.1'
 
     elif BVERSION >= 3.4:
         f.supported_version = '2.3.1'
