@@ -1,8 +1,35 @@
 import bpy
-import time, math
-from ..preferences.formats.properties import PG_Operator
+import time, math, re, itertools
 from ..logger import LOG, LoggerColors
 from ..umi_const import get_umi_settings
+from .command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
+
+
+def replace_keywords(sentence: str, input_string: list[str], output_string: list[str], delimitator: tuple[str] = ('<', '>')) -> str:
+    result_sentence = sentence
+    keyword_pattern = re.compile(r'[{0}]([a-zA-Z0-9_]+)[{1}]'.format(delimitator[0], delimitator[1]), re.IGNORECASE)
+
+    matches = keyword_pattern.finditer(result_sentence)
+    while(sum(1 for _ in matches)):
+        matches = keyword_pattern.finditer(result_sentence)
+        m = next(matches)
+        match = m.groups()[0]
+        valid:bool = True
+        if match not in input_string:
+            print(f'Invalid Keyword : <{match}>')
+            valid = False
+
+        if valid:
+            output = output_string[input_string.index(match)]
+        else:
+            output = 'INVALID_KEYWORD'
+
+        sub_sentence:str = result_sentence[m.start():]
+        sub_sentence = sub_sentence.replace(f'{delimitator[0]}{match}{delimitator[1]}', output, 1)
+        result_sentence = result_sentence[:m.start()] + sub_sentence
+        matches = keyword_pattern.finditer(result_sentence)
+
+    return result_sentence
 
 def draw_operators(self, context, layout, operators, operator_name:str, operator_id_name:str) -> None:
     box = layout.box()
@@ -100,21 +127,55 @@ class CommandBatcher(bpy.types.Operator):
     delta = 0.0
     previous_counter = 0
     objects_to_process = []
-    current_object_to_process = None
+    current_element_to_process = None
     _timer = None
+
+    @property
+    def element_to_process(self):
+        return next(self.element_to_process_iter)
+
+    @property
+    def element_to_process_count(self):
+        self.element_to_process_iter, bak = itertools.tee(self.element_to_process_iter, 2)
+        count = sum(1 for _ in bak)
+        return count
+
+    def feed_data_from_object_selection(self):
+        for o in bpy.context.selected_objects:
+            for d in ['data', 'animation_data', 'material_slots', 'modifiers']:
+                dd = getattr(o, d)
+
+                if dd is None:
+                    continue
+
+                if d in ['material_slots', 'modifiers']:
+                    for m in dd:
+                        if d == 'material_slots':
+                            ddd = getattr(m, 'material')
+                        elif d == 'modifiers':
+                            ddd = m
+                        data = self.umi_settings.umi_imported_data.add()
+                        data.data = repr(ddd)
+                        data.data_type = repr(ddd).replace('bpy.data.', '').split('[')[0]
+                        data.name = ddd.name
+                else:
+                    data = self.umi_settings.umi_imported_data.add()
+                    data.data = repr(dd)
+                    data.data_type = repr(dd).replace('bpy.data.', '').split('[')[0]
+                    data.name = dd.name
 
     def fill_operator_to_process(self, each_only=False):
         if self.execute_each_process:
-            self.operators_to_process = [o.operator for o in self.umi_settings.umi_each_operators if o.enabled]
+            self.operators_to_process = [o for o in self.umi_settings.umi_each_operators if o.enabled]
             self.operators_to_process.reverse()
 
         if not each_only:
             if self.execute_pre_process:
-                self.pre_operators_to_process = [o.operator for o in self.umi_settings.umi_pre_operators if o.enabled]
+                self.pre_operators_to_process = [o for o in self.umi_settings.umi_pre_operators if o.enabled]
                 self.pre_operators_to_process.reverse()
 
             if self.execute_post_process:
-                self.post_operators_to_process = [o.operator for o in self.umi_settings.umi_post_operators if o.enabled]
+                self.post_operators_to_process = [o for o in self.umi_settings.umi_post_operators if o.enabled]
                 self.post_operators_to_process.reverse()
 
     def decrement_counter(self):
@@ -150,7 +211,7 @@ class CommandBatcher(bpy.types.Operator):
             bpy.ops.scene.umi_load_preset_list()
 
             wm = context.window_manager
-            return wm.invoke_props_dialog(self, width=900)
+            return wm.invoke_props_dialog(self, width=self.umi_settings.umi_window_width)
 
         return self.execute(context)
 
@@ -168,6 +229,7 @@ class CommandBatcher(bpy.types.Operator):
     def modal(self, context, event):
         if self.start_time == 0 :
             self.start_time = time.perf_counter()
+
         if not self.importer_mode and not self.end and event.type in {'ESC'} and event.value == 'PRESS':
             if not self.importer_mode:
                 LOG.warning('Cancelling...')
@@ -229,16 +291,16 @@ class CommandBatcher(bpy.types.Operator):
             if self.start_time == 0:
                 self.start_time = time.perf_counter()
 
-            if not self.pre_processing and not self.processing and self.current_object_to_process is None and len(self.objects_to_process): # Process can start
+            if not self.pre_processing and not self.processing and self.current_element_to_process is None and self.element_to_process_count: # Process can start
                 self.next_object()
 
             elif self.pre_processing:
                 pass
 
-            elif self.current_object_to_process is None and len(self.objects_to_process):
+            elif self.current_element_to_process is None and self.element_to_process_count > 0:
                 self.processing = False
 
-            elif self.current_object_to_process is None and len(self.objects_to_process) == 0 and not self.post_process_done and not self.post_processing:
+            elif self.current_element_to_process is None and self.element_to_process_count == 0 and not self.post_process_done and not self.post_processing:
                 if len(self.post_operators_to_process) and self.execute_post_process:
                     LOG.info(f'Start Post-Processing commands', color=LoggerColors.DEFAULT_COLOR())
                     self.post_processing = True
@@ -247,7 +309,7 @@ class CommandBatcher(bpy.types.Operator):
                     self.each_process_done = True
                     self.post_process_done = True
 
-            elif self.current_object_to_process is None and len(self.objects_to_process) == 0 and self.post_process_done:
+            elif self.current_element_to_process is None and self.element_to_process_count == 0 and self.post_process_done:
                 if not self.importer_mode:
                     LOG.complete_progress_importer(show_successes=False, duration=round(time.perf_counter() - self.start_time, 2))
                     self.counter = self.umi_settings.umi_global_import_settings.wait_before_hiding
@@ -256,27 +318,34 @@ class CommandBatcher(bpy.types.Operator):
                 self.end = True
 
             if self.finished:
+                self.umi_settings.umi_current_item_index += self.current_operation_number
                 return self.finish(context)
 
+            # Feed Pre-Process Operator
             if self.current_command is None and len(self.pre_operators_to_process):
                 self.current_command = self.pre_operators_to_process.pop()
 
+            # Pre-Process Done
             elif not self.pre_process_done and self.current_command is None and not len(self.pre_operators_to_process):
                 if not self.importer_mode:
                     LOG.info(f'Start processing Each Element commands', color=LoggerColors.DEFAULT_COLOR())
                 self.pre_process_done = True
                 self.pre_processing = False
 
+            # Feed Each-Process Command
             if self.pre_process_done and self.current_command is None and len(self.operators_to_process):
                 self.current_command = self.operators_to_process.pop()
                 return {'PASS_THROUGH'}
 
+            # Each-Process Done
             elif not self.each_process_done and self.pre_process_done and self.current_command is None and not len(self.operators_to_process):
-                self.current_object_to_process = None
+                self.current_element_to_process = None
 
+            # Feed Post-Process Command
             if self.each_process_done and self.current_command is None and len(self.post_operators_to_process):
                 self.current_command = self.post_operators_to_process.pop()
 
+            # Post-Process Done
             elif self.each_process_done and self.current_command is None and not len(self.post_operators_to_process):
                 self.post_process_done = True
                 return {'PASS_THROUGH'}
@@ -285,25 +354,51 @@ class CommandBatcher(bpy.types.Operator):
                 self.end = True
                 return {'PASS_THROUGH'}
 
-            elif self.current_object_to_process is None and not self.each_process_done and not self.pre_processing:
+            elif self.current_element_to_process is None and not self.each_process_done and not self.pre_processing:
                 return {'PASS_THROUGH'}
 
             else:
+                command = self.current_command.operator
                 try: # Executing command
-                    self.progress += 100 / self.number_of_operations_to_perform
-                    self.current_operation_number += 1
+                    # if the current command is valid for the current data type
+                    if not getattr(self.current_command, f'applies_to_{self.current_element_to_process[0]}'):
+                        self.current_command = None
+                        LOG.info(f'Skipping : command does NOT applied to this data type : {self.current_element_to_process[0]}', color=LoggerColors.COMMAND_WARNING_COLOR())
 
-                    LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{self.current_command}"', color=LoggerColors.COMMAND_COLOR())
+                        return {'PASS_THROUGH'}
+
+                    self.progress += 100 / self.number_of_operations_to_perform
+
+                    # Replace Keyword with Proper Value
+                    ob = None if self.current_element_to_process[0] != 'objects' else self.current_element_to_process[1]
+                    command = replace_keywords( command,
+                                                COMMAND_BATCHER_INPUT_STRING,
+                                                get_command_batcher_output_string(
+                                                    self.processed_elements + self.umi_settings.umi_current_item_index,
+                                                    self.current_element_name_to_process,
+                                                    self.current_element_to_process[2],
+                                                    ob)
+                                                )
+
+                    self.current_operation_number += 1
+                    LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{command}"', color=LoggerColors.COMMAND_COLOR())
                     override = {}
                     if self.pre_process_done and not self.each_process_done:
-                        override["selected_objects"] = [bpy.data.objects[self.current_object_to_process.name]]
+                        if self.current_element_to_process[0] == 'objects':
+                            override["selected_objects"] = [bpy.data.objects[self.current_element_to_process[1].name]]
+
                     with bpy.context.temp_override(**override):
-                        exec(self.current_command, {'bpy':bpy})
+                        exec(command, {'bpy':bpy})
 
                     LOG.store_success('Command executed successfully')
+
+                    if not self.current_element_proccessed:
+                        self.current_element_proccessed = True
+
                     self.process_succeeded.append(True)
+
                 except Exception as e:
-                    message = f'{context.selected_objects[0].name} : Command "{self.current_command}" is not valid - {e}'
+                    message = f'{context.selected_objects[0].name} : Command "{command}" is not valid - {e}'
                     LOG.error(message)
                     LOG.store_failure(message)
                     self.process_succeeded.append(False)
@@ -324,9 +419,17 @@ class CommandBatcher(bpy.types.Operator):
 
         if not self.importer_mode:
             LOG.revert_parameters()
+            self.umi_settings.umi_current_item_index = 0
+            self.feed_data_from_object_selection()
+
 
         self.objects_to_process = [o for o in bpy.context.selected_objects]
-        if self.execute_each_process and not len(self.objects_to_process):
+        self.data_to_process =  [eval(d.data) for d in self.umi_settings.umi_imported_data]
+        element_list = (list(zip(['objects' for _ in self.objects_to_process], self.objects_to_process, [f'bpy.data.objects["{o.name}"]' for o in self.objects_to_process])) +
+                        list(zip([d.data_type for d in self.umi_settings.umi_imported_data], self.data_to_process, [d.data for d in self.umi_settings.umi_imported_data])))
+        self.element_to_process_iter = iter(element_list)
+
+        if self.execute_each_process and not (self.element_to_process_count + len(self.data_to_process)):
             self.report({'ERROR_INVALID_INPUT'}, 'UMI : You need to select at least one object.')
             return {'CANCELLED'}
 
@@ -337,8 +440,11 @@ class CommandBatcher(bpy.types.Operator):
         self.progress = 0
         self.number_of_operations_to_perform = 0
         self.number_of_object_to_process = len(self.objects_to_process)
+        self.number_of_data_to_process = len(self.data_to_process)
+        self.number_of_element_to_process = self.number_of_object_to_process + self.number_of_data_to_process
         self.current_operation_number = 0
-        self.current_object_number = 0
+        self.current_element_number = 0
+        self.processed_elements = 0
         self.operators_to_process = []
         self.pre_operators_to_process = []
         self.post_operators_to_process = []
@@ -347,13 +453,14 @@ class CommandBatcher(bpy.types.Operator):
         self.post_process_done = False
         self.pre_processing = False
         self.post_processing = False
+        self.current_element_proccessed = False
 
         self.fill_operator_to_process()
 
         number_of_operations = len(self.operators_to_process)
-        number_of_objects = len(self.objects_to_process)
+        number_of_elements = len(self.objects_to_process) + len(self.data_to_process)
 
-        self.number_of_operations_to_perform = number_of_operations * number_of_objects + len(self.pre_operators_to_process) + len(self.post_operators_to_process)
+        self.number_of_operations_to_perform = number_of_operations * number_of_elements + len(self.pre_operators_to_process) + len(self.post_operators_to_process)
 
         if not self.importer_mode:
             args = (context,)
@@ -382,6 +489,8 @@ class CommandBatcher(bpy.types.Operator):
         self.completed = False
         self.end_text_written = False
         self.process_succeeded = []
+        self.processed_elements = 0
+        self.current_element_proccessed = False
         context.window_manager.event_timer_remove(self._timer)
         if not self.importer_mode:
             LOG.clear_all()
@@ -406,11 +515,16 @@ class CommandBatcher(bpy.types.Operator):
         else:
             LOG.separator()
 
-        self.current_object_to_process = self.objects_to_process.pop()
-        self.current_object_number += 1
-        self.object_progress = round(self.current_object_number * 100 / self.number_of_object_to_process, 2)
+        if self.current_element_proccessed:
+            self.processed_elements += 1
 
-        LOG.info(f'Processing object {self.current_object_number}/{self.number_of_object_to_process} - {self.object_progress}% : {self.current_object_to_process.name}')
+        self.current_element_to_process = self.element_to_process
+        self.current_element_name_to_process = self.current_element_to_process[1].name
+        self.current_element_number += 1
+        self.element_progress = round(self.current_element_number * 100 / self.number_of_element_to_process, 2)
+        self.current_element_proccessed = False
+
+        LOG.info(f'Processing item {self.current_element_number}/{self.number_of_element_to_process} - {self.element_progress}% : {self.current_element_to_process[1].name}')
         if not len(self.operators_to_process):
             self.fill_operator_to_process(each_only=True)
 
@@ -419,6 +533,9 @@ def menu_func_object(self, context):
     self.layout.separator()
     op = self.layout.operator(CommandBatcher.bl_idname, text="Command Batcher", icon='SHORTDISPLAY')
     op.importer_mode = False
+    op.execute_pre_process = True
+    op.execute_each_process = True
+    op.execute_post_process = True
 
 classes = (CommandBatcher,)
 

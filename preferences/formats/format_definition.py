@@ -62,7 +62,10 @@ def gltf_operators() -> FormatOperator:
                         '3.6.27',
                         addon_name='io_scene_gltf2')
 
-    if BVERSION >= 4.4:
+    if BVERSION >= 4.401:
+        f.supported_version = '4.4.56'
+
+    elif BVERSION >= 4.4:
         f.supported_version = '4.4.55'
 
     elif BVERSION >= 4.3:
@@ -147,7 +150,8 @@ def dae_operators() -> FormatOperator:
 def blend_operators() -> FormatOperator:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.tila_import_blend',
-                        '0.0.0')
+                        '0.0.0',
+                        import_data=True)
 
     return FormatOperators(f)
 
@@ -404,7 +408,8 @@ def max3ds_operators() -> FormatOperator:
 def image_operators() -> FormatOperator:
     data = FormatOperator(  'data',
                             'bpy.ops.image.open',
-                            '0.0.0')
+                            '0.0.0',
+                            import_objects=False)
 
     plane = FormatOperator( 'plane',
                             'bpy.ops.import_image.to_plane',
@@ -480,7 +485,8 @@ def image_operators() -> FormatOperator:
 def sound_operators() -> FormatOperator:
     data = FormatOperator(  'data',
                             'bpy.ops.sound.open',
-                            '0.0.0')
+                            '0.0.0',
+                            import_objects=False)
     operators = FormatOperators(data)
     operators.add_operator(data)
 

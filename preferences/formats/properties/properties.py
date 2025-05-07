@@ -1,7 +1,7 @@
 import bpy
 from os import path
 from ....logger import LOG
-from ....umi_const import get_umi_settings, get_batcher_list_name
+from ....umi_const import get_umi_settings, get_batcher_list_name, get_operator_items, get_operator_boolean
 from .. import COMPATIBLE_FORMATS
 
 
@@ -86,9 +86,54 @@ class PG_Operator(bpy.types.PropertyGroup):
     enabled : bpy.props.BoolProperty(name='Enabled', default=True)
     operator : bpy.props.StringProperty(name='Operator', default='')
 
+    applies_to_actions:             bpy.props.BoolProperty(name='Actions')
+    applies_to_armatures:           bpy.props.BoolProperty(name='Armatures')
+    applies_to_brushes:             bpy.props.BoolProperty(name='Brushes')
+    applies_to_cache_files:         bpy.props.BoolProperty(name='Cache Files')
+    applies_to_cameras:             bpy.props.BoolProperty(name='Cameras')
+    applies_to_collections:         bpy.props.BoolProperty(name='Collections')
+    applies_to_curves:              bpy.props.BoolProperty(name='Curves')
+    applies_to_fonts:               bpy.props.BoolProperty(name='Fonts')
+    applies_to_grease_pencils:      bpy.props.BoolProperty(name='Grease Pencils')
+    applies_to_grease_pencils_v3:   bpy.props.BoolProperty(name='Grease Pencils v3')
+    applies_to_hair_curves:         bpy.props.BoolProperty(name='Hair Curves')
+    applies_to_images:              bpy.props.BoolProperty(name='Images')
+    applies_to_lattices:            bpy.props.BoolProperty(name='Lattices')
+    applies_to_libraries:           bpy.props.BoolProperty(name='Libraries')
+    applies_to_lightprobes:         bpy.props.BoolProperty(name='Lightprobes')
+    applies_to_lights:              bpy.props.BoolProperty(name='Lights')
+    applies_to_linestyles:          bpy.props.BoolProperty(name='Linestyles')
+    applies_to_masks:               bpy.props.BoolProperty(name='Masks')
+    applies_to_materials:           bpy.props.BoolProperty(name='Materials')
+    applies_to_meshes:              bpy.props.BoolProperty(name='Meshes')
+    applies_to_metaballs:           bpy.props.BoolProperty(name='Metaballs')
+    applies_to_movieclips:          bpy.props.BoolProperty(name='Movieclips')
+    applies_to_node_groups:         bpy.props.BoolProperty(name='Node Groups')
+    applies_to_objects:             bpy.props.BoolProperty(name='Objects', default=True)
+    applies_to_paint_curves:        bpy.props.BoolProperty(name='Paint Curves')
+    applies_to_palettes:            bpy.props.BoolProperty(name='Palettes')
+    applies_to_particles:           bpy.props.BoolProperty(name='Particles')
+    applies_to_pointclouds:         bpy.props.BoolProperty(name='Pointclouds')
+    applies_to_scenes:              bpy.props.BoolProperty(name='Scenes')
+    applies_to_screens:             bpy.props.BoolProperty(name='Screens')
+    applies_to_shape_keys:          bpy.props.BoolProperty(name='Shape keys')
+    applies_to_sounds:              bpy.props.BoolProperty(name='Sounds')
+    applies_to_speakers:            bpy.props.BoolProperty(name='Speakers')
+    applies_to_texts:               bpy.props.BoolProperty(name='Texts')
+    applies_to_textures:            bpy.props.BoolProperty(name='Textures')
+    applies_to_volumes:             bpy.props.BoolProperty(name='Volumes')
+    applies_to_window_managers:     bpy.props.BoolProperty(name='Window managers')
+    applies_to_workspaces:          bpy.props.BoolProperty(name='Workspaces')
+    applies_to_worlds:              bpy.props.BoolProperty(name='Worlds')
+
 class PG_Preset(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name='Name')
     path : bpy.props.StringProperty(name='File Path', default='', subtype='FILE_PATH')
+
+class PG_ImportedData(bpy.types.PropertyGroup):
+    name : bpy.props.StringProperty(name='Name')
+    data : bpy.props.StringProperty(name='Data')
+    data_type: bpy.props.StringProperty(name='Data Type')
 
 class PG_FilePathSelection(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name='Name')
@@ -159,6 +204,9 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_show_import_settings : bpy.props.BoolProperty(name='Show Import Settings', default=True)
     umi_settings_dialog_width : bpy.props.FloatProperty(name='Dialog Width', min=0.0, max=1.0, default=0.65)
     umi_import_directory : bpy.props.BoolProperty(name='Import Directory', default=False)
+    umi_window_width : bpy.props.IntProperty(name='Window Width (px)', min=500, default=1300)
+    umi_current_item_index: bpy.props.IntProperty(name='current_item_index', min=0, default=0)
+    umi_imported_data: bpy.props.CollectionProperty(type = PG_ImportedData)
 
 class UMI_UL_OperatorList(bpy.types.UIList):
     bl_idname = "UMI_UL_operator_list"
@@ -216,6 +264,7 @@ classes = ( PG_ImportSettings,
             PG_FilePathSelection,
             PG_GlobalSettings,
             PG_AddonDependency,
+            PG_ImportedData,
             PG_UMISettings,
             UMI_UL_OperatorList,
             UMI_UL_PresetList,

@@ -102,6 +102,10 @@ This addon is adding batch import features to existing importers for blender. Th
 
 
 # Changelog
+### v2.3.0 : Command Batcher can now process any Blender Data Type ( Restricted to Objects before)
+### v2.3.0 : Command Batcher can execute commands for a specific or multiple datatype
+### v2.2.2 : Bump Compatible version of GLTF addon for blender 4.4.1 support
+### v2.2.2 : Add Setting to setup default window width in the addon preference
 ### v2.2.1 : Add feature to recreate folder structure as collections in `Import Folder` mode
 ### v2.2.0 : Support for Blender 4.4.0
 ### v2.2.0 : Support for webp and audio formats

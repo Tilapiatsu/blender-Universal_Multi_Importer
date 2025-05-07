@@ -245,6 +245,22 @@ class CompatibleFormats():
 
         return valid_formats
 
+    def is_import_objects(self, format_name: str, module_name: str )-> bool:
+        if format_name not in self.all_formats:
+            return False
+        else:
+            if module_name not in self.all_formats[format_name]['operator']:
+                return False
+        return self.all_formats[format_name]['operator'][module_name]['import_objects']
+
+    def is_import_data(self, format_name: str, module_name: str )-> bool:
+        if format_name not in self.all_formats:
+            return False
+        else:
+            if module_name not in self.all_formats[format_name]['operator']:
+                return False
+        return self.all_formats[format_name]['operator'][module_name]['import_data']
+
     def get_format_from_extension(self, ext):
         if ext.lower() not in self.extensions:
             # raise Exception("extension '{}' is not supported".format(ext))

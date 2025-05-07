@@ -143,6 +143,8 @@ class FormatOperator:
                  addon_name:Optional[str]=None,
                  pkg_id:Optional[str]=None,
                  pkg_url:Optional[str]=None,
+                 import_objects:Optional[bool]=True,
+                 import_data:Optional[bool]=True,
                  import_settings:Optional[FormatImportSetting]=None):
 
         self.name = name
@@ -152,6 +154,8 @@ class FormatOperator:
         self.addon_name = addon_name
         self.pkg_id = pkg_id
         self.pkg_url = pkg_url
+        self.import_objects = import_objects
+        self.import_data = import_data
         self.import_settings = import_settings
 
 
@@ -165,6 +169,8 @@ class FormatOperator:
                             'module':self.module,
                             'pkg_id':self.pkg_id,
                             'pkg_url':self.pkg_url,
+                            'import_objects': self.import_objects,
+                            'import_data': self.import_data,
                             'import_settings':self.import_settings.as_dict() if isinstance(self.import_settings, FormatImportSetting) else None}}
 
 

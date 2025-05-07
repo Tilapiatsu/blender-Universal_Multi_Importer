@@ -9,7 +9,8 @@ from .formats import COMPATIBLE_FORMATS
 from .. import ADDON_PACKAGE
 
 PREFERENCE_TABS = [ ("FORMATS", "Formats", ""),
-                    ("COLORS", "Colors", "")]
+                    ("COLORS", "Colors", ""),
+                    ("GENERAL", "General", "")]
 
 def update_log_drawing(self, context):
     LOG.show_log = self.umi_settings.umi_global_import_settings.show_log_on_3d_view
@@ -179,7 +180,11 @@ class Preferences(bpy.types.AddonPreferences):
             box.prop(self.umi_colors, 'umi_warning_color')
             box.prop(self.umi_colors, 'umi_error_color')
             box.prop(self.umi_colors, 'umi_command_color')
+            box.prop(self.umi_colors, 'umi_command_warning_color')
             box.prop(self.umi_colors, 'umi_import_color')
+
+        elif self.tabs == 'GENERAL':
+            box.prop(self.umi_settings, 'umi_window_width')
 
 
 classes = (Preferences,)

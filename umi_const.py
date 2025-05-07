@@ -8,6 +8,15 @@ AUTOSAVE_PATH = os.path.join(pathlib.Path(bpy.utils.script_path_user()).parent.a
 WARNING_ICON = 'ERROR' if BVERSION < 4.3 else 'WARNING_LARGE'
 
 
+def get_operator_items(self, context):
+    return [(f'{d}', f'{d}', '') for d in dir(bpy.data) if not d.startswith('_') and isinstance(getattr(bpy.data, d), bpy.types.bpy_prop_collection)]
+
+def get_operator_boolean():
+    return [(f'{d}', f'{d.title()}') for d in dir(bpy.data) if not d.startswith('_') and isinstance(getattr(bpy.data, d), bpy.types.bpy_prop_collection)]
+
+# OPERATOR_DATA_BOOLEAN = get_operator_boolean()
+
+
 if not os.path.exists(AUTOSAVE_PATH):
     print(f'UMI : Creating Autosave Folder : {AUTOSAVE_PATH}')
     os.makedirs(AUTOSAVE_PATH, exist_ok=True)

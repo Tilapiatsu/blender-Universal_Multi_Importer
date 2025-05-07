@@ -15,37 +15,42 @@ class LoggerColors():
         return wrapper
     @staticmethod
     @safe_get_color
-    def DEFAULT_COLOR   (): 
+    def DEFAULT_COLOR   ():
         return 'umi_info_color'
 
     @staticmethod
     @safe_get_color
-    def SUCCESS_COLOR   (): 
+    def SUCCESS_COLOR   ():
         return 'umi_success_color'
 
     @staticmethod
     @safe_get_color
-    def CANCELLED_COLOR (): 
+    def CANCELLED_COLOR ():
         return 'umi_cancelled_color'
 
     @staticmethod
     @safe_get_color
-    def WARNING_COLOR   (): 
+    def WARNING_COLOR   ():
         return 'umi_warning_color'
 
     @staticmethod
     @safe_get_color
-    def ERROR_COLOR     (): 
+    def ERROR_COLOR     ():
         return 'umi_error_color'
 
     @staticmethod
     @safe_get_color
-    def COMMAND_COLOR   (): 
+    def COMMAND_COLOR   ():
         return 'umi_command_color'
-    
+
     @staticmethod
     @safe_get_color
-    def IMPORT_COLOR    (): 
+    def COMMAND_WARNING_COLOR   ():
+        return 'umi_command_warning_color'
+
+    @staticmethod
+    @safe_get_color
+    def IMPORT_COLOR    ():
         return 'umi_import_color'
 
 class MessageType():

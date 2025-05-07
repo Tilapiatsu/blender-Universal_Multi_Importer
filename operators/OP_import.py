@@ -300,7 +300,7 @@ class UMI_FileSelection(bpy.types.Operator):
 
         update_file_stats(self, context)
         wm = context.window_manager
-        return wm.invoke_props_dialog(self, width=1300)
+        return wm.invoke_props_dialog(self, width=self.umi_settings.umi_window_width)
 
     def execute(self, context):
         self.umi_settings.umi_file_selection_done = True
@@ -880,6 +880,9 @@ class UMI(bpy.types.Operator, ImportHelper):
 
                 # After each Import Batch, and batch process
                 elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and not len (self.current_files_to_import):
+                    # Update File Index
+                    # self.umi_settings.umi_current_item_index += self.batch_file_count
+
                     # update End LOGs
                     i=len(self.current_filenames)
                     for filename in self.current_filenames:
@@ -903,6 +906,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
                     # Register Next Batch if files are remaining in the import list
                     if len(self.filepaths):
+                        self.umi_settings.umi_imported_data.clear()
                         LOG.separator()
                         self.next_batch()
                         self.log_next_batch()
@@ -963,13 +967,63 @@ class UMI(bpy.types.Operator, ImportHelper):
 
         return size
 
+    def get_imported_data(self, before_imported_data)->list:
+        imported_data = []
+        for d in dir(bpy.data):
+            if d.startswith('_') or d == 'objects':
+                continue
+
+
+            data_type = getattr(bpy.data, d)
+
+            if not isinstance(data_type, bpy.types.bpy_prop_collection):
+                continue
+
+            if d not in before_imported_data:
+                continue
+
+            for data in data_type:
+                imported_data_type = before_imported_data[d]
+
+                if data.name in imported_data_type:
+                    continue
+
+                imported_data.append({'data' : f'bpy.data.{d}["{data.name}"]', 'data_type': d})
+
+        return imported_data
+
+    def capture_data_dict(self) -> dict:
+        data_dict = {}
+        for d in dir(bpy.data):
+            if d.startswith('_'):
+                continue
+
+            data_type = getattr(bpy.data, d)
+
+            if not isinstance(data_type, bpy.types.bpy_prop_collection):
+                continue
+
+            data_dict[d] = []
+
+            for data in data_type:
+                data_dict[d].append(data.name)
+
+        return data_dict
+
     def import_command(self, context, filepath):
         success = True
         ext = os.path.splitext(filepath)[1]
         format_name = COMPATIBLE_FORMATS.get_format_from_extension(ext)['name']
+
         current_format = eval(f'self.{format_name}_format')
         current_module = eval(f'self.umi_settings.umi_format_import_settings.{format_name}_import_module', {'self':self}).name.lower()
+        import_objects = COMPATIBLE_FORMATS.is_import_objects(format_name, current_module)
+        import_data = COMPATIBLE_FORMATS.is_import_data(format_name, current_module)
         # format_settings = current_format[current_module].format_settings
+
+        before_import_data = {}
+        if import_data:
+            before_import_data = self.capture_data_dict()
 
         operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)[current_module]['command']
 
@@ -1031,7 +1085,20 @@ class UMI(bpy.types.Operator, ImportHelper):
 
         if len(self.operator_list):
             if success:
-                self.objects_to_process = self.objects_to_process + [o for o in context.selected_objects]
+                if import_objects and len(context.selected_objects):
+                    self.objects_to_process = self.objects_to_process + [o for o in context.selected_objects]
+
+                if import_data:
+                    imported_data = self.get_imported_data(before_import_data)
+                    for d in imported_data:
+                        data = self.umi_settings.umi_imported_data.add()
+                        data.data = d['data']
+                        data.data_type = d['data_type']
+                        data.name = eval(d['data']).name
+
+                    # self.objects_to_process = self.objects_to_process + [d.data for d in self.umi_settings.umi_imported_data]
+
+        del before_import_data
 
         return success
 
@@ -1240,6 +1307,8 @@ class UMI(bpy.types.Operator, ImportHelper):
         self.umi_settings.umi_file_selection_started = False
         self.umi_settings.umi_file_selection_done = False
         self.umi_settings.umi_import_directory = self.import_folders
+        self.umi_settings.umi_current_item_index = 0
+        self.umi_settings.umi_imported_data.clear()
         LOG.revert_parameters()
         LOG.esc_message = '[Esc] to Cancel'
         LOG.message_offset = 15
@@ -1357,6 +1426,8 @@ class UMI(bpy.types.Operator, ImportHelper):
         self.current_filenames = []
         self.current_batch_size = 0
         self.batch_number += 1
+        self.batch_file_count = 0
+
         for _ in range(self.umi_settings.umi_global_import_settings.import_simultaneously_count):
             if not len(self.filepaths):
                 return
@@ -1373,6 +1444,8 @@ class UMI(bpy.types.Operator, ImportHelper):
             elif self.current_batch_size + next_filesize > self.umi_settings.umi_global_import_settings.max_batch_size:
                 if len(self.current_files_to_import):
                     return
+
+            self.batch_file_count += 1
 
             # increment batch and import size
             self.current_batch_size += next_filesize
