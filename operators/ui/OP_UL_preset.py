@@ -1,7 +1,9 @@
 import bpy
 import os, shutil
-from ...umi_const import get_umi_settings, get_batcher_list_name
-from .operators_const import COMMAND_BATCHER_PRESET_FOLDER, UMIPRESET_EXTENSION
+from ...umi_const import get_umi_settings, get_batcher_list_name, DATATYPE_PREFIX
+from .operators_const import COMMAND_BATCHER_PRESET_FOLDER, UMIPRESET_EXTENSION, UMIPRESET_SPLITTER
+from ...datatype import DATATYPE_LIST
+
 
 def get_presets(context):
     umi_settings = get_umi_settings()
@@ -270,7 +272,14 @@ class UI_SavePresetOperator(bpy.types.Operator):
         print(f'Saving preset : {os.path.basename(self.filepath)}')
         self.umi_settings = get_umi_settings()
         with open(self.filepath, 'w') as f:
-            lines = [l.operator.replace('\n', '') for l in eval(f'self.umi_settings.{get_batcher_list_name()}')]
+            # lines = [l.operator.replace('\n', '') for l in eval(f'self.umi_settings.{get_batcher_list_name()}')]
+
+            lines = []
+            operators = eval(f'self.umi_settings.{get_batcher_list_name()}')
+            for i,o in enumerate(operators):
+                lines.append(o.operator.replace('\n', '') + f' {UMIPRESET_SPLITTER}')
+                for d in DATATYPE_LIST:
+                    lines[i] += f' --{DATATYPE_PREFIX}_{d}' if getattr(o, f'{DATATYPE_PREFIX}_{d}') else ''
 
             f.writelines('%s\n' % l for l in lines)
 
@@ -291,7 +300,24 @@ class UI_LoadPresetOperator(bpy.types.Operator):
         with open(self.filepath) as f:
             lines = [line for line in f]
             for l in lines:
-                bpy.ops.scene.umi_add_operator(operator=l)
+                l = l.replace('\n', '')
+                applies_to_dict = {f'{DATATYPE_PREFIX}_{a}':False for a in DATATYPE_LIST}
+
+                if f' {UMIPRESET_SPLITTER}' in l:
+                    op, applies_to = l.split(f' {UMIPRESET_SPLITTER}')
+                else:
+                    op = l
+                    applies_to = ''
+
+                if len(applies_to):
+                    applies_to = applies_to.split(' --')[1:]
+
+                    for a in applies_to:
+                        applies_to_dict[a] = True
+                else:
+                    applies_to_dict[f'{DATATYPE_PREFIX}_objects'] = True
+
+                bpy.ops.scene.umi_add_operator(operator=op, **applies_to_dict)
 
         return {'FINISHED'}
 

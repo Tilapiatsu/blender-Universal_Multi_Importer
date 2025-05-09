@@ -1,9 +1,11 @@
 import bpy
 import os
 import math
-from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST, get_operator_boolean
+from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST, get_operator_boolean, DATATYPE_PREFIX
 from .operators_const import COMMAND_BATCHER_PRESET_FOLDER
 from ...datatype import DATATYPE_LIST
+
+# TODO : Copy Paste Attribute Injection to clipboard
 
 col_count = math.ceil(len(DATATYPE_LIST)/3)
 
@@ -18,16 +20,16 @@ def draw_applies_to(self, layout):
         if i%col_count == 0:
             col = row.column(align=True)
 
-        col.prop(self, f'applies_to_{d}')
+        col.prop(self, f'{DATATYPE_PREFIX}_{d}')
 
 def read_applies_to(self, current_operator):
     for d in DATATYPE_LIST:
-        exec(f'self.applies_to_{d} = current_operator.applies_to_{d}', {'self': self, 'current_operator': current_operator})
+        exec(f'self.{DATATYPE_PREFIX}_{d} = current_operator.{DATATYPE_PREFIX}_{d}', {'self': self, 'current_operator': current_operator})
 
 
 def set_applies_to(self, current_operator):
     for d in DATATYPE_LIST:
-        exec(f'current_operator.applies_to_{d} = self.applies_to_{d}', {'self': self, 'current_operator': current_operator})
+        exec(f'current_operator.{DATATYPE_PREFIX}_{d} = self.{DATATYPE_PREFIX}_{d}', {'self': self, 'current_operator': current_operator})
 
 
 if not os.path.exists(COMMAND_BATCHER_PRESET_FOLDER):
@@ -225,8 +227,8 @@ classes = ( UI_UMIMoveOperator,
             UI_UMIRemoveOperator,
             UI_UMIDuplicateOperator)
 
-datatype_classes = ({'class':UI_UMIEditOperator, 'prefix': 'applies_to'},
-                    {'class':UI_UMIAddOperator, 'prefix': 'applies_to'})
+datatype_classes = ({'class':UI_UMIEditOperator, 'prefix': DATATYPE_PREFIX},
+                    {'class':UI_UMIAddOperator, 'prefix': DATATYPE_PREFIX})
 
 def register():
     from bpy.utils import register_class

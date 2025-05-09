@@ -6,6 +6,7 @@ ADDON_FOLDER_PATH = os.path.dirname(__file__)
 ADDON_PACKAGE = __package__
 AUTOSAVE_PATH = os.path.join(pathlib.Path(bpy.utils.script_path_user()).parent.absolute(), 'autosave')
 WARNING_ICON = 'ERROR' if BVERSION < 4.3 else 'WARNING_LARGE'
+DATATYPE_PREFIX = 'applies_to'
 
 def get_operator_items(self, context):
     return [(f'{d}', f'{d}', '') for d in dir(bpy.data) if not d.startswith('_') and isinstance(getattr(bpy.data, d), bpy.types.bpy_prop_collection)]

@@ -1,7 +1,7 @@
 import bpy
 from os import path
 from ....logger import LOG
-from ....umi_const import get_umi_settings, get_batcher_list_name, get_operator_items, get_operator_boolean
+from ....umi_const import get_umi_settings, get_batcher_list_name, get_operator_items, get_operator_boolean, DATATYPE_PREFIX
 from .. import COMPATIBLE_FORMATS
 
 
@@ -230,7 +230,7 @@ classes = ( PG_ImportSettings,
             UMI_UL_PresetList,
             UMI_UL_FileSelectionList)
 
-datatype_classes = ({'class': PG_Operator, 'prefix': 'applies_to'},)
+datatype_classes = ({'class': PG_Operator, 'prefix': DATATYPE_PREFIX},)
 
 def register():
     from .... import datatype
