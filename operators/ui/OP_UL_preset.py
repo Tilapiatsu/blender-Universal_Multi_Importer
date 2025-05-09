@@ -313,7 +313,6 @@ class UI_LoadPresetList(bpy.types.Operator):
 
         return {'FINISHED'}
 
-
 classes = ( UI_MovePreset,
             UI_ClearPresets,
             UI_RemovePreset,

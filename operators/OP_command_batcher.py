@@ -4,6 +4,19 @@ from ..logger import LOG, LoggerColors
 from ..umi_const import get_umi_settings
 from .command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
 
+def register_datatypes(umi_settings):
+    from .. import datatype
+    from .ui.OP_UL_operators import datatype_classes
+
+    datatype.unregister(datatype_classes)
+    datatype.register(datatype_classes)
+
+    from ..preferences.formats.properties.properties import datatype_classes
+
+    datatype.unregister(datatype_classes)
+    datatype.register(datatype_classes)
+
+    umi_settings.umi_valid_datatypes = True
 
 def replace_keywords(sentence: str, input_string: list[str], output_string: list[str], delimitator: tuple[str] = ('<', '>')) -> str:
     result_sentence = sentence
@@ -207,6 +220,10 @@ class CommandBatcher(bpy.types.Operator):
 
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
+
+        # if not self.umi_settings.umi_valid_datatypes:
+        #     register_datatypes(self.umi_settings)
+
         if not self.importer_mode:
             bpy.ops.scene.umi_load_preset_list()
 
