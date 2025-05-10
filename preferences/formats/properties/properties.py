@@ -1,7 +1,7 @@
 import bpy
 from os import path
 from ....logger import LOG
-from ....umi_const import get_umi_settings, get_batcher_list_name, get_operator_items, get_operator_boolean, DATATYPE_PREFIX
+from ....umi_const import get_umi_settings, get_batcher_list_name, get_operator_items, get_operator_boolean, DATATYPE_PREFIX, DATATYPE_PROPERTIES
 from .. import COMPATIBLE_FORMATS
 
 
@@ -86,6 +86,10 @@ class PG_Operator(bpy.types.PropertyGroup):
     enabled : bpy.props.BoolProperty(name='Enabled', default=True)
     operator : bpy.props.StringProperty(name='Operator', default='')
 
+class PG_ItemIndex(bpy.types.PropertyGroup):
+    name : bpy.props.StringProperty(name='Datatype Name', default='object')
+    index : bpy.props.IntProperty(name='Index', default=0)
+
 class PG_Preset(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name='Name')
     path : bpy.props.StringProperty(name='File Path', default='', subtype='FILE_PATH')
@@ -113,7 +117,7 @@ class PG_GlobalSettings(bpy.types.PropertyGroup):
     backup_step : bpy.props.FloatProperty(name='Backup Step (MB)', description='Backup file after X file(s) imported', default=100, min=1)
     skip_already_imported_files : bpy.props.BoolProperty(name='Skip already imported files', description='Import will be skipped if a Collection with the same name is found in the Blend file. "Create collection per file" need to be enabled', default=False)
     save_file_after_import : bpy.props.BoolProperty(name='Save file after import completed', description='Save the original file when the entire import process is complete', default=False)
-    ignore_command_batcher_errors : bpy.props.BoolProperty(name='Ignore Command Batcher Errors', default=True)
+    ignore_command_batcher_errors : bpy.props.BoolProperty(name='Ignore Command Batcher Errors', default=True, description='Disable it if you want to stop the process if an error occurs in the Command Batcher')
     show_log_on_3d_view : bpy.props.BoolProperty(name="Show Log on 3D View", default=True, update=update_log_drawing)
     auto_hide_text_when_finished : bpy.props.BoolProperty(name="Auto Hide Log When Finished", default=False)
     wait_before_hiding : bpy.props.FloatProperty(name="Wait Before Hiding (s)", default=5.0)
@@ -165,9 +169,10 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_settings_dialog_width : bpy.props.FloatProperty(name='Dialog Width', min=0.0, max=1.0, default=0.65)
     umi_import_directory : bpy.props.BoolProperty(name='Import Directory', default=False)
     umi_window_width : bpy.props.IntProperty(name='Window Width (px)', min=500, default=1300)
-    umi_current_item_index: bpy.props.IntProperty(name='current_item_index', min=0, default=0)
+    umi_current_item_index: bpy.props.CollectionProperty(type = PG_ItemIndex)
     umi_imported_data: bpy.props.CollectionProperty(type = PG_ImportedData)
     umi_valid_datatypes: bpy.props.BoolProperty(name='Valid Datatypes', default=False)
+    umi_updating_batcher_variable: bpy.props.BoolProperty(name='Updating Batcher Variable', default=False)
 
 class UMI_UL_OperatorList(bpy.types.UIList):
     bl_idname = "UMI_UL_operator_list"
@@ -225,25 +230,27 @@ classes = ( PG_ImportSettings,
             PG_GlobalSettings,
             PG_AddonDependency,
             PG_ImportedData,
+            PG_ItemIndex,
             PG_UMISettings,
             UMI_UL_OperatorList,
             UMI_UL_PresetList,
             UMI_UL_FileSelectionList)
 
-datatype_classes = ({'class': PG_Operator, 'prefix': DATATYPE_PREFIX},)
+datatype_classes = (PG_Operator,)
 
 def register():
-    from .... import datatype
-    datatype.register(datatype_classes)
+    from .... import class_property_injection
+    class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES)
 
     from bpy.utils import register_class
     for cls in classes:
         register_class(cls)
+
 
 def unregister():
     from bpy.utils import unregister_class
     for cls in reversed(classes):
         unregister_class(cls)
 
-    from .... import datatype
-    datatype.unregister(datatype_classes)
+    from .... import class_property_injection
+    class_property_injection.unregister(datatype_classes, DATATYPE_PROPERTIES)

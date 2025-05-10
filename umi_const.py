@@ -8,6 +8,77 @@ AUTOSAVE_PATH = os.path.join(pathlib.Path(bpy.utils.script_path_user()).parent.a
 WARNING_ICON = 'ERROR' if BVERSION < 4.3 else 'WARNING_LARGE'
 DATATYPE_PREFIX = 'applies_to'
 
+def get_datalist():
+    datatype_list = [
+                        'actions',
+                        'armatures',
+                        'brushes',
+                        'cache_files',
+                        'cameras',
+                        'collections',
+                        'curves',
+                        'fonts',
+                        'grease_pencils',
+                        'images',
+                        'lattices',
+                        'libraries',
+                        'lightprobes',
+                        'lights',
+                        'linestyles',
+                        'masks',
+                        'materials',
+                        'meshes',
+                        'metaballs',
+                        'movieclips',
+                        'node_groups',
+                        'objects',
+                        'paint_curves',
+                        'palettes',
+                        'particles',
+                        'scenes',
+                        'screens',
+                        'shape_keys',
+                        'sounds',
+                        'speakers',
+                        'texts',
+                        'textures',
+                        'volumes',
+                        'window_managers',
+                        'workspaces',
+                        'worlds'
+                    ]
+
+    if BVERSION >= 3.1:
+        datatype_list.append('pointclouds')
+
+    if BVERSION >= 3.3:
+        datatype_list.append('hair_curves')
+
+    if BVERSION >= 4.3:
+        datatype_list.append('grease_pencils_v3')
+
+    datatype_list.sort()
+
+    return datatype_list
+
+
+DATATYPE_LIST = get_datalist()
+
+def get_datatype_properties():
+    datatype_result = ()
+    for d in DATATYPE_LIST:
+        default = False
+        if d == 'objects':
+            default = True
+
+        datatype_result += ({'property': f'{DATATYPE_PREFIX}_{d}', 'type':'BOOLEAN', "default":default, 'name': d.replace("_", " ").title(), 'description':'', 'set':None},)
+
+    return datatype_result
+
+
+DATATYPE_PROPERTIES = get_datatype_properties()
+
+
 def get_operator_items(self, context):
     return [(f'{d}', f'{d}', '') for d in dir(bpy.data) if not d.startswith('_') and isinstance(getattr(bpy.data, d), bpy.types.bpy_prop_collection)]
 
@@ -56,3 +127,9 @@ def get_operators_list():
     return operators
 
 OPERTAOR_LIST = get_operators_list()
+
+def init_current_item_index(umi_settings):
+    umi_settings.umi_current_item_index.clear()
+    for d in DATATYPE_LIST:
+        index = umi_settings.umi_current_item_index.add()
+        index.name = d

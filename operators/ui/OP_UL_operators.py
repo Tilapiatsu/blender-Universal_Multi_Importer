@@ -1,13 +1,13 @@
 import bpy
 import os
 import math
-from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST, get_operator_boolean, DATATYPE_PREFIX
+from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST, get_operator_boolean, DATATYPE_PREFIX, DATATYPE_PROPERTIES, DATATYPE_LIST
 from .operators_const import COMMAND_BATCHER_PRESET_FOLDER
-from ...datatype import DATATYPE_LIST
+from ..command_batcher_const import COMMAND_BATCHER_INPUT_ITEMS, COMMAND_BATCHER_ITEM_COUNT, COMMAND_BATCHER_VARIABLE
 
-# TODO : Copy Paste Attribute Injection to clipboard
 
-col_count = math.ceil(len(DATATYPE_LIST)/3)
+datatype_col_count = math.ceil(len(DATATYPE_LIST)/3)
+batcher_item_col_count = math.ceil(COMMAND_BATCHER_ITEM_COUNT/7)
 
 def operators(self, context, edit_text):
     return OPERTAOR_LIST
@@ -15,22 +15,41 @@ def operators(self, context, edit_text):
 def draw_applies_to(self, layout):
     layout.label(text='Applies to :')
     row = layout.row(align=True)
-    # col = row.column(align=True)
-    for i, d in enumerate(DATATYPE_LIST):
-        if i%col_count == 0:
+
+    for i, d in enumerate(DATATYPE_PROPERTIES):
+        if i % datatype_col_count == 0:
             col = row.column(align=True)
 
-        col.prop(self, f'{DATATYPE_PREFIX}_{d}')
+        col.prop(self, f'{d["property"]}')
 
 def read_applies_to(self, current_operator):
-    for d in DATATYPE_LIST:
-        exec(f'self.{DATATYPE_PREFIX}_{d} = current_operator.{DATATYPE_PREFIX}_{d}', {'self': self, 'current_operator': current_operator})
-
+    for d in DATATYPE_PROPERTIES:
+        exec(f'self.{d["property"]} = current_operator.{d["property"]}', {'self': self, 'current_operator': current_operator})
 
 def set_applies_to(self, current_operator):
-    for d in DATATYPE_LIST:
-        exec(f'current_operator.{DATATYPE_PREFIX}_{d} = self.{DATATYPE_PREFIX}_{d}', {'self': self, 'current_operator': current_operator})
+    for d in DATATYPE_PROPERTIES:
+        exec(f'current_operator.{d["property"]} = self.{d["property"]}', {'self': self, 'current_operator': current_operator})
 
+def draw_add_edit_operator(self, layout):
+    col = layout.column()
+    col.label(text='Command:')
+    col.prop(self, 'operator', text='')
+    col.separator()
+
+    box = col.box()
+    box.use_property_split = True
+    box.use_property_decorate = False  # No animation.
+    box.label(text='Inject Variable:')
+
+    row = box.row(align=True)
+
+    for i, c in enumerate(COMMAND_BATCHER_VARIABLE):
+        if i % batcher_item_col_count == 0:
+            sub_col = row.column(align=True)
+
+        sub_col.prop(self, f'{c["property"]}', text='')
+
+    draw_applies_to(self, box)
 
 if not os.path.exists(COMMAND_BATCHER_PRESET_FOLDER):
     print(f'UMI : Creating Preset Folder : {COMMAND_BATCHER_PRESET_FOLDER}')
@@ -166,10 +185,7 @@ class UI_UMIEditOperator(bpy.types.Operator):
     operator :                      bpy.props.StringProperty(name="Operator Command", default="", search=operators )
 
     def draw(self, context):
-        layout = self.layout
-        col = layout.column()
-        col.prop(self, 'operator', text='Command')
-        draw_applies_to(self, col)
+        draw_add_edit_operator(self, self.layout)
 
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
@@ -183,7 +199,7 @@ class UI_UMIEditOperator(bpy.types.Operator):
         read_applies_to(self, current_operator)
 
         wm = context.window_manager
-        return wm.invoke_props_dialog(self, width=self.umi_settings.umi_window_width)
+        return wm.invoke_props_dialog(self, width=int(self.umi_settings.umi_window_width * 0.8))
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
@@ -200,18 +216,15 @@ class UI_UMIAddOperator(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     bl_description = "Add a new operator"
 
-    operator :                      bpy.props.StringProperty(name="Operator Command", default="", search=operators )
+    operator : bpy.props.StringProperty(name="Operator Command", default="", search=operators )
 
     def draw(self, context):
-        layout = self.layout
-        col = layout.column()
-        col.prop(self, 'operator', text='Command')
-        draw_applies_to(self, col)
+        draw_add_edit_operator(self, self.layout)
 
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
         wm = context.window_manager
-        return wm.invoke_props_dialog(self, width=self.umi_settings.umi_window_width)
+        return wm.invoke_props_dialog(self, width=int(self.umi_settings.umi_window_width*0.8))
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
@@ -221,27 +234,26 @@ class UI_UMIAddOperator(bpy.types.Operator):
         set_applies_to(self, o)
         return {'FINISHED'}
 
-
 classes = ( UI_UMIMoveOperator,
             UI_UMIClearOperators,
             UI_UMIRemoveOperator,
             UI_UMIDuplicateOperator)
 
-datatype_classes = ({'class':UI_UMIEditOperator, 'prefix': DATATYPE_PREFIX},
-                    {'class':UI_UMIAddOperator, 'prefix': DATATYPE_PREFIX})
+datatype_classes = (UI_UMIEditOperator,
+                    UI_UMIAddOperator)
 
 def register():
     from bpy.utils import register_class
     for cls in classes:
         register_class(cls)
 
-    from ... import datatype
-    datatype.register(datatype_classes)
+    from ... import class_property_injection
+    class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES + COMMAND_BATCHER_VARIABLE)
 
 
 def unregister():
-    from ... import datatype
-    datatype.unregister(datatype_classes)
+    from ... import class_property_injection
+    class_property_injection.unregister(datatype_classes, DATATYPE_PROPERTIES + COMMAND_BATCHER_VARIABLE)
 
     from bpy.utils import unregister_class
 

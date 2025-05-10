@@ -1,7 +1,7 @@
 import bpy
 import time, math, re, itertools
 from ..logger import LOG, LoggerColors
-from ..umi_const import get_umi_settings, DATATYPE_PREFIX
+from ..umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_current_item_index
 from .command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
 
 
@@ -218,6 +218,9 @@ class CommandBatcher(bpy.types.Operator):
         return self.execute(context)
 
     def finish(self, context, canceled=False):
+        for d in DATATYPE_LIST:
+            self.umi_settings.umi_current_item_index[d].index += self.processed_elements[d] + 1
+
         if not self.importer_mode:
             bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
         self.revert_parameters(context)
@@ -320,7 +323,8 @@ class CommandBatcher(bpy.types.Operator):
                 self.end = True
 
             if self.finished:
-                self.umi_settings.umi_current_item_index += self.current_operation_number
+                # if self.current_element_to_process:
+                #     self.umi_settings.umi_current_item_index[self.current_element_to_process[0]].index += self.current_operation_number
                 return self.finish(context)
 
             # Feed Pre-Process Operator
@@ -373,10 +377,11 @@ class CommandBatcher(bpy.types.Operator):
 
                     # Replace Keyword with Proper Value
                     ob = None if self.current_element_to_process[0] != 'objects' else self.current_element_to_process[1]
+
                     command = replace_keywords( command,
                                                 COMMAND_BATCHER_INPUT_STRING,
                                                 get_command_batcher_output_string(
-                                                    self.processed_elements + self.umi_settings.umi_current_item_index,
+                                                    self.processed_elements[self.current_element_to_process[0]] + self.umi_settings.umi_current_item_index[self.current_element_to_process[0]].index,
                                                     self.current_element_name_to_process,
                                                     self.current_element_to_process[2],
                                                     ob)
@@ -394,8 +399,8 @@ class CommandBatcher(bpy.types.Operator):
 
                     LOG.store_success('Command executed successfully')
 
-                    if not self.current_element_proccessed:
-                        self.current_element_proccessed = True
+                    if not self.current_element_proccessed[self.current_element_to_process[0]]:
+                        self.current_element_proccessed[self.current_element_to_process[0]] = True
 
                     self.process_succeeded.append(True)
 
@@ -421,7 +426,7 @@ class CommandBatcher(bpy.types.Operator):
 
         if not self.importer_mode:
             LOG.revert_parameters()
-            self.umi_settings.umi_current_item_index = 0
+            init_current_item_index(self.umi_settings)
             self.feed_data_from_object_selection()
 
 
@@ -446,7 +451,7 @@ class CommandBatcher(bpy.types.Operator):
         self.number_of_element_to_process = self.number_of_object_to_process + self.number_of_data_to_process
         self.current_operation_number = 0
         self.current_element_number = 0
-        self.processed_elements = 0
+        self.processed_elements = {t:0 for t in DATATYPE_LIST}
         self.operators_to_process = []
         self.pre_operators_to_process = []
         self.post_operators_to_process = []
@@ -455,7 +460,7 @@ class CommandBatcher(bpy.types.Operator):
         self.post_process_done = False
         self.pre_processing = False
         self.post_processing = False
-        self.current_element_proccessed = False
+        self.current_element_proccessed = {t:False for t in DATATYPE_LIST}
 
         self.fill_operator_to_process()
 
@@ -491,8 +496,8 @@ class CommandBatcher(bpy.types.Operator):
         self.completed = False
         self.end_text_written = False
         self.process_succeeded = []
-        self.processed_elements = 0
-        self.current_element_proccessed = False
+        self.processed_elements = {t:0 for t in DATATYPE_LIST}
+        self.current_element_proccessed = {t:False for t in DATATYPE_LIST}
         context.window_manager.event_timer_remove(self._timer)
         if not self.importer_mode:
             LOG.clear_all()
@@ -517,14 +522,14 @@ class CommandBatcher(bpy.types.Operator):
         else:
             LOG.separator()
 
-        if self.current_element_proccessed:
-            self.processed_elements += 1
 
         self.current_element_to_process = self.element_to_process
+        if self.current_element_proccessed[self.current_element_to_process[0]]:
+            self.processed_elements[self.current_element_to_process[0]] += 1
         self.current_element_name_to_process = self.current_element_to_process[1].name
         self.current_element_number += 1
         self.element_progress = round(self.current_element_number * 100 / self.number_of_element_to_process, 2)
-        self.current_element_proccessed = False
+        self.current_element_proccessed[self.current_element_to_process[0]] = False
 
         LOG.info(f'Processing item {self.current_element_number}/{self.number_of_element_to_process} - {self.element_progress}% : {self.current_element_to_process[1].name}')
         if not len(self.operators_to_process):

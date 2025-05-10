@@ -158,7 +158,6 @@ class FormatClassCreator():
                             command += self.get_property_command_string(p,  additionnal_props={'subtype': f'"{p.subtype}"',
                                                                                                 'min': p.soft_min,
                                                                                                 'max':p.soft_max})
-                    # print(p.identifier, " = ", command)
                     format_class.__annotations__[p.identifier] = eval(command)
             else:
                 # TODO : create a pointer to a settings for each g[0]
@@ -209,7 +208,7 @@ class FormatClassCreator():
             for k,v in additionnal_props.items():
                 command += f', {k}={v}'
 
-        command += f')'
+        command += ')'
         return command
 
     def get_enum_items(self, enum):

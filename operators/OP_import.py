@@ -9,7 +9,7 @@ from string import punctuation
 from ..preferences.formats import FormatHandler, COMPATIBLE_FORMATS
 from ..preferences.formats.properties.properties import update_file_stats, get_file_selected_items, update_file_extension_selection
 from .OP_command_batcher import draw_command_batcher
-from ..umi_const import get_umi_settings, AUTOSAVE_PATH
+from ..umi_const import get_umi_settings, AUTOSAVE_PATH, init_current_item_index
 from ..preferences.formats.panels.presets import import_preset
 from ..logger import LOG, LoggerColors, MessageType
 from ..ui.panel import draw_panel
@@ -880,9 +880,6 @@ class UMI(bpy.types.Operator, ImportHelper):
 
                 # After each Import Batch, and batch process
                 elif not len(self.objects_to_process) and not self.importing and self.current_object_to_process is None and self.current_file_number and not len (self.current_files_to_import):
-                    # Update File Index
-                    # self.umi_settings.umi_current_item_index += self.batch_file_count
-
                     # update End LOGs
                     i=len(self.current_filenames)
                     for filename in self.current_filenames:
@@ -1307,7 +1304,9 @@ class UMI(bpy.types.Operator, ImportHelper):
         self.umi_settings.umi_file_selection_started = False
         self.umi_settings.umi_file_selection_done = False
         self.umi_settings.umi_import_directory = self.import_folders
-        self.umi_settings.umi_current_item_index = 0
+
+        init_current_item_index(self.umi_settings)
+
         self.umi_settings.umi_imported_data.clear()
         LOG.revert_parameters()
         LOG.esc_message = '[Esc] to Cancel'

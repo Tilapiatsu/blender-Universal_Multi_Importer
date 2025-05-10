@@ -1,8 +1,7 @@
 import bpy
 import os, shutil
-from ...umi_const import get_umi_settings, get_batcher_list_name, DATATYPE_PREFIX
+from ...umi_const import get_umi_settings, get_batcher_list_name, DATATYPE_PREFIX, DATATYPE_LIST
 from .operators_const import COMMAND_BATCHER_PRESET_FOLDER, UMIPRESET_EXTENSION, UMIPRESET_SPLITTER
-from ...datatype import DATATYPE_LIST
 
 
 def get_presets(context):
@@ -180,7 +179,7 @@ class UI_DuplicatePreset(bpy.types.Operator):
         o = presets.add()
         o.name = self.get_unique_name(presets[self.id].name, name_list=name_list)
         o.path = self.get_unique_name(presets[self.id].path, name_list=path_list, is_path=True)
-        # bpy.ops.scene.umi_save_preset_operator('EXEC_DEFAULT', filepath=os.path.join(COMMAND_BATCHER_PRESET_FOLDER, o.name) + UMIPRESET_EXTENSION)
+
         shutil.copy(presets[self.id].path, o.path)
         presets.move(len(presets) - 1, self.id + 1)
 
@@ -272,8 +271,6 @@ class UI_SavePresetOperator(bpy.types.Operator):
         print(f'Saving preset : {os.path.basename(self.filepath)}')
         self.umi_settings = get_umi_settings()
         with open(self.filepath, 'w') as f:
-            # lines = [l.operator.replace('\n', '') for l in eval(f'self.umi_settings.{get_batcher_list_name()}')]
-
             lines = []
             operators = eval(f'self.umi_settings.{get_batcher_list_name()}')
             for i,o in enumerate(operators):
