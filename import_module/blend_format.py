@@ -40,6 +40,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
     import_pointclouds : bpy.props.BoolProperty(name="Point Clouds", default=False)
     import_lightprobes : bpy.props.BoolProperty(name="Light Probes", default=False)
     import_scenes : bpy.props.BoolProperty(name="Scenes", default=False)
+    import_shape_keys : bpy.props.BoolProperty(name="Shape Keys", default=False)
     import_sounds : bpy.props.BoolProperty(name="Sounds", default=False)
     import_speakers : bpy.props.BoolProperty(name="Speakers", default=False)
     import_texts : bpy.props.BoolProperty(name="Texts", default=False)
@@ -511,6 +512,8 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             self.import_command('lightprobes')
         if self.import_scenes:
             self.import_command('scenes')
+        if self.import_shape_keys:
+            self.import_command('shape_keys')
         if self.import_sounds:
             self.import_command('sounds')
         if self.import_speakers:

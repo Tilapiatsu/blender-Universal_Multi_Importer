@@ -219,7 +219,7 @@ class CommandBatcher(bpy.types.Operator):
 
     def finish(self, context, canceled=False):
         for d in DATATYPE_LIST:
-            self.umi_settings.umi_current_item_index[d].index += self.processed_elements[d] + 1
+            self.umi_settings.umi_current_item_index[d['name']].index += self.processed_elements[d['name']] + 1
 
         if not self.importer_mode:
             bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
@@ -449,7 +449,7 @@ class CommandBatcher(bpy.types.Operator):
         self.number_of_element_to_process = self.number_of_object_to_process + self.number_of_data_to_process
         self.current_operation_number = 0
         self.current_element_number = 0
-        self.processed_elements = {t:0 for t in DATATYPE_LIST}
+        self.processed_elements = {t['name']:0 for t in DATATYPE_LIST}
         self.operators_to_process = []
         self.pre_operators_to_process = []
         self.post_operators_to_process = []
@@ -458,7 +458,7 @@ class CommandBatcher(bpy.types.Operator):
         self.post_process_done = False
         self.pre_processing = False
         self.post_processing = False
-        self.current_element_proccessed = {t:False for t in DATATYPE_LIST}
+        self.current_element_proccessed = {t['name']:False for t in DATATYPE_LIST}
 
         self.fill_operator_to_process()
 
@@ -494,8 +494,8 @@ class CommandBatcher(bpy.types.Operator):
         self.completed = False
         self.end_text_written = False
         self.process_succeeded = []
-        self.processed_elements = {t:0 for t in DATATYPE_LIST}
-        self.current_element_proccessed = {t:False for t in DATATYPE_LIST}
+        self.processed_elements = {t['name']:0 for t in DATATYPE_LIST}
+        self.current_element_proccessed = {t['name']:False for t in DATATYPE_LIST}
         context.window_manager.event_timer_remove(self._timer)
         if not self.importer_mode:
             LOG.clear_all()

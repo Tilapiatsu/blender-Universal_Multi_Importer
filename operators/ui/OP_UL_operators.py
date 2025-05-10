@@ -15,12 +15,16 @@ def operators(self, context, edit_text):
 def draw_applies_to(self, layout):
     layout.label(text='Applies to :')
     row = layout.row(align=True)
-
+    row.alignment = 'EXPAND'
     for i, d in enumerate(DATATYPE_PROPERTIES):
         if i % datatype_col_count == 0:
             col = row.column(align=True)
-
-        col.prop(self, f'{d["property"]}')
+            col.alignment = 'EXPAND'
+        row1 = col.row(align=True)
+        row1.alignment = 'RIGHT'
+        row1.label(text=d['name'])
+        row1.label(text='', icon=d['icon'])
+        row1.prop(self, f'{d["property"]}', text='')
 
 def read_applies_to(self, current_operator):
     for d in DATATYPE_PROPERTIES:

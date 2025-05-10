@@ -276,7 +276,7 @@ class UI_SavePresetOperator(bpy.types.Operator):
             for i,o in enumerate(operators):
                 lines.append(o.operator.replace('\n', '') + f' {UMIPRESET_SPLITTER}')
                 for d in DATATYPE_LIST:
-                    lines[i] += f' --{DATATYPE_PREFIX}_{d}' if getattr(o, f'{DATATYPE_PREFIX}_{d}') else ''
+                    lines[i] += f' --{DATATYPE_PREFIX}_{d["name"]}' if getattr(o, f'{DATATYPE_PREFIX}_{d["name"]}') else ''
 
             f.writelines('%s\n' % l for l in lines)
 
@@ -298,7 +298,7 @@ class UI_LoadPresetOperator(bpy.types.Operator):
             lines = [line for line in f]
             for l in lines:
                 l = l.replace('\n', '')
-                applies_to_dict = {f'{DATATYPE_PREFIX}_{a}':False for a in DATATYPE_LIST}
+                applies_to_dict = {f'{DATATYPE_PREFIX}_{a["name"]}':False for a in DATATYPE_LIST}
 
                 if f' {UMIPRESET_SPLITTER}' in l:
                     op, applies_to = l.split(f' {UMIPRESET_SPLITTER}')

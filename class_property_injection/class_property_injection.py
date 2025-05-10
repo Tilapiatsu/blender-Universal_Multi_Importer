@@ -47,32 +47,6 @@ class ClassPropertyInjection():
 
         return property_class
 
-    def get_property_command_string(self, prop, additionnal_props:dict={}):
-        command = f'(name="{prop.name}", description="{prop.description}"'
-        if prop.type in ['ENUM', 'STRING']:
-            command += f', default="{prop.default}"'
-        elif prop.type in ['FLOAT', 'INT']:
-            is_array = getattr(prop, 'is_array', None)
-            if is_array:
-                val = '['
-                for i in range(len(prop.default_array)):
-                    if i == 0:
-                        val += f'{prop.default_array[i]}'
-                    else:
-                        val += f', {prop.default_array[i]}'
-                val += ']'
-                command += f', default={val}'
-            else:
-                command += f', default={prop.default}'
-        else:
-            command += f', default={prop.default}'
-        if len(additionnal_props.keys()):
-            for k,v in additionnal_props.items():
-                command += f', {k}={v}'
-
-        command += ')'
-        return command
-
     def register(self):
         for c in self.property_classes:
             print('UMI : Inject properties in Class :', c)

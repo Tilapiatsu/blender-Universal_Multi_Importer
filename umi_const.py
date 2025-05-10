@@ -10,54 +10,50 @@ DATATYPE_PREFIX = 'applies_to'
 
 def get_datalist():
     datatype_list = [
-                        'actions',
-                        'armatures',
-                        'brushes',
-                        'cache_files',
-                        'cameras',
-                        'collections',
-                        'curves',
-                        'fonts',
-                        'grease_pencils',
-                        'images',
-                        'lattices',
-                        'libraries',
-                        'lightprobes',
-                        'lights',
-                        'linestyles',
-                        'masks',
-                        'materials',
-                        'meshes',
-                        'metaballs',
-                        'movieclips',
-                        'node_groups',
-                        'objects',
-                        'paint_curves',
-                        'palettes',
-                        'particles',
-                        'scenes',
-                        'screens',
-                        'shape_keys',
-                        'sounds',
-                        'speakers',
-                        'texts',
-                        'textures',
-                        'volumes',
-                        'window_managers',
-                        'workspaces',
-                        'worlds'
+                        {'name':'actions',          'icon':'ACTION'},
+                        {'name':'armatures',        'icon':'OUTLINER_OB_ARMATURE'},
+                        {'name':'brushes',          'icon':'BRUSH_DATA'},
+                        {'name':'cache_files',      'icon':'CAMERA_DATA'},
+                        {'name':'cameras',          'icon':'FILE_CACHE'},
+                        {'name':'collections',      'icon':'OUTLINER_COLLECTION'},
+                        {'name':'curves',           'icon':'OUTLINER_OB_CURVE'},
+                        {'name':'fonts',            'icon':'OUTLINER_OB_FONT'},
+                        {'name':'grease_pencils',   'icon':'OUTLINER_OB_GREASEPENCIL'},
+                        {'name':'images',           'icon':'IMAGE_DATA'},
+                        {'name':'lattices',         'icon':'LATTICE_DATA'},
+                        {'name':'libraries',        'icon':'LIBRARY_DATA_DIRECT'},
+                        {'name':'lightprobes',      'icon':'LIGHTPROBE_SPHERE'},
+                        {'name':'lights',           'icon':'LIGHT'},
+                        {'name':'linestyles',       'icon':'LINE_DATA'},
+                        {'name':'masks',            'icon':'MOD_MASK'},
+                        {'name':'materials',        'icon':'MATERIAL'},
+                        {'name':'meshes',           'icon':'MESH_DATA'},
+                        {'name':'metaballs',        'icon':'OUTLINER_OB_META'},
+                        {'name':'movieclips',       'icon':'FILE_MOVIE'},
+                        {'name':'node_groups',      'icon':'NODETREE'},
+                        {'name':'objects',          'icon':'OBJECT_DATA'},
+                        {'name':'paint_curves',     'icon':'CURVE_BEZCURVE'},
+                        {'name':'palettes',         'icon':'RESTRICT_COLOR_ON'},
+                        {'name':'particles',        'icon':'PARTICLE_DATA'},
+                        {'name':'scenes',           'icon':'SCENE_DATA'},
+                        {'name':'shape_keys',       'icon':'SHAPEKEY_DATA'},
+                        {'name':'sounds',           'icon':'PLAY_SOUND'},
+                        {'name':'speakers',         'icon':'PLAY_SOUND'},
+                        {'name':'texts',            'icon':'FILE_TEXT'},
+                        {'name':'textures',         'icon':'TEXTURE'},
+                        {'name':'volumes',          'icon':'VOLUME_DATA'},
+                        {'name':'workspaces',       'icon':'WORKSPACE'},
+                        {'name':'worlds',           'icon':'WORLD'}
                     ]
 
     if BVERSION >= 3.1:
-        datatype_list.append('pointclouds')
+        datatype_list.append({'name':'pointclouds', 'icon':'OUTLINER_OB_FONT'})
 
     if BVERSION >= 3.3:
-        datatype_list.append('hair_curves')
+        datatype_list.append({'name':'hair_curves', 'icon':'OUTLINER_OB_CURVES'})
 
     if BVERSION >= 4.3:
-        datatype_list.append('grease_pencils_v3')
-
-    datatype_list.sort()
+        datatype_list.append({'name':'grease_pencils_v3', 'icon':'OUTLINER_OB_GREASEPENCIL'})
 
     return datatype_list
 
@@ -68,10 +64,10 @@ def get_datatype_properties():
     datatype_result = ()
     for d in DATATYPE_LIST:
         default = False
-        if d == 'objects':
+        if d['name'] == 'objects':
             default = True
 
-        datatype_result += ({'property': f'{DATATYPE_PREFIX}_{d}', 'type':'BOOLEAN', "default":default, 'name': d.replace("_", " ").title(), 'description':'', 'set':None},)
+        datatype_result += ({'property': f'{DATATYPE_PREFIX}_{d["name"]}', 'type':'BOOLEAN', "default":default, 'name': d["name"].replace("_", " ").title(), 'description':'', 'set':None, 'icon':d['icon']},)
 
     return datatype_result
 
@@ -132,4 +128,4 @@ def init_current_item_index(umi_settings):
     umi_settings.umi_current_item_index.clear()
     for d in DATATYPE_LIST:
         index = umi_settings.umi_current_item_index.add()
-        index.name = d
+        index.name = d['name']
