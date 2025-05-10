@@ -323,8 +323,6 @@ class CommandBatcher(bpy.types.Operator):
                 self.end = True
 
             if self.finished:
-                # if self.current_element_to_process:
-                #     self.umi_settings.umi_current_item_index[self.current_element_to_process[0]].index += self.current_operation_number
                 return self.finish(context)
 
             # Feed Pre-Process Operator
@@ -522,10 +520,19 @@ class CommandBatcher(bpy.types.Operator):
         else:
             LOG.separator()
 
-
+        # Feed new element to process
         self.current_element_to_process = self.element_to_process
+
+        # Remove data from umi_imported_data
+        for i,d in enumerate(self.umi_settings.umi_imported_data):
+            if d.data == self.current_element_to_process[2]:
+                self.umi_settings.umi_imported_data.remove(i)
+                break
+
+        # increment processed element
         if self.current_element_proccessed[self.current_element_to_process[0]]:
             self.processed_elements[self.current_element_to_process[0]] += 1
+
         self.current_element_name_to_process = self.current_element_to_process[1].name
         self.current_element_number += 1
         self.element_progress = round(self.current_element_number * 100 / self.number_of_element_to_process, 2)

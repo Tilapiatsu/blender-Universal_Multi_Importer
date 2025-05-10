@@ -923,7 +923,7 @@ class UMI(bpy.types.Operator, ImportHelper):
                         bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
                 # Running Current Batcher on Imported Objects
-                elif len(self.objects_to_process):
+                elif len(self.objects_to_process) or len(self.umi_settings.umi_imported_data):
                     self.post_import_command(self.objects_to_process)
                     self.objects_to_process = []
 
@@ -1092,8 +1092,6 @@ class UMI(bpy.types.Operator, ImportHelper):
                         data.data = d['data']
                         data.data_type = d['data_type']
                         data.name = eval(d['data']).name
-
-                    # self.objects_to_process = self.objects_to_process + [d.data for d in self.umi_settings.umi_imported_data]
 
         del before_import_data
 
