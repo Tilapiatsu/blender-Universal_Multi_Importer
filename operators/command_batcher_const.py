@@ -4,7 +4,8 @@ import time
 from ..umi_const import get_umi_settings
 
 COMMAND_BATCHER_INPUT_ITEMS = [ ('ITEM_NAME', 'Item Name (str)', 'Returns the name of the item. The item depends on what is being processed : If the processed item is an object, it will returns the object name. If the processed item is a material, it will return the material name etc ...'),
-                                ('ITEM_INDEX', 'Item Index (int)', 'Returns a integer from 0 to n where 0 is the first item processed and n the last item.'),
+                                ('GLOBAL_ITEM_INDEX', 'Global Item Index (int)', 'Returns a integer from 0 to n where 0 is the first item processed and n the last item.'),
+                                ('DATA_ITEM_INDEX', 'Item Index (int)', 'Returns a integer from 0 to n where 0 is the first item processed and n the last item of a given Datatype.'),
                                 ('ITEM_DATA', 'Item Data (str)', r'Returns a string that point to the data of the currently processed item. If the processed item is an object, it will return bpy.data.objects[ObjectName],  and If the processed item is a material, it will return bpy.data.materials[MaterialName].\nIt allows you to access the data of the currently processed item and modify it the way you want'),
                                 ('OBJECT_BBOX', 'Object Bounding Box Size (vector3)', 'Works if the processed item is an object : It returns a Vector3 that represent the bounding box size of the object.'),
                                 ('TIMEF', 'Time (float)', 'Returns a float representing the current time'),
@@ -51,8 +52,9 @@ def vector_to_string(v) -> str:
     s = str((v[0], v[1], v[2]))
     return s
 
-def get_command_batcher_output_string(item_index: int, item_name:str, item_data:str, object=None) -> list[str]:
+def get_command_batcher_output_string(global_item_index:int, item_index: int, item_name:str, item_data:str, object=None) -> list[str]:
     return [item_name,
+            str(global_item_index),
             str(item_index),
             str(item_data),
             str((0, 0, 0)) if object is None else vector_to_string(get_bound_box_size(object)),

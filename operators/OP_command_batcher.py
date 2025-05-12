@@ -380,6 +380,7 @@ class CommandBatcher(bpy.types.Operator):
                     command = replace_keywords( command,
                                                 COMMAND_BATCHER_INPUT_STRING,
                                                 get_command_batcher_output_string(
+                                                    self.global_processed_elements,
                                                     self.processed_elements[self.current_element_to_process[0]] + self.umi_settings.umi_current_item_index[self.current_element_to_process[0]].index,
                                                     self.current_element_name_to_process,
                                                     self.current_element_to_process[2],
@@ -453,6 +454,7 @@ class CommandBatcher(bpy.types.Operator):
         self.current_operation_number = 0
         self.current_element_number = 0
         self.processed_elements = {t['name']:0 for t in DATATYPE_LIST}
+        self.global_processed_elements = 0
         self.operators_to_process = []
         self.pre_operators_to_process = []
         self.post_operators_to_process = []
@@ -533,9 +535,10 @@ class CommandBatcher(bpy.types.Operator):
                 break
 
         # increment processed element
-        if getattr(self.current_element_proccessed, self.current_element_to_process[0], None):
+        if self.current_element_proccessed[self.current_element_to_process[0]]:
             self.processed_elements[self.current_element_to_process[0]] += 1
 
+        self.global_processed_elements += 1
         self.current_element_name_to_process = self.current_element_to_process[1].name
         self.current_element_number += 1
         self.element_progress = round(self.current_element_number * 100 / self.number_of_element_to_process, 2)
