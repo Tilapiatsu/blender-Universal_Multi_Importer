@@ -101,7 +101,7 @@ These commands will be executed in a row to all the imported objects after each 
 
 It will process in that order :
 - Execute all commands in `Pre-Process` list
-- Import Batch 1<br>-
+- Import Batch 1
 - Run all Commands in `Each Element` list
 - Repeat for next Batches until the last bacth...
 - Execute all commands in `Post-Process` list
