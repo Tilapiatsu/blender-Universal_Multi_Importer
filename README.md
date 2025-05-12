@@ -94,16 +94,54 @@ This addon is adding batch import features to existing importers for blender. Th
 | Backup file after each import | A backup file is saved after each "`Backup Step`" file is imported |
 | Backup Step | The number of file that is imported before saving a backup |
 ## Command Batcher
-|  |  |
+
+The command Batcher allows you to reun python commands while importing files or at anytime in blender by running `Object`>`Command Batcher`
+![UMI-Command-Batcher-Improvements.png](https://i.postimg.cc/rs81wdqF/UMI-Command-Batcher-Improvements.png)
+These commands will be executed in a row to all the imported objects after each imported batch.
+
+It will process in that order :
+- Execute all commands in `Pre-Process` list
+- Import Batch 1<br>-
+- Run all Commands in `Each Element` list
+- Repeat for next Batches until the last bacth...
+- Execute all commands in `Post-Process` list
+
+For example, if you add this command "`bpy.ops.transform.translate(value=(10, 0, 0))`", each imported file will be translated 10 meters away on positive X axis
+
+Please note how the commands are written with `bpy.ops` and all parameters in parentheses
+
+/!\ ***You can't create variable, for loops or if statements. Just commands that blender will execute***
+
+
+You can also insert variables in the command that will be replaced by the proper value at runtime.
+
+You can choose if the command has to be executed for a specific datatype or many by checking the proper data type in the `applies to` panel.
+
+
+![UMI-Add-command.png](https://i.postimg.cc/y8xhWMZY/UMI-add-command.png)
+|  Variable |  Description  |
 | ----------- | ----------- |
-|Commands | You create a macro like python commands list. These commands will be executed in a row to all the imported objects after each imported batch.<br><br> It will process in that order :<br> - Execute all commands in `Pre-Process` list<br> - Import Batch 1<br>-  Run all Commands in `Each Element` list<br>-  Repeat for next Batches until the last bacth...<br>-  Execute all commands in `Post-Process` list  <br><br>For example, if you add this command "`bpy.ops.transform.translate(value=(10, 0, 0))`", each imported file will be translated 10 meters away on positive X axis <br><br> Please note how the commands are written with `bpy.ops` and all parameters in parentheses <br> You can't create variable, for loops or if statements. Just commands that blender will execute|
+| <ITEM_NAME>           | (str) Name of the processed Item. |
+| <GLOBAL_ITEM_INDEX>   | (int) The global index of processed intm |
+| <DATA_ITEM_INDEX>     | (int) The index of the item per data type. Each Data type have it's own index, which help with processing item per type |
+| <ITEM_DATA>           | (str) A string when evaluated refers to the data of the processed item. eg: `bpy.data.objects['table']` or `bpy.data.sounds['beep']` |
+| <OBJECT_BBOX>         | (vector3) Works for object data type only. Returns the bounding box size of the processed object. If you use this variable on other datatype, it will return `(0, 0, 0)` |
+| <TIMEF>               | (float) Returns a value that represent the current time |
+| <TIMESTR>             | (str) Returns a readable sentence the read the current date and time. eg : `Mon May 12 23:04:03 2025`|
+| <BVERSION>            | (str) Returns the current blender version. eg: `4.4.0`|
+
+| Other Settings |  |
+| ----------- | ----------- |
 | Ignore Command Batcher Errors | Batch Processing imported files can cause error. Enabling this will continue the import of the following files even if an error occurs. Otherwise, the import process will stop |
 | Presets | You can save any list of commands from `batch process Imported files` to a preset that will be saved on disk. Here you can manage the presets: <br>- Creating preset<br>- Loading Preset <br>- Removing Preset<br>- Renaming Preset|
+
+
 
 
 # Changelog
 ### v2.3.0 : Command Batcher can now process any Blender Data Type ( Restricted to Objects before)
 ### v2.3.0 : Command Batcher can execute commands for a specific or multiple datatype
+![UMI-Add-command.png](https://i.postimg.cc/y8xhWMZY/UMI-add-command.png)
 ### v2.2.2 : Bump Compatible version of GLTF addon for blender 4.4.1 support
 ### v2.2.2 : Add Setting to setup default window width in the addon preference
 ### v2.2.1 : Add feature to recreate folder structure as collections in `Import Folder` mode
