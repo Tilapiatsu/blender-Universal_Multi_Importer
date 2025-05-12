@@ -368,7 +368,8 @@ class CommandBatcher(bpy.types.Operator):
                     if not getattr(self.current_command, f'{DATATYPE_PREFIX}_{self.current_element_to_process[0]}'):
                         self.current_command = None
                         LOG.info(f'Skipping : command does NOT applied to this data type : {self.current_element_to_process[0]}', color=LoggerColors.COMMAND_WARNING_COLOR())
-
+                        if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_each_command:
+                            bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
                         return {'PASS_THROUGH'}
 
                     self.progress += 100 / self.number_of_operations_to_perform
@@ -408,6 +409,8 @@ class CommandBatcher(bpy.types.Operator):
                     LOG.store_failure(message)
                     self.process_succeeded.append(False)
 
+                if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_each_command:
+                    bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
                 self.current_command = None
 
         return {'PASS_THROUGH'}
@@ -530,7 +533,7 @@ class CommandBatcher(bpy.types.Operator):
                 break
 
         # increment processed element
-        if self.current_element_proccessed[self.current_element_to_process[0]]:
+        if getattr(self.current_element_proccessed, self.current_element_to_process[0], None):
             self.processed_elements[self.current_element_to_process[0]] += 1
 
         self.current_element_name_to_process = self.current_element_to_process[1].name

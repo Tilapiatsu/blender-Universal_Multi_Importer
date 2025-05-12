@@ -4,27 +4,44 @@ import math
 from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST, get_operator_boolean, DATATYPE_PREFIX, DATATYPE_PROPERTIES, DATATYPE_LIST
 from .operators_const import COMMAND_BATCHER_PRESET_FOLDER
 from ..command_batcher_const import COMMAND_BATCHER_INPUT_ITEMS, COMMAND_BATCHER_ITEM_COUNT, COMMAND_BATCHER_VARIABLE
+from ...ui.panel import draw_panel
+from ...bversion import BVERSION
 
 
-datatype_col_count = math.ceil(len(DATATYPE_LIST)/3)
+datatype_col_count = math.ceil(len(DATATYPE_LIST)/4)
 batcher_item_col_count = math.ceil(COMMAND_BATCHER_ITEM_COUNT/7)
 
 def operators(self, context, edit_text):
     return OPERTAOR_LIST
 
 def draw_applies_to(self, layout):
-    layout.label(text='Applies to :')
-    row = layout.row(align=True)
-    row.alignment = 'EXPAND'
-    for i, d in enumerate(DATATYPE_PROPERTIES):
-        if i % datatype_col_count == 0:
-            col = row.column(align=True)
-            col.alignment = 'EXPAND'
-        row1 = col.row(align=True)
-        row1.alignment = 'RIGHT'
-        row1.label(text=d['name'])
-        row1.label(text='', icon=d['icon'])
-        row1.prop(self, f'{d["property"]}', text='')
+    layout.use_property_split = True
+    layout.use_property_decorate = False
+
+    if BVERSION >= 4.2:
+        header, panel = layout.panel(idname='COMAND_AppliesTo')
+        header.label(text='Applies to :', icon='OPTIONS')
+    else:
+        panel = layout.box()
+        header = panel.row(align=True)
+        header.label(text='Applies to :', icon='OPTIONS')
+
+    if panel:
+        row = panel.row()
+        row.alignment = 'EXPAND'
+        for i, d in enumerate(DATATYPE_PROPERTIES):
+            if i % datatype_col_count == 0:
+                col = row.column(align=True)
+                col.alignment = 'RIGHT'
+            row1 = col.row(align=True)
+            row1.alignment = 'RIGHT'
+            row1.label(text=d['name'])
+            row1.label(text='', icon=d['icon'])
+            row1.prop(self, f'{d["property"]}', text='')
+
+        col3 = row.column(align=True)
+        col3.alignment = 'RIGHT'
+        col3.label(text='')
 
 def read_applies_to(self, current_operator):
     for d in DATATYPE_PROPERTIES:
@@ -40,20 +57,27 @@ def draw_add_edit_operator(self, layout):
     col.prop(self, 'operator', text='')
     col.separator()
 
-    box = col.box()
-    box.use_property_split = True
-    box.use_property_decorate = False  # No animation.
-    box.label(text='Inject Variable:')
+    col.use_property_split = True
+    col.use_property_decorate = False
 
-    row = box.row(align=True)
+    if BVERSION >= 4.2:
+        header, panel = col.panel(idname='COMMAND_InjectVariable')
+        header.label(text='Inject Variable :', icon='SORTALPHA')
+    else:
+        panel = col.box()
+        header = panel.row(align=True)
+        header.label(text='Inject Variable :', icon='SORTALPHA')
 
-    for i, c in enumerate(COMMAND_BATCHER_VARIABLE):
-        if i % batcher_item_col_count == 0:
-            sub_col = row.column(align=True)
+    if panel:
+        row = panel.row()
+        row.alignment = 'EXPAND'
+        for i, c in enumerate(COMMAND_BATCHER_VARIABLE):
+            if i % batcher_item_col_count == 0:
+                sub_col = row.column(align=True)
 
-        sub_col.prop(self, f'{c["property"]}', text='')
+            sub_col.prop(self, f'{c["property"]}', text='')
 
-    draw_applies_to(self, box)
+    draw_applies_to(self, col)
 
 if not os.path.exists(COMMAND_BATCHER_PRESET_FOLDER):
     print(f'UMI : Creating Preset Folder : {COMMAND_BATCHER_PRESET_FOLDER}')

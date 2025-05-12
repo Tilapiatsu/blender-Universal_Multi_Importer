@@ -122,6 +122,7 @@ class PG_GlobalSettings(bpy.types.PropertyGroup):
     auto_hide_text_when_finished : bpy.props.BoolProperty(name="Auto Hide Log When Finished", default=False)
     wait_before_hiding : bpy.props.FloatProperty(name="Wait Before Hiding (s)", default=5.0)
     force_refresh_viewport_after_each_import : bpy.props.BoolProperty(name="Refresh Viewport After Each Imported Files", default=False)
+    force_refresh_viewport_after_each_command : bpy.props.BoolProperty(name="Refresh Viewport After Each Processed Command", default=True)
     force_refresh_viewport_after_time : bpy.props.FloatProperty(name="Refresh Viewport After time (s)", default=1.0, min=0, description='The viewport will refresh after the X seconds. It help to control viewport interactivity. A value of 0 will disable it, and the viewport will refresh after each batch')
 
 class PG_UMISettings(bpy.types.PropertyGroup):

@@ -40,7 +40,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
     import_pointclouds : bpy.props.BoolProperty(name="Point Clouds", default=False)
     import_lightprobes : bpy.props.BoolProperty(name="Light Probes", default=False)
     import_scenes : bpy.props.BoolProperty(name="Scenes", default=False)
-    import_shape_keys : bpy.props.BoolProperty(name="Shape Keys", default=False)
+    # import_shape_keys : bpy.props.BoolProperty(name="Shape Keys", default=False)
     import_sounds : bpy.props.BoolProperty(name="Sounds", default=False)
     import_speakers : bpy.props.BoolProperty(name="Speakers", default=False)
     import_texts : bpy.props.BoolProperty(name="Texts", default=False)
@@ -54,7 +54,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
     import_to_collection_source = ['objects', 'collections']
     import_to_collection_rnatype_name = ['Object', 'Collection']
     force_append_mode = ['collections', 'workspaces', 'volumes', 'scenes', 'lightprobes', 'particles', 'pointclouds']
-    excluded_datatypes = ['batch_remove', 'bl_rna', 'filepath', 'is_dirty', 'is_saved', 'libraries', 'orphans_purge', 'rna_type', 'screens', 'temp_data', 'use_autopack', 'user_map', 'version', 'window_managers']
+    excluded_datatypes = ['batch_remove', 'bl_rna', 'filepath', 'is_dirty', 'is_saved', 'libraries', 'orphans_purge', 'rna_type', 'screens', 'temp_data', 'use_autopack', 'user_map', 'version', 'window_managers', 'shape_keys']
     dependency_datatype = [	'ACTION',
                             'ARMATURE',
                             'BRUSH',
@@ -162,7 +162,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             if p.startswith('__'):
                 continue
 
-            print(src.name, p)
+            # print(src.name, p)
             if p in ['layers_uv_select_src', 'layers_vcol_select_src']:
                 continue
 
@@ -330,15 +330,20 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             new_name = self.unique_name.get_unique_name(name)
             element = getattr(bpy.data, source)[name]
             need_rename[name] = element
-            element.name = new_name
+            try:
+                element.name = new_name
+            except AttributeError as e:
+                need_rename[name] = None
+                print(e)
 
         return need_rename
 
     def revert_name_collision(self, source:str, duplicate_data_names:dict, import_data_names:list):
         data = getattr(bpy.data, source)
 
-
         for name in duplicate_data_names.keys():
+            if duplicate_data_names[name] is None:
+                continue
             new_name = self.unique_name.get_next_valid_name(name)
             data[name].name = new_name
 
@@ -512,8 +517,8 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             self.import_command('lightprobes')
         if self.import_scenes:
             self.import_command('scenes')
-        if self.import_shape_keys:
-            self.import_command('shape_keys')
+        # if self.import_shape_keys:
+        #     self.import_command('shape_keys')
         if self.import_sounds:
             self.import_command('sounds')
         if self.import_speakers:

@@ -22,7 +22,6 @@ def get_datalist():
                         {'name':'images',           'icon':'IMAGE_DATA'},
                         {'name':'lattices',         'icon':'LATTICE_DATA'},
                         {'name':'libraries',        'icon':'LIBRARY_DATA_DIRECT'},
-                        {'name':'lightprobes',      'icon':'LIGHTPROBE_SPHERE'},
                         {'name':'lights',           'icon':'LIGHT'},
                         {'name':'linestyles',       'icon':'LINE_DATA'},
                         {'name':'masks',            'icon':'MOD_MASK'},
@@ -36,7 +35,7 @@ def get_datalist():
                         {'name':'palettes',         'icon':'RESTRICT_COLOR_ON'},
                         {'name':'particles',        'icon':'PARTICLE_DATA'},
                         {'name':'scenes',           'icon':'SCENE_DATA'},
-                        {'name':'shape_keys',       'icon':'SHAPEKEY_DATA'},
+                        # {'name':'shape_keys',       'icon':'SHAPEKEY_DATA'},
                         {'name':'sounds',           'icon':'PLAY_SOUND'},
                         {'name':'speakers',         'icon':'PLAY_SOUND'},
                         {'name':'texts',            'icon':'FILE_TEXT'},
@@ -45,6 +44,12 @@ def get_datalist():
                         {'name':'workspaces',       'icon':'WORKSPACE'},
                         {'name':'worlds',           'icon':'WORLD'}
                     ]
+
+
+    if BVERSION >= 4.1:
+        datatype_list.append({'name':'lightprobes', 'icon':'LIGHTPROBE_SPHERE'},)
+    else:
+        datatype_list.append({'name':'lightprobes', 'icon':'LIGHTPROBE_CUBEMAP'},)
 
     if BVERSION >= 3.1:
         datatype_list.append({'name':'pointclouds', 'icon':'OUTLINER_OB_FONT'})
@@ -55,6 +60,7 @@ def get_datalist():
     if BVERSION >= 4.3:
         datatype_list.append({'name':'grease_pencils_v3', 'icon':'OUTLINER_OB_GREASEPENCIL'})
 
+    datatype_list.sort(key=lambda name: name['name'])
     return datatype_list
 
 

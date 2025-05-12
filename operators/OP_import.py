@@ -494,6 +494,8 @@ class UMI_FileSelection(bpy.types.Operator):
                     if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
                         column.prop(self.umi_settings.umi_global_import_settings, 'wait_before_hiding')
                 column.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_each_import')
+                column.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_each_command')
+
 
             header, backup = col.panel(idname='UMI_backup')
             header.label(text='backup', icon='FILE_TICK')
@@ -539,6 +541,7 @@ class UMI_FileSelection(bpy.types.Operator):
                 if self.umi_settings.umi_global_import_settings.auto_hide_text_when_finished:
                     column.prop(self.umi_settings.umi_global_import_settings, 'wait_before_hiding')
             column.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_each_import')
+            column.prop(self.umi_settings.umi_global_import_settings, 'force_refresh_viewport_after_each_command')
 
 
             backup = layout.box()
@@ -967,7 +970,7 @@ class UMI(bpy.types.Operator, ImportHelper):
     def get_imported_data(self, before_imported_data)->list:
         imported_data = []
         for d in dir(bpy.data):
-            if d.startswith('_') or d == 'objects':
+            if d.startswith('_') or d in ['objects', 'screens']:
                 continue
 
 
@@ -1227,6 +1230,9 @@ class UMI(bpy.types.Operator, ImportHelper):
 
         if len(new_objects) and new_objects[0].name not in import_col.all_objects:
             for o in new_objects:
+                if not len(o.users_collection):
+                    print(f'skip linking "{o.name}" to collection')
+                    continue
                 previous_col = o.users_collection[0]
                 import_col.objects.link(o)
                 previous_col.objects.unlink(o)
