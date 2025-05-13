@@ -7,6 +7,7 @@ COMMAND_BATCHER_INPUT_ITEMS = [ ('ITEM_NAME', 'Item Name (str)', 'Returns the na
                                 ('GLOBAL_ITEM_INDEX', 'Global Item Index (int)', 'Returns a integer from 0 to n where 0 is the first item processed and n the last item.'),
                                 ('DATA_ITEM_INDEX', 'Item Index (int)', 'Returns a integer from 0 to n where 0 is the first item processed and n the last item of a given Datatype.'),
                                 ('ITEM_DATA', 'Item Data (str)', r'Returns a string that point to the data of the currently processed item. If the processed item is an object, it will return bpy.data.objects[ObjectName],  and If the processed item is a material, it will return bpy.data.materials[MaterialName].\nIt allows you to access the data of the currently processed item and modify it the way you want'),
+                                ('OBJECTS', 'Objects (list)', 'Returns a list of objects using the given data. The Command will be executed for each objects in the list'),
                                 ('OBJECT_BBOX', 'Object Bounding Box Size (vector3)', 'Works if the processed item is an object : It returns a Vector3 that represent the bounding box size of the object.'),
                                 ('TIMEF', 'Time (float)', 'Returns a float representing the current time'),
                                 ('TIMESTR', 'Time (str)', 'Returns a string representing the curent date'),
@@ -53,12 +54,41 @@ def vector_to_string(v) -> str:
     return s
 
 def get_command_batcher_output_string(global_item_index:int, item_index: int, item_name:str, item_data:str, object=None) -> list[str]:
-    return [item_name,
-            str(global_item_index),
-            str(item_index),
-            str(item_data),
-            str((0, 0, 0)) if object is None else vector_to_string(get_bound_box_size(object)),
-            str(time.time()),
-            time.asctime(),
-            bpy.app.version_string]
+    objects = []
+    data = eval(item_data)
+    data_type = data.id_type
+    for o in bpy.data.objects:
+        if o.type != data_type:
+            continue
+        if o.data == data:
+            objects.append(o)
+
+    
+
+    if not len(objects):
+        return [
+                    [item_name,
+                    str(global_item_index),
+                    str(item_index),
+                    str(item_data),
+                    '',
+                    str((0, 0, 0)) if object is None else vector_to_string(get_bound_box_size(object)),
+                    str(time.time()),
+                    time.asctime(),
+                    bpy.app.version_string]
+                ]
+    else:
+        commands = []
+        for o in objects:
+            commands.append([item_name,
+                            str(global_item_index),
+                            str(item_index),
+                            str(item_data),
+                            f'bpy.data.objects["{o.name}"]',
+                            str((0, 0, 0)) if object is None else vector_to_string(get_bound_box_size(object)),
+                            str(time.time()),
+                            time.asctime(),
+                            bpy.app.version_string])
+
+        return commands
 

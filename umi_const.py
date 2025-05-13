@@ -35,7 +35,7 @@ def get_datalist():
                         {'name':'palettes',         'icon':'RESTRICT_COLOR_ON'},
                         {'name':'particles',        'icon':'PARTICLE_DATA'},
                         {'name':'scenes',           'icon':'SCENE_DATA'},
-                        # {'name':'shape_keys',       'icon':'SHAPEKEY_DATA'},
+                        {'name':'shape_keys',       'icon':'SHAPEKEY_DATA'},
                         {'name':'sounds',           'icon':'PLAY_SOUND'},
                         {'name':'speakers',         'icon':'PLAY_SOUND'},
                         {'name':'texts',            'icon':'FILE_TEXT'},
@@ -117,7 +117,7 @@ def get_batcher_list_name() -> str:
     return target
 
 def get_batcher_index_name() -> str:
-    return get_batcher_list_name()+'_idx'
+    return get_batcher_list_name()[:-1]+'_idx'
 
 def get_operators_list():
     i = 0
