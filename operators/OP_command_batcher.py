@@ -5,6 +5,30 @@ from ..umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_c
 from .command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
 
 
+def which_keywords(sentence: str, input_string: list[str], delimitator: tuple[str] = ('<', '>')) -> list[str]:
+    keywords = []
+
+    keyword_pattern = re.compile(r'[{0}]([a-zA-Z0-9_]+)[{1}]'.format(delimitator[0], delimitator[1]), re.IGNORECASE)
+
+    matches = keyword_pattern.finditer(sentence)
+
+    while(sum(1 for _ in matches)):
+        matches = keyword_pattern.finditer(sentence)
+        m = next(matches)
+        match = m.groups()[0]
+        valid:bool = True
+        if match not in input_string:
+            print(f'Invalid Keyword : <{match}>')
+            valid = False
+
+        if valid:
+            if match not in keywords:
+                keywords.append(match)
+            sentence = sentence[m.end():]
+
+    return keywords
+
+
 def replace_keywords(sentence: str, input_string: list[str], output_string: list, delimitator: tuple[str] = ('<', '>')) -> str:
     result_sentence = [sentence for _ in range(len(output_string))]
 
@@ -23,6 +47,9 @@ def replace_keywords(sentence: str, input_string: list[str], output_string: list
                 valid = False
 
             if valid:
+                if match == 'OBJECTS' and o[input_string.index(match)] == '':
+                    result_sentence[i] = '<PASS>'
+                    continue
                 output = o[input_string.index(match)]
             else:
                 output = 'INVALID_KEYWORD'
@@ -30,7 +57,6 @@ def replace_keywords(sentence: str, input_string: list[str], output_string: list
             sub_sentence:str = result_sentence[i][m.start():]
             sub_sentence = sub_sentence.replace(f'{delimitator[0]}{match}{delimitator[1]}', output, 1)
             result_sentence[i] = result_sentence[i][:m.start()] + sub_sentence
-            # matches = keyword_pattern.finditer(result_sentence[i])
 
     return result_sentence
 
@@ -372,27 +398,31 @@ class CommandBatcher(bpy.types.Operator):
                     if not getattr(self.current_command, f'{DATATYPE_PREFIX}_{self.current_element_to_process[0]}'):
                         self.current_command = None
                         LOG.info(f'Skipping : command does NOT applied to this data type : {self.current_element_to_process[0]}', color=LoggerColors.COMMAND_WARNING_COLOR())
-                        # if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_each_command:
-                        #     bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
                         return {'PASS_THROUGH'}
 
                     self.progress += 100 / self.number_of_operations_to_perform
 
                     ob = None if self.current_element_to_process[0] != 'objects' else self.current_element_to_process[1]
+
+                    # keywords = which_keywords(command, COMMAND_BATCHER_INPUT_STRING)
+
                     command_output_strings = get_command_batcher_output_string(
-                                                                            self.global_processed_elements,
-                                                                            self.processed_elements[self.current_element_to_process[0]] + self.umi_settings.umi_current_item_index[self.current_element_to_process[0]].index,
-                                                                            self.current_element_name_to_process,
-                                                                            self.current_element_to_process[2],
-                                                                            ob)
+                                                                                self.global_processed_elements,
+                                                                                self.processed_elements[self.current_element_to_process[0]] + self.umi_settings.umi_current_item_index[self.current_element_to_process[0]].index,
+                                                                                self.current_element_name_to_process,
+                                                                                self.current_element_to_process[2],
+                                                                                ob)
+
                     # Replace Keyword with Proper Value
-                    commands = replace_keywords( command,
-                                                COMMAND_BATCHER_INPUT_STRING,
-                                                command_output_strings
+                    commands = replace_keywords(    command,
+                                                    COMMAND_BATCHER_INPUT_STRING,
+                                                    command_output_strings
                                                 )
 
                     self.current_operation_number += 1
                     for c in commands:
+                        if c == '<PASS>':
+                            continue
                         LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{c}"', color=LoggerColors.COMMAND_COLOR())
                         override = {}
                         if self.pre_process_done and not self.each_process_done:
@@ -441,7 +471,7 @@ class CommandBatcher(bpy.types.Operator):
         self.data_to_process =  [eval(d.data) for d in self.umi_settings.umi_imported_data]
         element_list = (list(zip(['objects' for _ in self.objects_to_process], self.objects_to_process, [f'bpy.data.objects["{o.name}"]' for o in self.objects_to_process], [o.name for o in self.objects_to_process])) +
                         list(zip([d.data_type for d in self.umi_settings.umi_imported_data], self.data_to_process, [d.data for d in self.umi_settings.umi_imported_data], [d.name for d in self.umi_settings.umi_imported_data])))
-        
+
         self.element_to_process_iter = iter(element_list)
 
         if self.execute_each_process and not (self.element_to_process_count + len(self.data_to_process)):

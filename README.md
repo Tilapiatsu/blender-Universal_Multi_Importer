@@ -125,11 +125,11 @@ You can choose if the command has to be executed for a specific datatype or many
 | <GLOBAL_ITEM_INDEX>   | (int) The global index of processed intm |
 | <DATA_ITEM_INDEX>     | (int) The index of the item per data type. Each Data type have it's own index, which help with processing item per type |
 | <ITEM_DATA>           | (str) A string when evaluated refers to the data of the processed item. eg: `bpy.data.objects['table']` or `bpy.data.sounds['beep']` |
-| <OBJECTS>           | (list) Returns a list of objects using the given data. The Command will be executed for each objects in the list |
+| \<OBJECTS>             | (list) Returns a list of objects using the given data. The Command will be executed for each objects in the list |
 | <OBJECT_BBOX>         | (vector3) Works for object data type only. Returns the bounding box size of the processed object. If you use this variable on other datatype, it will return `(0, 0, 0)` |
-| <TIMEF>               | (float) Returns a value that represent the current time |
-| <TIMESTR>             | (str) Returns a readable sentence the read the current date and time. eg : `Mon May 12 23:04:03 2025`|
-| <BVERSION>            | (str) Returns the current blender version. eg: `4.4.0`|
+| \<TIMEF>               | (float) Returns a value that represent the current time |
+| \<TIMESTR>             | (str) Returns a readable sentence the read the current date and time. eg : `Mon May 12 23:04:03 2025`|
+| \<BVERSION>            | (str) Returns the current blender version. eg: `4.4.0`|
 
 | Other Settings |  |
 | ----------- | ----------- |

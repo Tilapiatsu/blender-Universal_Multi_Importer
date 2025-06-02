@@ -57,13 +57,29 @@ def get_command_batcher_output_string(global_item_index:int, item_index: int, it
     objects = []
     data = eval(item_data)
     data_type = data.id_type
-    for o in bpy.data.objects:
-        if o.type != data_type:
-            continue
-        if o.data == data:
-            objects.append(o)
 
-    
+    # Get Object list from data
+    if data_type not in ['OBJECT']:
+        for o in bpy.data.objects:
+            if data_type == 'ACTION':
+                ad = getattr(o, 'animation_data', None)
+                if ad is None:
+                    continue
+
+                if ad.action == data:
+                    objects.append(o)
+
+            elif data_type == 'MATERIAL':
+                for m in o.material_slots:
+                    if m.material != data:
+                        continue
+                    objects.append(o)
+
+            else:
+                if o.type != data_type:
+                    continue
+                if o.data == data:
+                    objects.append(o)
 
     if not len(objects):
         return [
