@@ -59,7 +59,7 @@ class ClassPropertyInjection():
                 continue
 
     def unregister(self):
-        for c in reversed(self.datatype_classes):
+        for c in reversed(self.property_classes):
             if c is None:
                 continue
             try:

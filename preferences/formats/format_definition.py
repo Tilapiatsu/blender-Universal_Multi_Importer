@@ -8,7 +8,10 @@ def fbx_operators() -> FormatOperator:
                         '5.4.0',
                         addon_name='io_scene_fbx')
 
-    if BVERSION >= 4.4:
+    if BVERSION >= 4.5:
+        f.supported_version = '5.13.0'
+
+    elif BVERSION >= 4.4:
         f.supported_version = '5.12.7'
 
     elif BVERSION >= 4.3:
@@ -62,7 +65,10 @@ def gltf_operators() -> FormatOperator:
                         '3.6.27',
                         addon_name='io_scene_gltf2')
 
-    if BVERSION >= 4.401:
+    if BVERSION >= 4.5:
+        f.supported_version = '4.5.34'
+
+    elif BVERSION >= 4.401:
         f.supported_version = '4.4.56'
 
     elif BVERSION >= 4.4:
@@ -388,7 +394,7 @@ def max3ds_operators() -> FormatOperator:
         f.addon_name = 'bl_ext.blender_org.autodesk_3ds_format'
         f.pkg_id = 'autodesk_3ds_format'
         f.pkg_url = 'https://extensions.blender.org/add-ons/autodesk-3ds-format/'
-        f.supported_version = '2.7.6'
+        f.supported_version = '2.8.3'
 
     elif BVERSION >= 4.1:
         f.supported_version = '2.4.9'
