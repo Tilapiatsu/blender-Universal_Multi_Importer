@@ -140,10 +140,10 @@ You can choose if the command has to be executed for a specific datatype or many
 
 
 # Changelog
-### v2.3.0 : Command Batcher can now process any Blender Data Type ( Restricted to Objects before)
-### v2.3.0 : Command Batcher can execute commands for a specific or multiple datatype
-![UMI-Add-command.png](https://i.postimg.cc/y8xhWMZY/UMI-add-command.png)
 ### v2.3.0 : Add Support for Blender 4.5.0
+### v2.3.0 : Command Batcher can execute commands for a specific or multiple datatypes
+![UMI-Add-command.png](https://i.postimg.cc/y8xhWMZY/UMI-add-command.png)
+### v2.3.0 : Command Batcher can use predefined variable in order to access imported data
 ### v2.2.2 : Bump Compatible version of GLTF addon for blender 4.4.1 support
 ### v2.2.2 : Add Setting to setup default window width in the addon preference
 ### v2.2.1 : Add feature to recreate folder structure as collections in `Import Folder` mode
