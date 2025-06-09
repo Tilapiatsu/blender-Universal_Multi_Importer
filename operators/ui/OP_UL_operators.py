@@ -51,6 +51,10 @@ def set_applies_to(self, current_operator):
     for d in DATATYPE_PROPERTIES:
         exec(f'current_operator.{d["property"]} = self.{d["property"]}', {'self': self, 'current_operator': current_operator})
 
+def set_applies_to_from_duplicate(self, current_operator, reference_operator):
+    for d in DATATYPE_PROPERTIES:
+        exec(f'current_operator.{d["property"]} = reference_operator.{d["property"]}', {'self': self, 'current_operator': current_operator, 'reference_operator' : reference_operator})
+
 def draw_add_edit_operator(self, layout):
     col = layout.column()
     col.label(text='Command:')
@@ -198,6 +202,7 @@ class UI_UMIDuplicateOperator(bpy.types.Operator):
         o = target.add()
         o.enabled = target[self.id].enabled
         o.operator = target[self.id].operator
+        set_applies_to_from_duplicate(self, o, target[self.id])
         target.move(len(target) - 1, self.id + 1)
 
         return {'FINISHED'}
@@ -265,10 +270,12 @@ class UI_UMIAddOperator(bpy.types.Operator):
 classes = ( UI_UMIMoveOperator,
             UI_UMIClearOperators,
             UI_UMIRemoveOperator,
-            UI_UMIDuplicateOperator)
+            UI_UMIDuplicateOperator,
+            )
 
 datatype_classes = (UI_UMIEditOperator,
-                    UI_UMIAddOperator)
+                    UI_UMIAddOperator,
+                    )
 
 def register():
     from bpy.utils import register_class
