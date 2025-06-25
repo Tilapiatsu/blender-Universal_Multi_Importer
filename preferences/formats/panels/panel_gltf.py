@@ -9,12 +9,18 @@ class IMPORT_SCENE_GLTFSettings():
 
         if BVERSION >= 4.5:
             op =    [
-                    [operator, 'merge_vertices'],
                     [operator, 'import_shading'],
                     [operator, 'export_import_convert_lighting_mode']
                     ]
 
             draw_panel(layout, op, 'GLTFSettings_Options', 'Options', icon='OPTIONS')
+
+            op =    [
+                    [operator, 'merge_vertices'],
+                    [operator, 'import_merge_material_slots'],
+                    ]
+
+            draw_panel(layout, op, 'GLTFSettings_Mesh', 'Mesh', icon='OBJECT_DATA')
 
             op =    [
                     [operator, 'import_pack_images'],

@@ -593,7 +593,7 @@ class UMI(bpy.types.Operator, ImportHelper):
     import_folders : bpy.props.BoolProperty(name="Import Folder",default=False, options={'SKIP_SAVE'})
     directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
     # Import Settings
-    recursion_depth : bpy.props.IntProperty(name='Recursion Depth', default=0, min=0, description='How many Subfolders will be used to search for compatible files to import.\n/!\ WARNING : A too big number may result of a huge number of files to import and may cause instability')
+    recursion_depth : bpy.props.IntProperty(name='Recursion Depth', default=0, min=0, description='How many Subfolders will be used to search for compatible files to import.\n' + r'/!\ WARNING : A too high number may result of a huge number of files to import and may cause instability')
 
     _timer = None
     thread = None
