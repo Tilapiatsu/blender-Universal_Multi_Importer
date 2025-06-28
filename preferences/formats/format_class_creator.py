@@ -2,22 +2,22 @@ import bpy
 from . import COMPATIBLE_FORMATS
 
 ### from https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
-# class BaseClass(object):
-#     def __init__(self, classtype):
-#         self._type = classtype
+class BaseClass(object):
+    def __init__(self, classtype):
+        self._type = classtype
 
-# def ClassFactory(name, argnames, BaseClass=BaseClass):
-#     def __init__(self, **kwargs):
-#         for key, value in kwargs.items():
-#             # here, the argnames variable is the one passed to the
-#             # ClassFactory call
-#             if key not in argnames:
-#                 raise TypeError("Argument %s not valid for %s"
-#                     % (key, self.__class__.__name__))
-#             setattr(self, key, value)
-#         BaseClass.__init__(self, name[:-len("Class")])
-#     newclass = type(name, (BaseClass,),{"__init__": __init__})
-#     return newclass
+def ClassFactory(name, argnames, BaseClass=BaseClass):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            # here, the argnames variable is the one passed to the
+            # ClassFactory call
+            if key not in argnames:
+                raise TypeError("Argument %s not valid for %s"
+                    % (key, self.__class__.__name__))
+            setattr(self, key, value)
+        BaseClass.__init__(self, name[:-len("Class")])
+    newclass = type(name, (BaseClass,),{"__init__": __init__})
+    return newclass
 
 class FormatClassCreator():
     def __init__(self):
@@ -35,16 +35,21 @@ class FormatClassCreator():
     def compatible_formats_class(self):
         if self._classes is None:
             self._classes = {'classes':[], 'modules':[]}
+            from . import modules
             for f in COMPATIBLE_FORMATS.formats:
-                try:
-                    exec(f'from . import UMI_{f[0]}_module')
-                except ImportError:
+                if f'{f[0]}_module' not in modules:
                     continue
-                import_module = eval(f'UMI_{f[0]}_module')
+
+                import_module = modules[f'{f[0]}_module']
+                print(import_module)
+                print(import_module.__annotations__)
                 self._classes['modules'].append(import_module)
+
                 for name, operator in f[1]['operator'].items():
-                    exec(f'from . import UMI_{f[0]}_{name}_settings')
-                    format_class = eval(f'UMI_{f[0]}_{name}_settings')
+                    if f'{f[0]}_{name}' not in modules:
+                        continue
+
+                    format_class = modules[f'{f[0]}_{name}']
 
                     if operator['module'] is not None:
                         format_class = self.create_format_class_from_module(operator, format_class)

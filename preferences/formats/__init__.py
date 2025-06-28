@@ -13,7 +13,7 @@ from .format_handler import FormatHandler
 
 from . import properties
 
-from .format_class_creator import FormatClassCreator
+from .format_class_creator import FormatClassCreator, ClassFactory
 
 # function to register dynamically generated classes for each compatible formats
 def register_import_setting_class():
@@ -42,18 +42,25 @@ def unregister():
     class_parser.unregister_compatible_formats()
 
 def get_import_modules():
-    modules = []
+    modules = {}
     for f in COMPATIBLE_FORMATS.formats:
         module_items = [(m.upper(), m.title().replace('_', ' '), '') for m in f[1]['operator'].keys()]
-        modules.append(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import Module")')
+        modules[f'{f[0]}_module'] = ClassFactory(f'UMI_{f[0]}_module', {'items':module_items, 'name': 'Import Module'})
+        # modules.append(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import Module")')
         # exec(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import Module")')
         for name in f[1]['operator'].keys():
-            modules.append(f'class UMI_{f[0]}_{name}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[0]}_{name}")')
+            modules[f'{f[0]}_{name}'] = ClassFactory(f'UMI_{f[0]}_{name}_settings', {'items':module_items, 'name': bpy.props.StringProperty(name="Import Setting Name", default=f"{f[0]}_{name}")})
+            # modules.append(f'class UMI_{f[0]}_{name}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[0]}_{name}")')
             # exec(f'class UMI_{f[0]}_{name}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[0]}_{name}")')
 
     return modules
 
 modules = get_import_modules()
 
-for m in modules:
-    exec(m)
+# for m in modules:
+#     exec(m)
+
+# for f in COMPATIBLE_FORMATS.formats:
+#     print(eval(f'UMI_{f[0]}_module'))
+#     for name in f[1]['operator'].keys():
+#         print(eval(f'UMI_{f[0]}_{name}_settings'))
