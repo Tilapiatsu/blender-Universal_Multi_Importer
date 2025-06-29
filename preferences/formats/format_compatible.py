@@ -4,6 +4,7 @@ import addon_utils
 from .format_definition import FormatDefinition
 from . import FORMATS
 from ...logger import LOG
+from .panels import get_panels
 from .panels.presets import format_preset
 from ...bversion import AddonVersion
 from ...bversion.version import Version
@@ -292,8 +293,7 @@ class CompatibleFormats():
                 continue
 
     def draw_format_settings(self, context, format_name, operator, module_name, layout):
-        exec(f'from .panels import panel_{format_name}')
-        module = eval(f'panel_{format_name}.IMPORT_SCENE_{format_name.upper()}Settings')
+        module = get_panels(format_name)
         self.layout = layout
 
         format_preset.panel_func(self, context)

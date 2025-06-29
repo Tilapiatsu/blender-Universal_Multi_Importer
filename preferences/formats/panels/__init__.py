@@ -1,7 +1,22 @@
+import os
+import bpy
+import importlib
+from pathlib import Path
 from . import presets
 from ....bversion import BVERSION, AddonVersion
 from ....ui.panel import draw_panel, draw_no_settings, draw_version_warning, draw_prop
-from . import panel_abc, panel_blend, panel_dae, panel_fbx, panel_gltf, panel_obj, panel_ply, panel_stl, panel_svg, panel_usd, panel_x3d
+
+panel_path = [p.name.replace('panel_', '').replace('.py', '') for p in Path(os.path.dirname(__file__)).iterdir() if p.name.startswith('panel_') ]
+
+def get_panels(name: str):
+    if name not in panel_path:
+        return None
+
+    m = importlib.import_module('.preferences.formats.panels.panel_' + name, 'universal_multi_importer')
+
+    panel = getattr(m, f'IMPORT_SCENE_{name.upper()}Settings')
+    return panel
+
 
 modules = (presets,)
 
