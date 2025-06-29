@@ -7,16 +7,10 @@ class BaseClass(object):
         self._type = classtype
 
 def ClassFactory(name, argnames, BaseClass=BaseClass):
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            # here, the argnames variable is the one passed to the
-            # ClassFactory call
-            if key not in argnames:
-                raise TypeError("Argument %s not valid for %s"
-                    % (key, self.__class__.__name__))
-            setattr(self, key, value)
-        BaseClass.__init__(self, name[:-len("Class")])
-    newclass = type(name, (BaseClass,),{"__init__": __init__})
+    def __init__(self, *args, **kwargs):
+        BaseClass.__init__(self, *args, **kwargs)
+
+    newclass = type(name, (BaseClass,), {"__init__": __init__})
     return newclass
 
 class FormatClassCreator():
@@ -41,15 +35,13 @@ class FormatClassCreator():
                     continue
 
                 import_module = modules[f'{f[0]}_module']
-                print(import_module)
-                print(import_module.__annotations__)
                 self._classes['modules'].append(import_module)
 
                 for name, operator in f[1]['operator'].items():
-                    if f'{f[0]}_{name}' not in modules:
+                    if f'{f[0]}_{name}_settings' not in modules:
                         continue
 
-                    format_class = modules[f'{f[0]}_{name}']
+                    format_class = modules[f'{f[0]}_{name}_settings']
 
                     if operator['module'] is not None:
                         format_class = self.create_format_class_from_module(operator, format_class)

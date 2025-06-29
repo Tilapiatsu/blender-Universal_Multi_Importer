@@ -18,12 +18,16 @@ from .format_class_creator import FormatClassCreator, ClassFactory
 # function to register dynamically generated classes for each compatible formats
 def register_import_setting_class():
     for f in COMPATIBLE_FORMATS.formats:
-        cl_name = f'UMI_{f[0]}_module'
-        cl = eval(cl_name)
+        if f'{f[0]}_module' not in modules:
+            continue
+
+        cl = modules[f'{f[0]}_module']
         properties.PG_ImportSettings.__annotations__[f'{f[0]}_import_module'] = bpy.props.PointerProperty(type=cl)
         for name in f[1]['operator'].keys():
-            cl_name = f'UMI_{f[0]}_{name}_settings'
-            cl = eval(cl_name)
+            if f'{f[0]}_{name}_settings' not in modules:
+                continue
+
+            cl = modules[f'{f[0]}_{name}_settings']
             properties.PG_ImportSettings.__annotations__[f'{f[0]}_{name}_import_settings'] = bpy.props.PointerProperty(type=cl)
 
     properties.PG_ImportSettings.umi_import_settings_registered = True
@@ -45,22 +49,15 @@ def get_import_modules():
     modules = {}
     for f in COMPATIBLE_FORMATS.formats:
         module_items = [(m.upper(), m.title().replace('_', ' '), '') for m in f[1]['operator'].keys()]
-        modules[f'{f[0]}_module'] = ClassFactory(f'UMI_{f[0]}_module', {'items':module_items, 'name': 'Import Module'})
-        # modules.append(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import Module")')
-        # exec(f'class UMI_{f[0]}_module(bpy.types.PropertyGroup):name: bpy.props.EnumProperty(items={module_items}, name="Import Module")')
+        c = ClassFactory(f'UMI_{f[0]}_module', None, bpy.types.PropertyGroup)
+        c.__annotations__['name'] = bpy.props.EnumProperty(items=module_items, name="Import Module")
+        modules[f'{f[0]}_module'] = c
+
         for name in f[1]['operator'].keys():
-            modules[f'{f[0]}_{name}'] = ClassFactory(f'UMI_{f[0]}_{name}_settings', {'items':module_items, 'name': bpy.props.StringProperty(name="Import Setting Name", default=f"{f[0]}_{name}")})
-            # modules.append(f'class UMI_{f[0]}_{name}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[0]}_{name}")')
-            # exec(f'class UMI_{f[0]}_{name}_settings(bpy.types.PropertyGroup):name: bpy.props.StringProperty(name="Import Setting Name", default="{f[0]}_{name}")')
+            c = ClassFactory(f'UMI_{f[0]}_{name}_settings', None, bpy.types.PropertyGroup)
+            c.__annotations__['name'] = bpy.props.StringProperty(name="Import Setting Name", default=f"{f[0]}_{name}")
+            modules[f'{f[0]}_{name}_settings'] = c
 
     return modules
 
 modules = get_import_modules()
-
-# for m in modules:
-#     exec(m)
-
-# for f in COMPATIBLE_FORMATS.formats:
-#     print(eval(f'UMI_{f[0]}_module'))
-#     for name in f[1]['operator'].keys():
-#         print(eval(f'UMI_{f[0]}_{name}_settings'))
