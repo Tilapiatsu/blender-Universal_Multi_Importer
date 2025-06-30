@@ -534,7 +534,7 @@ def stl_operators() -> FormatOperator:
 def max_operators() -> FormatOperator:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.max',
-                        '1.6.0',
+                        '1.6.2',
                         addon_name='bl_ext.blender_org.io_scene_max',
                         pkg_id='io_scene_max',
                         pkg_url='https://extensions.blender.org/add-ons/io-scene-max/')
