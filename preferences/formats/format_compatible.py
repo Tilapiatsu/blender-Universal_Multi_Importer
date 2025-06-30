@@ -116,13 +116,11 @@ class CompatibleFormats():
 
     @property
     def need_reboot(self):
-        try:
-            for f in self.all_formats.values():
-                for name in f['operator'].keys():
-                    exec(f'from . import UMI_{f["name"]}_{name}_settings')
-        except ImportError as e:
-            return True
-
+        from . import modules
+        for f in self.all_formats.values():
+            for name in f['operator'].keys():
+                if f'{f["name"]}_{name}_settings' not in modules.keys():
+                    return True
         return False
 
     @property
