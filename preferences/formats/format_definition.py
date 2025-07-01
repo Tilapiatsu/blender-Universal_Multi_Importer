@@ -1,3 +1,4 @@
+import platform
 from . import BVERSION
 from .format import axis, Format, FormatOperators, FormatOperator, FormatImportSetting
 
@@ -621,10 +622,11 @@ class FormatDefinition:
                      ['.abc'],
                      abc_operators()).as_dict()
 
-    dae     = Format('dae',
-                     ['.dae'],
-                     dae_operators(),
-                     ignore=['files', 'name', 'directory']).as_dict()
+    if platform.system() == "Windows":
+        dae     = Format('dae',
+                        ['.dae'],
+                        dae_operators(),
+                        ignore=['files', 'name', 'directory']).as_dict()
 
     blend   = Format('blend',
                      ['.blend'],
