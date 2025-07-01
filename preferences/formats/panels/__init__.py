@@ -12,7 +12,7 @@ def get_panels(name: str):
     if name not in panel_path:
         return None
 
-    m = importlib.import_module('.preferences.formats.panels.panel_' + name, 'universal_multi_importer')
+    m = importlib.import_module('.preferences.formats.panels.panel_' + name, __package__.split('.')[0])
 
     panel = getattr(m, f'IMPORT_SCENE_{name.upper()}Settings')
     return panel
