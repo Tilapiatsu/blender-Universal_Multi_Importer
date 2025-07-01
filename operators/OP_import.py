@@ -988,7 +988,7 @@ class UMI(bpy.types.Operator, ImportHelper):
                 if data.name in imported_data_type:
                     continue
 
-                imported_data.append({'data' : f'bpy.data.{d}["{data.name}"]', 'data_type': d})
+                imported_data.append({'data' : repr(data), 'data_type': d})
 
         return imported_data
 
