@@ -18,4 +18,6 @@ class ModuleName:
             if m.bl_info.get("name") != 'Universal Multi Importer':
                 continue
 
-            return Path(m.__file__).parent.stem
+            module_name = Path(m.__file__).parent.stem
+            name = __package__.split(module_name)[0] + module_name
+            return name
