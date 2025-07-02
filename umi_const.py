@@ -1,10 +1,11 @@
-import os, pathlib
+import os
+from pathlib import Path
 import bpy
 from .bversion import BVERSION
-
+from .module_name import ModuleName
 ADDON_FOLDER_PATH = os.path.dirname(__file__)
 ADDON_PACKAGE = __package__
-AUTOSAVE_PATH = os.path.join(pathlib.Path(bpy.utils.script_path_user()).parent.absolute(), 'autosave')
+AUTOSAVE_PATH = os.path.join(Path(bpy.utils.script_path_user()).parent.absolute(), 'autosave')
 WARNING_ICON = 'ERROR' if BVERSION < 4.3 else 'WARNING_LARGE'
 DATATYPE_PREFIX = 'applies_to'
 
@@ -135,3 +136,5 @@ def init_current_item_index(umi_settings):
     for d in DATATYPE_LIST:
         index = umi_settings.umi_current_item_index.add()
         index.name = d['name']
+
+EXTENSION_MODULE_NAME = ModuleName()

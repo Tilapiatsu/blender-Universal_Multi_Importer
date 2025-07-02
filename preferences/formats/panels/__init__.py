@@ -1,6 +1,7 @@
 import os
 import bpy
 import importlib
+from ....umi_const import EXTENSION_MODULE_NAME
 from pathlib import Path
 from . import presets
 from ....bversion import BVERSION, AddonVersion
@@ -12,7 +13,7 @@ def get_panels(name: str):
     if name not in panel_path:
         return None
 
-    m = importlib.import_module('.preferences.formats.panels.panel_' + name, __package__.split('.')[0])
+    m = importlib.import_module('.preferences.formats.panels.panel_' + name, EXTENSION_MODULE_NAME.module_name)
 
     panel = getattr(m, f'IMPORT_SCENE_{name.upper()}Settings')
     return panel
