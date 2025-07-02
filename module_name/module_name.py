@@ -12,11 +12,10 @@ class ModuleName:
     @staticmethod
     def _get_module_name() -> str:
         import addon_utils
-        from .. import bl_info
         from pathlib import Path
 
         for m in addon_utils.modules():
-            if m.bl_info.get("name") != bl_info.get("name"):
+            if m.bl_info.get("name") != 'Universal Multi Importer':
                 continue
 
             return Path(m.__file__).parent.stem
