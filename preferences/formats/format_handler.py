@@ -68,7 +68,9 @@ class FormatHandler():
                     continue
 
                 d[k] = getattr(self.format_settings, k)
-                if isinstance(d[k], str):
+                if k == 'forced_properties':
+                    d[k] = eval(d[k])
+                elif isinstance(d[k], str):
                     d[k] = f'"{d[k]}"'
 
 

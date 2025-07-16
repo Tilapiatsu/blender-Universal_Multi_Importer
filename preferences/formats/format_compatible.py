@@ -281,6 +281,14 @@ class CompatibleFormats():
 
         return formats
 
+    def get_default_values(self, format_name: str, module_name: str) -> dict:
+        if format_name not in self.all_formats:
+            return {}
+        else:
+            if module_name not in self.all_formats[format_name]['operator']:
+                return {}
+        return self.all_formats[format_name]['operator'][module_name]['default_values']
+
     def is_format_valid(self, format):
         operators = self.formats_dict[format]['operator']
         for v in operators.values():

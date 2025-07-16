@@ -1031,15 +1031,19 @@ class UMI(bpy.types.Operator, ImportHelper):
         args = current_format[current_module].format_settings_dict
         raw_path = filepath.replace('\\\\', punctuation[23])
 
-        if format_name == 'image' and current_module in ['plane']:
+        # if format_name == 'image' and current_module in ['plane']:
+        if 'files' in args['forced_properties']:
             args['files'] = '[{"name":' + f'r"{raw_path}"' + '}]'
-        else:
-            args['filepath'] = f'r"{raw_path}"'
+
+        if 'directory' in args['forced_properties']:
+            args['directory'] = f'r"{str(Path(raw_path).parent)}"'
+
+        args['filepath'] = f'r"{raw_path}"'
 
         args_as_string = ''
         arg_number = len(args.keys())
         for k,v in args.items():
-            if k in ['settings_imported', 'name', 'addon_name', 'supported_version']:
+            if k in ['settings_imported', 'name', 'addon_name', 'supported_version', 'forced_properties']:
                 arg_number -= 1
                 continue
             if isinstance(v, bpy.types.bpy_prop_collection):

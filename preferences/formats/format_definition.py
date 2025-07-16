@@ -3,7 +3,7 @@ from . import BVERSION
 from .format import axis, Format, FormatOperators, FormatOperator, FormatImportSetting
 
 
-def fbx_operators() -> FormatOperator:
+def fbx_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.fbx',
                         '5.4.0',
@@ -60,14 +60,14 @@ def fbx_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def gltf_operators() -> FormatOperator:
+def gltf_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.gltf',
                         '3.6.27',
                         addon_name='io_scene_gltf2')
 
     if BVERSION >= 4.5:
-        f.supported_version = '4.5.46'
+        f.supported_version = '4.5.47'
 
     elif BVERSION >= 4.401:
         f.supported_version = '4.4.56'
@@ -138,7 +138,7 @@ def gltf_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def abc_operators() -> FormatOperator:
+def abc_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.wm.alembic_import',
                         '0.0.0')
@@ -146,7 +146,7 @@ def abc_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def dae_operators() -> FormatOperator:
+def dae_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.wm.collada_import',
                         '0.0.0')
@@ -154,7 +154,7 @@ def dae_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def blend_operators() -> FormatOperator:
+def blend_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.tila_import_blend',
                         '0.0.0',
@@ -163,7 +163,7 @@ def blend_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def bvh_operators() -> FormatOperator:
+def bvh_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_anim.bvh',
                         '1.0.1',
@@ -178,7 +178,7 @@ def bvh_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def obj_operators() -> FormatOperator:
+def obj_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.wm.obj_import',
                         '0.0.0')
@@ -192,7 +192,7 @@ def obj_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def ply_operators() -> FormatOperator:
+def ply_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.wm.ply_import',
                         '0.0.0')
@@ -206,7 +206,7 @@ def ply_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def svg_operators() -> FormatOperator:
+def svg_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_curve.svg',
                         '0.0.0')
@@ -220,7 +220,7 @@ def svg_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def usd_operators() -> FormatOperator:
+def usd_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.wm.usd_import',
                         '0.0.0')
@@ -228,7 +228,7 @@ def usd_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def x3d_operators() -> FormatOperator:
+def x3d_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.x3d',
                         '2.3.1',
@@ -249,7 +249,7 @@ def x3d_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def dxf_operators() -> FormatOperator:
+def dxf_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.dxf',
                         '0.9.8',
@@ -260,6 +260,8 @@ def dxf_operators() -> FormatOperator:
         f.pkg_id = 'import_autocad_dxf_format_dxf'
         f.pkg_url = 'https://extensions.blender.org/add-ons/import-autocad-dxf-format-dxf/'
         f.supported_version = '0.9.10'
+        f.default_values = {'proj_scene': 'TMERC'}
+        f.forced_properties = ['files', 'directory']
 
     elif BVERSION >= 3.6:
         f.supported_version = '0.9.8'
@@ -270,7 +272,7 @@ def dxf_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def pdb_operators() -> FormatOperator:
+def pdb_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_mesh.atomic',
                         '1.8.1',
@@ -297,7 +299,7 @@ def pdb_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def xyz_operators() -> FormatOperator:
+def xyz_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_mesh.atomic',
                         '1.8.1',
@@ -323,7 +325,7 @@ def xyz_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def max3ds_operators() -> FormatOperator:
+def max3ds_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.max3ds',
                         '2.4.8',
@@ -412,7 +414,7 @@ def max3ds_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def image_operators() -> FormatOperator:
+def image_operators() -> FormatOperators:
     data = FormatOperator(  'data',
                             'bpy.ops.image.open',
                             '0.0.0',
@@ -429,6 +431,7 @@ def image_operators() -> FormatOperator:
         plane.command = 'bpy.ops.image.import_as_mesh_planes'
         plane.supported_version = '0.0.0'
         plane.addon_name = None
+        plane.forced_properties = ['files', 'directory']
 
         empty = FormatOperator( 'empty',
                                 'bpy.ops.object.empty_image_add',
@@ -489,7 +492,7 @@ def image_operators() -> FormatOperator:
     return operators
 
 
-def sound_operators() -> FormatOperator:
+def sound_operators() -> FormatOperators:
     data = FormatOperator(  'data',
                             'bpy.ops.sound.open',
                             '0.0.0',
@@ -500,7 +503,7 @@ def sound_operators() -> FormatOperator:
     return operators
 
 
-def stl_operators() -> FormatOperator:
+def stl_operators() -> FormatOperators:
     default = FormatOperator('default',
                         'bpy.ops.wm.stl_import',
                         '1.1.3',
@@ -532,7 +535,7 @@ def stl_operators() -> FormatOperator:
     return operators
 
 
-def max_operators() -> FormatOperator:
+def max_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.max',
                         '1.6.2',
@@ -566,10 +569,10 @@ def max_operators() -> FormatOperator:
     return FormatOperators(f)
 
 
-def pes_operators() -> FormatOperator:
+def pes_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.embroidery',
-                        '0.9.4',
+                        '0.9.5',
                         addon_name='bl_ext.blender_org.embroidery_importer',
                         pkg_id='embroidery_importer',
                         pkg_url='https://extensions.blender.org/add-ons/embroidery-importer/')
@@ -625,8 +628,7 @@ class FormatDefinition:
     if platform.system() == "Windows":
         dae     = Format('dae',
                         ['.dae'],
-                        dae_operators(),
-                        ignore=['files', 'name', 'directory']).as_dict()
+                        dae_operators()).as_dict()
 
     blend   = Format('blend',
                      ['.blend'],
@@ -686,8 +688,7 @@ class FormatDefinition:
                      [	'.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff', '.bmp', '.cin', '.dpx', '.jp2', '.j2c', '.sig', '.rgb', '.bw', '.webp',
                      '.hdr', '.exr',
                      '.mov', '.mp4', '.mkv', '.mpg', '.mpeg', '.dvd', '.vob', '.avi', '.dv', '.flv', '.webm'],
-                     image_operators(),
-                     ignore=['files', 'filepath', 'directory']).as_dict()
+                     image_operators()).as_dict()
 
     sound = Format('sound',
                    ['.wav', '.flac', '.mp2', '.mp3', '.aac', '.ogg', '.pcm', '.opus', '.l16', '.aiff', '.au'],

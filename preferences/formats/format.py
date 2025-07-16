@@ -94,12 +94,12 @@ class FormatImportSetting:
                                      'options':options}})
 
 
-    def add_set_string_setting(self,
-                            section_name:str,
-                            name:str,
-                            display_name:str,
-                            default:str,
-                            options:Optional[set]=None) -> None:
+    def add_set_string_setting( self,
+                                section_name:str,
+                                name:str,
+                                display_name:str,
+                                default:str,
+                                options:Optional[set]=None) -> None:
 
         if options is None:
             options = set()
@@ -143,6 +143,8 @@ class FormatOperator:
                  addon_name:Optional[str]=None,
                  pkg_id:Optional[str]=None,
                  pkg_url:Optional[str]=None,
+                 default_values:dict={},
+                 forced_properties:list=[],
                  import_objects:Optional[bool]=True,
                  import_data:Optional[bool]=True,
                  import_settings:Optional[FormatImportSetting]=None):
@@ -157,6 +159,8 @@ class FormatOperator:
         self.import_objects = import_objects
         self.import_data = import_data
         self.import_settings = import_settings
+        self.default_values = default_values
+        self.forced_properties = forced_properties
 
 
     def as_dict(self):
@@ -171,7 +175,9 @@ class FormatOperator:
                             'pkg_url':self.pkg_url,
                             'import_objects': self.import_objects,
                             'import_data': self.import_data,
-                            'import_settings':self.import_settings.as_dict() if isinstance(self.import_settings, FormatImportSetting) else None}}
+                            'import_settings':self.import_settings.as_dict() if isinstance(self.import_settings, FormatImportSetting) else None,
+                            'default_values': self.default_values,
+                            'forced_properties': self.forced_properties}}
 
 
 class FormatOperators:
@@ -187,7 +193,8 @@ class FormatOperators:
                                                             addon_name=operator[1]['addon_name'],
                                                             pkg_id=operator[1]['pkg_id'],
                                                             pkg_url=operator[1]['url'],
-                                                            import_settings=operator[1]['import_settings'])}
+                                                            import_settings=operator[1]['import_settings'],
+                                                            default_values=operator[1]['default_values'])}
 
         else:
             raise ValueError(f'operator parameters should NOT be of type "{type(operator)}" \n It should be either tuple[str, dict] or FormatOperator type')
@@ -205,7 +212,8 @@ class FormatOperators:
                                                             addon_name=operator[1]['addon_name'],
                                                             pkg_id=operator[1]['pkg_id'],
                                                             pkg_url=operator[1]['url'],
-                                                            import_settings=operator[1]['import_settings'])
+                                                            import_settings=operator[1]['import_settings'],
+                                                            default_values=operator[1]['default_values'])
 
         else:
             raise ValueError(f'operator parameters should NOT be of type "{type(operator)}" \n It should be either tuple[str, dict] or FormatOperator type')
