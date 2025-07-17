@@ -1,7 +1,7 @@
 from typing import Union, Optional, Dict
 
 
-def axis():
+def axis() -> list:
     return [
             ("X", "X", "X"),
             ("Y", "Y", "Y"),
@@ -33,7 +33,7 @@ class FormatImportSetting:
         return self.settings[name]
 
 
-    def add_set_settings(self, section_name:str, settings:Union[Dict[str, Dict]]):
+    def add_set_settings(self, section_name:str, settings:Union[Dict[str, Dict]]) -> None:
         '''
         Add or replace a dict of setting in the given section
         '''
@@ -130,7 +130,7 @@ class FormatImportSetting:
                                      'options':options}})
 
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return self.settings
 
 
@@ -163,7 +163,7 @@ class FormatOperator:
         self.forced_properties = forced_properties
 
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         '''
         returns the representation of the Format Operator as a dict
         '''
@@ -219,7 +219,7 @@ class FormatOperators:
             raise ValueError(f'operator parameters should NOT be of type "{type(operator)}" \n It should be either tuple[str, dict] or FormatOperator type')
 
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         '''
         returns the representation of Format Operators as a dict
         '''
@@ -255,7 +255,7 @@ class Format:
         self.generate_filter_glob = generate_filter_glob
 
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         '''
         returns the representation of the format as a dict
         '''

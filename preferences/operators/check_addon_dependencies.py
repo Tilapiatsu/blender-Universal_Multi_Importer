@@ -16,25 +16,25 @@ class UI_UMICheckAddonDependencies(bpy.types.Operator):
         addon_dependencies.clear()
 
         for name in COMPATIBLE_FORMATS.all_formats.keys():
-            for module_name, module  in COMPATIBLE_FORMATS.all_formats[name]['operator'].items():
+            for module_name, module  in COMPATIBLE_FORMATS.all_formats[name].operators.operators.items():
                 ad = addon_dependencies.add()
 
                 ad.format_name      = name
                 ad.module_name      = module_name
 
-                addon_name          = module['addon_name'] if module['addon_name'] is not None else ''
+                addon_name          = module.addon_name if module.addon_name is not None else ''
                 ad.addon_name       = addon_name
 
                 av = AddonVersion(addon_name)
                 ad.local_version    = str(av.local_version)
                 ad.remote_version   = str(av.remote_version)
-                ad.supported_version   = module['supported_version']
+                ad.supported_version   = module.supported_version
                 ad.is_outdated      = av.is_outdated
 
-                pkg_id              = module['pkg_id'] if module['pkg_id'] is not None else ''
+                pkg_id              = module.pkg_id if module.pkg_id is not None else ''
                 ad.pkg_id           = pkg_id
 
-                pkg_url             = module['pkg_url'] if module['pkg_url'] is not None else ''
+                pkg_url             = module.pkg_url if module.pkg_url is not None else ''
                 ad.pkg_url          = pkg_url
 
                 ad.is_extension     = COMPATIBLE_FORMATS.is_format_extension(name, module_name)

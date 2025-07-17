@@ -23,11 +23,11 @@ def update_file_stats(self, context):
     umi_settings.umi_file_stat_selected_count = len(selected_files)
     umi_settings.umi_file_stat_selected_size = sum(size)
     umi_settings.umi_file_stat_selected_formats = '( ' + ' | '.join(formats) + ' )' if len(formats) else 'no'
-    file_selected_format_items = {( COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), COMPATIBLE_FORMATS.get_format_from_extension(f)['name'].upper(), '') for f in formats}
+    file_selected_format_items = {( COMPATIBLE_FORMATS.get_format_from_extension(f).name.upper(), COMPATIBLE_FORMATS.get_format_from_extension(f).name.upper(), '') for f in formats}
     umi_settings.umi_file_selected_format_items = str(list(file_selected_format_items))
 
     if len(formats) and not len(umi_settings.umi_file_format_current_settings):
-        f = COMPATIBLE_FORMATS.get_format_from_extension(formats[0])['name'].upper()
+        f = COMPATIBLE_FORMATS.get_format_from_extension(formats[0]).name.upper()
         umi_settings.umi_file_format_current_settings = f
 
 def update_file_format_current_settings(self, context):

@@ -196,10 +196,10 @@ class UMI_OT_Settings(bpy.types.Operator):
 
 def register_import_format(self, context):
     for f in COMPATIBLE_FORMATS.formats:
-        exec('self.{}_format = {{ }}'.format(f[0]), {'self':self})
-        current_format = eval(f'self.{f[0]}_format')
-        for _,name in enumerate(f[1]['operator'].keys()):
-            current_format[name] = FormatHandler(import_format=f"{f[0]}", module_name=name, context=context)
+        exec('self.{}_format = {{ }}'.format(f.name), {'self':self})
+        current_format = eval(f'self.{f.name}_format')
+        for _,name in enumerate(f.operators.operators.keys()):
+            current_format[name] = FormatHandler(import_format=f"{f.name}", module_name=name, context=context)
 
 
 class UMI_MD5Check(bpy.types.Operator):
@@ -1013,7 +1013,7 @@ class UMI(bpy.types.Operator, ImportHelper):
     def import_command(self, context, filepath):
         success = True
         ext = os.path.splitext(filepath)[1]
-        format_name = COMPATIBLE_FORMATS.get_format_from_extension(ext)['name']
+        format_name = COMPATIBLE_FORMATS.get_format_from_extension(ext).name
 
         current_format = eval(f'self.{format_name}_format')
         current_module = eval(f'self.umi_settings.umi_format_import_settings.{format_name}_import_module', {'self':self}).name.lower()
@@ -1025,7 +1025,7 @@ class UMI(bpy.types.Operator, ImportHelper):
         if import_data:
             before_import_data = self.capture_data_dict()
 
-        operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)[current_module]['command']
+        operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)[current_module].command
 
         # Double \\ in the path causing error in the string
         args = current_format[current_module].format_settings_dict

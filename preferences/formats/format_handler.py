@@ -27,7 +27,7 @@ class FormatHandler():
     @property
     def format_name(self):
         if self._format_name is None:
-            self._format_name = self.format['name']
+            self._format_name = self.format.name
 
         return self._format_name
 

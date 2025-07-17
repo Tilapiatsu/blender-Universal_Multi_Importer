@@ -1,5 +1,6 @@
 import bpy
 from . import COMPATIBLE_FORMATS
+from .format import FormatOperator
 
 ### from https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
 class BaseClass(object):
@@ -31,19 +32,19 @@ class FormatClassCreator():
             self._classes = {'classes':[], 'modules':[]}
             from . import modules
             for f in COMPATIBLE_FORMATS.formats:
-                if f'{f[0]}_module' not in modules:
+                if f'{f.name}_module' not in modules:
                     continue
 
-                import_module = modules[f'{f[0]}_module']
+                import_module = modules[f'{f.name}_module']
                 self._classes['modules'].append(import_module)
 
-                for name, operator in f[1]['operator'].items():
-                    if f'{f[0]}_{name}_settings' not in modules:
+                for name, operator in f.operators.operators.items():
+                    if f'{f.name}_{name}_settings' not in modules:
                         continue
 
-                    format_class = modules[f'{f[0]}_{name}_settings']
+                    format_class = modules[f'{f.name}_{name}_settings']
 
-                    if operator['module'] is not None:
+                    if operator.module is not None:
                         format_class = self.create_format_class_from_module(operator, format_class)
                     else:
                         format_class = self.create_format_class_from_operator(operator, format_class)
@@ -52,25 +53,25 @@ class FormatClassCreator():
 
         return self._classes
 
-    def create_format_class_from_module(self, f, format_class):
-        print(f'UMI : create class from module {f["module"]}')
-        format_module = getattr(bpy.types, f['module'], None)
+    def create_format_class_from_module(self, f: FormatOperator, format_class):
+        print(f'UMI : create class from module {f.module}')
+        format_module = getattr(bpy.types, f.module, None)
 
         if format_module is None:
-            print(f"UMI : Invalid module name passed : {f['module']}\nOr importer addon is disable")
+            print(f"UMI : Invalid module name passed : {f.module}\nOr importer addon is disable")
             return None
 
         for sub_module in self.get_valid_submodule(format_module):
             self.create_format_class_hierarchy_from_module(f, format_class, sub_module)
 
         format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
-        format_class.__annotations__['addon_name'] = bpy.props.StringProperty(name='Addon Name', default=f['addon_name'] if f['addon_name'] else '')
-        format_class.__annotations__['supported_version'] = bpy.props.StringProperty(name='Addon Name', default=f['supported_version'])
+        format_class.__annotations__['addon_name'] = bpy.props.StringProperty(name='Addon Name', default=f.addon_name if f.addon_name else '')
+        format_class.__annotations__['supported_version'] = bpy.props.StringProperty(name='Addon Name', default=f.supported_version)
         return format_class
 
     def create_format_class_hierarchy_from_module(self, f, format_class, format_module):
         if format_module is None:
-            print(f"UMI : Invalid module name passed : {f['module']}\nOr importer addon is disable")
+            print(f"UMI : Invalid module name passed : {f.module}\nOr importer addon is disable")
             return None
 
         format_annotations = getattr(format_module, "__annotations__", None)
@@ -98,93 +99,92 @@ class FormatClassCreator():
 
         return format_class
 
-    def create_format_class_from_operator(self, f, format_class):
-        print(f'UMI : create class from operator {f["command"]}')
+    def create_format_class_from_operator(self, f: FormatOperator, format_class):
+        print(f'UMI : create class from operator {f.command}')
 
-        if 'import_settings' in f.keys() :
-            if f['import_settings'] is None:
-                try:
-                    properties = eval(f['command']).get_rna_type().properties
-                except KeyError:
-                    format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
-                    format_class.__annotations__['addon_name'] = bpy.props.StringProperty(name='Addon Name', default=f['addon_name'] if f['addon_name'] else '')
-                    format_class.__annotations__['supported_version'] = bpy.props.StringProperty(name='Addon Name', default=f['supported_version'])
-                    return format_class
+        if f.import_settings is None:
+            try:
+                properties = eval(f.command).get_rna_type().properties
+            except KeyError:
+                format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
+                format_class.__annotations__['addon_name'] = bpy.props.StringProperty(name='Addon Name', default=f.addon_name if f.addon_name else '')
+                format_class.__annotations__['supported_version'] = bpy.props.StringProperty(name='Addon Name', default=f.supported_version)
+                return format_class
 
-                for p in properties:
-                    if p.is_hidden or p.is_readonly:
-                        continue
+            for p in properties:
+                if p.is_hidden or p.is_readonly:
+                    continue
 
-                    if p.type == 'STRING':
+                if p.type == 'STRING':
+                    command = self._property_type[p.type]
+                    command += self.get_property_command_string(p, default_values=f.default_values)
+                elif p.type == 'ENUM':
+                    command = self._property_type[p.type]
+                    command += self.get_property_command_string(p, additionnal_props={'items': self.get_enum_items(p.enum_items)}, default_values=f.default_values)
+                elif p.type == 'BOOLEAN':
+                    command = self._property_type[p.type]
+                    command += self.get_property_command_string(p, default_values=f.default_values)
+                elif p.type == 'FLOAT':
+                    is_array = getattr(p, 'is_array', None)
+                    if is_array: # Vector field
+                        command = 'bpy.props.FloatVectorProperty'
+                        command += self.get_property_command_string(p,  additionnal_props={ 'subtype': f'"{p.subtype}"',
+                                                                                            'size':len(p.default_array),
+                                                                                            'min': p.soft_min,
+                                                                                            'max':p.soft_max,
+                                                                                            'unit':f'"{p.unit}"',
+                                                                                            'precision':p.precision},
+                                                                        default_values=f.default_values)
+                    else:
                         command = self._property_type[p.type]
-                        command += self.get_property_command_string(p, default_values=f['default_values'])
-                    elif p.type == 'ENUM':
+                        command += self.get_property_command_string(p,  additionnal_props={ 'subtype': f'"{p.subtype}"',
+                                                                                            'min': p.soft_min,
+                                                                                            'max':p.soft_max,
+                                                                                            'unit':f'"{p.unit}"',
+                                                                                            'precision':p.precision},
+                                                                        default_values=f.default_values)
+                elif p.type == 'INT':
+                    is_array = getattr(p, 'is_array', None)
+                    if is_array: # Vector field
+                        command = 'bpy.props.IntVectorProperty'
+                        command += self.get_property_command_string(p,  additionnal_props={ 'subtype': f'"{p.subtype}"',
+                                                                                            'size':len(p.default_array),
+                                                                                            'min': p.soft_min,
+                                                                                            'max':p.soft_max,
+                                                                                            'unit':f'"{p.unit}"'},
+                                                                        default_values=f.default_values)
+                    else:
                         command = self._property_type[p.type]
-                        command += self.get_property_command_string(p, additionnal_props={'items': self.get_enum_items(p.enum_items)}, default_values=f['default_values'])
-                    elif p.type == 'BOOLEAN':
-                        command = self._property_type[p.type]
-                        command += self.get_property_command_string(p, default_values=f['default_values'])
-                    elif p.type == 'FLOAT':
-                        is_array = getattr(p, 'is_array', None)
-                        if is_array: # Vector field
-                            command = 'bpy.props.FloatVectorProperty'
-                            command += self.get_property_command_string(p,  additionnal_props={ 'subtype': f'"{p.subtype}"',
-                                                                                                'size':len(p.default_array),
-                                                                                                'min': p.soft_min,
-                                                                                                'max':p.soft_max,
-                                                                                                'unit':f'"{p.unit}"',
-                                                                                                'precision':p.precision},
-                                                                            default_values=f['default_values'])
-                        else:
-                            command = self._property_type[p.type]
-                            command += self.get_property_command_string(p,  additionnal_props={ 'subtype': f'"{p.subtype}"',
-                                                                                                'min': p.soft_min,
-                                                                                                'max':p.soft_max,
-                                                                                                'unit':f'"{p.unit}"',
-                                                                                                'precision':p.precision},
-                                                                            default_values=f['default_values'])
-                    elif p.type == 'INT':
-                        is_array = getattr(p, 'is_array', None)
-                        if is_array: # Vector field
-                            command = 'bpy.props.IntVectorProperty'
-                            command += self.get_property_command_string(p,  additionnal_props={ 'subtype': f'"{p.subtype}"',
-                                                                                                'size':len(p.default_array),
-                                                                                                'min': p.soft_min,
-                                                                                                'max':p.soft_max,
-                                                                                                'unit':f'"{p.unit}"'},
-                                                                            default_values=f['default_values'])
-                        else:
-                            command = self._property_type[p.type]
-                            command += self.get_property_command_string(p,  additionnal_props={'subtype': f'"{p.subtype}"',
-                                                                                                'min': p.soft_min,
-                                                                                                'max':p.soft_max},
-                                                                            default_values=f['default_values'])
-                    format_class.__annotations__[p.identifier] = eval(command)
-            else:
-                # TODO : create a pointer to a settings for each g[0]
-                for s in f['import_settings'].values():
-                    if len(s.keys()) == 0:
-                        continue
-                    for k,v in s.items():
-                        command = f'{v["type"]}(name={v["name"]}, default={v["default"]}'
+                        command += self.get_property_command_string(p,  additionnal_props={'subtype': f'"{p.subtype}"',
+                                                                                            'min': p.soft_min,
+                                                                                            'max':p.soft_max},
+                                                                        default_values=f.default_values)
+                format_class.__annotations__[p.identifier] = eval(command)
+        else:
+            # TODO : create a pointer to a settings for each g[0]
+            for s in f.import_settings.settings.values():
+                if len(s.keys()) == 0:
+                    continue
+                for k,v in s.items():
+                    command = f'{v["type"]}(name={v["name"]}, default={v["default"]}'
 
-                        if 'enum_items' in v.keys():
-                            command += f', items={v["enum_items"]}'
-                        if 'min' in v.keys():
-                            command += f', min={v["min"]}'
-                        if 'max' in v.keys():
-                            command += f', max={v["max"]}'
-                        if 'options' in v.keys():
-                            command += f', options={v["options"]}'
+                    if 'enum_items' in v.keys():
+                        command += f', items={v["enum_items"]}'
+                    if 'min' in v.keys():
+                        command += f', min={v["min"]}'
+                    if 'max' in v.keys():
+                        command += f', max={v["max"]}'
+                    if 'options' in v.keys():
+                        command += f', options={v["options"]}'
 
-                        command += ')'
+                    command += ')'
 
-                        format_class.__annotations__[k] = eval(command)
+                    format_class.__annotations__[k] = eval(command)
 
         format_class.__annotations__['settings_imported'] = bpy.props.BoolProperty(name='Settings imported', default=False, options={'HIDDEN'})
-        format_class.__annotations__['addon_name'] = bpy.props.StringProperty(name='Addon Name', default=f['addon_name'] if f['addon_name'] else '')
-        format_class.__annotations__['supported_version'] = bpy.props.StringProperty(name='Addon Name', default=f['supported_version'])
-        format_class.__annotations__['forced_properties'] = bpy.props.StringProperty(name='Forced Properties', default=f"{f['forced_properties']}")
+        format_class.__annotations__['addon_name'] = bpy.props.StringProperty(name='Addon Name', default=f.addon_name if f.addon_name else '')
+        format_class.__annotations__['supported_version'] = bpy.props.StringProperty(name='Addon Name', default=f.supported_version)
+        format_class.__annotations__['forced_properties'] = bpy.props.StringProperty(name='Forced Properties', default=f"{f.forced_properties}")
         return format_class
 
     def get_property_command_string(self, prop, additionnal_props:dict={}, default_values:dict={}):
