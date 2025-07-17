@@ -15,7 +15,6 @@ class CompatibleFormats(object):
 
     def __init__(self):
         for f in FORMATS:
-            print(f'{f} = {getattr(FormatDefinition, f)}')
             exec(f'self.{f} = Format', {'self': self, 'Format': getattr(FormatDefinition, f)})
         self._extensions = None
         self._extensions_string = None
