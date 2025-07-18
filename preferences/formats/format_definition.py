@@ -605,6 +605,16 @@ def pes_operators() -> FormatOperators:
     return FormatOperators(f)
 
 
+def vdb_operators() -> FormatOperators:
+    op = FormatOperator(    'default',
+                            'bpy.ops.object.volume_import',
+                            '0.0.0')
+
+    operators = FormatOperators(op)
+    operators.add_operator(op)
+
+    return operators
+
 
 class FormatDefinition:
     '''
@@ -694,6 +704,10 @@ class FormatDefinition:
                    ['.wav', '.flac', '.mp2', '.mp3', '.aac', '.ogg', '.pcm', '.opus', '.l16', '.aiff', '.au'],
                    sound_operators(),
                    ignore=['files', 'filepath', 'directory'])
+
+    vdb = Format(   'vdb',
+                    ['.vdb'],
+                    vdb_operators())
 
     if BVERSION >= 3.6:
         max3ds  = Format('max3ds',
