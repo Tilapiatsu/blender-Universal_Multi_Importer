@@ -24,42 +24,42 @@ This addon is adding batch import features to existing importers for blender. Th
 - [Blender Embroidery](https://github.com/javl/blender-embroidery) by Jasper van Loenen
 
 # Supported Formats
-| Mesh Formats | Image Formats | Video Formats | Animation Formats | Embroidery Formats[:link:](https://github.com/javl/blender-embroidery) | Audio Formats |
-| -----------  | -----------   |  -----------  |   -----------     |   -----------      | -----------  |
-| blend        | jpg           |  mov          | bvh               |  pes               | wav          |
-| obj          | jpeg          |  mp4          |                   |  dst               | flac         |
-| fbx          | gif           |  mkv          |                   |  exp               | mp2          |
-| glb          | png           |  mpg          |                   |  jef               | mp3          |
-| gltf         | tif           |  mpeg         |                   |  pec               | aac          |
-| x3d[:link:](https://projects.blender.org/extensions/io_scene_x3d)| tiff|  dvd         |                   |  jpx               | ogg        |
-| wrl          | bmp           |  dvd          |                   |  phc               | pcm          |
-| stl          | cin           |  vob          |                   |  vp3               | opus         |
-| ply          | dpx           |  avi          |                   |  10o               | l16          |
-| abc          | jp2           |  dv           |                   |  zxy               | aiff         |
-| dae          | j2c           |  flv          |                   |  bro               | au           |
-| svg          | sig           |  webm         |                   |  dat               |              |
-| usd          | rgb           |               |                   |  dsb               |              |
-| usda         | bw            |               |                   |  dsz               |              |
-| usdc         | exr           |               |                   |  emd               |              |
-| usdz         | hdr           |               |                   |  exy               |              |
-| max[:link:](https://github.com/nrgsille76/io_scene_max) |webp||       |  fxy              |              |
-| pdb[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  gcode       |              |
-| xyz[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  hus         |              |
-| dxf[:link:](https://projects.blender.org/extensions/io_import_dxf) ||||  inb          |              |
-| 3ds[:link:](https://projects.blender.org/extensions/io_scene_3ds)  ||||  new          |              |
-|              |               |               |                   |  pcd               |              |
-|              |               |               |                   |  pcm               |              |
-|              |               |               |                   |  pcq               |              |
-|              |               |               |                   |  pcs               |              |
-|              |               |               |                   |  phb               |              |
-|              |               |               |                   |  sew               |              |
-|              |               |               |                   |  shv               |              |
-|              |               |               |                   |  stc               |              |
-|              |               |               |                   |  stx               |              |
-|              |               |               |                   |  tap               |              |
-|              |               |               |                   |  tbf               |              |
-|              |               |               |                   |  xxx               |              |
-|              |               |               |                   |  zhs               |              |
+| Mesh Formats | Image Formats | Video Formats | Animation Formats | Embroidery Formats[:link:](https://github.com/javl/blender-embroidery) | Audio Formats | Volume Formats |
+| -----------  | -----------   |  -----------  |   -----------     |   -----------      | -----------  | -----------  |
+| blend        | jpg           |  mov          | bvh               |  pes               | wav          | vdb
+| obj          | jpeg          |  mp4          |                   |  dst               | flac         |              |
+| fbx          | gif           |  mkv          |                   |  exp               | mp2          |              |
+| glb          | png           |  mpg          |                   |  jef               | mp3          |              |
+| gltf         | tif           |  mpeg         |                   |  pec               | aac          |              |
+| x3d[:link:](https://projects.blender.org/extensions/io_scene_x3d)| tiff|  dvd         |                   |  jpx               | ogg        |              |
+| wrl          | bmp           |  dvd          |                   |  phc               | pcm          |              |
+| stl          | cin           |  vob          |                   |  vp3               | opus         |              |
+| ply          | dpx           |  avi          |                   |  10o               | l16          |              |
+| abc          | jp2           |  dv           |                   |  zxy               | aiff         |              |
+| dae          | j2c           |  flv          |                   |  bro               | au           |              |
+| svg          | sig           |  webm         |                   |  dat               |              |              |
+| usd          | rgb           |               |                   |  dsb               |              |              |
+| usda         | bw            |               |                   |  dsz               |              |              |
+| usdc         | exr           |               |                   |  emd               |              |              |
+| usdz         | hdr           |               |                   |  exy               |              |              |
+| max[:link:](https://github.com/nrgsille76/io_scene_max) |webp||       |  fxy              |              |              |
+| pdb[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  gcode       |              |              |
+| xyz[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  hus         |              |              |
+| dxf[:link:](https://projects.blender.org/extensions/io_import_dxf) ||||  inb          |              |              |
+| 3ds[:link:](https://projects.blender.org/extensions/io_scene_3ds)  ||||  new          |              |              |
+|              |               |               |                   |  pcd               |              |              |
+|              |               |               |                   |  pcm               |              |              |
+|              |               |               |                   |  pcq               |              |              |
+|              |               |               |                   |  pcs               |              |              |
+|              |               |               |                   |  phb               |              |              |
+|              |               |               |                   |  sew               |              |              |
+|              |               |               |                   |  shv               |              |              |
+|              |               |               |                   |  stc               |              |              |
+|              |               |               |                   |  stx               |              |              |
+|              |               |               |                   |  tap               |              |              |
+|              |               |               |                   |  tbf               |              |              |
+|              |               |               |                   |  xxx               |              |              |
+|              |               |               |                   |  zhs               |              |              |
 
 # Import Settings
 ## Import Folder
