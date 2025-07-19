@@ -140,6 +140,7 @@ You can choose if the command has to be executed for a specific datatype or many
 
 
 # Changelog
+### v2.3.1 : Add Support VDB Format
 ### v2.3.0 : Add Support for Blender 4.5.0
 ### v2.3.0 : Command Batcher can execute commands for a specific or multiple datatypes
 ![UMI-Add-command.png](https://i.postimg.cc/y8xhWMZY/UMI-add-command.png)
