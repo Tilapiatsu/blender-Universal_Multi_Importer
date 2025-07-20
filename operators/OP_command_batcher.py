@@ -173,7 +173,7 @@ class CommandBatcher(bpy.types.Operator):
         for o in bpy.context.selected_objects:
             for d in ['data', 'animation_data', 'material_slots', 'modifiers']:
                 dd = getattr(o, d)
-                print(repr(dd))
+                # print(repr(dd))
 
                 if dd is None:
                     continue
@@ -420,7 +420,7 @@ class CommandBatcher(bpy.types.Operator):
                                                 )
 
                     self.current_operation_number += 1
-                    for c in commands:
+                    for i, c in enumerate(commands):
                         if c == '<PASS>':
                             continue
                         LOG.info(f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress,2)}% : "{c}"', color=LoggerColors.COMMAND_COLOR())
@@ -428,6 +428,8 @@ class CommandBatcher(bpy.types.Operator):
                         if self.pre_process_done and not self.each_process_done:
                             if self.current_element_to_process[0] == 'objects':
                                 override["selected_objects"] = [bpy.data.objects[self.current_element_to_process[1].name]]
+                            elif len(command_output_strings[i][4]) != '':
+                                override["selected_objects"] = [eval(command_output_strings[i][4], {'bpy': bpy})]
 
                         with bpy.context.temp_override(**override):
                             exec(c, {'bpy':bpy})
@@ -440,7 +442,7 @@ class CommandBatcher(bpy.types.Operator):
                     self.process_succeeded.append(True)
 
                 except Exception as e:
-                    message = f'{self.current_element_to_process[0]} : Command "{command}" is not valid - {e}'
+                    message = f'{self.current_element_to_process[0]} : Command "{command}" is not valid - \n{e}'
                     LOG.error(message)
                     LOG.store_failure(message)
                     self.process_succeeded.append(False)
