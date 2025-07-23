@@ -1232,9 +1232,9 @@ class UMI(bpy.types.Operator, ImportHelper):
     def link_new_object_in_collection(self, import_col):
         new_objects = self.get_new_objects()
 
-        if len(new_objects) and new_objects[0].name not in import_col.all_objects:
+        if len(new_objects):
             for o in new_objects:
-                if not len(o.users_collection):
+                if not len(o.users_collection) or o.name in import_col.all_objects:
                     print(f'skip linking "{o.name}" to collection')
                     continue
                 previous_col = o.users_collection[0]
