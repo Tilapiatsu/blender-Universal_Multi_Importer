@@ -49,7 +49,7 @@ def get_file_selected_items(self, context):
 
 def update_file_extension_selection(self, context):
     umi_settings = get_umi_settings()
-    current_extensions = {e.ext for e in umi_settings.umi_file_selection if e.ext in COMPATIBLE_FORMATS.extensions}
+    current_extensions = {e.ext.lower() for e in umi_settings.umi_file_selection if e.ext.lower() in COMPATIBLE_FORMATS.extensions}
     umi_settings.umi_file_extension_selection_items = str([(e, e, '') for e in current_extensions])
 
 def get_file_extension_selection(self, context):
