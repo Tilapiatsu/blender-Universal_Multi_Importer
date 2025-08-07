@@ -635,7 +635,7 @@ class FormatDefinition:
                      ['.abc'],
                      abc_operators())
 
-    if platform.system() == "Windows":
+    if platform.system() in ['Windows', 'Darwin']:
         dae     = Format('dae',
                         ['.dae'],
                         dae_operators())
