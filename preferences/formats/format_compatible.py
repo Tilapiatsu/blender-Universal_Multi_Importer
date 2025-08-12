@@ -226,10 +226,6 @@ class CompatibleFormats(object):
 
 
     def get_formats(self) -> list[Format]:
-
-        for f in FORMATS:
-            print(f, getattr(self, f, None))
-
         formats = [getattr(self, f, None) for f in FORMATS if getattr(self, f, None) is not None]
 
         valid_formats = []
