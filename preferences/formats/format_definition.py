@@ -635,10 +635,9 @@ class FormatDefinition:
                      ['.abc'],
                      abc_operators())
 
-    if platform.system() in ['Windows', 'Darwin']:
-        dae     = Format('dae',
-                        ['.dae'],
-                        dae_operators())
+    dae     = Format('dae',
+                    ['.dae'],
+                    dae_operators())
 
     blend   = Format('blend',
                      ['.blend'],

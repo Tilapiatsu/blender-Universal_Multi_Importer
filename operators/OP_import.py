@@ -570,21 +570,21 @@ class UMI(bpy.types.Operator, ImportHelper):
     filename_ext = COMPATIBLE_FORMATS.filename_ext
     filter_glob: bpy.props.StringProperty(default=COMPATIBLE_FORMATS.filter_glob, options={"HIDDEN", "SKIP_SAVE"})
     filter_folder: bpy.props.BoolProperty(default=True, options = {"HIDDEN", "SKIP_SAVE"})
-    filter_blender : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_usd : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_obj : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_fbx : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_image : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_movie : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_sound : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_collada : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_alembic : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_volume : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_ply : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_gltf : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_x3d : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_stl : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
-    filter_svg : bpy.props.BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+    filter_blender : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('blend'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_usd : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('usd'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_obj : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('obj'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_fbx : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('fbx'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_image : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('image'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_movie : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('image'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_sound : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('sound'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_collada : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('dae'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_alembic : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('abc'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_volume : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('vdb'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_ply : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('ply'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_gltf : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('gltf'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_x3d : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('x3d'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_stl : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('stl'), options={"HIDDEN", "SKIP_SAVE"})
+    filter_svg : bpy.props.BoolProperty(default=COMPATIBLE_FORMATS.is_format_valid('svg'), options={"HIDDEN", "SKIP_SAVE"})
 
 
     # Selected files
@@ -1476,19 +1476,19 @@ class UMI(bpy.types.Operator, ImportHelper):
 def menu_func_import(self, context):
     op = self.layout.operator(UMI.bl_idname, text="Universal Multi Importer Files", icon='LONGDISPLAY')
     op.import_folders = False
-    op.filter_blender = True
-    op.filter_usd = True
-    op.filter_obj = True
-    op.filter_fbx = True
-    op.filter_image = True
-    op.filter_movie = True
-    op.filter_collada = True
-    op.filter_alembic = True
-    op.filter_volume = True
-    op.filter_ply = True
-    op.filter_gltf = True
-    op.filter_stl = True
-    op.filter_svg = True
+    op.filter_blender = COMPATIBLE_FORMATS.is_format_valid('blend')
+    op.filter_usd = COMPATIBLE_FORMATS.is_format_valid('usd')
+    op.filter_obj = COMPATIBLE_FORMATS.is_format_valid('obj')
+    op.filter_fbx = COMPATIBLE_FORMATS.is_format_valid('fbx')
+    op.filter_image = COMPATIBLE_FORMATS.is_format_valid('image')
+    op.filter_movie = COMPATIBLE_FORMATS.is_format_valid('image')
+    op.filter_collada = COMPATIBLE_FORMATS.is_format_valid('dae')
+    op.filter_alembic = COMPATIBLE_FORMATS.is_format_valid('abc')
+    op.filter_volume = COMPATIBLE_FORMATS.is_format_valid('vdb')
+    op.filter_ply = COMPATIBLE_FORMATS.is_format_valid('ply')
+    op.filter_gltf = COMPATIBLE_FORMATS.is_format_valid('gltf')
+    op.filter_stl = COMPATIBLE_FORMATS.is_format_valid('stl')
+    op.filter_svg = COMPATIBLE_FORMATS.is_format_valid('svg')
 
     op = self.layout.operator(UMI.bl_idname, text="Universal Multi Importer Folders", icon='FILEBROWSER')
     op.filter_glob = ''

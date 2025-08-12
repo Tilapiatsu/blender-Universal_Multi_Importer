@@ -316,13 +316,19 @@ class CompatibleFormats(object):
 
 
     def is_format_valid(self, format):
+        if format not in self.formats_dict.keys():
+            return False
+
         operators = self.formats_dict[format].operators.operators
+
         for v in operators.values():
             try:
                 eval(v.command).__repr__()
                 return True
             except AttributeError:
                 continue
+
+        return False
 
 
     def draw_format_settings(self, context, format_name, operator, module_name, layout):
