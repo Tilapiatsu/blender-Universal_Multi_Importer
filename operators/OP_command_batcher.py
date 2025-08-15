@@ -428,7 +428,7 @@ class CommandBatcher(bpy.types.Operator):
                         if self.pre_process_done and not self.each_process_done:
                             if self.current_element_to_process[0] == 'objects':
                                 override["selected_objects"] = [bpy.data.objects[self.current_element_to_process[1].name]]
-                            elif len(command_output_strings[i][4]) != '':
+                            elif len(command_output_strings[i][4]) > 0:
                                 override["selected_objects"] = [eval(command_output_strings[i][4], {'bpy': bpy})]
 
                         with bpy.context.temp_override(**override):
