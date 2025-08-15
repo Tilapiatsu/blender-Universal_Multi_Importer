@@ -40,9 +40,9 @@ class Version:
     def __repr__(self):
         return self._version
 
-    def __eq__(self, other):
+    def __eq__(self, other:Union[tuple[int], float]):
         if isinstance(other, float):
-            other = tuple(int(i) for i in str(other).split('.')) + (0,)
+            other = Version(tuple(int(i) for i in str(other).split('.')) + (0,))
 
         if (self.version[0] == other.version[0] and
             self.version[1] == other.version[1] and
@@ -51,9 +51,9 @@ class Version:
 
         return False
 
-    def __gt__(self, other):
+    def __gt__(self, other:Union[tuple[int], float]):
         if isinstance(other, float):
-            other = tuple(int(i) for i in str(other).split('.')) + (0,)
+            other = Version(tuple(int(i) for i in str(other).split('.')) + (0,))
 
         if self.version[0] > other.version[0]: return True
         elif self.version[1] > other.version[1]: return True
@@ -61,12 +61,32 @@ class Version:
 
         return False
 
-    def __lt__(self, other):
+    def __lt__(self, other:Union[tuple[int], float]):
         if isinstance(other, float):
-            other = tuple(int(i) for i in str(other).split('.')) + (0,)
+            other = Version(tuple(int(i) for i in str(other).split('.')) + (0,))
 
         if self.version[0] < other.version[0]: return True
         elif self.version[1] < other.version[1]: return True
         elif self.version[2] < other.version[2]: return True
+
+        return False
+
+    def __ge__(self, other:Union[tuple[int], float]):
+        if isinstance(other, float):
+            other = Version(tuple(int(i) for i in str(other).split('.')) + (0,))
+
+        if self.version[0] >= other.version[0]: return True
+        elif self.version[1] >= other.version[1]: return True
+        elif self.version[2] >= other.version[2]: return True
+
+        return False
+
+    def __le__(self, other:Union[tuple[int], float]):
+        if isinstance(other, float):
+            other = Version(tuple(int(i) for i in str(other).split('.')) + (0,))
+
+        if self.version[0] <= other.version[0]: return True
+        elif self.version[1] <= other.version[1]: return True
+        elif self.version[2] <= other.version[2]: return True
 
         return False
