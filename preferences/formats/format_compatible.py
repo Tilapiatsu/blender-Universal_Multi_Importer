@@ -14,8 +14,9 @@ from ...bversion.version import Version
 class CompatibleFormats(object):
 
     def __init__(self):
+        self._all_formats = {}
         for f in FORMATS:
-            exec(f'self.{f} = Format', {'self': self, 'Format': getattr(FormatDefinition, f)})
+            exec(f'self._all_formats["{f}"] = Format', {'self': self, 'Format': getattr(FormatDefinition, f)})
         self._extensions = None
         self._extensions_string = None
         self._operators = None
@@ -213,7 +214,7 @@ class CompatibleFormats(object):
 
     @property
     def all_formats(self) -> dict[str: Format]:
-        return self.formats_dict
+        return self._all_formats
 
 
     @property
@@ -226,10 +227,8 @@ class CompatibleFormats(object):
 
 
     def get_formats(self) -> list[Format]:
-        formats = [getattr(self, f, None) for f in FORMATS if getattr(self, f, None) is not None]
-
         valid_formats = []
-        for f in formats:
+        for f in self.all_formats.values():
             op = {}
             new_f = f
             assigned = []
@@ -277,6 +276,13 @@ class CompatibleFormats(object):
             if module_name not in self.all_formats[format_name].operators.operators:
                 return False
         return self.all_formats[format_name].operators.operators[module_name].import_data
+
+
+    def get_format_from_name(self, name: str) -> Format:
+        if name not in self.all_formats.keys():
+            return None
+        else:
+            return self.all_formats[name]
 
 
     def get_format_from_extension(self, ext):

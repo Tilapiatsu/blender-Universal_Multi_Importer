@@ -347,7 +347,8 @@ def max3ds_operators() -> FormatOperators:
                                 ('EMPTY', "Empty".rjust(11), "", 'EMPTY_AXIS', 0x10),),
                                 options={'ENUM_FLAG'})
 
-        s.add_set_boolean_setting('Include', 'use_keyframes', 'Collection', True)
+        s.add_set_boolean_setting('Include', 'use_keyframes', 'Animation', True)
+        s.add_set_boolean_setting('Include', 'use_collection', 'Collection', False)
         s.add_set_boolean_setting('Include', 'use_cursor', 'Cursor Origin', False)
 
         # Transform
@@ -397,7 +398,7 @@ def max3ds_operators() -> FormatOperators:
         f.addon_name = 'bl_ext.blender_org.autodesk_3ds_format'
         f.pkg_id = 'autodesk_3ds_format'
         f.pkg_url = 'https://extensions.blender.org/add-ons/autodesk-3ds-format/'
-        f.supported_version = '2.8.3'
+        f.supported_version = '2.8.6'
 
     elif BVERSION >= 4.1:
         f.supported_version = '2.4.9'
@@ -538,7 +539,7 @@ def stl_operators() -> FormatOperators:
 def max_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.max',
-                        '1.6.2',
+                        '1.6.7',
                         addon_name='bl_ext.blender_org.io_scene_max',
                         pkg_id='io_scene_max',
                         pkg_url='https://extensions.blender.org/add-ons/io-scene-max/')

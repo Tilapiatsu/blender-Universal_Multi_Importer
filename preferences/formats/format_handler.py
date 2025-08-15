@@ -20,7 +20,8 @@ class FormatHandler():
     @property
     def format(self):
         if self._format is None:
-            self._format = getattr(COMPATIBLE_FORMATS, self.import_format)
+            self._format = COMPATIBLE_FORMATS.get_format_from_name(self.import_format)
+            # self._format = getattr(COMPATIBLE_FORMATS, self.import_format)
 
         return self._format
 
