@@ -83,6 +83,7 @@ class CompatibleFormats(object):
 
     @property
     def installed_addons(self):
+        # return [addon.module for addon in bpy.context.preferences.addons]
         return [a.__name__ for a in addon_utils.modules()]
 
 
