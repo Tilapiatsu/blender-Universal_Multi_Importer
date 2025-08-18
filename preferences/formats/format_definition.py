@@ -183,13 +183,24 @@ def obj_operators() -> FormatOperators:
                         'bpy.ops.wm.obj_import',
                         '0.0.0')
 
+    gn = FormatOperator(    'geometry_node',
+                            'bpy.ops.import_scene.tila_import_as_geometry_node',
+                            '0.0.0',
+                            default_values = {'import_module': 'OBJ'})
+
+
     if BVERSION >= 3.3:
         pass
 
     else:
         f.command = 'bpy.ops.import_scene.obj'
 
-    return FormatOperators(f)
+    operators = FormatOperators(f)
+
+    if BVERSION >= 4.5:
+        operators.add_operator(gn)
+
+    return operators
 
 
 def ply_operators() -> FormatOperators:
@@ -197,13 +208,23 @@ def ply_operators() -> FormatOperators:
                         'bpy.ops.wm.ply_import',
                         '0.0.0')
 
+    gn = FormatOperator(    'geometry_node',
+                            'bpy.ops.import_scene.tila_import_as_geometry_node',
+                            '0.0.0',
+                            default_values = {'import_module': 'PLY'})
+
     if BVERSION >= 3.6:
         pass
 
     else:
         f.command = 'bpy.ops.import_mesh.ply'
 
-    return FormatOperators(f)
+    operators = FormatOperators(f)
+
+    if BVERSION >= 4.5:
+        operators.add_operator(gn)
+
+    return operators
 
 
 def svg_operators() -> FormatOperators:
@@ -510,7 +531,15 @@ def stl_operators() -> FormatOperators:
                         '1.1.3',
                         addon_name='io_mesh_stl')
 
+    gn = FormatOperator(    'geometry_node',
+                            'bpy.ops.import_scene.tila_import_as_geometry_node',
+                            '0.0.0',
+                            default_values = {'import_module': 'STL'})
+
     operators = FormatOperators(default)
+
+    if BVERSION >= 4.5:
+        operators.add_operator(gn)
 
     if BVERSION >= 4.2:
         default.addon_name = None
@@ -613,6 +642,14 @@ def vdb_operators() -> FormatOperators:
 
     operators = FormatOperators(op)
     operators.add_operator(op)
+
+    gn = FormatOperator(    'geometry_node',
+                            'bpy.ops.import_scene.tila_import_as_geometry_node',
+                            '0.0.0',
+                            default_values = {'import_module': 'VDB'})
+
+    if BVERSION >= 4.5:
+        operators.add_operator(gn)
 
     return operators
 

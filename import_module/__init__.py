@@ -1,6 +1,6 @@
-from . import blend_format
+from . import blend_format, import_as_geometry_node
 
-modules = (blend_format, )
+modules = (blend_format, import_as_geometry_node)
 
 def register():
     for m in modules:
