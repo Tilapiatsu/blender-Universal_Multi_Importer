@@ -1,4 +1,4 @@
-from . import draw_panel, draw_version_warning, draw_no_settings, BVERSION
+from . import draw_panel, draw_version_warning, draw_no_settings, BVERSION, draw_import_as_geometry_node_settings
 
 class IMPORT_SCENE_PLYSettings():
     @draw_version_warning
@@ -7,7 +7,7 @@ class IMPORT_SCENE_PLYSettings():
         layout.use_property_decorate = False  # No animation.
 
         if module_name == 'geometry_node':
-            draw_no_settings(layout)
+            draw_import_as_geometry_node_settings(layout, operator, 'PLYGNSettings')
 
         if module_name == 'default':
             if BVERSION >= 3.4:

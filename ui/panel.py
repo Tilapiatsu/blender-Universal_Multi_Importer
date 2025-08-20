@@ -86,8 +86,6 @@ def draw_custom_panel(  layout,
     header.label(text=header_name, icon=icon)
     return header, panel
 
-
-
 def draw_no_settings(layout) -> None:
     box = layout.box()
     col = box.column(align=True)
@@ -149,3 +147,11 @@ def draw_version_warning(f) -> Callable:
             # layout.operator()
 
     return __wrapper
+
+def draw_import_as_geometry_node_settings(layout, operator, pannel_name:str) -> None:
+    header, panel = draw_custom_panel(layout, pannel_name, 'Options', 'OPTIONS')
+    row = panel.row(align=True)
+    row.prop(operator, 'import_mode', expand=True)
+    if operator.import_mode == "SEQUENCE":
+        panel.label(text='Select only ONE file in the file selection panel, the entire sequence will be detected automatically')
+        panel.prop(operator, 'loop_sequence')

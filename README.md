@@ -141,6 +141,7 @@ You can choose if the command has to be executed for a specific datatype or many
 
 # Changelog
 ### v2.3.2 : For Blender 4.5.0 + : add support for importing files as Geometry Node, which would create a geometry node setup to import the file from the disk, taking advantage of the `Import Node` added in this version. Available for OBJ, STL, PLY and VDB formats.
+### v2.3.2 : For Blender 4.5.0 + : Importing file as Geometry Node can import file sequences as animation
 ### v2.3.1 : Add Support VDB Format
 ### v2.3.0 : Add Support for Blender 4.5.0
 ### v2.3.0 : Command Batcher can execute commands for a specific or multiple datatypes
