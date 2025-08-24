@@ -147,7 +147,8 @@ class FormatOperator:
                  forced_properties:list=[],
                  import_objects:Optional[bool]=True,
                  import_data:Optional[bool]=True,
-                 import_settings:Optional[FormatImportSetting]=None):
+                 import_settings:Optional[FormatImportSetting]=None,
+                 description: Optional[str]=''):
 
         self.name = name
         self.command = command
@@ -161,6 +162,7 @@ class FormatOperator:
         self.import_settings = import_settings
         self.default_values = default_values
         self.forced_properties = forced_properties
+        self.description = description
 
 
     def as_dict(self) -> dict:
@@ -177,7 +179,8 @@ class FormatOperator:
                             'import_data': self.import_data,
                             'import_settings':self.import_settings.as_dict() if isinstance(self.import_settings, FormatImportSetting) else None,
                             'default_values': self.default_values,
-                            'forced_properties': self.forced_properties}}
+                            'forced_properties': self.forced_properties,
+                            'description': self.description}}
 
 
 class FormatOperators:
@@ -193,8 +196,12 @@ class FormatOperators:
                                                             addon_name=operator[1]['addon_name'],
                                                             pkg_id=operator[1]['pkg_id'],
                                                             pkg_url=operator[1]['url'],
-                                                            import_settings=operator[1]['import_settings'],
-                                                            default_values=operator[1]['default_values'])}
+                                                            default_values=operator[1]['default_values'],
+                                                            forced_properties=operator[1]['forced_properties'],
+                                                            import_objects=True if 'import_objects' not in operator[1].keys() else operator[1]['import_objects'],
+                                                            import_data=True if 'import_data' not in operator[1].keys() else operator[1]['import_data'],
+                                                            import_settings=None if 'import_settings' not in operator[1].keys() else operator[1]['import_settings'],
+                                                            description='' if 'description' not in operator[1].keys() else operator[1]['description'])}
 
         else:
             raise ValueError(f'operator parameters should NOT be of type "{type(operator)}" \n It should be either tuple[str, dict] or FormatOperator type')
@@ -212,8 +219,12 @@ class FormatOperators:
                                                             addon_name=operator[1]['addon_name'],
                                                             pkg_id=operator[1]['pkg_id'],
                                                             pkg_url=operator[1]['url'],
-                                                            import_settings=operator[1]['import_settings'],
-                                                            default_values=operator[1]['default_values'])
+                                                            default_values=operator[1]['default_values'],
+                                                            forced_properties=operator[1]['forced_properties'],
+                                                            import_objects=True if 'import_objects' not in operator[1].keys() else operator[1]['import_objects'],
+                                                            import_data=True if 'import_data' not in operator[1].keys() else operator[1]['import_data'],
+                                                            import_settings=None if 'import_settings' not in operator[1].keys() else operator[1]['import_settings'],
+                                                            description='' if 'description' not in operator[1].keys() else operator[1]['description'])
 
         else:
             raise ValueError(f'operator parameters should NOT be of type "{type(operator)}" \n It should be either tuple[str, dict] or FormatOperator type')

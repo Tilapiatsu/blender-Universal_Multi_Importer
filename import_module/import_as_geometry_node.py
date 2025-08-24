@@ -27,8 +27,8 @@ class IMPORT_SCENE_OT_tila_import_as_geometry_node(bpy.types.Operator):
     bl_description = 'Import file as geometry node'
 
     import_module : bpy.props.EnumProperty(name="Import Module", default="OBJ", items=NODE_IMPORT_MODULES_ITEMS)
-    import_mode : bpy.props.EnumProperty(name="Import Mode", default="SINGLE", items=[  ('SINGLE', 'Single File', ''),
-                                                                                        ('SEQUENCE', 'Detect File Sequence', ''),])
+    import_mode : bpy.props.EnumProperty(name="Import Mode", default="SINGLE", items=[  ('SINGLE', 'Single File', 'Import the selected file only.'),
+                                                                                        ('SEQUENCE', 'Detect File Sequence', 'Select only ONE file in the file selection panel,\n the entire sequence will be detected automatically'),])
     loop_sequence : bpy.props.BoolProperty(name="Loop Sequence", default=False)
     filepath : bpy.props.StringProperty(name="File Path", subtype='FILE_PATH', options={'HIDDEN'})
 

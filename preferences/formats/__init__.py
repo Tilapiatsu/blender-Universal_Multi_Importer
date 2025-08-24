@@ -48,7 +48,7 @@ def unregister():
 def get_import_modules():
     modules = {}
     for f in COMPATIBLE_FORMATS.formats:
-        module_items = [(m.upper(), m.title().replace('_', ' '), '') for m in f.operators.operators.keys()]
+        module_items = [(m.upper(), m.title().replace('_', ' '), f.operators.operators[m].description) for m in f.operators.operators.keys()]
         c = ClassFactory(f'UMI_{f.name}_module', None, bpy.types.PropertyGroup)
         c.__annotations__['name'] = bpy.props.EnumProperty(items=module_items, name="Import Module")
         modules[f'{f.name}_module'] = c

@@ -2,12 +2,17 @@ import platform
 from . import BVERSION
 from .format import axis, Format, FormatOperators, FormatOperator, FormatImportSetting
 
+AS_GEOMETRY_NODES_DESCRIPTION = 'Importing as Geometry Node create a dynamic link beetween the source file and the blend file. The file is NOT imported per say, and if the file on disk is changed, the change will be replicated automatically in the blend file it is linked to.'
+DEFAULT_DESCRIPTION = 'Default Build in module'
+EXTENSION_DESCRIPTION = 'Blender Extension'
+
 
 def fbx_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.fbx',
                         '5.4.0',
-                        addon_name='io_scene_fbx')
+                        addon_name='io_scene_fbx',
+                        description=DEFAULT_DESCRIPTION)
 
     if BVERSION >= 4.5:
         f.supported_version = '5.13.0'
@@ -64,7 +69,8 @@ def gltf_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.gltf',
                         '3.6.27',
-                        addon_name='io_scene_gltf2')
+                        addon_name='io_scene_gltf2',
+                        description=DEFAULT_DESCRIPTION)
 
     if BVERSION >= 4.5:
         f.supported_version = '4.5.47'
@@ -141,7 +147,8 @@ def gltf_operators() -> FormatOperators:
 def abc_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.wm.alembic_import',
-                        '0.0.0')
+                        '0.0.0',
+                        description=DEFAULT_DESCRIPTION)
 
     return FormatOperators(f)
 
@@ -149,7 +156,8 @@ def abc_operators() -> FormatOperators:
 def dae_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.wm.collada_import',
-                        '0.0.0')
+                        '0.0.0',
+                        description=DEFAULT_DESCRIPTION)
 
     return FormatOperators(f)
 
@@ -167,7 +175,8 @@ def bvh_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_anim.bvh',
                         '1.0.1',
-                        addon_name='io_anim_bvh')
+                        addon_name='io_anim_bvh',
+                        description=DEFAULT_DESCRIPTION)
 
     if BVERSION >= 3.2:
         pass
@@ -181,12 +190,14 @@ def bvh_operators() -> FormatOperators:
 def obj_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.wm.obj_import',
-                        '0.0.0')
+                        '0.0.0',
+                        description=DEFAULT_DESCRIPTION)
 
     gn = FormatOperator(    'geometry_node',
                             'bpy.ops.import_scene.tila_import_as_geometry_node',
                             '0.0.0',
-                            default_values = {'import_module': 'OBJ'})
+                            default_values = {'import_module': 'OBJ'},
+                            description = AS_GEOMETRY_NODES_DESCRIPTION)
 
 
     if BVERSION >= 3.3:
@@ -206,12 +217,14 @@ def obj_operators() -> FormatOperators:
 def ply_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.wm.ply_import',
-                        '0.0.0')
+                        '0.0.0',
+                        description=DEFAULT_DESCRIPTION)
 
     gn = FormatOperator(    'geometry_node',
                             'bpy.ops.import_scene.tila_import_as_geometry_node',
                             '0.0.0',
-                            default_values = {'import_module': 'PLY'})
+                            default_values = {'import_module': 'PLY'},
+                            description = AS_GEOMETRY_NODES_DESCRIPTION)
 
     if BVERSION >= 3.6:
         pass
@@ -230,7 +243,8 @@ def ply_operators() -> FormatOperators:
 def svg_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_curve.svg',
-                        '0.0.0')
+                        '0.0.0',
+                        description=DEFAULT_DESCRIPTION)
 
     if BVERSION >= 4.3:
         pass
@@ -244,7 +258,8 @@ def svg_operators() -> FormatOperators:
 def usd_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.wm.usd_import',
-                        '0.0.0')
+                        '0.0.0',
+                        description=DEFAULT_DESCRIPTION)
 
     return FormatOperators(f)
 
@@ -253,13 +268,15 @@ def x3d_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.x3d',
                         '2.3.1',
-                        addon_name='io_scene_x3d')
+                        addon_name='io_scene_x3d',
+                        description=DEFAULT_DESCRIPTION)
 
     if BVERSION >= 4.2:
         f.addon_name = 'bl_ext.blender_org.web3d_x3d_vrml2_format'
         f.pkg_id = 'web3d_x3d_vrml2_format'
         f.pkg_url = 'https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/'
         f.supported_version = '2.5.1'
+        f.description = EXTENSION_DESCRIPTION
 
     elif BVERSION >= 3.4:
         f.supported_version = '2.3.1'
@@ -274,7 +291,8 @@ def dxf_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.dxf',
                         '0.9.8',
-                        addon_name='io_import_dxf')
+                        addon_name='io_import_dxf',
+                        description=DEFAULT_DESCRIPTION)
 
     if BVERSION >= 4.2:
         f.addon_name = 'bl_ext.blender_org.import_autocad_dxf_format_dxf'
@@ -283,6 +301,7 @@ def dxf_operators() -> FormatOperators:
         f.supported_version = '0.9.10'
         f.default_values = {'proj_scene': 'TMERC'}
         f.forced_properties = ['files', 'directory']
+        f.description = EXTENSION_DESCRIPTION
 
     elif BVERSION >= 3.6:
         f.supported_version = '0.9.8'
@@ -297,7 +316,8 @@ def pdb_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_mesh.atomic',
                         '1.8.1',
-                        addon_name = 'io_mesh_atomic')
+                        addon_name = 'io_mesh_atomic',
+                        description=DEFAULT_DESCRIPTION)
 
     if BVERSION >= 4.2:
         f.command = 'bpy.ops.import_mesh.pdb'
@@ -305,6 +325,7 @@ def pdb_operators() -> FormatOperators:
         f.pkg_id = 'atomic_blender_pdb_xyz'
         f.pkg_url = 'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/'
         f.supported_version = '1.9.1'
+        f.description = EXTENSION_DESCRIPTION
 
     elif BVERSION >= 3.5:
         f.command = 'bpy.ops.import_mesh.pdb'
@@ -324,7 +345,8 @@ def xyz_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_mesh.atomic',
                         '1.8.1',
-                        addon_name = 'io_mesh_atomic')
+                        addon_name = 'io_mesh_atomic',
+                        description=DEFAULT_DESCRIPTION)
 
     if BVERSION >= 4.2:
         f.command = 'bpy.ops.import_mesh.xyz'
@@ -332,6 +354,7 @@ def xyz_operators() -> FormatOperators:
         f.pkg_id = 'atomic_blender_pdb_xyz'
         f.pkg_url = 'https://extensions.blender.org/add-ons/atomic-blender-pdb-xyz/'
         f.supported_version = '1.9.1'
+        f.description = EXTENSION_DESCRIPTION
 
     elif BVERSION >= 3.5:
         f.command = 'bpy.ops.import_mesh.xyz'
@@ -350,7 +373,8 @@ def max3ds_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.max3ds',
                         '2.4.8',
-                        addon_name = 'io_scene_3ds')
+                        addon_name = 'io_scene_3ds',
+                        description=EXTENSION_DESCRIPTION)
 
     s = FormatImportSetting()
 
@@ -440,12 +464,14 @@ def image_operators() -> FormatOperators:
     data = FormatOperator(  'data',
                             'bpy.ops.image.open',
                             '0.0.0',
-                            import_objects=False)
+                            import_objects=False,
+                            description=DEFAULT_DESCRIPTION)
 
     plane = FormatOperator( 'plane',
                             'bpy.ops.import_image.to_plane',
                             '3.5.1',
-                            addon_name='io_import_images_as_planes')
+                            addon_name='io_import_images_as_planes',
+                            description=DEFAULT_DESCRIPTION)
 
     operators = FormatOperators(data)
 
@@ -457,18 +483,21 @@ def image_operators() -> FormatOperators:
 
         empty = FormatOperator( 'empty',
                                 'bpy.ops.object.empty_image_add',
-                                '0.0.0')
+                                '0.0.0',
+                                description=DEFAULT_DESCRIPTION)
 
         operators.add_operator(empty)
 
     elif BVERSION >= 4.0 :
         ref = FormatOperator( 'ref',
                                 'bpy.ops.object.load_reference_image',
-                                '0.0.0')
+                                '0.0.0',
+                                description=DEFAULT_DESCRIPTION)
 
         background = FormatOperator('background',
                                     'bpy.ops.object.load_background_image',
-                                    '0.0.0')
+                                    '0.0.0',
+                                    description=DEFAULT_DESCRIPTION)
 
         operators.add_operator(ref)
         operators.add_operator(background)
@@ -476,11 +505,13 @@ def image_operators() -> FormatOperators:
     elif BVERSION >= 3.6:
         ref = FormatOperator( 'ref',
                                 'bpy.ops.object.load_reference_image',
-                                '0.0.0')
+                                '0.0.0',
+                                description=DEFAULT_DESCRIPTION)
 
         background = FormatOperator('background',
                                     'bpy.ops.object.load_background_image',
-                                    '0.0.0')
+                                    '0.0.0',
+                                    description=DEFAULT_DESCRIPTION)
         operators.add_operator(ref)
         operators.add_operator(background)
         plane.supported_version = '3.5.0'
@@ -488,11 +519,13 @@ def image_operators() -> FormatOperators:
     elif BVERSION >= 3.4:
         ref = FormatOperator( 'ref',
                                 'bpy.ops.object.load_reference_image',
-                                '0.0.0')
+                                '0.0.0',
+                                description=DEFAULT_DESCRIPTION)
 
         background = FormatOperator('background',
                                     'bpy.ops.object.load_background_image',
-                                    '0.0.0')
+                                    '0.0.0',
+                                    description=DEFAULT_DESCRIPTION)
         operators.add_operator(ref)
         operators.add_operator(background)
         plane.supported_version = '3.5.0'
@@ -500,11 +533,13 @@ def image_operators() -> FormatOperators:
     elif BVERSION >= 3.0:
         ref = FormatOperator( 'ref',
                                 'bpy.ops.object.load_reference_image',
-                                '0.0.0')
+                                '0.0.0',
+                                description=DEFAULT_DESCRIPTION)
 
         background = FormatOperator('background',
                                     'bpy.ops.object.load_background_image',
-                                    '0.0.0')
+                                    '0.0.0',
+                                    description=DEFAULT_DESCRIPTION)
         operators.add_operator(ref)
         operators.add_operator(background)
         plane.supported_version = '3.4.0'
@@ -518,7 +553,8 @@ def sound_operators() -> FormatOperators:
     data = FormatOperator(  'data',
                             'bpy.ops.sound.open',
                             '0.0.0',
-                            import_objects=False)
+                            import_objects=False,
+                            description=DEFAULT_DESCRIPTION)
     operators = FormatOperators(data)
     operators.add_operator(data)
 
@@ -529,12 +565,14 @@ def stl_operators() -> FormatOperators:
     default = FormatOperator('default',
                         'bpy.ops.wm.stl_import',
                         '1.1.3',
-                        addon_name='io_mesh_stl')
+                        addon_name='io_mesh_stl',
+                        description=DEFAULT_DESCRIPTION)
 
     gn = FormatOperator(    'geometry_node',
                             'bpy.ops.import_scene.tila_import_as_geometry_node',
                             '0.0.0',
-                            default_values = {'import_module': 'STL'})
+                            default_values = {'import_module': 'STL'},
+                            description = AS_GEOMETRY_NODES_DESCRIPTION)
 
     operators = FormatOperators(default)
 
@@ -548,14 +586,16 @@ def stl_operators() -> FormatOperators:
     elif BVERSION >= 4.0:
         legacy = FormatOperator('legacy',
                                 'bpy.ops.import_mesh.stl',
-                                '0.0.0')
+                                '0.0.0',
+                                description=DEFAULT_DESCRIPTION)
 
         operators.add_operator(legacy)
 
     elif BVERSION >= 3.6:
         legacy = FormatOperator('legacy',
                                 'bpy.ops.import_mesh.stl',
-                                '0.0.0')
+                                '0.0.0',
+                                description=DEFAULT_DESCRIPTION)
 
         operators.add_operator(legacy)
 
@@ -571,7 +611,8 @@ def max_operators() -> FormatOperators:
                         '1.6.7',
                         addon_name='bl_ext.blender_org.io_scene_max',
                         pkg_id='io_scene_max',
-                        pkg_url='https://extensions.blender.org/add-ons/io-scene-max/')
+                        pkg_url='https://extensions.blender.org/add-ons/io-scene-max/',
+                        description=EXTENSION_DESCRIPTION)
 
     s = FormatImportSetting()
 
@@ -605,7 +646,8 @@ def pes_operators() -> FormatOperators:
                         '0.9.5',
                         addon_name='bl_ext.blender_org.embroidery_importer',
                         pkg_id='embroidery_importer',
-                        pkg_url='https://extensions.blender.org/add-ons/embroidery-importer/')
+                        pkg_url='https://extensions.blender.org/add-ons/embroidery-importer/',
+                        description=EXTENSION_DESCRIPTION)
 
     s = FormatImportSetting()
 
@@ -638,7 +680,8 @@ def pes_operators() -> FormatOperators:
 def vdb_operators() -> FormatOperators:
     op = FormatOperator(    'default',
                             'bpy.ops.object.volume_import',
-                            '0.0.0')
+                            '0.0.0',
+                            description=DEFAULT_DESCRIPTION)
 
     operators = FormatOperators(op)
     operators.add_operator(op)
@@ -646,7 +689,8 @@ def vdb_operators() -> FormatOperators:
     gn = FormatOperator(    'geometry_node',
                             'bpy.ops.import_scene.tila_import_as_geometry_node',
                             '0.0.0',
-                            default_values = {'import_module': 'VDB'})
+                            default_values = {'import_module': 'VDB'},
+                            description = AS_GEOMETRY_NODES_DESCRIPTION)
 
     if BVERSION >= 4.5:
         operators.add_operator(gn)

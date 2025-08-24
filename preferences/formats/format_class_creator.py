@@ -218,7 +218,7 @@ class FormatClassCreator():
     def get_enum_items(self, enum):
         command = []
         for e in enum:
-            command.append((e.identifier, e.name, f'{e.icon}'))
+            command.append((e.identifier, e.name, e.description))
         return command
 
     def get_valid_submodule(self, format_module):
