@@ -1107,6 +1107,19 @@ class UMI(bpy.types.Operator, ImportHelper):
     def update_progress(self):
             self.progress = (self.total_imported_size * 100) / self.total_import_size
 
+    def get_path_hierarchy_as_list(self, path_root: Path) -> list:
+        hierachy_list = []
+        stem='  '
+        while len(stem) > 1:
+            stem = path_root.stem
+            if len(stem) <=1:
+                break
+            hierachy_list.append(stem)
+            path_root = path_root.parent
+
+        hierachy_list.reverse()
+        return hierachy_list
+
     def import_file(self, context, current_file):
         self.importing = True
         filename = path.basename(current_file)
@@ -1138,11 +1151,11 @@ class UMI(bpy.types.Operator, ImportHelper):
         import_col = self.root_collection
 
         if self.umi_settings.umi_global_import_settings.recreate_folder_structure_as_collections and self.import_folders:
-            hierarchy_path = str(Path(path.dirname(current_file).replace(str(Path(self.directory).parent.absolute()), '')))
+            hierarchy_path = Path(path.dirname(current_file).replace(str(Path(self.directory).parent.absolute()), ''))
 
-            herarchy_list = hierarchy_path.split("\\")[1:]
+            hierarchy_list = self.get_path_hierarchy_as_list(hierarchy_path)
 
-            import_col = self.create_collection_hierarchy(herarchy_list)
+            import_col = self.create_collection_hierarchy(hierarchy_list)
 
             root_layer_col = self.view_layer.layer_collection
             layer_col = self.recur_layer_collection(root_layer_col, import_col.name)
