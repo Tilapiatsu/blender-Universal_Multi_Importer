@@ -96,7 +96,9 @@ This addon is adding batch import features to existing importers for blender. Th
 ## Command Batcher
 
 The command Batcher allows you to run python commands while importing files or at anytime in blender by running `Object`>`Command Batcher`
+
 ![UMI-Command-Batcher-Improvements.png](https://i.postimg.cc/rs81wdqF/UMI-Command-Batcher-Improvements.png)
+
 These commands will be executed in a row to all the imported objects after each imported batch.
 
 It will process in that order :
