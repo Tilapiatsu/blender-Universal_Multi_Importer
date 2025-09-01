@@ -186,7 +186,12 @@ class CommandBatcher(bpy.types.Operator):
                             ddd = m
                         data = self.umi_settings.umi_imported_data.add()
                         data.data = repr(ddd)
-                        data.data_type = repr(ddd).replace('bpy.data.', '').split('[')[0]
+                        if d == 'modifiers':
+                            # data_type = repr(ddd).replace('bpy.data.', '').split('[')
+                            # data.data_type = data_type[0] + '[' + data_type[1]
+                            data.data_type = 'modifiers'
+                        else:
+                            data.data_type = repr(ddd).replace('bpy.data.', '').split('[')[0]
                         # data.name = ddd.name
                         data.name = getattr(ddd, 'name', '')
                 else:
