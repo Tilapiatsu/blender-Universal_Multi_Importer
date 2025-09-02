@@ -1,7 +1,7 @@
 import bpy
 import time, math, re, itertools
 from ..logger import LOG, LoggerColors
-from ..umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_current_item_index
+from ..umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_current_item_index, MODIFIER_TYPES
 from .command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
 
 
@@ -187,12 +187,11 @@ class CommandBatcher(bpy.types.Operator):
                         data = self.umi_settings.umi_imported_data.add()
                         data.data = repr(ddd)
                         if d == 'modifiers':
-                            # data_type = repr(ddd).replace('bpy.data.', '').split('[')
-                            # data.data_type = data_type[0] + '[' + data_type[1]
+
                             data.data_type = 'modifiers'
                         else:
                             data.data_type = repr(ddd).replace('bpy.data.', '').split('[')[0]
-                        # data.name = ddd.name
+
                         data.name = getattr(ddd, 'name', '')
                 else:
                     data = self.umi_settings.umi_imported_data.add()
@@ -407,11 +406,15 @@ class CommandBatcher(bpy.types.Operator):
 
                     self.progress += 100 / self.number_of_operations_to_perform
 
-                    ob = None if self.current_element_to_process[0] != 'objects' else self.current_element_to_process[1]
+                    ob = None
+                    if self.current_element_to_process[0] == 'objects' :
+                        ob = self.current_element_to_process[1]
+                    elif self.current_element_to_process[0] == 'modifiers' :
+                        ob = eval(self.current_element_to_process[2].split('.modifiers')[0])
 
                     # keywords = which_keywords(command, COMMAND_BATCHER_INPUT_STRING)
 
-                    command_output_strings = get_command_batcher_output_string(
+                    command_output_strings = get_command_batcher_output_string( self.current_element_to_process[0],
                                                                                 self.global_processed_elements,
                                                                                 self.processed_elements[self.current_element_to_process[0]] + self.umi_settings.umi_current_item_index[self.current_element_to_process[0]].index,
                                                                                 self.current_element_name_to_process,

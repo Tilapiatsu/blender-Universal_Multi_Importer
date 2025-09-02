@@ -8,6 +8,7 @@ ADDON_PACKAGE = __package__
 AUTOSAVE_PATH = os.path.join(Path(bpy.utils.script_path_user()).parent.absolute(), 'autosave')
 WARNING_ICON = 'ERROR' if BVERSION < 4.3 else 'WARNING_LARGE'
 DATATYPE_PREFIX = 'applies_to'
+MODIFIER_TYPES = [modifier.identifier for modifier in bpy.types.Modifier.bl_rna.properties['type'].enum_items]
 
 def get_datalist():
     datatype_list = [
@@ -29,6 +30,7 @@ def get_datalist():
                         {'name':'materials',        'icon':'MATERIAL'},
                         {'name':'meshes',           'icon':'MESH_DATA'},
                         {'name':'metaballs',        'icon':'OUTLINER_OB_META'},
+                        {'name':'modifiers',        'icon':'MODIFIER'},
                         {'name':'movieclips',       'icon':'FILE_MOVIE'},
                         {'name':'node_groups',      'icon':'NODETREE'},
                         {'name':'objects',          'icon':'OBJECT_DATA'},
@@ -75,6 +77,9 @@ def get_datatype_properties():
             default = True
 
         datatype_result += ({'property': f'{DATATYPE_PREFIX}_{d["name"]}', 'type':'BOOLEAN', "default":default, 'name': d["name"].replace("_", " ").title(), 'description':'', 'set':None, 'icon':d['icon']},)
+        if d["name"] == 'modifiers':
+            items = [(i, i.replace('_', ' ').title(), '') for i in MODIFIER_TYPES]
+            datatype_result += ({'property': 'modifier_types', 'type':'ENUM', "items":items, "default":MODIFIER_TYPES[0], 'name': d["name"].replace("_", " ").title() + ' Type', 'description':'', 'set':None, 'icon':d['icon']},)
 
     return datatype_result
 

@@ -30,6 +30,8 @@ def draw_applies_to(self, layout):
         row = panel.row()
         row.alignment = 'EXPAND'
         for i, d in enumerate(DATATYPE_PROPERTIES):
+            if d['property'] == "modifier_types" and not getattr(self, 'applies_to_modifiers') :
+                continue
             if i % datatype_col_count == 0:
                 col = row.column(align=True)
                 col.alignment = 'RIGHT'
@@ -75,7 +77,7 @@ def draw_add_edit_operator(self, layout):
     if panel:
         row = panel.row()
         row.alignment = 'EXPAND'
-        for i, c in enumerate(COMMAND_BATCHER_VARIABLE):
+        for i, c in enumerate(COMMAND_BATCHER_VARIABLE.values()):
             if i % batcher_item_col_count == 0:
                 sub_col = row.column(align=True)
 
@@ -283,12 +285,12 @@ def register():
         register_class(cls)
 
     from ... import class_property_injection
-    class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES + COMMAND_BATCHER_VARIABLE)
+    class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values()))
 
 
 def unregister():
     from ... import class_property_injection
-    class_property_injection.unregister(datatype_classes, DATATYPE_PROPERTIES + COMMAND_BATCHER_VARIABLE)
+    class_property_injection.unregister(datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values()))
 
     from bpy.utils import unregister_class
 

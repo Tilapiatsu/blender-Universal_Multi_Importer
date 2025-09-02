@@ -23,14 +23,14 @@ def revert_to_default(self, context):
         return
 
     umi_settings.umi_updating_batcher_variable = True
-    for v in COMMAND_BATCHER_VARIABLE:
+    for v in COMMAND_BATCHER_VARIABLE.values():
         exec(f"self.{v['property']} = {v['default']}", {'self':self})
     umi_settings.umi_updating_batcher_variable = False
 
 
 def get_command_batcher_variable():
-    variables = [{'default':f'"<{v[0]}>"', 'type':'STRING', 'property':f'{COMMAND_BATCHER_VARIABLE_PREFIX}_{v[0].lower()}', 'name':v[1], 'description':v[2], 'option':{'SKIP_SAVE'}, 'set':revert_to_default} for v in COMMAND_BATCHER_INPUT_ITEMS]
-    return tuple(variables)
+    variables = {v[1]:{'default':f'"<{v[0]}>"', 'type':'STRING', 'property':f'{COMMAND_BATCHER_VARIABLE_PREFIX}_{v[0].lower()}', 'name':v[1], 'description':v[2], 'option':{'SKIP_SAVE'}, 'set':revert_to_default} for v in COMMAND_BATCHER_INPUT_ITEMS}
+    return variables
 
 COMMAND_BATCHER_VARIABLE = get_command_batcher_variable()
 
@@ -53,13 +53,17 @@ def vector_to_string(v) -> str:
     s = str((v[0], v[1], v[2]))
     return s
 
-def get_command_batcher_output_string(global_item_index:int, item_index: int, item_name:str, item_data:str, object=None) -> list[str]:
+def get_command_batcher_output_string(data_type:str, global_item_index:int, item_index: int, item_name:str, item_data:str, object=None) -> list[str]:
     objects = []
     data = eval(item_data)
-    data_type = data.id_type
+    if data_type == 'modifiers':
+        data_type = data_type.upper()
+        objects.append(object)
+    else:
+        data_type = data.id_type
 
     # Get Object list from data
-    if data_type not in ['OBJECT']:
+    if data_type not in ['OBJECT', 'MODIFIERS']:
         for o in bpy.data.objects:
             if data_type == 'ACTION':
                 ad = getattr(o, 'animation_data', None)

@@ -42,7 +42,11 @@ class ClassPropertyInjection():
 
     def inject_property_class(self, property_class:type) -> None:
         for prop in self._property_list:
-            command = f'{self._property_type[prop["type"]]}(name="{prop["name"]}", default={prop["default"]}, description="{prop["description"]}", set=callable_set)'
+            if prop['type'] == 'ENUM':
+                command = f'{self._property_type[prop["type"]]}(items={prop["items"]}, name="{prop["name"]}", default="{prop["default"]}", description="{prop["description"]}", set=callable_set)'
+            else:
+                command = f'{self._property_type[prop["type"]]}(name="{prop["name"]}", default={prop["default"]}, description="{prop["description"]}", set=callable_set)'
+
             property_class.__annotations__[f'{prop["property"]}'] = eval(command, {'callable_set':prop["set"], 'bpy': bpy})
 
         return property_class
