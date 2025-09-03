@@ -1,7 +1,7 @@
 import bpy
 import os
 import math
-from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST, get_operator_boolean, DATATYPE_PREFIX, DATATYPE_PROPERTIES, DATATYPE_LIST
+from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST, get_operator_boolean, DATATYPE_PREFIX, DATATYPE_PROPERTIES, DATATYPE_LIST, DATATYPE_PROPERTIES_DICT
 from .operators_const import COMMAND_BATCHER_PRESET_FOLDER
 from ..command_batcher_const import COMMAND_BATCHER_INPUT_ITEMS, COMMAND_BATCHER_ITEM_COUNT, COMMAND_BATCHER_VARIABLE
 from ...ui.panel import draw_panel
@@ -11,10 +11,31 @@ from ...bversion import BVERSION
 datatype_col_count = math.ceil(len(DATATYPE_LIST)/4)
 batcher_item_col_count = math.ceil(COMMAND_BATCHER_ITEM_COUNT/7)
 
+def get_datatypes(self, context, edit_text):
+    return [d for d in DATATYPE_PROPERTIES_DICT.keys()]
+
+def update_add_datatype(self, context):
+    setattr(self, DATATYPE_PROPERTIES_DICT[self.add_datatype], True)
+
+
+# def get_datatypes(self, context, edit_text):
+#     return [d['name'] for d in DATATYPE_PROPERTIES]
+
+# def update_add_datatype(self, context):
+#     setattr(self, self.add_datatype, True)
+
 def operators(self, context, edit_text):
     return OPERTAOR_LIST
 
 def draw_applies_to(self, layout):
+    def get_enabled_datatypes_count():
+        count = 0
+        for i, d in enumerate(DATATYPE_PROPERTIES):
+            if getattr(self, d['property']):
+                count += 1
+
+        return count
+
     layout.use_property_split = True
     layout.use_property_decorate = False
 
@@ -27,14 +48,22 @@ def draw_applies_to(self, layout):
         header.label(text='Applies to :', icon='OPTIONS')
 
     if panel:
+        panel.prop(self, 'add_datatype')
         row = panel.row()
         row.alignment = 'EXPAND'
+        col = row.column(align=True)
+        col.alignment = 'RIGHT'
         for i, d in enumerate(DATATYPE_PROPERTIES):
-            if d['property'] == "modifier_types" and not getattr(self, 'applies_to_modifiers') :
-                continue
-            if i % datatype_col_count == 0:
+            if get_enabled_datatypes_count() % datatype_col_count == 0:
                 col = row.column(align=True)
                 col.alignment = 'RIGHT'
+
+            if not getattr(self, d['property']):
+                continue
+
+            if d['property'] == "modifier_types" and not getattr(self, 'applies_to_modifiers') :
+                continue
+
             row1 = col.row(align=True)
             row1.alignment = 'RIGHT'
             row1.label(text=d['name'])
@@ -286,6 +315,8 @@ def register():
 
     from ... import class_property_injection
     class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values()))
+    for cls in datatype_classes:
+        cls.__annotations__['add_datatype'] = bpy.props.StringProperty(name='Add Datatype', search=get_datatypes, update=update_add_datatype)
 
 
 def unregister():

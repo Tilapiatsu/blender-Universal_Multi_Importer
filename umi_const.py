@@ -85,7 +85,7 @@ def get_datatype_properties():
 
 
 DATATYPE_PROPERTIES = get_datatype_properties()
-
+DATATYPE_PROPERTIES_DICT = {d['name']: d['property'] for d in DATATYPE_PROPERTIES}
 
 def get_operator_items(self, context):
     return [(f'{d}', f'{d}', '') for d in dir(bpy.data) if not d.startswith('_') and isinstance(getattr(bpy.data, d), bpy.types.bpy_prop_collection)]
