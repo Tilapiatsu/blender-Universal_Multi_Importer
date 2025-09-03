@@ -12,17 +12,25 @@ datatype_col_count = math.ceil(len(DATATYPE_LIST)/4)
 batcher_item_col_count = math.ceil(COMMAND_BATCHER_ITEM_COUNT/7)
 
 def get_datatypes(self, context, edit_text):
-    return [d for d in DATATYPE_PROPERTIES_DICT.keys()]
+    def get_enabled_datatypes():
+        enabled = []
+        for i, d in enumerate(DATATYPE_PROPERTIES):
+            if getattr(self, d['property']):
+                enabled.append(d['name'])
+
+        return enabled
+    enabled = get_enabled_datatypes()
+    return [d for d in DATATYPE_PROPERTIES_DICT.keys() if d not in enabled]
 
 def update_add_datatype(self, context):
+    if self.adding_datatype:
+        self.adding_datatype = False
+        return
+
+    self.adding_datatype = True
     setattr(self, DATATYPE_PROPERTIES_DICT[self.add_datatype], True)
-
-
-# def get_datatypes(self, context, edit_text):
-#     return [d['name'] for d in DATATYPE_PROPERTIES]
-
-# def update_add_datatype(self, context):
-#     setattr(self, self.add_datatype, True)
+    self.add_datatype = ""
+    self.adding_datatype = False
 
 def operators(self, context, edit_text):
     return OPERTAOR_LIST
@@ -48,15 +56,17 @@ def draw_applies_to(self, layout):
         header.label(text='Applies to :', icon='OPTIONS')
 
     if panel:
-        panel.prop(self, 'add_datatype')
+        row = panel.row()
+        row.prop(self, 'add_datatype')
+        row.alignment = 'LEFT'
         row = panel.row()
         row.alignment = 'EXPAND'
         col = row.column(align=True)
-        col.alignment = 'RIGHT'
+        col.alignment = 'LEFT'
         for i, d in enumerate(DATATYPE_PROPERTIES):
-            if get_enabled_datatypes_count() % datatype_col_count == 0:
+            if i % datatype_col_count == 0:
                 col = row.column(align=True)
-                col.alignment = 'RIGHT'
+                col.alignment = 'LEFT'
 
             if not getattr(self, d['property']):
                 continue
@@ -317,6 +327,7 @@ def register():
     class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values()))
     for cls in datatype_classes:
         cls.__annotations__['add_datatype'] = bpy.props.StringProperty(name='Add Datatype', search=get_datatypes, update=update_add_datatype)
+        cls.__annotations__['adding_datatype'] = bpy.props.BoolProperty(name='Adding Datatype', default=False)
 
 
 def unregister():
