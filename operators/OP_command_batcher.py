@@ -187,7 +187,6 @@ class CommandBatcher(bpy.types.Operator):
                         data = self.umi_settings.umi_imported_data.add()
                         data.data = repr(ddd)
                         if d == 'modifiers':
-
                             data.data_type = 'modifiers'
                         else:
                             data.data_type = repr(ddd).replace('bpy.data.', '').split('[')[0]
@@ -399,7 +398,7 @@ class CommandBatcher(bpy.types.Operator):
                 command = self.current_command.operator
                 try: # Executing command
                     # if the current command is valid for the current data type
-                    if not getattr(self.current_command, f'{DATATYPE_PREFIX}_{self.current_element_to_process[0]}'):
+                    if not getattr(self.current_command, f'{DATATYPE_PREFIX}_{self.current_element_to_process[0]}') :
                         self.current_command = None
                         LOG.info(f'Skipping : command does NOT applied to this data type : {self.current_element_to_process[0]}', color=LoggerColors.COMMAND_WARNING_COLOR())
                         return {'PASS_THROUGH'}
@@ -411,6 +410,10 @@ class CommandBatcher(bpy.types.Operator):
                         ob = self.current_element_to_process[1]
                     elif self.current_element_to_process[0] == 'modifiers' :
                         ob = eval(self.current_element_to_process[2].split('.modifiers')[0])
+                        if self.current_element_to_process[1].type != self.current_command.modifier_type:
+                            self.current_command = None
+                            LOG.info(f'Skipping : command does NOT applied to this modifier type : {self.current_element_to_process[0]}', color=LoggerColors.COMMAND_WARNING_COLOR())
+                            return {'PASS_THROUGH'}
 
                     # keywords = which_keywords(command, COMMAND_BATCHER_INPUT_STRING)
 
@@ -590,7 +593,7 @@ class CommandBatcher(bpy.types.Operator):
         self.element_progress = round(self.current_element_number * 100 / self.number_of_element_to_process, 2)
         self.current_element_proccessed[self.current_element_to_process[0]] = False
 
-        LOG.info(f'Processing item {self.current_element_number}/{self.number_of_element_to_process} - {self.element_progress}% : {self.current_element_to_process[1].name}')
+        LOG.info(f'Processing item {self.current_element_number}/{self.number_of_element_to_process} - {self.element_progress}% : "{self.current_element_to_process[1].name}" | {self.current_element_to_process[0]} type')
         if not len(self.operators_to_process):
             self.fill_operator_to_process(each_only=True)
 

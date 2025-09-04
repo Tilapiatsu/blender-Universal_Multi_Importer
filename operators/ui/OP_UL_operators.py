@@ -41,7 +41,6 @@ def draw_applies_to(self, layout):
         for i, d in enumerate(DATATYPE_PROPERTIES):
             if getattr(self, d['property']):
                 count += 1
-
         return count
 
     layout.use_property_split = True
@@ -56,10 +55,9 @@ def draw_applies_to(self, layout):
         header.label(text='Applies to :', icon='OPTIONS')
 
     if panel:
-        row = panel.row()
-        row.prop(self, 'add_datatype')
-        row.alignment = 'LEFT'
-        row = panel.row()
+        # row = panel.row()
+        # row.prop(self, 'add_datatype')
+        row = panel.split(factor=0, align=True)
         row.alignment = 'EXPAND'
         col = row.column(align=True)
         col.alignment = 'LEFT'
@@ -68,10 +66,30 @@ def draw_applies_to(self, layout):
                 col = row.column(align=True)
                 col.alignment = 'LEFT'
 
-            if not getattr(self, d['property']):
+            # if not getattr(self, d['property']):
+            #     continue
+
+            # if d['property'] == "modifier_types" and not getattr(self, 'applies_to_modifiers') :
+            #     continue
+
+            if d['property'] == "applies_to_modifiers" and getattr(self, 'applies_to_modifiers') :
+                row1 = col.row(align=True)
+                row1.alignment = 'RIGHT'
+                row1.label(text=d['name'])
+                row1.label(text='', icon=d['icon'])
+                row1.prop(self, f'{d["property"]}', text='')
                 continue
 
-            if d['property'] == "modifier_types" and not getattr(self, 'applies_to_modifiers') :
+            if d['property'] == "modifier_type" and not getattr(self, 'applies_to_modifiers') :
+                continue
+
+            elif d['property'] == "modifier_type":
+                row1 = col.row(align=True)
+                row1.alignment = 'RIGHT'
+                row1.label(text=d['name']+ ' :')
+                row1 = col.row(align=True)
+                row1.alignment = 'RIGHT'
+                row1.prop(self, f'{d["property"]}', text='')
                 continue
 
             row1 = col.row(align=True)
@@ -280,6 +298,7 @@ class UI_UMIEditOperator(bpy.types.Operator):
         target = eval(f'self.umi_settings.{get_batcher_list_name()}')
         o = target[self.id]
         o.operator = self.operator
+        o.modifier_type = self.modifier_type
         set_applies_to(self, o)
         return {'FINISHED'}
 
@@ -305,6 +324,7 @@ class UI_UMIAddOperator(bpy.types.Operator):
         target = eval(f'self.umi_settings.{get_batcher_list_name()}')
         o = target.add()
         o.operator = self.operator
+        o.modifier_type = self.modifier_type
         set_applies_to(self, o)
         return {'FINISHED'}
 
@@ -322,12 +342,12 @@ def register():
     from bpy.utils import register_class
     for cls in classes:
         register_class(cls)
-
-    from ... import class_property_injection
-    class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values()))
     for cls in datatype_classes:
         cls.__annotations__['add_datatype'] = bpy.props.StringProperty(name='Add Datatype', search=get_datatypes, update=update_add_datatype)
         cls.__annotations__['adding_datatype'] = bpy.props.BoolProperty(name='Adding Datatype', default=False)
+
+    from ... import class_property_injection
+    class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values()))
 
 
 def unregister():

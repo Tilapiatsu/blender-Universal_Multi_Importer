@@ -278,6 +278,9 @@ class UI_SavePresetOperator(bpy.types.Operator):
                 for d in DATATYPE_LIST:
                     lines[i] += f' --{DATATYPE_PREFIX}_{d["name"]}' if getattr(o, f'{DATATYPE_PREFIX}_{d["name"]}') else ''
 
+                if getattr(o, f'{DATATYPE_PREFIX}_modifiers'):
+                    lines[i] += f' --modifier_type={o.modifier_type}'
+
             f.writelines('%s\n' % l for l in lines)
 
         return {'FINISHED'}
@@ -299,6 +302,7 @@ class UI_LoadPresetOperator(bpy.types.Operator):
             for l in lines:
                 l = l.replace('\n', '')
                 applies_to_dict = {f'{DATATYPE_PREFIX}_{a["name"]}':False for a in DATATYPE_LIST}
+                applies_to_dict['modifier_type'] = 'ARRAY'
 
                 if f' {UMIPRESET_SPLITTER}' in l:
                     op, applies_to = l.split(f' {UMIPRESET_SPLITTER}')
@@ -310,7 +314,11 @@ class UI_LoadPresetOperator(bpy.types.Operator):
                     applies_to = applies_to.split(' --')[1:]
 
                     for a in applies_to:
-                        applies_to_dict[a] = True
+                        if '=' in a:
+                            key, value = a.split('=')
+                            applies_to_dict[key] = value
+                        else:
+                            applies_to_dict[a] = True
                 else:
                     applies_to_dict[f'{DATATYPE_PREFIX}_objects'] = True
 
