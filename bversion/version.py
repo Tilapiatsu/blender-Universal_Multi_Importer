@@ -65,11 +65,11 @@ class Version:
         if isinstance(other, float):
             other = Version(tuple(int(i) for i in str(other).split('.')) + (0,))
 
-        if self.version[0] < other.version[0]: return True
-        elif self.version[1] < other.version[1]: return True
-        elif self.version[2] < other.version[2]: return True
+        if self.version[0] > other.version[0]: return False
+        elif self.version[1] > other.version[1]: return False
+        elif self.version[2] >= other.version[2]: return False
 
-        return False
+        return True
 
     def __ge__(self, other:Union[tuple[int], float]):
         if isinstance(other, float):
@@ -85,8 +85,8 @@ class Version:
         if isinstance(other, float):
             other = Version(tuple(int(i) for i in str(other).split('.')) + (0,))
 
-        if self.version[0] <= other.version[0]: return True
-        elif self.version[1] <= other.version[1]: return True
-        elif self.version[2] <= other.version[2]: return True
+        if self.version[0] > other.version[0]: return False
+        elif self.version[1] > other.version[1]: return False
+        elif self.version[2] > other.version[2]: return False
 
-        return False
+        return True
