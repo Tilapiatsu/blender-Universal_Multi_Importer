@@ -65,7 +65,7 @@ class FormatHandler():
             for k in dir(self.format_settings):
                 if k.startswith('__'):
                     continue
-                if k in ['settings_imported', 'bl_rna', 'rna_type', 'name', 'addon_name', 'supported_version']:
+                if k in ['settings_imported', 'bl_rna', 'rna_type', 'name', 'addon_name', 'supported_version', 'format_settings_dict']:
                     continue
 
                 d[k] = getattr(self.format_settings, k)

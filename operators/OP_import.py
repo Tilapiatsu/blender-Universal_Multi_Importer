@@ -53,7 +53,7 @@ if BVERSION >= 4.1:
         bl_options = {'REGISTER', 'INTERNAL'}
 
         files : bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement, options={'SKIP_SAVE'})
-        directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
+        directory: bpy.props.StringProperty(name="Outdir Path", subtype='DIR_PATH')
 
         def execute(self, context):
             current_collection = context.collection
@@ -556,7 +556,6 @@ class UMI_FileSelection(bpy.types.Operator):
 
     def cancel(self, context):
         self.umi_settings.umi_current_format_setting_cancelled = True
-        return {'CANCELLED'}
 
 
 class UMI(bpy.types.Operator, ImportHelper):
@@ -591,7 +590,7 @@ class UMI(bpy.types.Operator, ImportHelper):
     files : bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement, options={'SKIP_SAVE'})
     # Support Folder selection
     import_folders : bpy.props.BoolProperty(name="Import Folder",default=False, options={'SKIP_SAVE'})
-    directory: bpy.props.StringProperty(name="Outdir Path", subtype='FILE_PATH')
+    directory: bpy.props.StringProperty(name="Outdir Path", subtype='DIR_PATH')
     # Import Settings
     recursion_depth : bpy.props.IntProperty(name='Recursion Depth', default=0, min=0, description='How many Subfolders will be used to search for compatible files to import.\n' + r'/!\ WARNING : A too high number may result of a huge number of files to import and may cause instability')
 
@@ -1043,7 +1042,7 @@ class UMI(bpy.types.Operator, ImportHelper):
         args_as_string = ''
         arg_number = len(args.keys())
         for k,v in args.items():
-            if k in ['settings_imported', 'name', 'addon_name', 'supported_version', 'forced_properties']:
+            if k in ['settings_imported', 'name', 'addon_name', 'supported_version', 'forced_properties' , 'bl_system_properties_get']:
                 arg_number -= 1
                 continue
             if isinstance(v, bpy.types.bpy_prop_collection):

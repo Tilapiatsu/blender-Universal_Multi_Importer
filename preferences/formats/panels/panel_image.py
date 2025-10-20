@@ -9,7 +9,39 @@ class IMPORT_SCENE_IMAGESettings():
         layout.use_property_decorate = False  # No animation.
 
         if module_name == 'plane':
-            if BVERSION >= 4.3:
+            if BVERSION >= 5.0:
+                op =    [[operator, 'relative'],
+                        [operator, 'force_reload'],
+                        [operator, 'image_sequence']]
+
+                draw_panel(layout, op, 'IMAGESettings_Options', 'Import Options', icon='IMPORT')
+
+                op =    [[operator, 'shader'],
+                        [operator, 'render_method'],
+                        [operator, 'show_transparent_back'],
+                        [operator, 'use_backface_culling'],
+                        [operator, 'overwrite_material']]
+
+                draw_panel(layout, op, 'IMAGESettings_MaterialSettings', 'Material Settings', icon='MATERIAL')
+
+                op =    [[operator, 'interpolation'],
+                        [operator, 'extension'],
+                        [operator, 'use_transparency'],
+                        [operator, 'use_auto_refresh']]
+
+                draw_panel(layout, op, 'IMAGESettings_TextureSettings', 'Texture Settings', icon='TEXTURE')
+
+                op =    [[operator, 'size_mode'],
+                         [operator, 'height'],
+                         [operator, 'align_axis'],
+                         [operator, 'align_track'],
+                         [operator, 'offset'],
+                         [operator, 'offset_axis'],
+                         [operator, 'offset_amount']]
+
+                draw_panel(layout, op, 'IMAGESettings_Transform', 'Transform', icon='OBJECT_DATA', default_closed=True)
+
+            elif BVERSION >= 4.3:
                 op =    [[operator, 'relative'],
                         [operator, 'force_reload'],
                         [operator, 'image_sequence']]

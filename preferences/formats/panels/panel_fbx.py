@@ -6,7 +6,49 @@ class IMPORT_SCENE_FBXSettings():
         layout.use_property_split = True
         layout.use_property_decorate = False  # No animation.
 
-        if BVERSION >= 3.4:
+        if BVERSION >= 5.0:
+            ##### General
+            op = [[operator, 'global_scale'],
+                [operator, 'use_custom_props']]
+
+            header, panel = draw_panel(layout, op, 'FBXSettings_General', 'Genreral', icon='OPTIONS')
+
+            if panel:
+                sub = panel.row()
+                sub.enabled = operator.use_custom_props
+                sub.prop(operator, "use_custom_props_enum_as_string")
+
+                draw_panel(layout, op, 'FBXSettings_Include', 'Include', icon='IMPORT', panel=panel, header=header)
+
+            #### Geometry
+            op = [[operator, 'use_custom_normals'],
+                [operator, 'import_subdivision'],
+                [operator, 'import_colors'],
+                [operator, 'validate_meshes']]
+
+            header, panel = draw_panel(layout, op, 'FBXSettings_Geometry', 'Geometry', icon='OBJECT_DATA')
+
+            #### Materials
+            op = [[operator, 'mtl_name_collision_mode']]
+
+            header, panel = draw_panel(layout, op, 'FBXSettings_Materials', 'Materials', icon='MATERIAL')
+
+            op = []
+            #### Anim
+            _, panel = draw_panel(layout, op, 'FBXSettings_Animation', 'Animation', set_header_boolean=True, header_bool=[operator, 'use_anim'])
+
+            if panel:
+                sub = panel.column()
+                sub.enabled = operator.use_anim
+
+                sub.prop(operator, 'anim_offset')
+
+            #### Armature
+            op = [[operator, 'ignore_leaf_bones']]
+
+            header, panel = draw_panel(layout, op, 'FBXSettings_Armature', 'Armature', icon='ARMATURE_DATA')
+
+        elif BVERSION >= 3.4:
             ##### Include
             op = [[operator, 'use_custom_normals'],
                 [operator, 'use_subsurf'],

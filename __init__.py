@@ -11,6 +11,7 @@ bl_info = {
     "location"      : "File > Import > Universal Multi Importer (File / Folder) | Object > Command Batcher",
     "warning"       : "",
     "doc_url"       : "https://github.com/Tilapiatsu/blender-Universal_Multi_Importer",
+    "tracker_url"   : ("https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/issues/new"),
     "support"       : "COMMUNITY",
     "category"      : "Import-Export"
 }

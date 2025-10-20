@@ -142,4 +142,7 @@ def init_current_item_index(umi_settings):
         index = umi_settings.umi_current_item_index.add()
         index.name = d['name']
 
+
 EXTENSION_MODULE_NAME = ModuleName()
+
+GITHUB_NEW_ISSUE_URL = "https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/issues/new"

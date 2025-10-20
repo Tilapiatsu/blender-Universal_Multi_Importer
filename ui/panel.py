@@ -2,7 +2,7 @@ from typing import Callable
 from ..bversion import BVERSION
 from ..bversion.addon_version import AddonVersion
 from ..bversion.version import Version
-from ..umi_const import WARNING_ICON
+from ..umi_const import WARNING_ICON,  GITHUB_NEW_ISSUE_URL, EXTENSION_MODULE_NAME
 
 def draw_prop(layout, operator, prop, text=None) -> None:
     if prop not in dir(operator):
@@ -114,9 +114,15 @@ def draw_version_warning(f) -> Callable:
                 panel.label(text=f'Installed {addon_version.pkg_name} version : {addon_version.local_version}')
                 panel.label(text=f'supported {addon_version.pkg_name} version : {operator.supported_version}')
                 panel.label(text='Installed version does NOT match the one supported by Universal Multi Importer.')
-                panel.label(text=f'Please update the {addon_version.pkg_name}')
-                op = panel.operator('extensions.umi_install_extension', icon='FILE_REFRESH', text=f'Update {addon_version.pkg_name} addon')
-                op.pkg_id = addon_version.pkg_name
+                if addon_version.local_version > supported_version:
+                    panel.label(text='Please update Universal Multi Importer or report an issue :')
+                    op = panel.operator('extensions.umi_install_extension', icon='FILE_REFRESH', text='Update Universal Multi Importer')
+                    op.pkg_id = EXTENSION_MODULE_NAME.module_name
+                    panel.operator("wm.url_open", text="Report Issue", icon='URL').url = GITHUB_NEW_ISSUE_URL
+                else:
+                    panel.label(text=f'Please update the {addon_version.pkg_name}')
+                    op = panel.operator('extensions.umi_install_extension', icon='FILE_REFRESH', text=f'Update {addon_version.pkg_name} addon')
+                    op.pkg_id = addon_version.pkg_name
 
         elif not addon_version.is_enable:
             header, panel = draw_custom_panel(layout, 'AddonDisabled', 'Addon Disabled', icon=WARNING_ICON)

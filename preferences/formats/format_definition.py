@@ -1,4 +1,3 @@
-import platform
 from . import BVERSION
 from .format import axis, Format, FormatOperators, FormatOperator, FormatImportSetting
 
@@ -14,7 +13,13 @@ def fbx_operators() -> FormatOperators:
                         addon_name='io_scene_fbx',
                         description=DEFAULT_DESCRIPTION)
 
-    if BVERSION >= 4.5:
+    if BVERSION >= 5.0:
+        f=FormatOperator('default',
+                        'bpy.ops.wm.fbx_import',
+                        '0.0.0',
+                        description=DEFAULT_DESCRIPTION)
+
+    elif BVERSION >= 4.5:
         f.supported_version = '5.13.0'
 
     elif BVERSION >= 4.4:
@@ -72,7 +77,10 @@ def gltf_operators() -> FormatOperators:
                         addon_name='io_scene_gltf2',
                         description=DEFAULT_DESCRIPTION)
 
-    if BVERSION >= 4.5:
+    if BVERSION >= 5.0:
+        f.supported_version = '5.0.21'
+
+    elif BVERSION >= 4.5:
         f.supported_version = '4.5.47'
 
     elif BVERSION >= 4.401:
@@ -443,7 +451,7 @@ def max3ds_operators() -> FormatOperators:
         f.addon_name = 'bl_ext.blender_org.autodesk_3ds_format'
         f.pkg_id = 'autodesk_3ds_format'
         f.pkg_url = 'https://extensions.blender.org/add-ons/autodesk-3ds-format/'
-        f.supported_version = '2.8.6'
+        f.supported_version = '2.9.9'
 
     elif BVERSION >= 4.1:
         f.supported_version = '2.4.9'
@@ -608,7 +616,7 @@ def stl_operators() -> FormatOperators:
 def max_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.max',
-                        '1.6.7',
+                        '1.7.0',
                         addon_name='bl_ext.blender_org.io_scene_max',
                         pkg_id='io_scene_max',
                         pkg_url='https://extensions.blender.org/add-ons/io-scene-max/',
@@ -643,7 +651,7 @@ def max_operators() -> FormatOperators:
 def pes_operators() -> FormatOperators:
     f = FormatOperator('default',
                         'bpy.ops.import_scene.embroidery',
-                        '0.9.5',
+                        '0.9.6',
                         addon_name='bl_ext.blender_org.embroidery_importer',
                         pkg_id='embroidery_importer',
                         pkg_url='https://extensions.blender.org/add-ons/embroidery-importer/',
@@ -717,7 +725,8 @@ class FormatDefinition:
                      ['.abc'],
                      abc_operators())
 
-    dae     = Format('dae',
+    if BVERSION < 5.0:
+        dae     = Format('dae',
                     ['.dae'],
                     dae_operators())
 
