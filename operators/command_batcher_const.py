@@ -27,9 +27,13 @@ def revert_to_default(self, context):
         exec(f"self.{v['property']} = {v['default']}", {'self':self})
     umi_settings.umi_updating_batcher_variable = False
 
+def get_value(value):
+    def return_func(self):
+        return value
+    return return_func
 
 def get_command_batcher_variable():
-    variables = {v[1]:{'default':f'"<{v[0]}>"', 'type':'STRING', 'property':f'{COMMAND_BATCHER_VARIABLE_PREFIX}_{v[0].lower()}', 'name':v[1], 'description':v[2], 'option':{'SKIP_SAVE'}, 'set':revert_to_default} for v in COMMAND_BATCHER_INPUT_ITEMS}
+    variables = {v[1]:{'default':f'"<{v[0]}>"', 'type':'STRING', 'property':f'{COMMAND_BATCHER_VARIABLE_PREFIX}_{v[0].lower()}', 'name':v[1], 'description':v[2], 'option':{'SKIP_SAVE'}, 'set':revert_to_default, 'get':get_value(f'<{v[0]}>')} for v in COMMAND_BATCHER_INPUT_ITEMS}
     return variables
 
 COMMAND_BATCHER_VARIABLE = get_command_batcher_variable()

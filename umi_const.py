@@ -76,10 +76,10 @@ def get_datatype_properties():
         if d['name'] == 'objects':
             default = True
 
-        datatype_result += ({'property': f'{DATATYPE_PREFIX}_{d["name"]}', 'type':'BOOLEAN', "default":default, 'name': d["name"].replace("_", " ").title(), 'description':'', 'set':None, 'icon':d['icon']},)
+        datatype_result += ({'property': f'{DATATYPE_PREFIX}_{d["name"]}', 'type':'BOOLEAN', "default":default, 'name': d["name"].replace("_", " ").title(), 'description':'', 'set':None, 'get':None, 'icon':d['icon']},)
         if d["name"] == 'modifiers':
             items = [(i, i.replace('_', ' ').title(), '') for i in MODIFIER_TYPES]
-            datatype_result += ({'property': 'modifier_type', 'type':'ENUM', "items":items, "default":MODIFIER_TYPES[0], 'name': d["name"].replace("_", " ").title() + ' Type', 'description':'Restrict the execution of the command to a specific modifier type', 'set':None, 'icon':d['icon']},)
+            datatype_result += ({'property': 'modifier_type', 'type':'ENUM', "items":items, "default":MODIFIER_TYPES[0], 'name': d["name"].replace("_", " ").title() + ' Type', 'description':'Restrict the execution of the command to a specific modifier type', 'set':None, 'get':None, 'icon':d['icon']},)
 
     return datatype_result
 
