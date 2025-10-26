@@ -63,6 +63,8 @@ class IMPORT_SCENE_OT_tila_import_as_geometry_node(bpy.types.Operator):
 
         if self.import_mode == 'SEQUENCE':
             self.filepath, file_range = self.detect_sequence(Path(self.filepath))
+        else:
+            file_range = Vector((0, 0, 0))
 
         self.create_geometry_node_modifier(obj, node_tree, self.filepath, file_range)
 
