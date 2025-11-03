@@ -107,7 +107,7 @@ def draw_version_warning(f) -> Callable:
                 panel.operator('preferences.umi_draw_addon_dependency', icon='CHECKMARK', text='Check Addon Dependency')
 
         elif addon_version.local_version != supported_version:
-            header, panel = draw_custom_panel(layout, 'VersionMissmatch', 'Addon Version Missmatch', icon=WARNING_ICON)
+            header, panel = draw_custom_panel(layout, 'VersionMissmatch', 'Addon Version Mismatch', icon=WARNING_ICON)
             header.alert = True
             if panel:
                 panel.alert = True
