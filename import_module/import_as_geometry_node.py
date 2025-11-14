@@ -58,7 +58,7 @@ class IMPORT_SCENE_OT_tila_import_as_geometry_node(bpy.types.Operator):
             node_tree = self.create_geometry_node_tree()
 
         if node_tree is None:
-            LOG.error(f'Geometry Node Import format : Node Tree Creation Failed')
+            LOG.error('Geometry Node Import format : Node Tree Creation Failed')
             return {'ERROR'}
 
         if self.import_mode == 'SEQUENCE':
@@ -100,6 +100,10 @@ class IMPORT_SCENE_OT_tila_import_as_geometry_node(bpy.types.Operator):
         for match in pattern.finditer(str(filepath)):
             matches[match.lastindex] += [[index, match.group(match.lastindex)]]
             index += 1
+
+        if len(matches[2]) == 0:
+            LOG.warning('No file Sequence detected, Only one file will be referenced in the geometry node')
+            return matches[1][0][1], Vector((0, 0))
 
         last_number = matches[2][-1][1]
         hash_number = ''
