@@ -9,7 +9,7 @@ class IMPORT_SCENE_STLSettings():
         if module_name == 'geometry_node':
             draw_import_as_geometry_node_settings(layout, operator, 'STLGNSettings')
 
-        if module_name == 'default':
+        elif module_name == 'default':
             if BVERSION >= 3.6:
                 if module_name == 'default':
                     op = [[operator, 'global_scale'],
