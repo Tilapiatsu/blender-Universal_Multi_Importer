@@ -451,7 +451,7 @@ def max3ds_operators() -> FormatOperators:
         f.addon_name = 'bl_ext.blender_org.autodesk_3ds_format'
         f.pkg_id = 'autodesk_3ds_format'
         f.pkg_url = 'https://extensions.blender.org/add-ons/autodesk-3ds-format/'
-        f.supported_version = '2.9.9'
+        f.supported_version = '3.0.0'
 
     elif BVERSION >= 4.1:
         f.supported_version = '2.4.9'
