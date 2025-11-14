@@ -159,5 +159,10 @@ def draw_import_as_geometry_node_settings(layout, operator, pannel_name:str) -> 
     row = panel.row(align=True)
     row.prop(operator, 'import_mode', expand=True)
     if operator.import_mode == "SEQUENCE":
-        panel.label(text='Select only ONE file in the file selection panel,\n the entire sequence will be detected automatically')
+        col = panel.column()
+        col.alignment = 'RIGHT'
+        col.label(text='Select only ONE file in the file selection panel,')
+        col.label(text='the entire sequence will be detected automatically.')
+        col.label(text='Each filename need to contain a number :')
+        col.label(text='"base_file_name_0028.ext"')
         panel.prop(operator, 'loop_sequence')

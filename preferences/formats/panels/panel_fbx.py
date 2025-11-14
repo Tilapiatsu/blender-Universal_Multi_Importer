@@ -18,8 +18,6 @@ class IMPORT_SCENE_FBXSettings():
                 sub.enabled = operator.use_custom_props
                 sub.prop(operator, "use_custom_props_enum_as_string")
 
-                draw_panel(layout, op, 'FBXSettings_Include', 'Include', icon='IMPORT', panel=panel, header=header)
-
             #### Geometry
             op = [[operator, 'use_custom_normals'],
                 [operator, 'import_subdivision'],
