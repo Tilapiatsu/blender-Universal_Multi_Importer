@@ -142,7 +142,8 @@ You can choose if the command has to be executed for a specific datatype or many
 
 
 # Changelog
-### v2.3.3 : For Blender 5.0.0
+### v2.3.4 : Fix FBX format setting display issue
+### v2.3.3 : Support for Blender 5.0.0
 ### v2.3.2 : For Blender 4.5.0 + : add support for importing files as Geometry Node, which would create a geometry node setup to import the file from the disk, taking advantage of the `Import Node` added in this version. Available for OBJ, STL, PLY and VDB formats.
 ### v2.3.2 : For Blender 4.5.0 + : Importing file as Geometry Node can import file sequences as animation
 https://github.com/user-attachments/assets/a1ce393e-6fc8-4aeb-9f62-79b5c41919a9
