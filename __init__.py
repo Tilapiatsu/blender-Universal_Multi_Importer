@@ -4,8 +4,8 @@ from .umi_const import ADDON_FOLDER_PATH, ADDON_PACKAGE
 
 bl_info = {
     "name"          : "Universal Multi Importer",
-    "author"        : "Tilapiatsu",
-    "description"   : "Batch Import many file formats at once, Batch process imported objects",
+    "author"        : "Tilapiatsu <tilapiatsu@hotmail.fr>",
+    "description"   : "Batch Import many file formats at once, Batch process them",
     "blender"       : (3, 0, 0),
     "version"       : (2, 3, 4),
     "location"      : "File > Import > Universal Multi Importer (File / Folder) | Object > Command Batcher",
