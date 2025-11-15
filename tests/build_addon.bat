@@ -1,0 +1,1 @@
+python ./tests/zip_addon.py
