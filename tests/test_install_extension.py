@@ -26,6 +26,7 @@ class TestExtension(unittest.TestCase):
         repo = str(Path(__file__).parent.parent.parent)
 
         import bpy
+        from manifest_info import get_manifest_info
         bpy.ops.wm.read_factory_settings(use_factory_startup_app_template_only=True)
 
         repo_module = 'test_repo'
@@ -35,7 +36,8 @@ class TestExtension(unittest.TestCase):
             custom_directory=repo,
             source='USER'
         )
-        cls.module_path = 'bl_ext.' + repo_module + '.addon_testing'
+
+        cls.module_path = 'bl_ext.' + repo_module + f'.tila_{get_manifest_info()["id"]}'
         bpy.ops.preferences.addon_enable(module=cls.module_path)
 
     def test_disable_enable(self):
@@ -55,7 +57,7 @@ class TestExtension(unittest.TestCase):
     def test_addon_operator(self):
         """Check for and run add-on operator"""
         import bpy
-        
+
         bpy.ops.object.test(action='DESELECT')
         assert bpy.context.selected_objects == []
 
@@ -75,4 +77,3 @@ class TestExtension(unittest.TestCase):
         import bpy
         bpy.ops.preferences.addon_disable(module=cls.module_path)
 
-        

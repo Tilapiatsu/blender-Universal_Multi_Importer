@@ -38,7 +38,7 @@ class TestAddon(unittest.TestCase):
         """Run homefile, resetting the file"""
         import bpy
         bpy.ops.wm.read_homefile()
-    
+
     def test_disable_enable(self):
         """Validate enabling or disabling the add-on"""
         from manifest_info import get_manifest_info
@@ -49,6 +49,65 @@ class TestAddon(unittest.TestCase):
             bpy.ops.preferences.addon_enable(module=manifest['id'])
         except Exception as e:
             self.fail(str(e))
+
+    def test_format_definition(self):
+        """Check if all formats are registered correctly"""
+        import bpy
+        from manifest_info import get_manifest_info
+        manifest = get_manifest_info()
+
+        from preferences.formats.format_definition import FormatDefinition
+        fd = m.FormatDefinition()
+
+        self.assertTrue(hasattr(fd, 'fbx'))
+
+    def test_umi_properties(self):
+        """Check if all addon settings are registered correctly"""
+        import bpy
+        from manifest_info import get_manifest_info
+        manifest = get_manifest_info()
+
+        addon_preferences = bpy.context.preferences.addons[manifest['id']].preferences
+
+        self.assertTrue(hasattr(addon_preferences, 'umi_settings'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_addon_dependencies'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_all_addon_dependencies_installed'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_all_addon_dependencies_enabled'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_addon_dependency_need_reboot'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_batcher_is_processing'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_presets'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_format_import_settings'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_file_selection_started'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_file_selection_done'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_import_directory'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_current_item_index'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_global_import_settings'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_ready_to_import'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_file_selection'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_file_extension_selection_items'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_file_stat_selected_count'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_file_stat_selected_size'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_file_stat_selected_formats'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_file_selected_format_items'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_file_extension_selection'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_import_batch_settings'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_updating_batcher_variable'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_each_operators'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_current_format_setting_imported'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_imported_data'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_last_setting_to_get'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_current_format_setting_cancelled'))
+        self.assertTrue(hasattr(addon_preferences.umi_settings, 'umi_file_format_current_settings'))
+
+        self.assertTrue(hasattr(addon_preferences, 'umi_colors'))
+        self.assertTrue(hasattr(addon_preferences.umi_colors, 'umi_cancelled_color'))
+        self.assertTrue(hasattr(addon_preferences.umi_colors, 'umi_command_color'))
+        self.assertTrue(hasattr(addon_preferences.umi_colors, 'umi_command_warning_color'))
+        self.assertTrue(hasattr(addon_preferences.umi_colors, 'umi_error_color'))
+        self.assertTrue(hasattr(addon_preferences.umi_colors, 'umi_import_color'))
+        self.assertTrue(hasattr(addon_preferences.umi_colors, 'umi_info_color'))
+        self.assertTrue(hasattr(addon_preferences.umi_colors, 'umi_success_color'))
+        self.assertTrue(hasattr(addon_preferences.umi_colors, 'umi_warning_color'))
 
     def test_addon_panel_exists(self):
         """Check if add-on panel exists"""
@@ -72,7 +131,7 @@ class TestAddon(unittest.TestCase):
         import os
         import shutil
         os.unlink(cls.zip_path)
-       
+
         # get folder of addon_testing, remove folder
         # import addon_testing
         # installed_addon_folder = os.path.dirname(addon_testing.__file__)
