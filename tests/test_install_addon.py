@@ -56,8 +56,8 @@ class TestAddon(unittest.TestCase):
         from manifest_info import get_manifest_info
         manifest = get_manifest_info()
 
-        from preferences.formats.format_definition import FormatDefinition
-        fd = m.FormatDefinition()
+        from universal_multi_importer.preferences.formats.format_definition import FormatDefinition
+        fd = FormatDefinition()
 
         self.assertTrue(hasattr(fd, 'fbx'))
 
