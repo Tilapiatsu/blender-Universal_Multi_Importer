@@ -21,14 +21,12 @@ import sys
 from pathlib import Path
 import unittest
 
-import tomllib
-
 from manifest_info import get_manifest_info
 
 class TestConfig(unittest.TestCase):
-
     def bl_info_dict(self):
-        init_file = Path(__file__).parent.parent / '__init__.py'
+        from addon_path import addon_path
+        init_file = addon_path / '__init__.py'
         manifest = get_manifest_info()
         
         spec = importlib.util.spec_from_file_location(manifest['id'], init_file)

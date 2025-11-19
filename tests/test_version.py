@@ -3,7 +3,7 @@ import unittest
 class TestVersion(unittest.TestCase):
     def test_version(self):
         """Sanity check for Version format"""
-        from bversion.version import Version
+        from universal_multi_importer.bversion.version import Version
         v1string = Version('4.5.23')
         v2string = Version('4.5.24')
         v3string = Version('4.4.24')
@@ -61,5 +61,5 @@ class TestVersion(unittest.TestCase):
     def test_bversion(self):
         """Check BVERSION value"""
         import bpy
-        from bversion import BVERSION
+        from universal_multi_importer.bversion import BVERSION
         self.assertEqual(bpy.app.version, BVERSION.version)

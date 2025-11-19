@@ -22,6 +22,6 @@ class TestFormatDefinition(unittest.TestCase):
     def test_format_definition(self):
         """Check if all formats are registered correctly"""
         import bpy
-        from preferences.formats.format_definition import FormatDefinition
+        from universal_multi_importer.preferences.formats.format_definition import FormatDefinition
 
         self.assertTrue(hasattr(FormatDefinition, 'fbx'))

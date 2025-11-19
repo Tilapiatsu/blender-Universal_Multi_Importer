@@ -23,7 +23,8 @@ class TestExtension(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Install extension via repository"""
-        repo = str(Path(__file__).parent.parent.parent)
+        from addon_path import addon_path
+        repo = addon_path.parent
 
         import bpy
         from manifest_info import get_manifest_info
@@ -33,11 +34,11 @@ class TestExtension(unittest.TestCase):
         new_repo = bpy.context.preferences.extensions.repos.new(
             name='Test Repo',
             module=repo_module,
-            custom_directory=repo,
+            custom_directory=str(repo),
             source='USER'
         )
 
-        cls.module_path = 'bl_ext.' + repo_module + f'.tila_{get_manifest_info()["id"]}'
+        cls.module_path = 'bl_ext.' + repo_module + f'.{get_manifest_info()["id"]}'
         bpy.ops.preferences.addon_enable(module=cls.module_path)
 
     def test_disable_enable(self):
