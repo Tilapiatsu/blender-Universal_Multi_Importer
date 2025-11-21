@@ -1,19 +1,15 @@
 import bpy
-from ...bversion import BVERSION
-from . import panels
+from universal_multi_importer.preferences.formats import panels
 
 
-from .format_definition import FormatDefinition
+from universal_multi_importer.preferences.formats.format_definition import FormatDefinition
 FORMATS = [f for f in dir(FormatDefinition) if not f.startswith('_')]
 
-from .format_compatible import CompatibleFormats
+from universal_multi_importer.preferences.formats.format_compatible import CompatibleFormats
 COMPATIBLE_FORMATS = CompatibleFormats()
 
-from .format_handler import FormatHandler
-
-from . import properties
-
-from .format_class_creator import FormatClassCreator, ClassFactory
+from universal_multi_importer.preferences.formats.properties import properties
+from universal_multi_importer.preferences.formats.format_class_creator import FormatClassCreator, ClassFactory
 
 # function to register dynamically generated classes for each compatible formats
 def register_import_setting_class():

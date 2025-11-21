@@ -1,8 +1,8 @@
 from typing import Callable
-from ..bversion import BVERSION
-from ..bversion.addon_version import AddonVersion
-from ..bversion.version import Version
-from ..umi_const import WARNING_ICON,  GITHUB_NEW_ISSUE_URL, EXTENSION_MODULE_NAME
+from universal_multi_importer.bversion import BVERSION
+from universal_multi_importer.bversion.addon_version import AddonVersion
+from universal_multi_importer.bversion.version.version import Version
+from universal_multi_importer.umi_const import WARNING_ICON,  GITHUB_NEW_ISSUE_URL, EXTENSION_MODULE_NAME
 
 def draw_prop(layout, operator, prop, text=None) -> None:
     if prop not in dir(operator):

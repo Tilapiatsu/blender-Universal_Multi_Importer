@@ -1,6 +1,6 @@
 import bpy
-from ...umi_const import get_umi_settings
-from . import COMPATIBLE_FORMATS
+from universal_multi_importer.umi_const import get_umi_settings
+from universal_multi_importer.preferences.formats import COMPATIBLE_FORMATS
 
 class FormatHandler():
     import_format : bpy.props.StringProperty(name='Import Format', default="", options={'HIDDEN'},)

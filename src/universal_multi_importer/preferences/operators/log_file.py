@@ -1,4 +1,6 @@
-import bpy, os, tempfile
+import bpy
+import os
+import tempfile
 
 def get_latest_log_file():
     tempdir = tempfile.gettempdir()

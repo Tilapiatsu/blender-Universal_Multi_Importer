@@ -1,11 +1,8 @@
 import os
-import bpy
 import importlib
-from ....umi_const import EXTENSION_MODULE_NAME
+from universal_multi_importer.umi_const import EXTENSION_MODULE_NAME
 from pathlib import Path
-from . import presets
-from ....bversion import BVERSION, AddonVersion
-from ....ui.panel import draw_panel, draw_no_settings, draw_version_warning, draw_prop, draw_import_as_geometry_node_settings
+from universal_multi_importer.preferences.formats.panels import presets
 
 panel_path = [p.name.replace('panel_', '').replace('.py', '') for p in Path(os.path.dirname(__file__)).iterdir() if p.name.startswith('panel_') ]
 

@@ -1,7 +1,7 @@
 import bpy
 import os
-from ...umi_const import get_umi_settings
-from ...preferences.formats.properties import update_file_stats
+from universal_multi_importer.umi_const import get_umi_settings
+from universal_multi_importer.preferences.formats.properties.properties import update_file_stats
 
 def get_file_selection():
     umi_settings = get_umi_settings()

@@ -1,11 +1,10 @@
 import bpy
 import os
 import math
-from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST, get_operator_boolean, DATATYPE_PREFIX, DATATYPE_PROPERTIES, DATATYPE_LIST, DATATYPE_PROPERTIES_DICT
-from .operators_const import COMMAND_BATCHER_PRESET_FOLDER
-from ..command_batcher_const import COMMAND_BATCHER_INPUT_ITEMS, COMMAND_BATCHER_ITEM_COUNT, COMMAND_BATCHER_VARIABLE
-from ...ui.panel import draw_panel
-from ...bversion import BVERSION
+from universal_multi_importer.umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST, get_operator_boolean, DATATYPE_PREFIX, DATATYPE_PROPERTIES, DATATYPE_LIST, DATATYPE_PROPERTIES_DICT
+from universal_multi_importer.operators.ui.operators_const import COMMAND_BATCHER_PRESET_FOLDER
+from universal_multi_importer.operators.command_batcher_const import COMMAND_BATCHER_ITEM_COUNT, COMMAND_BATCHER_VARIABLE
+from universal_multi_importer.bversion import BVERSION
 
 
 datatype_col_count = math.ceil(len(DATATYPE_LIST)/4)

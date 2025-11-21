@@ -1,7 +1,7 @@
 import bpy
 import os, shutil
-from ...umi_const import get_umi_settings, get_batcher_list_name, DATATYPE_PREFIX, DATATYPE_LIST
-from .operators_const import COMMAND_BATCHER_PRESET_FOLDER, UMIPRESET_EXTENSION, UMIPRESET_SPLITTER
+from universal_multi_importer.umi_const import get_umi_settings, get_batcher_list_name, DATATYPE_PREFIX, DATATYPE_LIST
+from universal_multi_importer.operators.ui.operators_const import COMMAND_BATCHER_PRESET_FOLDER, UMIPRESET_EXTENSION, UMIPRESET_SPLITTER
 
 
 def get_presets(context):

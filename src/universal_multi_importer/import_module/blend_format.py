@@ -1,8 +1,8 @@
 import bpy
 from os import path
-from ..unique_name import UniqueName
-from ..logger import LOG
-from ..bversion import BVERSION
+from universal_multi_importer.unique_name.unique_name import UniqueName
+from universal_multi_importer.logger import LOG
+from universal_multi_importer.bversion import BVERSION
 
 
 class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):

@@ -1,4 +1,5 @@
-from . import draw_panel, draw_version_warning, draw_no_settings, BVERSION, draw_import_as_geometry_node_settings
+from universal_multi_importer.bversion import BVERSION
+from universal_multi_importer.preferences.formats.panels import draw_panel, draw_version_warning, draw_no_settings, draw_import_as_geometry_node_settings
 
 class IMPORT_SCENE_PLYSettings():
     @draw_version_warning

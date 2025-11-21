@@ -6,15 +6,15 @@ from os import path
 from pathlib import Path
 import math
 from string import punctuation
-from ..preferences.formats import FormatHandler, COMPATIBLE_FORMATS
-from ..preferences.formats.properties.properties import update_file_stats, get_file_selected_items, update_file_extension_selection
-from .OP_command_batcher import draw_command_batcher
-from ..umi_const import get_umi_settings, AUTOSAVE_PATH, init_current_item_index
-from ..preferences.formats.panels.presets import import_preset
-from ..logger import LOG, LoggerColors, MessageType
-from ..ui.panel import draw_panel
-from ..bversion import BVERSION
-from ..unique_name import UniqueName
+from universal_multi_importer.preferences.formats import COMPATIBLE_FORMATS
+from universal_multi_importer.preferences.formats.format_handler import FormatHandler
+from universal_multi_importer.preferences.formats.properties.properties import update_file_stats, get_file_selected_items, update_file_extension_selection
+from universal_multi_importer.operators.OP_command_batcher import draw_command_batcher
+from universal_multi_importer.umi_const import get_umi_settings, AUTOSAVE_PATH, init_current_item_index
+from universal_multi_importer.preferences.formats.panels.presets import import_preset
+from universal_multi_importer.logger import LOG, LoggerColors
+from universal_multi_importer.bversion import BVERSION
+from universal_multi_importer.unique_name.unique_name import UniqueName
 
 # From https://gist.github.com/laundmo/b224b1f4c8ef6ca5fe47e132c8deab56
 def lerp(a: float, b: float, t: float) -> float:

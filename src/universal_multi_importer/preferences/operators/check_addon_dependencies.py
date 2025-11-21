@@ -1,8 +1,8 @@
 import bpy
-from ..formats import COMPATIBLE_FORMATS
-from ...umi_const import get_umi_settings
-from ...bversion import AddonVersion
-from ..preferences import draw_addon_formats
+from universal_multi_importer.preferences.formats import COMPATIBLE_FORMATS
+from universal_multi_importer.umi_const import get_umi_settings
+from universal_multi_importer.bversion import AddonVersion
+from universal_multi_importer.preferences.preferences import draw_addon_formats
 
 class UI_UMICheckAddonDependencies(bpy.types.Operator):
     bl_idname = "preferences.umi_check_addon_dependency"

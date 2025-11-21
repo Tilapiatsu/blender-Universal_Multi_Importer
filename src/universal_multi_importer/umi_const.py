@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 import bpy
-from .bversion import BVERSION
-from .module_name import ModuleName
+from universal_multi_importer.bversion import BVERSION
+from universal_multi_importer.module_name.module_name import ModuleName
 ADDON_FOLDER_PATH = os.path.dirname(__file__)
 ADDON_PACKAGE = __package__
 AUTOSAVE_PATH = os.path.join(Path(bpy.utils.script_path_user()).parent.absolute(), 'autosave')

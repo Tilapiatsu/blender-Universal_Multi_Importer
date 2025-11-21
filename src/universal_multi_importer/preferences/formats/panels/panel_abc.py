@@ -1,4 +1,4 @@
-from . import draw_panel, draw_version_warning
+from universal_multi_importer.ui.panel import draw_panel, draw_version_warning
 
 class IMPORT_SCENE_ABCSettings():
     @draw_version_warning

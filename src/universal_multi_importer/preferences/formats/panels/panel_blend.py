@@ -1,5 +1,5 @@
-from . import BVERSION
-from . import draw_version_warning
+from universal_multi_importer.bversion import BVERSION
+from universal_multi_importer.ui.panel import draw_version_warning
 
 class IMPORT_SCENE_BLENDSettings():
     @draw_version_warning

@@ -1,8 +1,8 @@
 import bpy
 import time, math, re, itertools
-from ..logger import LOG, LoggerColors
-from ..umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_current_item_index, MODIFIER_TYPES
-from .command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
+from universal_multi_importer.logger import LOG, LoggerColors
+from universal_multi_importer.umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_current_item_index
+from universal_multi_importer.operators.command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
 
 
 def which_keywords(sentence: str, input_string: list[str], delimitator: tuple[str] = ('<', '>')) -> list[str]:

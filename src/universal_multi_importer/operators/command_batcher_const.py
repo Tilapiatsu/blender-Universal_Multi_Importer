@@ -1,7 +1,7 @@
 import bpy
 from mathutils import Vector
 import time
-from ..umi_const import get_umi_settings
+from universal_multi_importer.umi_const import get_umi_settings
 
 COMMAND_BATCHER_INPUT_ITEMS = [ ('ITEM_NAME', 'Item Name (str)', 'Returns the name of the item. The item depends on what is being processed : If the processed item is an object, it will returns the object name. If the processed item is a material, it will return the material name etc ...'),
                                 ('GLOBAL_ITEM_INDEX', 'Global Item Index (int)', 'Returns a integer from 0 to n where 0 is the first item processed and n the last item.'),

@@ -1,4 +1,4 @@
-from . import draw_panel, draw_version_warning, draw_import_as_geometry_node_settings
+from universal_multi_importer.preferences.formats.panels import draw_panel, draw_version_warning, draw_import_as_geometry_node_settings
 
 class IMPORT_SCENE_VDBSettings():
     @draw_version_warning

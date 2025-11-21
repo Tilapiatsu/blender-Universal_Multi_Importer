@@ -1,5 +1,5 @@
-import bpy
-from . import BVERSION, draw_panel, draw_version_warning
+from universal_multi_importer.bversion import BVERSION
+from universal_multi_importer.preferences.formats.panels import draw_panel, draw_version_warning
 
 class IMPORT_SCENE_USDSettings():
     @draw_version_warning

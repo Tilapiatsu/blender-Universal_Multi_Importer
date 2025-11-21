@@ -1,5 +1,4 @@
 from . import OP_command_batcher, OP_import
-from .. import ADDON_FOLDER_PATH
 from . import ui
 
 modules = (ui, OP_command_batcher, OP_import)

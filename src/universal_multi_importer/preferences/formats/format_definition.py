@@ -1,5 +1,5 @@
-from . import BVERSION
-from .format import axis, Format, FormatOperators, FormatOperator, FormatImportSetting
+from universal_multi_importer.bversion import BVERSION
+from universal_multi_importer.preferences.formats.format import axis, Format, FormatOperators, FormatOperator, FormatImportSetting
 
 AS_GEOMETRY_NODES_DESCRIPTION = 'Importing as Geometry Node create a dynamic link beetween the source file and the blend file. The file is NOT imported per say, and if the file on disk is changed, the change will be replicated automatically in the blend file it is linked to.'
 DEFAULT_DESCRIPTION = 'Default Build in module'

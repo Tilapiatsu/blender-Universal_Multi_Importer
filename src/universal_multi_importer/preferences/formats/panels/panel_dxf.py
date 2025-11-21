@@ -1,4 +1,5 @@
-from . import draw_panel, draw_version_warning, BVERSION
+from universal_multi_importer.bversion import BVERSION
+from universal_multi_importer.ui.panel import draw_panel, draw_version_warning
 
 
 class IMPORT_SCENE_DXFSettings():

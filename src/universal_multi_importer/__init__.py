@@ -1,6 +1,3 @@
-import bpy
-from .umi_const import ADDON_FOLDER_PATH, ADDON_PACKAGE
-
 
 bl_info = {
     "name"          : "Universal Multi Importer",
@@ -17,17 +14,17 @@ bl_info = {
 }
 
 def register():
-    from . import import_module
+    from universal_multi_importer import import_module
     import_module.register()
-    from . import preferences
-    from . import operators
+    from universal_multi_importer import preferences
+    from universal_multi_importer import operators
     preferences.register()
     operators.register()
 
 def unregister():
-    from . import import_module
-    from . import preferences
-    from . import operators
+    from universal_multi_importer import import_module
+    from universal_multi_importer import preferences
+    from universal_multi_importer import operators
     operators.unregister()
     preferences.unregister()
     import_module.unregister()
