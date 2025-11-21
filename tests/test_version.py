@@ -3,7 +3,7 @@ import unittest
 class TestVersion(unittest.TestCase):
     def test_version(self):
         """Sanity check for Version format"""
-        from universal_multi_importer.bversion.version import Version
+        from universal_multi_importer.bversion.version.version import Version
         v1string = Version('4.5.23')
         v2string = Version('4.5.24')
         v3string = Version('4.4.24')

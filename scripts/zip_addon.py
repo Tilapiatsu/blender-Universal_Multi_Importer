@@ -1,31 +1,42 @@
-# Unit testing template for Blender add-ons
-# Copyright (C) 2025 Spencer Magnusson
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# /// script
+# dependencies = []
+# ///
 
 import os
 import zipfile
 import ast
+import argparse
+from typing import Union, Optional, Dict
 from pathlib import Path
 
-from addon_path import addon_path
 
 allowed_file_extensions = ('.py', 'LICENSE', '.md', '.dat', '.toml')
-ignore_folders = ('doc_assets', 'venv', 'tests', '.vscode', '__pycache__')
+ignore_folders = ('doc_assets', 'venv', 'tests', '.vscode', '__pycache__', 'site_package')
 
+def main(args: Optional[set]=None) -> None:
+    """Command line entry point."""
+    parser = argparse.ArgumentParser(
+        description="Zip addon, and move it in a build folder",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "--addon-id",
+        required=True,
+        help="The ID of the addon. The folder in which the addon is located need to have the same ID.",
+    )
+
+    namespace = parser.parse_args(args)
+
+    addon_id: str = namespace.addon_id
+
+    zip_main(addon_id)
+
+def get_addon_path(addon_name:str) -> Path:
+    """Retreive the addon path."""
+    return Path(__file__).parent.parent / 'src' / addon_name
 
 def zipdir(path:Path, ziph: zipfile.ZipFile, zip_subdir_name):
+    """Zip the directory while exclude unnecessary files"""
     for root, dirs, files in os.walk(path):
         if any(root.__contains__(folder) for folder in ignore_folders):
             continue
@@ -39,13 +50,13 @@ def zipdir(path:Path, ziph: zipfile.ZipFile, zip_subdir_name):
                 arc_hier = os.path.join(zip_subdir_name, zip_subfolder_path, file)
                 ziph.write(orig_hier, arc_hier)
 
-
 def generate_zip_filename(addon_name: str) -> str:
-    major, minor, patch = get_addon_version(addon_path / '__init__.py')
+    """Generate an zip filename in this format : addon_id_vx.x.x"""
+    major, minor, patch = get_addon_version(get_addon_path(addon_name) / '__init__.py')
     return '{}_v{}.{}.{}.zip'.format(addon_name, major, minor, patch)
 
-
 def get_addon_version(init_path):
+    """Retreive the addon version from bl_info in __init__.py."""
     with open(init_path, 'r') as f:
         node = ast.parse(f.read())
 
@@ -58,8 +69,8 @@ def get_addon_version(init_path):
                 return bl_info_dict['version']
     raise ValueError('Cannot find bl_info')
 
-
 def zip_main(addon_name: str):
+    """ Zip the addon."""
     filename = generate_zip_filename(addon_name)
     lower_name = addon_name.lower()
     destination = Path(__file__).parent.parent / 'builds'
@@ -68,7 +79,7 @@ def zip_main(addon_name: str):
     filepath = os.path.join(destination, filename)
     try:
         zipf = zipfile.ZipFile(filepath, 'w', zipfile.ZIP_DEFLATED)
-        zipdir(addon_path, zipf, lower_name)
+        zipdir(get_addon_path(addon_name), zipf, lower_name)
         zipf.close()
         print('Successfully created zip file: {}'.format(filepath))
         return filepath
@@ -77,4 +88,4 @@ def zip_main(addon_name: str):
         return None
 
 if __name__ == '__main__':
-    zip_main('universal_multi_importer')
+    main()

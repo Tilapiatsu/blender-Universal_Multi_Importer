@@ -23,11 +23,11 @@ class TestExtension(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Install extension via repository"""
-        from addon_path import addon_path
+        from tests.addon_path import addon_path
         repo = addon_path.parent
 
         import bpy
-        from manifest_info import get_manifest_info
+        from tests.manifest_info import get_manifest_info
         bpy.ops.wm.read_factory_settings(use_factory_startup_app_template_only=True)
 
         repo_module = 'test_repo'

@@ -15,22 +15,24 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import unittest
+import importlib.util
 
 class TestAddon(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         """Install add-on"""
-        from zip_addon import zip_main
-        from manifest_info import get_manifest_info
+        from tests.scripts import get_script
+        from tests.manifest_info import get_manifest_info
+
+        zip_main = get_script('zip_addon').zip_main
+
         manifest = get_manifest_info()
         cls.zip_path = zip_main(manifest['id'])
         if cls.zip_path is None:
             raise Exception('Failed to create zip file')
 
         import bpy
-        from manifest_info import get_manifest_info
-        manifest = get_manifest_info()
         bpy.ops.preferences.addon_install(filepath=cls.zip_path)
         bpy.ops.preferences.addon_enable(module=manifest['id'])
 
