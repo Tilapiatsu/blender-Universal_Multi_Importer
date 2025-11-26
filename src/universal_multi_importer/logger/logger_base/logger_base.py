@@ -1,4 +1,7 @@
-import bpy, os, logging, tempfile, time
+import logging
+import tempfile
+import time
+from logging.handlers import RotatingFileHandler
 from os import path
 from mathutils import Color
 from .logger_const import LoggerColors, MessageType
@@ -59,6 +62,9 @@ class Logger():
     def __init__(self, log_name='ROOT'):
         self.log_name = log_name
 
+        self.logger = logging.getLogger(log_name)
+        self.logger.setLevel(logging.DEBUG)
+
         self.log_file = get_log_file()
         self.timeformat = '%m/%d/%Y %I:%M:%S %p'
         self.set_basic_config()
@@ -94,7 +100,7 @@ class Logger():
         else:
             self.messages.append(message=message, color=Color(LoggerColors.DEFAULT_COLOR()))
             
-        logging.info(message)
+        self.logger.info(message)
     
     def success(self, message, skip_prefix=False, show_message=True):
         message = str(message)
@@ -105,7 +111,7 @@ class Logger():
         self.messages.append(message=message, color=Color(LoggerColors.SUCCESS_COLOR()))
         
         if show_message :
-            logging.info(message)
+            self.logger.info(message)
 
     def debug(self, message, skip_prefix=False):
         message = str(message)
@@ -113,7 +119,7 @@ class Logger():
         if not skip_prefix:
             message = '{} : DEBUG - '.format(self.log_name) + message
         self.messages.append(message=message, color=self.color * 0.2)
-        logging.debug(message)
+        self.logger.debug(message)
 
     def warning(self, message, skip_prefix=False):
         message = str(message)
@@ -121,7 +127,7 @@ class Logger():
         if not skip_prefix:
             message = '{} : WARNING - '.format(self.log_name) + message
         self.messages.append(message=message, color= Color(LoggerColors.WARNING_COLOR()))
-        logging.warning(message)
+        self.logger.warning(message)
 
     def error(self, message, skip_prefix=False):
         message = str(message)
@@ -129,11 +135,14 @@ class Logger():
         if not skip_prefix:
             message = '{} : ERROR - '.format(self.log_name) + message
         self.messages.append(message=message, color= Color(LoggerColors.ERROR_COLOR()))
-        logging.error(message)
+        self.logger.error(message)
 
     def set_basic_config(self):
-        self.format = '%(asctime)s - %(levelname)s :    %(message)s'
-        logging.basicConfig(filename=self.log_file, level=logging.DEBUG, datefmt=self.timeformat, filemode='w', format=self.format)
+        self.format = logging.Formatter('%(asctime)s - %(levelname)s :    %(message)s')
+        handler = RotatingFileHandler(self.log_file, maxBytes=500000, backupCount=3)
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(self.format)
+        self.logger.addHandler(handler)
 
     def store_success(self, success):
         success = str(success)

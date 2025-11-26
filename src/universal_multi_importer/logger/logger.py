@@ -1,7 +1,7 @@
 import bpy
 import blf
 from .logger_base import Logger, SCROLL_OFFSET_INCREMENT
-from ..bversion import BVERSION
+from universal_multi_importer.bversion import BVERSION
 
 class LoggerProgress(Logger):
     def __init__(self, log_name='ROOT'):

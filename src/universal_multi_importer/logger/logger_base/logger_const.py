@@ -1,4 +1,4 @@
-from ...umi_const import get_umi_colors
+from universal_multi_importer.umi_const import get_umi_colors
 
 default_color = (0.1, 0.5, 0.6)
 
