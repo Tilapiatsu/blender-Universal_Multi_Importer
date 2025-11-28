@@ -1,4 +1,4 @@
-from universal_multi_importer.preferences.formats.panels import draw_no_settings, draw_panel, draw_version_warning
+from ....preferences.formats.panels import draw_no_settings, draw_panel, draw_version_warning
 
 class IMPORT_SCENE_SVGSettings():
     @draw_version_warning

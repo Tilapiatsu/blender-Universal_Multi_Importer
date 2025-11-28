@@ -10,7 +10,7 @@ class TestFormatDefinition(unittest.TestCase):
         from tests.manifest_info import get_manifest_info
 
         zip_main = get_script('zip_addon').zip_main
-        
+
         manifest = get_manifest_info()
         cls.zip_path = zip_main(manifest['id'])
         if cls.zip_path is None:
@@ -28,7 +28,7 @@ class TestFormatDefinition(unittest.TestCase):
         from universal_multi_importer.preferences.formats.format_definition import FormatDefinition
 
         self.assertTrue(hasattr(FormatDefinition, 'fbx'))
-    
+
 
     @classmethod
     def tearDownClass(cls):

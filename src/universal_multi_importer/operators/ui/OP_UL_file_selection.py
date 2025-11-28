@@ -1,7 +1,7 @@
 import bpy
 import os
-from universal_multi_importer.umi_const import get_umi_settings
-from universal_multi_importer.preferences.formats.properties.properties import update_file_stats
+from ...umi_const import get_umi_settings
+from ...preferences.formats.properties.properties import update_file_stats
 
 def get_file_selection():
     umi_settings = get_umi_settings()
@@ -26,18 +26,18 @@ class UI_Select(bpy.types.Operator):
     def poll(cls, context):
         umi_settings = get_umi_settings()
         return len(umi_settings.umi_file_selection)
-    
+
     @property
     def bool_action(self):
         return True if self.action == "SELECT" else False
-    
+
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
         return self.execute(context)
 
     def execute(self, context):
         _, self.file_selection, _ = get_file_selection()
-        
+
         self.umi_settings.umi_file_stat_update = False
 
         if self.mode == "ALL":
@@ -62,7 +62,7 @@ class UI_Select(bpy.types.Operator):
                 if not self.umi_settings.umi_file_name_case_sensitive_selection:
                     name = name.lower()
                     ref = ref.lower()
-                    
+
                 if ref in name:
                     f.check = self.bool_action
         elif self.mode == 'MD5':
@@ -71,12 +71,12 @@ class UI_Select(bpy.types.Operator):
             self._timer = wm.event_timer_add(0.01, window=context.window)
             wm.modal_handler_add(self)
             return {'RUNNING_MODAL'}
-            
+
 
         self.umi_settings.umi_file_stat_update = True
         update_file_stats(self, context)
         return {'FINISHED'}
-    
+
     def modal(self, context, event):
         if self.umi_settings.umi_md5_generation_status != 'DONE':
             return {'RUNNING_MODAL'}
@@ -92,23 +92,23 @@ class UI_Select(bpy.types.Operator):
     def check_md5(self, file_selection):
         md5 = [f.md5 for f in file_selection]
         duplicates = self.list_duplicates(md5)
-        
+
         for d in duplicates:
             for dd in range(len(d[1])):
                 if dd == 0 and file_selection[d[1][dd]].check:
                     continue
                 file_selection[d[1][dd]].check = self.bool_action
-    
+
     # from https://stackoverflow.com/questions/5419204/index-of-duplicates-items-in-a-python-list
     def list_duplicates(self, seq):
         from collections import defaultdict
         tally = defaultdict(list)
         for i,item in enumerate(seq):
             tally[item].append(i)
-        return ((key,locs) for key,locs in tally.items() 
+        return ((key,locs) for key,locs in tally.items()
                                 if len(locs)>1)
 
-classes = ( UI_Select, 
+classes = ( UI_Select,
             )
 
 def register():

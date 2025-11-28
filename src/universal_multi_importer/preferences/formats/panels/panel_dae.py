@@ -1,5 +1,5 @@
-from universal_multi_importer.bversion import BVERSION
-from universal_multi_importer.ui.panel import draw_panel, draw_version_warning
+from ....bversion import BVERSION
+from ....ui.panel import draw_panel, draw_version_warning
 
 class IMPORT_SCENE_DAESettings():
     @draw_version_warning

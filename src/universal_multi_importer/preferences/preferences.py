@@ -1,11 +1,11 @@
 import bpy
-from universal_multi_importer.bversion import BVERSION
-from universal_multi_importer.bversion.version.version import Version
-from universal_multi_importer.logger import LOG
-from universal_multi_importer.preferences.formats.properties.properties import PG_UMISettings
-from universal_multi_importer.preferences.colors.presets import color_preset
-from universal_multi_importer.preferences.colors.colors import PG_UMIColors
-from universal_multi_importer.umi_const import ADDON_PACKAGE
+from ..bversion import BVERSION
+from ..bversion.version.version import Version
+from ..logger import LOG
+from ..preferences.formats.properties.properties import PG_UMISettings
+from ..preferences.colors.presets import color_preset
+from ..preferences.colors.colors import PG_UMIColors
+from ..umi_const import ADDON_PACKAGE
 
 PREFERENCE_TABS = [ ("FORMATS", "Formats", ""),
                     ("COLORS", "Colors", ""),

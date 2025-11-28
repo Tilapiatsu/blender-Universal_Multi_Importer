@@ -1,6 +1,6 @@
 import bpy
-from universal_multi_importer.preferences.formats import COMPATIBLE_FORMATS
-from universal_multi_importer.preferences.formats.format import FormatOperator
+from ...preferences.formats import COMPATIBLE_FORMATS
+from ...preferences.formats.format import FormatOperator
 
 ### from https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
 class BaseClass(object):

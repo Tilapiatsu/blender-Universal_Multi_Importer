@@ -2,14 +2,14 @@ import inspect
 from typing import Union, Optional, Dict
 import bpy
 import addon_utils
-from universal_multi_importer.preferences.formats.format_definition import FormatDefinition
-from universal_multi_importer.preferences.formats import FORMATS
-from universal_multi_importer.preferences.formats.format import Format
-from universal_multi_importer.logger import LOG
-from universal_multi_importer.preferences.formats.panels import get_panels
-from universal_multi_importer.preferences.formats.panels.presets import format_preset
-from universal_multi_importer.bversion import AddonVersion
-from universal_multi_importer.bversion.version.version import Version
+from ...preferences.formats.format_definition import FormatDefinition
+from ...preferences.formats import FORMATS
+from ...preferences.formats.format import Format
+from ...logger import LOG
+from ...preferences.formats.panels import get_panels
+from ...preferences.formats.panels.presets import format_preset
+from ...bversion import AddonVersion
+from ...bversion.version.version import Version
 
 class CompatibleFormats(object):
 

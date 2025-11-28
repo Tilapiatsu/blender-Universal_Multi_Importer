@@ -1,7 +1,7 @@
 import bpy
 import re
 from pathlib import Path
-from universal_multi_importer.logger import LOG
+from ..logger import LOG
 from mathutils import Vector
 
 

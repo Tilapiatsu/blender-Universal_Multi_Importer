@@ -1,8 +1,8 @@
 import bpy
 from os import path
-from universal_multi_importer.logger import LOG
-from universal_multi_importer.umi_const import get_umi_settings, DATATYPE_PROPERTIES
-from universal_multi_importer.preferences.formats import COMPATIBLE_FORMATS
+from ....logger import LOG
+from ....umi_const import get_umi_settings, DATATYPE_PROPERTIES
+from ....preferences.formats import COMPATIBLE_FORMATS
 
 
 def update_file_stats(self, context):

@@ -1,8 +1,8 @@
 import os
 import importlib
-from universal_multi_importer.umi_const import EXTENSION_MODULE_NAME
+from ....umi_const import EXTENSION_MODULE_NAME
 from pathlib import Path
-from universal_multi_importer.preferences.formats.panels import presets
+from ....preferences.formats.panels import presets
 
 panel_path = [p.name.replace('panel_', '').replace('.py', '') for p in Path(os.path.dirname(__file__)).iterdir() if p.name.startswith('panel_') ]
 

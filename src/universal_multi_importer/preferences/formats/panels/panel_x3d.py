@@ -1,5 +1,5 @@
-from universal_multi_importer.bversion import BVERSION
-from universal_multi_importer.preferences.formats.panels import draw_panel, draw_version_warning, AddonVersion
+from ....bversion import BVERSION
+from ....preferences.formats.panels import draw_panel, draw_version_warning, AddonVersion
 
 class IMPORT_SCENE_X3DSettings():
     @draw_version_warning

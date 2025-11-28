@@ -14,17 +14,17 @@ bl_info = {
 }
 
 def register():
-    from universal_multi_importer import import_module
+    from . import import_module
     import_module.register()
-    from universal_multi_importer import preferences
-    from universal_multi_importer import operators
+    from . import preferences
+    from . import operators
     preferences.register()
     operators.register()
 
 def unregister():
-    from universal_multi_importer import import_module
-    from universal_multi_importer import preferences
-    from universal_multi_importer import operators
+    from . import import_module
+    from . import preferences
+    from . import operators
     operators.unregister()
     preferences.unregister()
     import_module.unregister()
