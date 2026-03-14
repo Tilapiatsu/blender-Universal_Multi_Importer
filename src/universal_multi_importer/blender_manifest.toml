@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "universal_multi_importer"
-version = "2.3.4"
+version = "2.3.5"
 name = "Universal Multi Importer"
 tagline = "Batch Import many file formats at once, Batch process them"
 maintainer = "Tilapiatsu <tilapiatsu@hotmail.fr>"
@@ -13,20 +13,13 @@ tags = ["Import-Export", "Pipeline"]
 
 blender_version_min = "4.2.0"
 
-license = [
-  "SPDX:GPL-3.0-or-later",
-]
+license = ["SPDX:GPL-3.0-or-later"]
 
-copyright = [
-  "2023 Tilapiatsu",
-]
+copyright = ["2023 Tilapiatsu"]
 
 [permissions]
 files = "Import Files from disk, save presets to disk"
 
 [build]
-paths_exclude_pattern = [
-  "/.git/",
-  "__pycache__/",
-  ".gitignore",
-]
+paths_exclude_pattern = ["/.git/", "__pycache__/", ".gitignore"]
+

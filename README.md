@@ -44,7 +44,7 @@ This addon is adding batch import features to existing importers for blender. Th
 | usdc         | exr           |               |                   |  emd               |              |              |
 | usdz         | hdr           |               |                   |  exy               |              |              |
 | max[:link:](https://github.com/nrgsille76/io_scene_max) |webp||       |  fxy              |              |              |
-| pdb[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  gcode       |              |              |
+| pdb[:link:](https://projects.blender.org/extensions/io_mesh_atomic) |tga|||  gcode       |              |              |
 | xyz[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  hus         |              |              |
 | dxf[:link:](https://projects.blender.org/extensions/io_import_dxf) ||||  inb          |              |              |
 | 3ds[:link:](https://projects.blender.org/extensions/io_scene_3ds)  ||||  new          |              |              |
@@ -152,6 +152,8 @@ You can choose if the command has to be executed for a specific datatype or many
 
 # Changelog
 
+### v2.3.5 : Support for tga images
+
 ### v2.3.4 : Support for Blender 5.1.0
 
 ### v2.3.4 : Fix FBX format setting display issue
@@ -161,6 +163,7 @@ You can choose if the command has to be executed for a specific datatype or many
 ### v2.3.2 : For Blender 4.5.0 + : add support for importing files as Geometry Node, which would create a geometry node setup to import the file from the disk, taking advantage of the `Import Node` added in this version. Available for OBJ, STL, PLY and VDB formats
 
 ### v2.3.2 : For Blender 4.5.0 + : Importing file as Geometry Node can import file sequences as animation
+
 <https://github.com/user-attachments/assets/a1ce393e-6fc8-4aeb-9f62-79b5c41919a9>
 
 ### v2.3.2 : Command Batcher can now apply commands for each object's modifiers

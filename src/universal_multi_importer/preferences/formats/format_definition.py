@@ -710,6 +710,7 @@ class FormatDefinition:
             ".png",
             ".tif",
             ".tiff",
+            ".tga",
             ".bmp",
             ".cin",
             ".dpx",
