@@ -12,6 +12,31 @@ class IMPORT_SCENE_OBJSettings:
             draw_import_as_geometry_node_settings(layout, operator, "OBJGNSettings")
 
         if module_name == "default":
+            if BVERSION >= 5.1:
+                op = [
+                    [operator, "global_scale"],
+                    [operator, "clamp_size"],
+                    [operator, "forward_axis"],
+                    [operator, "up_axis"],
+                ]
+
+                draw_panel(layout, op, "OBJSettings_Transform", "Transform", icon="OBJECT_DATA")
+
+                op = [
+                    [operator, "use_split_objects"],
+                    [operator, "use_split_groups"],
+                    [operator, "import_vertex_groups"],
+                    [operator, "validate_meshes"],
+                    [operator, "collection_separator"],
+                ]
+
+                draw_panel(layout, op, "OBJSettings_Options", "Options", icon="OPTIONS")
+
+                op = [
+                    [operator, "mtl_name_collision_mode"],
+                ]
+
+                draw_panel(layout, op, "OBJSettings_Materials", "Materials", icon="MATERIAL")
             if BVERSION >= 4.1:
                 op = [
                     [operator, "global_scale"],
@@ -94,4 +119,3 @@ class IMPORT_SCENE_OBJSettings:
 
                     elif operator.split_mode == "OFF":
                         draw_prop(panel, operator, "use_groups_as_vgroups")
-
