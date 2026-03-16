@@ -152,6 +152,8 @@ You can choose if the command has to be executed for a specific datatype or many
 
 # Changelog
 
+### v2.3.6 Fix bug when recreating folder hierarchy in import folder mode
+
 ### v2.3.5 : Support for tga images
 
 ### v2.3.4 : Support for Blender 5.1.0
