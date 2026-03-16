@@ -468,7 +468,9 @@ def image_operators() -> FormatOperators:
         plane.addon_name = None
         plane.forced_properties = ["files", "directory"]
 
-        empty = FormatOperator("empty", "bpy.ops.object.empty_image_add", "0.0.0", description=DEFAULT_DESCRIPTION)
+        empty = FormatOperator(
+            "empty", "bpy.ops.import_scene.tila_import_reference", "0.0.0", description=DEFAULT_DESCRIPTION
+        )
 
         operators.add_operator(empty)
 
