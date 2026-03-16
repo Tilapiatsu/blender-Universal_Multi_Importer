@@ -554,7 +554,9 @@ class UMI_FileSelection(bpy.types.Operator):
                         column.prop(self.umi_settings.umi_global_import_settings, "wait_before_hiding")
                     column.prop(self.umi_settings.umi_global_import_settings, "display_debug_log")
                     if self.umi_settings.umi_global_import_settings.display_debug_log:
-                        column.label(text="Displaying Debug Log is verbose and not recommanded for regular uage")
+                        column.label(
+                            text="Displaying Debug Log is verbose and not recommended for regular usage"
+                        ).alert = True
                 column.prop(self.umi_settings.umi_global_import_settings, "force_refresh_viewport_after_each_import")
                 column.prop(self.umi_settings.umi_global_import_settings, "force_refresh_viewport_after_each_command")
 
