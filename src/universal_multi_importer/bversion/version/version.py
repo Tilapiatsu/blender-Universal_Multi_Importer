@@ -12,10 +12,10 @@ class Version:
     def __init__(self, version: Union[tuple[int, int, int], str, float]):
         self._version: tuple[int, int, int]
         if isinstance(version, float):
-            sec, main = math.modf(version)
-            sec = sec * 10000
-            third, sec = math.modf(sec / 100)
-            third = third * 100
+            main, sec = str(version).split(".")
+            sec = int(sec)
+            sec, third = str(float(sec)).split(".")
+            third = int(third)
             main = int(main)
             sec = int(sec)
             third = int(third)

@@ -137,6 +137,7 @@ class AddonVersion:
 
 if __name__ == "__main__":
     print(BVERSION)
+    print(BVERSION >= 5.1)
     a = AddonVersion("bl_ext.blender_org.io_scene_max")
     print(a.module)
     print(a.pkg_name)
