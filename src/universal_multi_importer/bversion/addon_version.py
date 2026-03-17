@@ -2,10 +2,12 @@ import addon_utils, bpy
 from . import BVERSION
 from .version import Version
 
+
 class AddonVersion:
-    '''
+    """
     This class helps to handle Addon versions, check if it needs update
-    '''
+    """
+
     def __init__(self, addon_name, repo_id=0):
         self.addon_name = addon_name
         self.repo_if = repo_id
@@ -18,10 +20,15 @@ class AddonVersion:
 
     def get_packages(self, repo_id=0):
         from bl_pkg import repo_cache_store_ensure
+
         repo_cache_store = repo_cache_store_ensure()
-        packages = list(zip(repo_cache_store.pkg_manifest_from_local_ensure(error_fn=print),
-                            repo_cache_store.pkg_manifest_from_remote_ensure(error_fn=print),
-                            strict=True))
+        packages = list(
+            zip(
+                repo_cache_store.pkg_manifest_from_local_ensure(error_fn=print),
+                repo_cache_store.pkg_manifest_from_remote_ensure(error_fn=print),
+                strict=True,
+            )
+        )
 
         local_pkg = packages[repo_id][0]
         remote_pkg = packages[repo_id][1]
@@ -30,11 +37,11 @@ class AddonVersion:
 
     @property
     def is_extension(self) -> bool:
-        return self.addon_name.startswith('bl_ext')
+        return self.addon_name.startswith("bl_ext")
 
     @property
     def pkg_name(self) -> str:
-        return self.addon_name.split('.')[-1] if self.is_extension else self.addon_name
+        return self.addon_name.split(".")[-1] if self.is_extension else self.addon_name
 
     @property
     def module(self):
@@ -52,16 +59,16 @@ class AddonVersion:
         if self.module is None:
             return Version((0, 0, 0))
 
-        if self.module is None or 'version' not in self.module.bl_info.keys():
+        if self.module is None or "version" not in self.module.bl_info.keys():
             return Version((0, 0, 0))
-        
-        return Version(self.module.bl_info['version'])
+
+        return Version(self.module.bl_info["version"])
 
     @property
     def local_version(self) -> Version:
-        '''
+        """
         Returns the version of the addon installed localy
-        '''
+        """
         if not self.is_extension:
             return self.version
 
@@ -72,9 +79,9 @@ class AddonVersion:
 
     @property
     def remote_version(self) -> Version:
-        '''
+        """
         Returns the version of the addon in the repository
-        '''
+        """
         if not self.is_extension:
             return Version((0, 0, 0))
 
@@ -85,52 +92,52 @@ class AddonVersion:
 
     @property
     def is_outdated(self) -> bool:
-        '''
+        """
         An addon version is considered as outdated if the remote version is newer than the local version
 
         :returns: -> bool
-        '''
+        """
         return self.remote_version > self.local_version
 
     @property
     def is_newer(self) -> bool:
-        '''
+        """
         An addon version is considered newer if the remote version is older than the local version
 
         :returns: -> bool
-        '''
+        """
         return self.remote_version < self.local_version
 
     @property
     def is_matching(self) -> bool:
-        '''
+        """
         An addon version is considered as matching if the remote version and the local version are the same
 
         :returns: -> bool
-        '''
+        """
         return self.remote_version == self.local_version
 
     @property
     def is_enable(self) -> bool:
-        '''
+        """
         Return True if the addon is enable
-        '''
+        """
         return self.addon_name in bpy.context.preferences.addons if self.addon_name else True
 
     @property
     def is_installed(self) -> bool:
-        '''
+        """
         Return True if the addon is installed
-        '''
+        """
         return self.is_enable or self.module is not None
-
 
     def __str__(self):
         return str(self.local_version)
 
 
-if __name__ == '__main__':
-    a = AddonVersion('bl_ext.blender_org.io_scene_max')
+if __name__ == "__main__":
+    print(BVERSION)
+    a = AddonVersion("bl_ext.blender_org.io_scene_max")
     print(a.module)
     print(a.pkg_name)
     print(a.local_version)
