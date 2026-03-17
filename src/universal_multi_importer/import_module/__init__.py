@@ -11,4 +11,3 @@ def register():
 def unregister():
     for m in reversed(modules):
         m.unregister()
-

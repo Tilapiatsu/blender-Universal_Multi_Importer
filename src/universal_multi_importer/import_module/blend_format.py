@@ -8,102 +8,121 @@ from ..bversion import BVERSION
 class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
     bl_idname = "import_scene.tila_import_blend"
     bl_label = "Import Blend"
-    bl_options = {'REGISTER', 'INTERNAL'}
-    bl_description = 'Append or Link Blend file'
+    bl_options = {"REGISTER", "INTERNAL"}
+    bl_description = "Append or Link Blend file"
 
-    import_module : bpy.props.EnumProperty(name="Import Module", default="APPEND", items=[("APPEND", "Append", ""), ("LINK", "Link", "")])
+    import_module: bpy.props.EnumProperty(
+        name="Import Module", default="APPEND", items=[("APPEND", "Append", ""), ("LINK", "Link", "")]
+    )
 
-    import_actions : bpy.props.BoolProperty(name="Actions", default=False)
-    import_armatures : bpy.props.BoolProperty(name="Armatures", default=False)
-    import_brushes : bpy.props.BoolProperty(name="Brushes", default=False)
-    import_cameras : bpy.props.BoolProperty(name="Cameras", default=False)
-    import_cache_files : bpy.props.BoolProperty(name="Cache files",  default=False)
-    import_curves : bpy.props.BoolProperty(name="Curves", default=False)
-    import_hair_curves : bpy.props.BoolProperty(name="Hair Curves", default=False)
-    import_fonts : bpy.props.BoolProperty(name="Fonts", default=False)
-    import_grease_pencils : bpy.props.BoolProperty(name="Grease Penil", default=False)
-    import_collections : bpy.props.BoolProperty(name="Collections", default=False)
-    import_images : bpy.props.BoolProperty(name="Images", default=False)
-    import_lights : bpy.props.BoolProperty(name="Lights", default=False)
-    import_linestyles : bpy.props.BoolProperty(name="Line Styes", default=False)
-    import_lattices : bpy.props.BoolProperty(name="Lattices", default=False)
-    import_masks : bpy.props.BoolProperty(name="Masks", default=False)
-    import_materials : bpy.props.BoolProperty(name="Materials", default=False)
-    import_metaballs : bpy.props.BoolProperty(name="Metaballs", default=False)
-    import_meshes : bpy.props.BoolProperty(name="Meshes", default=False)
-    import_movieclips : bpy.props.BoolProperty(name="Movie Clips", default=False)
-    import_node_groups : bpy.props.BoolProperty(name="Node Groups", default=False)
-    import_objects : bpy.props.BoolProperty(name="Objects", default=True)
-    import_paint_curves : bpy.props.BoolProperty(name="Paint Cures", default=False)
-    import_palettes : bpy.props.BoolProperty(name="Palettes", default=False)
-    import_particles : bpy.props.BoolProperty(name="Particles", default=False)
-    import_pointclouds : bpy.props.BoolProperty(name="Point Clouds", default=False)
-    import_lightprobes : bpy.props.BoolProperty(name="Light Probes", default=False)
-    import_scenes : bpy.props.BoolProperty(name="Scenes", default=False)
+    import_actions: bpy.props.BoolProperty(name="Actions", default=False)
+    import_armatures: bpy.props.BoolProperty(name="Armatures", default=False)
+    import_brushes: bpy.props.BoolProperty(name="Brushes", default=False)
+    import_cameras: bpy.props.BoolProperty(name="Cameras", default=False)
+    import_cache_files: bpy.props.BoolProperty(name="Cache files", default=False)
+    import_curves: bpy.props.BoolProperty(name="Curves", default=False)
+    import_hair_curves: bpy.props.BoolProperty(name="Hair Curves", default=False)
+    import_fonts: bpy.props.BoolProperty(name="Fonts", default=False)
+    import_grease_pencils: bpy.props.BoolProperty(name="Grease Penil", default=False)
+    import_collections: bpy.props.BoolProperty(name="Collections", default=False)
+    import_images: bpy.props.BoolProperty(name="Images", default=False)
+    import_lights: bpy.props.BoolProperty(name="Lights", default=False)
+    import_linestyles: bpy.props.BoolProperty(name="Line Styes", default=False)
+    import_lattices: bpy.props.BoolProperty(name="Lattices", default=False)
+    import_masks: bpy.props.BoolProperty(name="Masks", default=False)
+    import_materials: bpy.props.BoolProperty(name="Materials", default=False)
+    import_metaballs: bpy.props.BoolProperty(name="Metaballs", default=False)
+    import_meshes: bpy.props.BoolProperty(name="Meshes", default=False)
+    import_movieclips: bpy.props.BoolProperty(name="Movie Clips", default=False)
+    import_node_groups: bpy.props.BoolProperty(name="Node Groups", default=False)
+    import_objects: bpy.props.BoolProperty(name="Objects", default=True)
+    import_paint_curves: bpy.props.BoolProperty(name="Paint Cures", default=False)
+    import_palettes: bpy.props.BoolProperty(name="Palettes", default=False)
+    import_particles: bpy.props.BoolProperty(name="Particles", default=False)
+    import_pointclouds: bpy.props.BoolProperty(name="Point Clouds", default=False)
+    import_lightprobes: bpy.props.BoolProperty(name="Light Probes", default=False)
+    import_scenes: bpy.props.BoolProperty(name="Scenes", default=False)
     # import_shape_keys : bpy.props.BoolProperty(name="Shape Keys", default=False)
-    import_sounds : bpy.props.BoolProperty(name="Sounds", default=False)
-    import_speakers : bpy.props.BoolProperty(name="Speakers", default=False)
-    import_texts : bpy.props.BoolProperty(name="Texts", default=False)
-    import_textures : bpy.props.BoolProperty(name="Textures", default=False)
-    import_volumes : bpy.props.BoolProperty(name="Volumes", default=False)
-    import_worlds : bpy.props.BoolProperty(name="Worlds", default=False)
-    import_workspaces : bpy.props.BoolProperty(name="Workspaces", default=False)
+    import_sounds: bpy.props.BoolProperty(name="Sounds", default=False)
+    import_speakers: bpy.props.BoolProperty(name="Speakers", default=False)
+    import_texts: bpy.props.BoolProperty(name="Texts", default=False)
+    import_textures: bpy.props.BoolProperty(name="Textures", default=False)
+    import_volumes: bpy.props.BoolProperty(name="Volumes", default=False)
+    import_worlds: bpy.props.BoolProperty(name="Worlds", default=False)
+    import_workspaces: bpy.props.BoolProperty(name="Workspaces", default=False)
 
-    filepath : bpy.props.StringProperty(name="File Path", subtype='FILE_PATH', options={'HIDDEN'})
+    filepath: bpy.props.StringProperty(name="File Path", subtype="FILE_PATH", options={"HIDDEN"})
 
-    import_to_collection_source = ['objects', 'collections']
-    import_to_collection_rnatype_name = ['Object', 'Collection']
-    force_append_mode = ['collections', 'workspaces', 'volumes', 'scenes', 'lightprobes', 'particles', 'pointclouds']
-    excluded_datatypes = ['batch_remove', 'bl_rna', 'filepath', 'is_dirty', 'is_saved', 'libraries', 'orphans_purge', 'rna_type', 'screens', 'temp_data', 'use_autopack', 'user_map', 'version', 'window_managers', 'shape_keys']
-    dependency_datatype = [	'ACTION',
-                            'ARMATURE',
-                            'BRUSH',
-                            'CACHEFILE',
-                            'CAMERA',
-                            'COLLECTION',
-                            'CURVE',
-                            'CURVES',
-                            'FONT',
-                            'GEOMETRY',
-                            'GREASEPENCIL',
-                            'GREASEPENCIL_V3',
-                            'IMAGE',
-                            'KEY',
-                            'LATTICE',
-                            'LIBRARY',
-                            'LIGHT',
-                            'LIGHT_PROBE',
-                            'LINESTYLE',
-                            'MASK',
-                            'MATERIAL',
-                            'MESH',
-                            'META',
-                            'MOVIECLIP',
-                            'NODETREE',
-                            'NODE'
-                            'OBJECT',
-                            'PAINTCURVE',
-                            'PALETTE',
-                            'PARTICLE',
-                            'POINTCLOUD',
-                            'SCENE',
-                            'SCREEN',
-                            'SOUND',
-                            'SPEAKER',
-                            'TEXT',
-                            'TEXTURE',
-                            'VOLUME',
-                            'WINDOWMANAGER',
-                            'WORKSPACE',
-                            'WORLD']
+    import_to_collection_source = ["objects", "collections"]
+    import_to_collection_rnatype_name = ["Object", "Collection"]
+    force_append_mode = ["collections", "workspaces", "volumes", "scenes", "lightprobes", "particles", "pointclouds"]
+    excluded_datatypes = [
+        "batch_remove",
+        "bl_rna",
+        "filepath",
+        "is_dirty",
+        "is_saved",
+        "libraries",
+        "orphans_purge",
+        "rna_type",
+        "screens",
+        "temp_data",
+        "use_autopack",
+        "user_map",
+        "version",
+        "window_managers",
+        "shape_keys",
+    ]
+    dependency_datatype = [
+        "ACTION",
+        "ARMATURE",
+        "BRUSH",
+        "CACHEFILE",
+        "CAMERA",
+        "COLLECTION",
+        "CURVE",
+        "CURVES",
+        "FONT",
+        "GEOMETRY",
+        "GREASEPENCIL",
+        "GREASEPENCIL_V3",
+        "IMAGE",
+        "KEY",
+        "LATTICE",
+        "LIBRARY",
+        "LIGHT",
+        "LIGHT_PROBE",
+        "LINESTYLE",
+        "MASK",
+        "MATERIAL",
+        "MESH",
+        "META",
+        "MOVIECLIP",
+        "NODETREE",
+        "NODEOBJECT",
+        "PAINTCURVE",
+        "PALETTE",
+        "PARTICLE",
+        "POINTCLOUD",
+        "SCENE",
+        "SCREEN",
+        "SOUND",
+        "SPEAKER",
+        "TEXT",
+        "TEXTURE",
+        "VOLUME",
+        "WINDOWMANAGER",
+        "WORKSPACE",
+        "WORLD",
+    ]
 
     @property
     def is_append(self):
-        return self.import_module == 'APPEND'
+        return self.import_module == "APPEND"
 
     @property
     def is_link(self):
-        return self.import_module == 'LINK'
+        return self.import_module == "LINK"
 
     @property
     def filename(self):
@@ -112,7 +131,11 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
     @property
     def import_datas(self):
         if self._import_datas is None:
-            self._import_datas = [m.replace('import_', '') for m in self.__annotations__.keys() if m.startswith('import_') and m != 'import_module' and getattr(self, m)]
+            self._import_datas = [
+                m.replace("import_", "")
+                for m in self.__annotations__.keys()
+                if m.startswith("import_") and m != "import_module" and getattr(self, m)
+            ]
 
         return self._import_datas
 
@@ -122,7 +145,9 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             local_names = {}
 
             for datatype in dir(bpy.data):
-                if (datatype in self.excluded_datatypes or datatype.startswith('__')) or datatype not in self.import_datas :
+                if (
+                    datatype in self.excluded_datatypes or datatype.startswith("__")
+                ) or datatype not in self.import_datas:
                     continue
 
                 data = getattr(bpy.data, datatype)
@@ -135,7 +160,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
     @property
     def operation(self):
-        return 'Appending' if self.is_append else 'Linking'
+        return "Appending" if self.is_append else "Linking"
 
     @property
     def library(self):
@@ -159,11 +184,11 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
     def get_data_dependencies(self, src, object_to_import, dependencies, data):
         # Capture Dependencies
         for p in dir(src):
-            if p.startswith('__'):
+            if p.startswith("__"):
                 continue
 
             # print(src.name, p)
-            if p in ['layers_uv_select_src', 'layers_vcol_select_src']:
+            if p in ["layers_uv_select_src", "layers_vcol_select_src"]:
                 continue
 
             attr = getattr(src, p, None)
@@ -181,12 +206,12 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                 if attr in object_to_import:
                     continue
 
-                if attr_type == 'OBJECT':
+                if attr_type == "OBJECT":
                     if attr in object_to_import:
                         continue
                     LOG.info(f'Blend format : Link Object Depencency "{attr.name}"')
                     object_to_import.append(attr)
-                elif attr_type in ['NODETREE', 'GEOMETRY']:
+                elif attr_type in ["NODETREE", "GEOMETRY"]:
                     if attr in data:
                         continue
                     LOG.info(f'Blend format : Link Node Depencency "{attr.name}"')
@@ -198,7 +223,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                     dependencies.append(attr)
 
     def append_data(self, source, data_list):
-        source_string = source.replace('_', ' ')
+        source_string = source.replace("_", " ")
         # Import Loop
         with bpy.data.libraries.load(self.filepath, link=False) as (data_from, data_to):
             data_source = getattr(data_from, source)
@@ -207,12 +232,12 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                     continue
 
                 target = getattr(data_to, source)
-                LOG.info(f'Blend format : Appending {source_string} : {name}')
+                LOG.info(f"Blend format : Appending {source_string} : {name}")
                 target.append(name)
 
     def get_node_dependencies(self, data, dep=[], local_data=[]):
         for n in data.nodes:
-            node_tree = getattr(n, 'node_tree', None)
+            node_tree = getattr(n, "node_tree", None)
             if node_tree is None:
                 continue
 
@@ -228,7 +253,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
             dep.append(node_tree)
 
-            new_dep = self.get_node_dependencies(node_tree, dep=[], local_data = local_data)
+            new_dep = self.get_node_dependencies(node_tree, dep=[], local_data=local_data)
 
             for nd in new_dep:
                 if nd in dep:
@@ -247,39 +272,38 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
     def make_local(self, to_append, dependencies, data):
         local_data = []
-        if len(to_append['Object']):
+        if len(to_append["Object"]):
             override = {}
-            override["selected_objects"] = to_append['Object']
+            override["selected_objects"] = to_append["Object"]
             # TODO : need to find an alternative to bpy.context.temp_override for blender 3.1 and bellow
-            if BVERSION >=3.2:
+            if BVERSION >= 3.2:
                 with bpy.context.temp_override(**override):
-                    bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+                    bpy.ops.object.make_local(type="SELECT_OBDATA_MATERIAL")
 
                     for o in bpy.context.selected_objects:
                         if o.data is None:
                             continue
 
                         # Make Fonts Local
-                        if o.data.rna_type.name == 'Text Curve':
+                        if o.data.rna_type.name == "Text Curve":
                             if not self.get_font_dependencies(o.data):
                                 continue
 
                 with bpy.context.temp_override(**override):
-                    bpy.ops.object.make_local(type='SELECT_OBDATA_MATERIAL')
+                    bpy.ops.object.make_local(type="SELECT_OBDATA_MATERIAL")
             else:
-                bpy.ops.object.make_local(override, type='SELECT_OBDATA_MATERIAL')
+                bpy.ops.object.make_local(override, type="SELECT_OBDATA_MATERIAL")
 
                 for o in bpy.context.selected_objects:
                     if o.data is None:
                         continue
 
                     # Make Fonts Local
-                    if o.data.rna_type.name == 'Text Curve':
+                    if o.data.rna_type.name == "Text Curve":
                         if not self.get_font_dependencies(o.data):
                             continue
 
-                bpy.ops.object.make_local(override, type='SELECT_OBDATA_MATERIAL')
-
+                bpy.ops.object.make_local(override, type="SELECT_OBDATA_MATERIAL")
 
         for d in dependencies:
             if d in local_data:
@@ -296,11 +320,11 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             LOG.info(f'Blend format : Appending "{d.name}"')
 
             # Make Fonts Local
-            if d.rna_type.name == 'Text Curve':
+            if d.rna_type.name == "Text Curve":
                 if not self.get_font_dependencies(d):
                     continue
 
-            if d.id_type in ['NODETREE']:
+            if d.id_type in ["NODETREE"]:
                 dep = self.get_node_dependencies(d, dep=[], local_data=local_data)
                 while len(dep):
                     for dd in dep:
@@ -338,7 +362,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
         return need_rename
 
-    def revert_name_collision(self, source:str, duplicate_data_names:dict, import_data_names:list):
+    def revert_name_collision(self, source: str, duplicate_data_names: dict, import_data_names: list):
         data = getattr(bpy.data, source)
 
         for name in duplicate_data_names.keys():
@@ -357,7 +381,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
         data = []
         data_names = []
         name_collison_data = {}
-        source_string = source.replace('_', ' ')
+        source_string = source.replace("_", " ")
 
         self.register_local_unique_names()
 
@@ -368,7 +392,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
             data_source = getattr(data_from, source)
             for name in data_source:
                 target = getattr(data_to, source)
-                LOG.info(f'Blend format : {self.operation} {source_string} : {name}')
+                LOG.info(f"Blend format : {self.operation} {source_string} : {name}")
                 target.append(name)
 
                 if source in self.import_to_collection_source:
@@ -378,17 +402,17 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
 
         self.revert_name_collision(source, name_collison_data, imported_object_names)
 
-        to_append = {'Object':[], 'Collection':[]}
+        to_append = {"Object": [], "Collection": []}
         dependencies = []
 
         # Stop Import if no data found in Blend file
         if self.library is None:
-            message = f'No {source_string} found in {self.filename}. Skipping ...'
-            LOG.warning(f'Blend format : ' + message)
+            message = f"No {source_string} found in {self.filename}. Skipping ..."
+            LOG.warning(f"Blend format : " + message)
             LOG.store_warning(message)
             return
 
-        if source == 'objects':
+        if source == "objects":
             source_data = self.library.users_id if self.is_link else getattr(bpy.data, source)
             library_objects = [o for o in source_data if o.rna_type.name in self.import_to_collection_rnatype_name]
             # Link to Collection
@@ -396,7 +420,7 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                 if o.name not in imported_object_names:
                     continue
 
-                if o.name in self.current_collection.objects :
+                if o.name in self.current_collection.objects:
                     library_duplicate = False
 
                     for ob in self.current_collection.objects:
@@ -405,10 +429,14 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                             break
 
                     if library_duplicate:
-                        LOG.warning(f'Blend format : "{o.name}" {source_string} already in "{self.current_collection.name}" collection. Skipping ...')
+                        LOG.warning(
+                            f'Blend format : "{o.name}" {source_string} already in "{self.current_collection.name}" collection. Skipping ...'
+                        )
                         continue
 
-                LOG.info(f'Blend format : Link "{o.name}" {source_string} to "{self.current_collection.name}" collection')
+                LOG.info(
+                    f'Blend format : Link "{o.name}" {source_string} to "{self.current_collection.name}" collection'
+                )
 
                 if o.rna_type.name == "Object":
                     self.current_collection.objects.link(o)
@@ -417,24 +445,24 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                         for m in o.modifiers:
                             self.get_data_dependencies(m, to_append, dependencies, data_names)
 
-                        if o not in to_append['Object']:
-                            to_append['Object'].append(o)
+                        if o not in to_append["Object"]:
+                            to_append["Object"].append(o)
 
-                elif o.rna_type.name == 'Collection':
+                elif o.rna_type.name == "Collection":
                     self.current_collection.children.link(o)
 
                     if self.is_append:
-                        if o not in to_append['Collection']:
-                            to_append['Collection'].append(o)
+                        if o not in to_append["Collection"]:
+                            to_append["Collection"].append(o)
 
                 # append Data:
-                if 'data' in dir(o):
+                if "data" in dir(o):
                     if o.data is not None:
                         if o.data.name not in data_names:
                             data_names.append(o.data.name)
                         self.get_data_dependencies(o.data, to_append, dependencies, data_names)
 
-        elif source == 'collections':
+        elif source == "collections":
             for c in getattr(bpy.data, source):
                 if c.name not in imported_object_names and self.is_append:
                     continue
@@ -442,14 +470,14 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
                 self.current_collection.children.link(c)
 
                 if self.is_append:
-                    if c not in to_append['Collection']:
-                        to_append['Collection'].append(c)
+                    if c not in to_append["Collection"]:
+                        to_append["Collection"].append(c)
 
         # reorder data to ensure make local will work as expected
         lib = [d for d in self.library.users_id if d.name in data_names]
         for d in data_names:
             for l in lib:
-                if l.name !=d:
+                if l.name != d:
                     continue
 
                 data.append(l)
@@ -457,82 +485,82 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
         if self.is_append:
             self.make_local(to_append, dependencies, data)
 
-        if source == 'objects':
+        if source == "objects":
             self.imported_objects = [bpy.data.objects[o] for o in imported_object_names]
         self._library = None
 
     def import_data(self):
         if self.import_actions:
-            self.import_command('actions')
+            self.import_command("actions")
         if self.import_armatures:
-            self.import_command('armatures')
+            self.import_command("armatures")
         if self.import_brushes:
-            self.import_command('brushes')
+            self.import_command("brushes")
         if self.import_cameras:
-            self.import_command('cameras')
+            self.import_command("cameras")
         if self.import_cache_files:
-            self.import_command('cache_files')
+            self.import_command("cache_files")
         if self.import_curves:
-            self.import_command('curves')
+            self.import_command("curves")
         if self.import_hair_curves:
-            self.import_command('hair_curves')
+            self.import_command("hair_curves")
         if self.import_fonts:
-            self.import_command('fonts')
+            self.import_command("fonts")
         if self.import_grease_pencils:
-            self.import_command('grease_pencils')
+            self.import_command("grease_pencils")
             # self.import_command('grease_pencils_v3')
         if self.import_collections:
-            self.import_command('collections')
+            self.import_command("collections")
         if self.import_images:
-            self.import_command('images')
+            self.import_command("images")
         if self.import_lights:
-            self.import_command('lights')
+            self.import_command("lights")
         if self.import_linestyles:
-            self.import_command('linestyles')
+            self.import_command("linestyles")
         if self.import_lattices:
-            self.import_command('lattices')
+            self.import_command("lattices")
         if self.import_masks:
-            self.import_command('masks')
+            self.import_command("masks")
         if self.import_materials:
-            self.import_command('materials')
+            self.import_command("materials")
         if self.import_metaballs:
-            self.import_command('metaballs')
+            self.import_command("metaballs")
         if self.import_meshes:
-            self.import_command('meshes')
+            self.import_command("meshes")
         if self.import_movieclips:
-            self.import_command('movieclips')
+            self.import_command("movieclips")
         if self.import_node_groups:
-            self.import_command('node_groups')
+            self.import_command("node_groups")
         if self.import_objects:
-            self.import_command('objects')
+            self.import_command("objects")
         if self.import_paint_curves:
-            self.import_command('paint_curves')
+            self.import_command("paint_curves")
         if self.import_particles:
-            self.import_command('particles')
+            self.import_command("particles")
         if self.import_palettes:
-            self.import_command('palettes')
+            self.import_command("palettes")
         if self.import_pointclouds:
-            self.import_command('pointclouds')
+            self.import_command("pointclouds")
         if self.import_lightprobes:
-            self.import_command('lightprobes')
+            self.import_command("lightprobes")
         if self.import_scenes:
-            self.import_command('scenes')
+            self.import_command("scenes")
         # if self.import_shape_keys:
         #     self.import_command('shape_keys')
         if self.import_sounds:
-            self.import_command('sounds')
+            self.import_command("sounds")
         if self.import_speakers:
-            self.import_command('speakers')
+            self.import_command("speakers")
         if self.import_texts:
-            self.import_command('texts')
+            self.import_command("texts")
         if self.import_textures:
-            self.import_command('textures')
+            self.import_command("textures")
         if self.import_volumes:
-            self.import_command('volumes')
+            self.import_command("volumes")
         if self.import_worlds:
-            self.import_command('worlds')
+            self.import_command("worlds")
         if self.import_workspaces:
-            self.import_command('workspaces')
+            self.import_command("workspaces")
 
         for o in self.imported_objects:
             o.select_set(True)
@@ -540,23 +568,23 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
         self.importing = False
 
     def modal(self, context, event):
-        bpy.ops.wm.redraw_timer(type='DRAW', iterations=1)
+        bpy.ops.wm.redraw_timer(type="DRAW", iterations=1)
         if not self.import_started:
             self.import_started = True
             self.importing = True
             self.import_data()
 
         if not self.import_finished and not self.importing:
-            if self.import_module == 'APPEND' and self.library is not None:
+            if self.import_module == "APPEND" and self.library is not None:
                 bpy.ops.data.tila_remove_library(library_name=self.library.name)
 
             self.import_finished = True
 
             context.window_manager.event_timer_remove(self._timer)
 
-            return {'FINISHED'}
+            return {"FINISHED"}
 
-        return {'RUNNING_MODAL'}
+        return {"RUNNING_MODAL"}
 
     def execute(self, context):
         self.current_collection = context.collection
@@ -571,40 +599,48 @@ class IMPORT_SCENE_OT_tila_import_blend(bpy.types.Operator):
         self.imported_objects = []
 
         self.import_data()
-        if self.import_module == 'APPEND' and self.library is not None:
+        if self.import_module == "APPEND" and self.library is not None:
             bpy.ops.data.tila_remove_library(library_name=self.library.name)
 
-        return {'FINISHED'}
+        return {"FINISHED"}
 
         # wm = context.window_manager
         # self._timer = wm.event_timer_add(0.01, window=context.window)
         # wm.modal_handler_add(self)
         # return {'RUNNING_MODAL'}
 
+
 class RemoveLibrary(bpy.types.Operator):
     bl_idname = "data.tila_remove_library"
     bl_label = "Remove Library"
-    bl_options = {'REGISTER', 'INTERNAL'}
-    bl_description = 'Remove a library by name'
+    bl_options = {"REGISTER", "INTERNAL"}
+    bl_description = "Remove a library by name"
 
-    library_name : bpy.props.StringProperty(name="Library Name", default='')
+    library_name: bpy.props.StringProperty(name="Library Name", default="")
 
     def execute(self, context):
         bpy.data.libraries.remove(bpy.data.libraries[self.library_name])
-        return {'FINISHED'}
+        return {"FINISHED"}
+
 
 classes = (IMPORT_SCENE_OT_tila_import_blend, RemoveLibrary)
+
 
 def register():
 
     from bpy.utils import register_class
+
     for cls in classes:
         register_class(cls)
 
+
 def unregister():
     from bpy.utils import unregister_class
+
     for cls in reversed(classes):
         unregister_class(cls)
 
+
 if __name__ == "__main__":
     register()
+

@@ -1,10 +1,12 @@
 from . import properties
 
-modules = (properties, )
+modules = (properties,)
+
 
 def register():
     for m in modules:
         m.register()
+
 
 def unregister():
     for m in reversed(modules):

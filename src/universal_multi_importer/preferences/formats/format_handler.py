@@ -2,8 +2,13 @@ import bpy
 from ...umi_const import get_umi_settings
 from ...preferences.formats import COMPATIBLE_FORMATS
 
-class FormatHandler():
-    import_format : bpy.props.StringProperty(name='Import Format', default="", options={'HIDDEN'},)
+
+class FormatHandler:
+    import_format: bpy.props.StringProperty(
+        name="Import Format",
+        default="",
+        options={"HIDDEN"},
+    )
 
     def __init__(self, import_format, module_name, context):
         self.umi_settings = get_umi_settings()
@@ -35,8 +40,8 @@ class FormatHandler():
     @property
     def format_class(self):
         if self._format_class is None:
-            eval(f'from . import UMI_{self.format_name}_{self.module_name}_settings')
-            self._format_class = eval(f'UMI_{self.format_name}_{self.module_name}_settings')
+            eval(f"from . import UMI_{self.format_name}_{self.module_name}_settings")
+            self._format_class = eval(f"UMI_{self.format_name}_{self.module_name}_settings")
 
         return self._format_class
 
@@ -54,7 +59,10 @@ class FormatHandler():
     @property
     def format_settings(self):
         if self._format_settings is None:
-            self._format_settings = eval(f"self.umi_settings.umi_format_import_settings.{self.format_name}_{self.module_name}_import_settings", {'self':self})
+            self._format_settings = eval(
+                f"self.umi_settings.umi_format_import_settings.{self.format_name}_{self.module_name}_import_settings",
+                {"self": self},
+            )
 
         return self._format_settings
 
@@ -63,23 +71,29 @@ class FormatHandler():
         if self._format_settings_dict is None:
             d = {}
             for k in dir(self.format_settings):
-                if k.startswith('__'):
+                if k.startswith("__"):
                     continue
-                if k in ['settings_imported', 'bl_rna', 'rna_type', 'name', 'addon_name', 'supported_version', 'format_settings_dict']:
+                if k in [
+                    "settings_imported",
+                    "bl_rna",
+                    "rna_type",
+                    "name",
+                    "addon_name",
+                    "supported_version",
+                    "format_settings_dict",
+                ]:
                     continue
 
                 d[k] = getattr(self.format_settings, k)
-                if k == 'forced_properties':
+                if k == "forced_properties":
                     d[k] = eval(d[k])
                 elif isinstance(d[k], str):
                     d[k] = f'"{d[k]}"'
 
-
             self._format_settings_dict = d
-
 
         return self._format_settings_dict
 
     @property
     def import_module(self):
-        return eval(f"self.umi_settings.umi_format_import_settings.{self.format_name}_import_module", {'self':self})
+        return eval(f"self.umi_settings.umi_format_import_settings.{self.format_name}_import_module", {"self": self})

@@ -377,4 +377,3 @@ class IMPORT_SCENE_USDSettings:
             op = [[operator, "import_usd_preview"], [operator, "set_material_blend"]]
 
             draw_panel(layout, op, "USDSettings_Experimental", "Experimental", icon="ERROR")
-

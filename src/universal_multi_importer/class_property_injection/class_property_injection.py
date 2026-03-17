@@ -1,13 +1,16 @@
 import bpy
 
-class ClassPropertyInjection():
-    _property_type = {  'STRING': 'bpy.props.StringProperty',
-                        'ENUM': 'bpy.props.EnumProperty',
-                        'BOOLEAN': 'bpy.props.BoolProperty',
-                        'FLOAT': 'bpy.props.FloatProperty',
-                        'INT': 'bpy.props.IntProperty'}
 
-    def __init__(self, classes:tuple, property_list:tuple[dict]):
+class ClassPropertyInjection:
+    _property_type = {
+        "STRING": "bpy.props.StringProperty",
+        "ENUM": "bpy.props.EnumProperty",
+        "BOOLEAN": "bpy.props.BoolProperty",
+        "FLOAT": "bpy.props.FloatProperty",
+        "INT": "bpy.props.IntProperty",
+    }
+
+    def __init__(self, classes: tuple, property_list: tuple[dict]):
         self._classes = classes
         self._property_list = property_list
         self._properties = None
@@ -19,7 +22,7 @@ class ClassPropertyInjection():
             self._properties = []
 
             for d in dir(bpy.data):
-                if d.startswith('_'):
+                if d.startswith("_"):
                     continue
 
                 data_type = getattr(bpy.data, d)
@@ -40,20 +43,22 @@ class ClassPropertyInjection():
 
         return self._property_classes
 
-    def inject_property_class(self, property_class:type) -> None:
+    def inject_property_class(self, property_class: type) -> None:
         for prop in self._property_list:
-            if prop['type'] == 'ENUM':
+            if prop["type"] == "ENUM":
                 command = f'{self._property_type[prop["type"]]}(items={prop["items"]}, name="{prop["name"]}", default="{prop["default"]}", description="{prop["description"]}", set=callable_set, get=callable_get)'
             else:
                 command = f'{self._property_type[prop["type"]]}(name="{prop["name"]}", default={prop["default"]}, description="{prop["description"]}", set=callable_set, get=callable_get)'
 
-            property_class.__annotations__[f'{prop["property"]}'] = eval(command, {'callable_set':prop["set"], 'callable_get':prop["get"], 'bpy': bpy})
+            property_class.__annotations__[f"{prop['property']}"] = eval(
+                command, {"callable_set": prop["set"], "callable_get": prop["get"], "bpy": bpy}
+            )
 
         return property_class
 
     def register(self):
         for c in self.property_classes:
-            print('UMI : Inject properties in Class :', c)
+            print("UMI : Inject properties in Class :", c)
             if c is None:
                 continue
             try:

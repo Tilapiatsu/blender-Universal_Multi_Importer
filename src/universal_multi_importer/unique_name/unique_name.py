@@ -2,17 +2,19 @@ import bpy
 import re
 import uuid
 
+
 def unique_name_clean_func(name):
-    word_pattern = re.compile(r'(\.[0-9]{3})$', re.IGNORECASE)
+    word_pattern = re.compile(r"(\.[0-9]{3})$", re.IGNORECASE)
     name_iter = word_pattern.finditer(name)
     name_iter_match = [w.group(1) for w in name_iter]
 
     if len(name_iter_match) and name_iter_match[0] is not None:
-        return name.replace(name_iter_match[0], ''), True
+        return name.replace(name_iter_match[0], ""), True
     else:
         return name, False
 
-class UniqueName():
+
+class UniqueName:
     def __init__(self):
         self.element_correspondance = {}
 
@@ -26,15 +28,17 @@ class UniqueName():
         with bpy.data.libraries.load(filepath, link=False) as (data_from, _):
             for name in data_from.objects:
                 if name in local_names:
-                    name_collision[name] = f'{name}_{self.uuid}'
+                    name_collision[name] = f"{name}_{self.uuid}"
 
         return name_collision
 
-    def get_next_valid_name(self, name:str):
-        return self.unique_name(-11, name, self.element_correspondance, clean_func=unique_name_clean_func, register=False)
+    def get_next_valid_name(self, name: str):
+        return self.unique_name(
+            -11, name, self.element_correspondance, clean_func=unique_name_clean_func, register=False
+        )
 
-    def get_unique_name(self, name:str):
-        return name + '_' + self.uuid
+    def get_unique_name(self, name: str):
+        return name + "_" + self.uuid
 
     def register_element_correspondance(self, elem):
         if elem not in self.element_correspondance.keys():
@@ -98,3 +102,4 @@ class UniqueName():
                 name_dict[key] = name_new
 
         return name_new
+

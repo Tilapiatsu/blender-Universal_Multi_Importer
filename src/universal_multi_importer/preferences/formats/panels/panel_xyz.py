@@ -39,4 +39,3 @@ class IMPORT_SCENE_XYZSettings:
             set_header_boolean=True,
             header_bool=[operator, "use_frames"],
         )
-

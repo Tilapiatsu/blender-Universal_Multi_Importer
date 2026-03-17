@@ -1,6 +1,6 @@
 class ModuleName:
     def __init__(self):
-        self._module_name : str = None
+        self._module_name: str = None
 
     @property
     def module_name(self) -> str:
@@ -15,9 +15,10 @@ class ModuleName:
         from pathlib import Path
 
         for m in addon_utils.modules():
-            if m.bl_info.get("name") != 'Universal Multi Importer':
+            if m.bl_info.get("name") != "Universal Multi Importer":
                 continue
 
             module_name = Path(m.__file__).parent.stem
             name = __package__.split(module_name)[0] + module_name
             return name
+

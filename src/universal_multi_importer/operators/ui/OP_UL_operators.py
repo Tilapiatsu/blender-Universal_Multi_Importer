@@ -1,25 +1,38 @@
 import bpy
 import os
 import math
-from ...umi_const import get_umi_settings, get_batcher_list_name, get_batcher_index_name, OPERTAOR_LIST, get_operator_boolean, DATATYPE_PREFIX, DATATYPE_PROPERTIES, DATATYPE_LIST, DATATYPE_PROPERTIES_DICT
+from ...umi_const import (
+    get_umi_settings,
+    get_batcher_list_name,
+    get_batcher_index_name,
+    OPERTAOR_LIST,
+    get_operator_boolean,
+    DATATYPE_PREFIX,
+    DATATYPE_PROPERTIES,
+    DATATYPE_LIST,
+    DATATYPE_PROPERTIES_DICT,
+)
 from ...operators.ui.operators_const import COMMAND_BATCHER_PRESET_FOLDER
 from ...operators.command_batcher_const import COMMAND_BATCHER_ITEM_COUNT, COMMAND_BATCHER_VARIABLE
 from ...bversion import BVERSION
 
 
-datatype_col_count = math.ceil(len(DATATYPE_LIST)/4)
-batcher_item_col_count = math.ceil(COMMAND_BATCHER_ITEM_COUNT/7)
+datatype_col_count = math.ceil(len(DATATYPE_LIST) / 4)
+batcher_item_col_count = math.ceil(COMMAND_BATCHER_ITEM_COUNT / 7)
+
 
 def get_datatypes(self, context, edit_text):
     def get_enabled_datatypes():
         enabled = []
         for i, d in enumerate(DATATYPE_PROPERTIES):
-            if getattr(self, d['property']):
-                enabled.append(d['name'])
+            if getattr(self, d["property"]):
+                enabled.append(d["name"])
 
         return enabled
+
     enabled = get_enabled_datatypes()
     return [d for d in DATATYPE_PROPERTIES_DICT.keys() if d not in enabled]
+
 
 def update_add_datatype(self, context):
     if self.adding_datatype:
@@ -31,14 +44,16 @@ def update_add_datatype(self, context):
     self.add_datatype = ""
     self.adding_datatype = False
 
+
 def operators(self, context, edit_text):
     return OPERTAOR_LIST
+
 
 def draw_applies_to(self, layout):
     def get_enabled_datatypes_count():
         count = 0
         for i, d in enumerate(DATATYPE_PROPERTIES):
-            if getattr(self, d['property']):
+            if getattr(self, d["property"]):
                 count += 1
         return count
 
@@ -46,24 +61,24 @@ def draw_applies_to(self, layout):
     layout.use_property_decorate = False
 
     if BVERSION >= 4.2:
-        header, panel = layout.panel(idname='COMAND_AppliesTo')
-        header.label(text='Applies to :', icon='OPTIONS')
+        header, panel = layout.panel(idname="COMAND_AppliesTo")
+        header.label(text="Applies to :", icon="OPTIONS")
     else:
         panel = layout.box()
         header = panel.row(align=True)
-        header.label(text='Applies to :', icon='OPTIONS')
+        header.label(text="Applies to :", icon="OPTIONS")
 
     if panel:
         # row = panel.row()
         # row.prop(self, 'add_datatype')
         row = panel.split(factor=0, align=True)
-        row.alignment = 'EXPAND'
+        row.alignment = "EXPAND"
         col = row.column(align=True)
-        col.alignment = 'LEFT'
+        col.alignment = "LEFT"
         for i, d in enumerate(DATATYPE_PROPERTIES):
             if i % datatype_col_count == 0:
                 col = row.column(align=True)
-                col.alignment = 'LEFT'
+                col.alignment = "LEFT"
 
             # if not getattr(self, d['property']):
             #     continue
@@ -71,84 +86,99 @@ def draw_applies_to(self, layout):
             # if d['property'] == "modifier_types" and not getattr(self, 'applies_to_modifiers') :
             #     continue
 
-            if d['property'] == "applies_to_modifiers" and getattr(self, 'applies_to_modifiers') :
+            if d["property"] == "applies_to_modifiers" and getattr(self, "applies_to_modifiers"):
                 row1 = col.row(align=True)
-                row1.alignment = 'RIGHT'
-                row1.label(text=d['name'])
-                row1.label(text='', icon=d['icon'])
-                row1.prop(self, f'{d["property"]}', text='')
+                row1.alignment = "RIGHT"
+                row1.label(text=d["name"])
+                row1.label(text="", icon=d["icon"])
+                row1.prop(self, f"{d['property']}", text="")
                 continue
 
-            if d['property'] == "modifier_type" and not getattr(self, 'applies_to_modifiers') :
+            if d["property"] == "modifier_type" and not getattr(self, "applies_to_modifiers"):
                 continue
 
-            elif d['property'] == "modifier_type":
+            elif d["property"] == "modifier_type":
                 row1 = col.row(align=True)
-                row1.alignment = 'RIGHT'
-                row1.label(text=d['name']+ ' :')
+                row1.alignment = "RIGHT"
+                row1.label(text=d["name"] + " :")
                 row1 = col.row(align=True)
-                row1.alignment = 'RIGHT'
-                row1.prop(self, f'{d["property"]}', text='')
+                row1.alignment = "RIGHT"
+                row1.prop(self, f"{d['property']}", text="")
                 continue
 
             row1 = col.row(align=True)
-            row1.alignment = 'RIGHT'
-            row1.label(text=d['name'])
-            row1.label(text='', icon=d['icon'])
-            row1.prop(self, f'{d["property"]}', text='')
+            row1.alignment = "RIGHT"
+            row1.label(text=d["name"])
+            row1.label(text="", icon=d["icon"])
+            row1.prop(self, f"{d['property']}", text="")
 
         col3 = row.column(align=True)
-        col3.alignment = 'RIGHT'
-        col3.label(text='')
+        col3.alignment = "RIGHT"
+        col3.label(text="")
+
 
 def read_applies_to(self, current_operator):
     for d in DATATYPE_PROPERTIES:
-        exec(f'self.{d["property"]} = current_operator.{d["property"]}', {'self': self, 'current_operator': current_operator})
+        exec(
+            f"self.{d['property']} = current_operator.{d['property']}",
+            {"self": self, "current_operator": current_operator},
+        )
+
 
 def set_applies_to(self, current_operator):
     for d in DATATYPE_PROPERTIES:
-        exec(f'current_operator.{d["property"]} = self.{d["property"]}', {'self': self, 'current_operator': current_operator})
+        exec(
+            f"current_operator.{d['property']} = self.{d['property']}",
+            {"self": self, "current_operator": current_operator},
+        )
+
 
 def set_applies_to_from_duplicate(self, current_operator, reference_operator):
     for d in DATATYPE_PROPERTIES:
-        exec(f'current_operator.{d["property"]} = reference_operator.{d["property"]}', {'self': self, 'current_operator': current_operator, 'reference_operator' : reference_operator})
+        exec(
+            f"current_operator.{d['property']} = reference_operator.{d['property']}",
+            {"self": self, "current_operator": current_operator, "reference_operator": reference_operator},
+        )
+
 
 def draw_add_edit_operator(self, layout):
     col = layout.column()
-    col.label(text='Command:')
-    col.prop(self, 'operator', text='')
+    col.label(text="Command:")
+    col.prop(self, "operator", text="")
     col.separator()
 
     col.use_property_split = True
     col.use_property_decorate = False
 
     if BVERSION >= 4.2:
-        header, panel = col.panel(idname='COMMAND_InjectVariable')
-        header.label(text='Inject Variable :', icon='SORTALPHA')
+        header, panel = col.panel(idname="COMMAND_InjectVariable")
+        header.label(text="Inject Variable :", icon="SORTALPHA")
     else:
         panel = col.box()
         header = panel.row(align=True)
-        header.label(text='Inject Variable :', icon='SORTALPHA')
+        header.label(text="Inject Variable :", icon="SORTALPHA")
 
     if panel:
         row = panel.row()
-        row.alignment = 'EXPAND'
+        row.alignment = "EXPAND"
         for i, c in enumerate(COMMAND_BATCHER_VARIABLE.values()):
             if i % batcher_item_col_count == 0:
                 sub_col = row.column(align=True)
 
-            sub_col.prop(self, f'{c["property"]}', text='')
+            sub_col.prop(self, f"{c['property']}", text="")
 
     draw_applies_to(self, col)
 
+
 if not os.path.exists(COMMAND_BATCHER_PRESET_FOLDER):
-    print(f'UMI : Creating Preset Folder : {COMMAND_BATCHER_PRESET_FOLDER}')
+    print(f"UMI : Creating Preset Folder : {COMMAND_BATCHER_PRESET_FOLDER}")
     os.makedirs(COMMAND_BATCHER_PRESET_FOLDER, exist_ok=True)
+
 
 def get_operator(target_name, target_id_name):
     umi_settings = get_umi_settings()
-    target = eval(f'umi_settings.{target_name}')
-    idx = eval(f'umi_settings.{target_id_name}')
+    target = eval(f"umi_settings.{target_name}")
+    idx = eval(f"umi_settings.{target_id_name}")
     operators = target
 
     active = operators[idx] if len(operators) else None
@@ -159,7 +189,7 @@ def get_operator(target_name, target_id_name):
 class UI_UMIMoveOperator(bpy.types.Operator):
     bl_idname = "scene.umi_move_operator"
     bl_label = "Move Operator"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
     bl_description = "Move Operator up or down.\nThis controls the position in the Menu."
 
     direction: bpy.props.EnumProperty(items=[("UP", "Up", ""), ("DOWN", "Down", "")])
@@ -167,7 +197,7 @@ class UI_UMIMoveOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f'umi_settings.{get_batcher_list_name()}')
+        return eval(f"umi_settings.{get_batcher_list_name()}")
 
     def execute(self, context):
         umi_settings = get_umi_settings()
@@ -184,20 +214,19 @@ class UI_UMIMoveOperator(bpy.types.Operator):
         operator.move(idx, nextidx)
         exec(f"umi_settings.{get_batcher_index_name()} = nextidx")
 
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 class UI_UMIClearOperators(bpy.types.Operator):
     bl_idname = "scene.umi_clear_operators"
     bl_label = "Clear All Operators"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
     bl_description = "Clear All Operators."
-
 
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f'umi_settings.{get_batcher_list_name()}')
+        return eval(f"umi_settings.{get_batcher_list_name()}")
 
     def invoke(self, context, event):
         wm = context.window_manager
@@ -205,24 +234,24 @@ class UI_UMIClearOperators(bpy.types.Operator):
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f'self.umi_settings.{get_batcher_list_name()}')
+        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
         target.clear()
 
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 class UI_UMIRemoveOperator(bpy.types.Operator):
     bl_idname = "scene.umi_remove_operator"
     bl_label = "Remove Selected Operator"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
     bl_description = "Remove selected Operator."
 
-    id : bpy.props.IntProperty(name="Operator ID", default=0)
+    id: bpy.props.IntProperty(name="Operator ID", default=0)
 
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f'umi_settings.{get_batcher_list_name()}')
+        return eval(f"umi_settings.{get_batcher_list_name()}")
 
     def invoke(self, context, event):
         wm = context.window_manager
@@ -232,48 +261,48 @@ class UI_UMIRemoveOperator(bpy.types.Operator):
         umi_settings = get_umi_settings()
 
         self.umi_settings = get_umi_settings()
-        target = eval(f'self.umi_settings.{get_batcher_list_name()}')
+        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
 
         target.remove(self.id)
 
         umi_settings.umi_operator_idx = min(self.id, len(target) - 1)
 
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 class UI_UMIDuplicateOperator(bpy.types.Operator):
     bl_idname = "scene.umi_duplicate_operator"
     bl_label = "Duplicate Selected Operator"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
     bl_description = "Duplicate selected Operator."
 
-    id : bpy.props.IntProperty(name="Operator ID", default=0)
+    id: bpy.props.IntProperty(name="Operator ID", default=0)
 
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f'umi_settings.{get_batcher_list_name()}')
+        return eval(f"umi_settings.{get_batcher_list_name()}")
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f'self.umi_settings.{get_batcher_list_name()}')
+        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
         o = target.add()
         o.enabled = target[self.id].enabled
         o.operator = target[self.id].operator
         set_applies_to_from_duplicate(self, o, target[self.id])
         target.move(len(target) - 1, self.id + 1)
 
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 class UI_UMIEditOperator(bpy.types.Operator):
     bl_idname = "scene.umi_edit_operator"
     bl_label = "Edit Operator"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
     bl_description = "Edit current operator"
 
-    id :                            bpy.props.IntProperty(name="Operator ID", default=0)
-    operator :                      bpy.props.StringProperty(name="Operator Command", default="", search=operators )
+    id: bpy.props.IntProperty(name="Operator ID", default=0)
+    operator: bpy.props.StringProperty(name="Operator Command", default="", search=operators)
 
     def draw(self, context):
         draw_add_edit_operator(self, self.layout)
@@ -281,7 +310,7 @@ class UI_UMIEditOperator(bpy.types.Operator):
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
 
-        target = eval(f'self.umi_settings.{get_batcher_list_name()}')
+        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
 
         current_operator = target[self.id]
 
@@ -294,21 +323,21 @@ class UI_UMIEditOperator(bpy.types.Operator):
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f'self.umi_settings.{get_batcher_list_name()}')
+        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
         o = target[self.id]
         o.operator = self.operator
         o.modifier_type = self.modifier_type
         set_applies_to(self, o)
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 class UI_UMIAddOperator(bpy.types.Operator):
     bl_idname = "scene.umi_add_operator"
     bl_label = "Add Operator"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
     bl_description = "Add a new operator"
 
-    operator : bpy.props.StringProperty(name="Operator Command", default="", search=operators )
+    operator: bpy.props.StringProperty(name="Operator Command", default="", search=operators)
 
     def draw(self, context):
         draw_add_edit_operator(self, self.layout)
@@ -316,47 +345,60 @@ class UI_UMIAddOperator(bpy.types.Operator):
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
         wm = context.window_manager
-        return wm.invoke_props_dialog(self, width=int(self.umi_settings.umi_window_width*0.8))
+        return wm.invoke_props_dialog(self, width=int(self.umi_settings.umi_window_width * 0.8))
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f'self.umi_settings.{get_batcher_list_name()}')
+        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
         o = target.add()
         o.operator = self.operator
         o.modifier_type = self.modifier_type
         set_applies_to(self, o)
-        return {'FINISHED'}
+        return {"FINISHED"}
 
-classes = ( UI_UMIMoveOperator,
-            UI_UMIClearOperators,
-            UI_UMIRemoveOperator,
-            UI_UMIDuplicateOperator,
-            )
 
-datatype_classes = (UI_UMIEditOperator,
-                    UI_UMIAddOperator,
-                    )
+classes = (
+    UI_UMIMoveOperator,
+    UI_UMIClearOperators,
+    UI_UMIRemoveOperator,
+    UI_UMIDuplicateOperator,
+)
+
+datatype_classes = (
+    UI_UMIEditOperator,
+    UI_UMIAddOperator,
+)
+
 
 def register():
     from bpy.utils import register_class
+
     for cls in classes:
         register_class(cls)
     for cls in datatype_classes:
-        cls.__annotations__['add_datatype'] = bpy.props.StringProperty(name='Add Datatype', search=get_datatypes, update=update_add_datatype)
-        cls.__annotations__['adding_datatype'] = bpy.props.BoolProperty(name='Adding Datatype', default=False)
+        cls.__annotations__["add_datatype"] = bpy.props.StringProperty(
+            name="Add Datatype", search=get_datatypes, update=update_add_datatype
+        )
+        cls.__annotations__["adding_datatype"] = bpy.props.BoolProperty(name="Adding Datatype", default=False)
 
     from ... import class_property_injection
+
     class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values()))
 
 
 def unregister():
     from ... import class_property_injection
-    class_property_injection.unregister(datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values()))
+
+    class_property_injection.unregister(
+        datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values())
+    )
 
     from bpy.utils import unregister_class
 
     for cls in reversed(classes):
         unregister_class(cls)
 
+
 if __name__ == "__main__":
     register()
+

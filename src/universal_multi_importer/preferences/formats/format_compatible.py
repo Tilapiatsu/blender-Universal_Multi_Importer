@@ -11,12 +11,12 @@ from ...preferences.formats.panels.presets import format_preset
 from ...bversion import AddonVersion
 from ...bversion.version.version import Version
 
-class CompatibleFormats(object):
 
+class CompatibleFormats(object):
     def __init__(self):
         self._all_formats = {}
         for f in FORMATS:
-            exec(f'self._all_formats["{f}"] = Format', {'self': self, 'Format': getattr(FormatDefinition, f)})
+            exec(f'self._all_formats["{f}"] = Format', {"self": self, "Format": getattr(FormatDefinition, f)})
         self._extensions = None
         self._extensions_string = None
         self._operators = None
@@ -26,22 +26,18 @@ class CompatibleFormats(object):
         self._filter_glob = None
         # automatically gather format
         self.formats = self.get_formats()
-        self.formats_dict: dict[str: Format]= {f.name:f for f in self.formats}
-
+        self.formats_dict: dict[str:Format] = {f.name: f for f in self.formats}
 
     def is_format_installed(self, addon_name):
         return addon_name in self.installed_addons
 
-
     def is_format_enabled(self, addon_name):
         return addon_name in self.enabled_addons
-
 
     def is_format_extension(self, format_name, module):
         if format_name not in self.all_formats:
             return False
         return self.all_formats[format_name].operators.operators[module].pkg_id is not None
-
 
     def get_format_extension_url(self, format_name, module):
         if self.is_format_extension(format_name, module):
@@ -49,13 +45,11 @@ class CompatibleFormats(object):
         else:
             return None
 
-
     def get_format_supported_version(self, format_name, module) -> Version:
         if self.is_format_extension(format_name, module):
             return Version(self.all_formats[format_name].operators.operators[module].supported_version)
         else:
             return Version((0, 0, 0))
-
 
     def get_format_from_addon_name(self, addon_name):
         result_format = None
@@ -64,7 +58,6 @@ class CompatibleFormats(object):
                 if m.addon_name == addon_name:
                     return m
         return result_format
-
 
     @property
     def all_valid_addons(self):
@@ -75,22 +68,18 @@ class CompatibleFormats(object):
 
         return all_valid_addons
 
-
     @property
     def valid_installed_addons(self):
         return [a for a in self.installed_addons if a in self.all_valid_addons]
-
 
     @property
     def installed_addons(self):
         # return [addon.module for addon in bpy.context.preferences.addons]
         return [a.__name__ for a in addon_utils.modules()]
 
-
     @property
     def enabled_addons(self):
         return list(bpy.context.preferences.addons.keys())
-
 
     @property
     def is_all_formats_installed(self):
@@ -114,7 +103,6 @@ class CompatibleFormats(object):
 
         return valid
 
-
     @property
     def is_all_formats_enabled(self):
         valid = True
@@ -125,21 +113,20 @@ class CompatibleFormats(object):
 
             if a not in enabled_addons:
                 valid = False
-                LOG.debug(f'{a} is not enabled')
+                LOG.debug(f"{a} is not enabled")
                 break
 
         return valid
 
-
     @property
     def need_reboot(self):
         from . import modules
+
         for f in self.all_formats.values():
             for name in f.operators.operators.keys():
-                if f'{f.name}_{name}_settings' not in modules.keys():
+                if f"{f.name}_{name}_settings" not in modules.keys():
                     return True
         return False
-
 
     @property
     def extensions(self):
@@ -150,13 +137,11 @@ class CompatibleFormats(object):
             self._extensions = extensions
         return self._extensions
 
-
     @property
     def extensions_string(self):
         if self._extensions_string is None:
-            self._extensions_string = ';'.join(self.extensions)
+            self._extensions_string = ";".join(self.extensions)
         return self._extensions_string
-
 
     @property
     def operators(self):
@@ -166,7 +151,6 @@ class CompatibleFormats(object):
                 operators.append(f.operators.operators)
             self._operators = operators
         return self._operators
-
 
     @property
     def module(self):
@@ -180,14 +164,12 @@ class CompatibleFormats(object):
             self._module = module
         return self._module
 
-
     @property
     def filename_ext(self):
         if self._filename_ext is None:
             self._filename_ext = {e for e in self.extensions}
 
         return self._filename_ext
-
 
     @property
     def filter_glob_extensions(self):
@@ -203,29 +185,27 @@ class CompatibleFormats(object):
             self._filter_glob_extensions = filter_glob_extensions
         return self._filter_glob_extensions
 
-
     @property
     def filter_glob(self):
         if self._filter_glob is None:
-            extensions = ['*' + e for e in self.filter_glob_extensions]
-            self._filter_glob = ';'.join(extensions)
+            extensions = ["*" + e for e in self.filter_glob_extensions]
+            self._filter_glob = ";".join(extensions)
 
         return self._filter_glob
 
-
     @property
-    def all_formats(self) -> dict[str: Format]:
+    def all_formats(self) -> dict[str:Format]:
         return self._all_formats
 
-
     @property
-    def all_registered_formats(self) -> dict[str: Format]:
-        attributes = inspect.getmembers(CompatibleFormats, lambda a:not(inspect.isroutine(a)))
-        formats = [a for a in attributes if (not(a[0].startswith('__') and a[0].endswith('__')) and isinstance(a[1], Format))]
+    def all_registered_formats(self) -> dict[str:Format]:
+        attributes = inspect.getmembers(CompatibleFormats, lambda a: not (inspect.isroutine(a)))
+        formats = [
+            a for a in attributes if (not (a[0].startswith("__") and a[0].endswith("__")) and isinstance(a[1], Format))
+        ]
 
-        all_formats = {a[0]:a[1] for a in formats}
+        all_formats = {a[0]: a[1] for a in formats}
         return all_formats
-
 
     def get_formats(self) -> list[Format]:
         valid_formats = []
@@ -233,14 +213,14 @@ class CompatibleFormats(object):
             op = {}
             new_f = f
             assigned = []
-            for n,o in f.operators.operators.items():
+            for n, o in f.operators.operators.items():
                 if o.module is None:
                     # Check Command
                     try:
                         eval(o.command).__repr__()
                     except:
                         assigned.append(False)
-                        print(o.command, 'not found')
+                        print(o.command, "not found")
                         continue
 
                     op[n] = f.operators.operators[n]
@@ -248,7 +228,7 @@ class CompatibleFormats(object):
                     # Check Module
                     if o.module not in dir(bpy.types):
                         assigned.append(False)
-                        print(o.module, 'not in bpy.types')
+                        print(o.module, "not in bpy.types")
                         continue
 
                     op[n] = f.operators.operators[n]
@@ -260,8 +240,7 @@ class CompatibleFormats(object):
 
         return valid_formats
 
-
-    def is_import_objects(self, format_name: str, module_name: str ) -> bool:
+    def is_import_objects(self, format_name: str, module_name: str) -> bool:
         if format_name not in self.all_formats:
             return False
         else:
@@ -269,8 +248,7 @@ class CompatibleFormats(object):
                 return False
         return self.all_formats[format_name].operators.operators[module_name].import_objects
 
-
-    def is_import_data(self, format_name: str, module_name: str ) -> bool:
+    def is_import_data(self, format_name: str, module_name: str) -> bool:
         if format_name not in self.all_formats:
             return False
         else:
@@ -278,13 +256,11 @@ class CompatibleFormats(object):
                 return False
         return self.all_formats[format_name].operators.operators[module_name].import_data
 
-
     def get_format_from_name(self, name: str) -> Format:
         if name not in self.all_formats.keys():
             return None
         else:
             return self.all_formats[name]
-
 
     def get_format_from_extension(self, ext):
         if ext.lower() not in self.extensions:
@@ -294,20 +270,18 @@ class CompatibleFormats(object):
             return None
         else:
             for f in self.formats:
-                if  ext.lower() in f.ext:
+                if ext.lower() in f.ext:
                     return f
-
 
     def get_operator_name_from_extension(self, ext):
         format = self.get_format_from_extension(ext)
         if format is None:
             return None
         formats = {}
-        for k,v in format.operators.operators.items():
+        for k, v in format.operators.operators.items():
             formats[k] = v
 
         return formats
-
 
     def get_default_values(self, format_name: str, module_name: str) -> dict:
         if format_name not in self.all_formats:
@@ -316,7 +290,6 @@ class CompatibleFormats(object):
             if module_name not in self.all_formats[format_name].operators.operators:
                 return {}
         return self.all_formats[format_name].operators.operators[module_name].default_values
-
 
     def is_format_valid(self, format):
         if format not in self.formats_dict.keys():
@@ -333,7 +306,6 @@ class CompatibleFormats(object):
 
         return False
 
-
     def draw_format_settings(self, context, format_name, operator, module_name, layout):
         module = get_panels(format_name)
         self.layout = layout
@@ -344,3 +316,4 @@ class CompatibleFormats(object):
         layout.separator()
 
         module.draw(self, operator, module_name, layout)
+

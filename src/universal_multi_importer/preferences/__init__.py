@@ -5,10 +5,13 @@ from . import operators
 
 modules = (formats, colors, preferences, operators)
 
+
 def register():
     for m in modules:
         m.register()
 
+
 def unregister():
     for m in reversed(modules):
         m.unregister()
+

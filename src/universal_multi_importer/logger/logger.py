@@ -94,4 +94,3 @@ class LoggerProgress(Logger):
             self.warning(f"{f}")
         for f in self.failures:
             self.error(f"{f}")
-
