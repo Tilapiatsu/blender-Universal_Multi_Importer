@@ -871,6 +871,7 @@ class UMI(bpy.types.Operator, ImportHelper):
         self.first_setting_to_import = False
 
     def select_files(self):
+        LOG.debug("File Selection Started")
         for f in self.filepaths:
             filepath = self.umi_settings.umi_file_selection.add()
             filepath.name = f
@@ -878,6 +879,7 @@ class UMI(bpy.types.Operator, ImportHelper):
             filepath.path = f
             filesize = self.get_filesize(f)
             filepath.size = filesize
+            LOG.debug(f"selecting file = {f}")
 
         update_file_extension_selection(self, bpy.context)
         bpy.ops.import_scene.tila_universal_multi_importer_file_selection("INVOKE_DEFAULT")
@@ -952,6 +954,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
         if event.type == "TIMER":
             if self.umi_settings.umi_skip_settings:
+                LOG.debug("Skipping settings")
                 self.umi_settings.umi_skip_settings = False
                 self.umi_settings.umi_file_selection_done = True
                 self.umi_settings.umi_file_selection_started = False
@@ -965,6 +968,7 @@ class UMI(bpy.types.Operator, ImportHelper):
                 if not self.umi_settings.umi_file_selection_started:
                     self.select_files()
                 if self.umi_settings.umi_current_format_setting_cancelled:
+                    LOG.debug("File Selection cancelled")
                     return self.cancel_finish(context)
                 return {"PASS_THROUGH"}
 
@@ -1053,6 +1057,7 @@ class UMI(bpy.types.Operator, ImportHelper):
                     # All Batches are imported and processed : init ending
                     else:
                         if self.umi_settings.umi_global_import_settings.save_file_after_import:
+                            LOG.info(f"Save Main file {self.current_blend_file}")
                             bpy.ops.wm.save_as_mainfile(filepath=self.current_blend_file, check_existing=False)
 
                         LOG.complete_progress_importer(
@@ -1444,9 +1449,11 @@ class UMI(bpy.types.Operator, ImportHelper):
         return compatible_files
 
     def store_formats_to_import(self):
+        LOG.debug("Soring Fotmats to Import")
         for f in self.filepaths:
             format = COMPATIBLE_FORMATS.get_format_from_extension(path.splitext(f)[1])
             if format not in self.formats_to_import:
+                LOG.debug(f"Soring {format}")
                 self.formats_to_import.append(format)
 
     def revert_parameters(self, context):
@@ -1602,8 +1609,10 @@ class UMI(bpy.types.Operator, ImportHelper):
                 if initial_size + current_size > max_size:
                     if len(selected_files):
                         continue
+                LOG.debug(f"Selecting {f}")
                 return f
             else:
+                LOG.debug(f"Selecting {f}")
                 return f
 
         return None
@@ -1613,6 +1622,7 @@ class UMI(bpy.types.Operator, ImportHelper):
         LOG.info(f"Batch size : {round(self.current_batch_size, 2)}MB")
 
     def next_batch(self):
+        LOG.debug("Registering next batch")
         self.current_files_to_import = []
         self.current_filenames = []
         self.current_batch_size = 0
