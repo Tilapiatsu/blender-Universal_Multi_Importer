@@ -48,7 +48,7 @@ This addon is adding batch import features to existing importers for blender. Th
 | xyz[:link:](https://projects.blender.org/extensions/io_mesh_atomic) ||||  hus         |              |              |
 | dxf[:link:](https://projects.blender.org/extensions/io_import_dxf) ||||  inb          |              |              |
 | 3ds[:link:](https://projects.blender.org/extensions/io_scene_3ds)  ||||  new          |              |              |
-|              |               |               |                   |  pcd               |              |              |
+| skp[:link:](https://github.com/RedHaloStudio/Sketchup_Importer)             |               |               |                   |  pcd               |              |              |
 |              |               |               |                   |  pcm               |              |              |
 |              |               |               |                   |  pcq               |              |              |
 |              |               |               |                   |  pcs               |              |              |
@@ -152,7 +152,9 @@ You can choose if the command has to be executed for a specific datatype or many
 
 # Changelog
 
-### v2.3.6 Fix bug when recreating folder hierarchy in import folder mode
+### v2.4.0 : support for Sketchup file
+
+### v2.3.6 : Fix bug when recreating folder hierarchy in import folder mode
 
 ### v2.3.5 : Support for tga images
 

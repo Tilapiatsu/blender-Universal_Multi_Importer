@@ -651,7 +651,6 @@ def vdb_operators() -> FormatOperators:
     op = FormatOperator("default", "bpy.ops.object.volume_import", "0.0.0", description=DEFAULT_DESCRIPTION)
 
     operators = FormatOperators(op)
-    operators.add_operator(op)
 
     gn = FormatOperator(
         "geometry_node",
@@ -663,6 +662,22 @@ def vdb_operators() -> FormatOperators:
 
     if BVERSION >= 4.5:
         operators.add_operator(gn)
+
+    return operators
+
+
+def skp_operators() -> FormatOperators:
+    f = FormatOperator(
+        "default",
+        "bpy.ops.import_scene.skp",
+        "0.27.0",
+        addon_name="SketchUp Importer",
+        # pkg_id="sketchup_importer",
+        # pkg_url="https://github.com/RedHaloStudio/Sketchup_Importer",
+        description=EXTENSION_DESCRIPTION,
+    )
+
+    operators = FormatOperators(f)
 
     return operators
 
@@ -795,3 +810,5 @@ class FormatDefinition:
             pes_operators(),
             generate_filter_glob=True,
         )
+
+        skp = Format("skp", [".skp"], skp_operators(), generate_filter_glob=True)

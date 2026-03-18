@@ -9,7 +9,7 @@ class IMPORT_SCENE_ABCSettings:
 
         op = [[operator, "scale"]]
 
-        draw_panel(layout, [[operator, "scale"]], "ABCSettings_transform", "Manual Transform", icon="OBJECT_DATA")
+        draw_panel(layout, op, "ABCSettings_transform", "Manual Transform", icon="OBJECT_DATA")
 
         op = [
             [operator, "relative_path"],
