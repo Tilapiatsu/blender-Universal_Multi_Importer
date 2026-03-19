@@ -85,6 +85,7 @@ class PG_AddonDependency(bpy.types.PropertyGroup):
     addon_name: bpy.props.StringProperty(name="Addon Name", default="")
     pkg_id: bpy.props.StringProperty(name="Package Index", default="")
     pkg_url: bpy.props.StringProperty(name="Package URL", default="")
+    external_addon: bpy.props.BoolProperty(name="External Addon", default=False)
     local_version: bpy.props.StringProperty(name="Local Version", default="")
     remote_version: bpy.props.StringProperty(name="Remote Version", default="")
     supported_version: bpy.props.StringProperty(name="Supported Version", default="")

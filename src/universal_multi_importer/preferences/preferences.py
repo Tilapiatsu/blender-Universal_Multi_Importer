@@ -102,7 +102,10 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
         need_update = ad.is_outdated and local_version < supported_version
 
         if not ad.is_installed and len(ad.addon_name) > 0:
-            version = f"{ad.remote_version} available"
+            if ad.external_addon:
+                version = "-----"
+            else:
+                version = f"{ad.remote_version} available"
         elif need_update:
             version = f"{ad.local_version} (outdated {ad.remote_version})"
         else:
@@ -144,7 +147,7 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
                 grid_layout(row, alignment="CENTER", size=4).label(text="", icon="X")
                 continue
 
-            if not context.preferences.system.use_online_access:
+            if not context.preferences.system.use_online_access and not ad.external_addon:
                 grid_layout(row, alignment="CENTER", size=4).operator(
                     "extensions.userpref_allow_online", text="Allow Online Access"
                 )
@@ -155,6 +158,12 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
                 )
                 op.pkg_id = ad.pkg_id
                 op.repo_index = 0
+
+            elif ad.external_addon:
+                op = grid_layout(row, alignment="CENTER", size=4).operator("wm.url_open", text="Download Manually")
+                op.url = ad.pkg_url
+                grid_layout(row, alignment="CENTER", size=4).label(text="", icon="X")
+                continue
 
             grid_layout(row, alignment="CENTER", size=4).label(text="", icon="X")
 

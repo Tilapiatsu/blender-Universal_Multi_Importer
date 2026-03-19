@@ -8,9 +8,10 @@ class AddonVersion:
     This class helps to handle Addon versions, check if it needs update
     """
 
-    def __init__(self, addon_name, repo_id=0):
+    def __init__(self, addon_name, repo_id=0, is_addon_external: bool = False):
         self.addon_name = addon_name
         self.repo_if = repo_id
+        self.is_addon_external = is_addon_external
 
         if BVERSION >= 4.2:
             self.local_pkg, self.remote_pkg = self.get_packages(repo_id)
@@ -56,9 +57,6 @@ class AddonVersion:
 
     @property
     def version(self) -> Version:
-        if self.module is None:
-            return Version((0, 0, 0))
-
         if self.module is None or "version" not in self.module.bl_info.keys():
             return Version((0, 0, 0))
 

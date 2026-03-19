@@ -26,11 +26,12 @@ class UI_UMICheckAddonDependencies(bpy.types.Operator):
                 addon_name = module.addon_name if module.addon_name is not None else ""
                 ad.addon_name = addon_name
 
-                av = AddonVersion(addon_name)
+                av = AddonVersion(addon_name, is_addon_external=COMPATIBLE_FORMATS.is_addon_external(addon_name))
                 ad.local_version = str(av.local_version)
                 ad.remote_version = str(av.remote_version)
                 ad.supported_version = module.supported_version
                 ad.is_outdated = av.is_outdated
+                ad.external_addon = COMPATIBLE_FORMATS.is_addon_external(addon_name)
 
                 pkg_id = module.pkg_id if module.pkg_id is not None else ""
                 ad.pkg_id = pkg_id
@@ -129,4 +130,3 @@ def unregister():
 
     for cls in reversed(classes):
         unregister_class(cls)
-

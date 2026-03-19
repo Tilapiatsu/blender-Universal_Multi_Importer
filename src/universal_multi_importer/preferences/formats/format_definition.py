@@ -671,9 +671,10 @@ def skp_operators() -> FormatOperators:
         "default",
         "bpy.ops.import_scene.skp",
         "0.27.0",
-        addon_name="SketchUp Importer",
+        addon_name="sketchup_importer",
         # pkg_id="sketchup_importer",
-        # pkg_url="https://github.com/RedHaloStudio/Sketchup_Importer",
+        pkg_url="https://github.com/RedHaloStudio/Sketchup_Importer/releases",
+        external_addon=True,
         description=EXTENSION_DESCRIPTION,
     )
 

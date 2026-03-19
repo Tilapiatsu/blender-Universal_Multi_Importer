@@ -39,6 +39,13 @@ class CompatibleFormats(object):
             return False
         return self.all_formats[format_name].operators.operators[module].pkg_id is not None
 
+    def is_addon_external(self, addon_name) -> bool:
+        format = self.get_format_from_addon_name(addon_name)
+        if format is None:
+            return False
+
+        return format.external_addon
+
     def get_format_extension_url(self, format_name, module):
         if self.is_format_extension(format_name, module):
             return self.all_formats[format_name].operators.operators[module].pkg_url
@@ -316,4 +323,3 @@ class CompatibleFormats(object):
         layout.separator()
 
         module.draw(self, operator, module_name, layout)
-

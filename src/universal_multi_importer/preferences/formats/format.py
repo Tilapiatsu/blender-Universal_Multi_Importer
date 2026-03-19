@@ -156,6 +156,7 @@ class FormatOperator:
         addon_name: Optional[str] = None,
         pkg_id: Optional[str] = None,
         pkg_url: Optional[str] = None,
+        external_addon: bool = False,
         default_values: dict = {},
         forced_properties: list = [],
         import_objects: Optional[bool] = True,
@@ -171,6 +172,7 @@ class FormatOperator:
         self.addon_name = addon_name
         self.pkg_id = pkg_id
         self.pkg_url = pkg_url
+        self.external_addon = external_addon
         self.import_objects = import_objects
         self.import_data = import_data
         self.import_settings = import_settings
@@ -190,6 +192,7 @@ class FormatOperator:
                 "module": self.module,
                 "pkg_id": self.pkg_id,
                 "pkg_url": self.pkg_url,
+                "external_addon": self.external_addon,
                 "import_objects": self.import_objects,
                 "import_data": self.import_data,
                 "import_settings": self.import_settings.as_dict()
@@ -217,6 +220,7 @@ class FormatOperators:
                     addon_name=operator[1]["addon_name"],
                     pkg_id=operator[1]["pkg_id"],
                     pkg_url=operator[1]["url"],
+                    external_addon=operator[1]["external_addon"],
                     default_values=operator[1]["default_values"],
                     forced_properties=operator[1]["forced_properties"],
                     import_objects=True
@@ -248,6 +252,7 @@ class FormatOperators:
                 addon_name=operator[1]["addon_name"],
                 pkg_id=operator[1]["pkg_id"],
                 pkg_url=operator[1]["url"],
+                external_addon=operator[1]["external_addon"],
                 default_values=operator[1]["default_values"],
                 forced_properties=operator[1]["forced_properties"],
                 import_objects=True if "import_objects" not in operator[1].keys() else operator[1]["import_objects"],
