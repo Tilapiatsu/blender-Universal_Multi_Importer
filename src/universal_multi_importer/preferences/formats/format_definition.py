@@ -1,3 +1,4 @@
+import platform
 from ...bversion import BVERSION
 from ...preferences.formats.format import axis, Format, FormatOperators, FormatOperator, FormatImportSetting
 
@@ -811,5 +812,5 @@ class FormatDefinition:
             pes_operators(),
             generate_filter_glob=True,
         )
-
-        skp = Format("skp", [".skp"], skp_operators(), generate_filter_glob=True)
+        if platform.system() == "Windows":
+            skp = Format("skp", [".skp"], skp_operators(), generate_filter_glob=True)
