@@ -72,6 +72,7 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
         col.label(text=f"Enable Universal Multi Importer Addon again", icon="RADIOBUT_ON")
 
     main_box = layout.box()
+    has_external_addon = False
 
     col1 = main_box.column(align=True)
     col2 = main_box.column(align=True)
@@ -160,7 +161,8 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
                 op.repo_index = 0
 
             elif ad.external_addon:
-                op = grid_layout(row, alignment="CENTER", size=4).operator("wm.url_open", text="Download Manually")
+                has_external_addon = True
+                op = grid_layout(row, alignment="CENTER", size=4).operator("wm.url_open", text="Download Manually*")
                 op.url = ad.pkg_url
                 grid_layout(row, alignment="CENTER", size=4).label(text="", icon="X")
                 continue
@@ -176,6 +178,13 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
                 "preferences.umi_addon_enable", text=f"Enable {addon_name}"
             )
             op.module = addon_name
+
+    if has_external_addon:
+        row = main_box.row()
+        row.alert = True
+        row.label(
+            text="*This addon is not an blender extension, you have to dowload, and install it manually like a regular addon for Universal Multi Importer to support it"
+        )
 
 
 class Preferences(bpy.types.AddonPreferences):

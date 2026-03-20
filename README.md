@@ -152,7 +152,7 @@ You can choose if the command has to be executed for a specific datatype or many
 
 # Changelog
 
-### v2.4.0 : support for Sketchup file
+### v2.4.0 : support for Sketchup file (Windows Only)
 
 ### v2.3.6 : Fix bug when recreating folder hierarchy in import folder mode
 
