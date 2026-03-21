@@ -22,6 +22,7 @@ This addon is adding batch import features to existing importers for blender. Th
 - [Atomic Blender PDB/XYZ](https://projects.blender.org/extensions/io_mesh_atomic) by Clemens Barth
 - [AutoCAD DXF](https://projects.blender.org/extensions/io_import_dxf) by Lukas Treyer, Manfred Moitzi, Vladimir Elistratov, Bastien Montagne, Remigiusz Fiedler
 - [Blender Embroidery](https://github.com/javl/blender-embroidery) by Jasper van Loenen
+- [Sketchup Importer](https://github.com/RedHaloStudio/Sketchup_Importer) by RedHaloStudio
 
 # Supported Formats
 
