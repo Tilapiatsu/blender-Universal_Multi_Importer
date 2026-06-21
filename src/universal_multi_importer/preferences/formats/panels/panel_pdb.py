@@ -52,12 +52,14 @@ class IMPORT_SCENE_PDBSettings:
                 sub = panel.column()
                 sub.enabled = operator.use_sticks_bonds
 
-                panel.prop(operator, "sticks_dist")
+                sub.prop(operator, "sticks_dist", text="Distance")
+
             elif operator.use_sticks_type == "1":
                 panel.prop(operator, "sticks_radius")
                 panel.prop(operator, "sticks_subdiv_view")
                 panel.prop(operator, "sticks_subdiv_render")
                 panel.prop(operator, "use_sticks_bonds")
+
             elif operator.use_sticks_type == "2":
                 panel.prop(operator, "sticks_sectors")
                 panel.prop(operator, "sticks_radius")
@@ -67,5 +69,5 @@ class IMPORT_SCENE_PDBSettings:
                 sub = panel.column()
                 sub.enabled = operator.use_sticks_bonds
 
-                panel.prop(operator, "sticks_dist")
-                panel.prop(operator, "use_sticks_one_object")
+                sub.prop(operator, "use_sticks_one_object", text="One Object")
+                sub.prop(operator, "sticks_dist", text="Distance")

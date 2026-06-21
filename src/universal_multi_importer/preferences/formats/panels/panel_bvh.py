@@ -22,4 +22,3 @@ class IMPORT_SCENE_BVHSettings:
         ]
 
         draw_panel(layout, op, "BVHSettings_Animation", "Animation", icon="ARMATURE_DATA")
-

@@ -21,13 +21,14 @@ def draw_panel(
     panel=None,
     header=None,
     set_header_boolean: bool = False,
-    header_bool: str = None,
+    header_bool=None,
 ) -> tuple:
 
     if BVERSION >= 4.2:
         if header is None and panel is None:
             header, panel = layout.panel(idname=idname, default_closed=default_closed)
             if set_header_boolean:
+                assert header_bool is not None
                 header.use_property_split = False
                 header.prop(header_bool[0], header_bool[1], text="")
                 header.label(text=header_name, icon=icon)
@@ -36,6 +37,7 @@ def draw_panel(
 
         if panel:
             if set_header_boolean:
+                assert header_bool is not None
                 panel.enabled = getattr(header_bool[0], header_bool[1])
             col = panel.column(align=True)
             for p in props:
@@ -53,6 +55,7 @@ def draw_panel(
         box = layout.box()
         header = box.row(align=True)
         if set_header_boolean:
+            assert header_bool is not None
             header.use_property_split = False
             header.prop(header_bool[0], header_bool[1], text="")
             header.label(text=header_name, icon=icon)
@@ -64,6 +67,7 @@ def draw_panel(
     if panel:
         col = panel.column(align=True)
         if set_header_boolean:
+            assert header_bool is not None
             panel.enabled = getattr(header_bool[0], header_bool[1])
         for p in props:
             if len(p) == 2:

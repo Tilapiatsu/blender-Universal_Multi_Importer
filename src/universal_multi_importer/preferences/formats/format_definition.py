@@ -174,6 +174,45 @@ def bvh_operators() -> FormatOperators:
         "default", "bpy.ops.import_anim.bvh", "1.0.1", addon_name="io_anim_bvh", description=DEFAULT_DESCRIPTION
     )
 
+    s = FormatImportSetting()
+    if BVERSION >= 5.2:
+        # Include
+        s.add_set_enum_setting(
+            "Target",
+            "target",
+            "Target",
+            "ARMATURE",
+            enum_items=(("ARMATURE", "Armature", ""), ("OBJECT", "Object", "")),
+        )
+
+        s.add_set_float_setting("Transform", "global_scale", "Global Scale", 1.0)
+        s.add_set_enum_setting(
+            "Transform",
+            "rotate_mode",
+            "Rotation",
+            "NATIVE",
+            enum_items=(
+                ("QUATERNION", "Quaternion", ""),
+                ("NATIVE", "Euleur (native)", ""),
+                ("XYZ", "Euleur (XYZ)", ""),
+                ("XZY", "Euleur (XZY)", ""),
+                ("YXZ", "Euleur (YXZ)", ""),
+                ("YZX", "Euleur (YZX)", ""),
+                ("ZXY", "Euleur (ZXY)", ""),
+                ("ZYX", "Euleur (ZYX)", ""),
+            ),
+        )
+        s.add_set_enum_setting("Transform", "axis_forward", "Forward", "-Z", enum_items=axis())
+        s.add_set_enum_setting("Transform", "axis_up", "Up", "Y", enum_items=axis())
+
+        s.add_set_int_setting("Animation", "frame_start", "Start Frame", 1)
+        s.add_set_boolean_setting("Animation", "use_fps_scale", "Scale FPS", False)
+        s.add_set_boolean_setting("Animation", "use_cyclic", "Loop", False)
+        s.add_set_boolean_setting("Animation", "update_scene_fps", "Update Scene FPS", False)
+        s.add_set_boolean_setting("Animation", "update_scene_duration", "Update Scene Duration", False)
+
+        f.import_settings = s
+
     if BVERSION >= 3.2:
         pass
 
@@ -717,9 +756,9 @@ class FormatDefinition:
 
     dxf = Format("dxf", [".dxf"], dxf_operators(), generate_filter_glob=True)
 
-    pdb = Format("pdb", [".pdb"], pdb_operators(), generate_filter_glob=BVERSION < 3.6)
+    pdb = Format("pdb", [".pdb"], pdb_operators(), generate_filter_glob=BVERSION > 3.6)
 
-    xyz = Format("xyz", [".xyz"], xyz_operators(), generate_filter_glob=True)
+    xyz = Format("xyz", [".xyz"], xyz_operators(), generate_filter_glob=BVERSION > 3.6)
 
     stl = Format("stl", [".stl"], stl_operators(), generate_filter_glob=BVERSION < 3.3)
 

@@ -1,15 +1,15 @@
 from typing import Union, Optional, Dict
 
 
-def axis() -> list:
-    return [
+def axis() -> tuple:
+    return (
         ("X", "X", "X"),
         ("Y", "Y", "Y"),
         ("Z", "Z", "Z"),
         ("-X", "-X", "-X"),
         ("-Y", "-Y", "-Y"),
         ("-Z", "-Z", "-Z"),
-    ]
+    )
 
 
 class FormatImportSetting:

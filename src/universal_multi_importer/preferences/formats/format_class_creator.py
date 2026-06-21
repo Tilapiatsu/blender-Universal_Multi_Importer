@@ -116,7 +116,17 @@ class FormatClassCreator:
 
         if f.import_settings is None:
             try:
-                properties = eval(f.command).get_rna_type().properties
+                command_list = f.command.split(".")[1:]
+                command = bpy
+                for c in command_list:
+                    if command is None:
+                        raise KeyError
+                    command = getattr(command, c, None)
+
+                assert command is not None
+
+                rna = command.get_rna_type()
+                properties = rna.properties
             except KeyError:
                 format_class.__annotations__["settings_imported"] = bpy.props.BoolProperty(
                     name="Settings imported", default=False, options={"HIDDEN"}
@@ -127,6 +137,7 @@ class FormatClassCreator:
                 format_class.__annotations__["supported_version"] = bpy.props.StringProperty(
                     name="Addon Name", default=f.supported_version
                 )
+                print(f"{f.addon_name} NOT imported properly")
                 return format_class
 
             for p in properties:
