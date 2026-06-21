@@ -3,7 +3,7 @@ bl_info = {
     "author": "Tilapiatsu <tilapiatsu@hotmail.fr>",
     "description": "Batch Import many file formats at once, Batch process them",
     "blender": (3, 0, 0),
-    "version": (2, 4, 0),
+    "version": (2, 4, 1),
     "location": "File > Import > Universal Multi Importer (File / Folder) | Object > Command Batcher",
     "warning": "",
     "doc_url": "https://github.com/Tilapiatsu/blender-Universal_Multi_Importer",

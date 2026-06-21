@@ -70,7 +70,10 @@ def gltf_operators() -> FormatOperators:
     f = FormatOperator(
         "default", "bpy.ops.import_scene.gltf", "3.6.27", addon_name="io_scene_gltf2", description=DEFAULT_DESCRIPTION
     )
-    if BVERSION >= 5.1:
+    if BVERSION >= 5.2:
+        f.supported_version = "5.2.30"
+
+    elif BVERSION >= 5.1:
         f.supported_version = "5.1.18"
 
     elif BVERSION >= 5.0:
@@ -570,7 +573,7 @@ def max_operators() -> FormatOperators:
     f = FormatOperator(
         "default",
         "bpy.ops.import_scene.max",
-        "1.7.5",
+        "1.9.1",
         addon_name="bl_ext.blender_org.io_scene_max",
         pkg_id="io_scene_max",
         pkg_url="https://extensions.blender.org/add-ons/io-scene-max/",
