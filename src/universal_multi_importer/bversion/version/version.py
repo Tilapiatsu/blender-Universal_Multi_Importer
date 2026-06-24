@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Union
 import math
+from decimal import Decimal, getcontext, ROUND_HALF_UP
 
 
 class Version:
@@ -12,9 +13,10 @@ class Version:
     def __init__(self, version: Union[tuple[int, int, int], str, float]):
         self._version: tuple[int, int, int]
         if isinstance(version, float):
-            main, sec = str(version).split(".")
-            sec = int(sec)
-            sec, third = str(round(float(sec * 0.01), 2)).split(".")
+            main, _ = str(version).split(".")
+            sec = Decimal(str(version)) - Decimal(main)
+            sec = sec * Decimal("10")
+            sec, third = str(sec.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)).split(".")
             third = int(third)
             main = int(main)
             sec = int(sec)
@@ -58,7 +60,10 @@ class Version:
         """
         :returns: the version as float
         """
-        return float(self._version[0] + round(self._version[1] * 0.01, 2) + round(self._version[2] * 0.0001, 5))
+        main = Decimal(self._version[0])
+        sec = Decimal(self._version[1]) * Decimal("0.1")
+        third = Decimal(self._version[2]) * Decimal("0.001")
+        return float(main + sec + third)
 
     def __str__(self):
         return f"{self.version[0]}.{self.version[1]}.{self.version[2]}"

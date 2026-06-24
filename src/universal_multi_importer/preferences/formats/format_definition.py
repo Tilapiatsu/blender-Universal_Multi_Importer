@@ -72,13 +72,6 @@ def gltf_operators() -> FormatOperators:
         "default", "bpy.ops.import_scene.gltf", "3.6.27", addon_name="io_scene_gltf2", description=DEFAULT_DESCRIPTION
     )
     # TODO : Fix Version comparison to make sure blender 5.1.1 support the proper version
-    print("BVERSION.as_float", BVERSION.as_float)
-    print("BVERSION == Version('5.1.1')", BVERSION == Version("5.1.1"))
-    print("Version(5.101).as_float", Version(5.101).as_float)
-    print("Version(5.11).as_float", Version(5.11).as_float)
-    print("BVERSION == 5.101", BVERSION == 5.101)
-    print("BVERSION.version", BVERSION.version)
-    print("Version('5.1.1').version", Version("5.1.1").version)
     if BVERSION >= 5.2:
         f.supported_version = "5.2.30"
 
