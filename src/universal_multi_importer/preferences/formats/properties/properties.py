@@ -78,6 +78,11 @@ def update_log_drawing(self, context):
     LOG.show_log = umi_settings.umi_global_import_settings.show_log_on_3d_view
 
 
+def update_font_size(self, context):
+    umi_settings = get_umi_settings()
+    LOG.fontsize = umi_settings.umi_font_size
+
+
 class PG_AddonDependency(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name="Name", default="")
     format_name: bpy.props.StringProperty(name="Format Name", default="")
@@ -263,6 +268,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_settings_dialog_width: bpy.props.FloatProperty(name="Dialog Width", min=0.0, max=1.0, default=0.65)
     umi_import_directory: bpy.props.BoolProperty(name="Import Directory", default=False)
     umi_window_width: bpy.props.IntProperty(name="Window Width (px)", min=500, default=1300)
+    umi_font_size: bpy.props.IntProperty(name="Viewport Text Size (px)", default=12, update=update_font_size)
     umi_current_item_index: bpy.props.CollectionProperty(type=PG_ItemIndex)
     umi_imported_data: bpy.props.CollectionProperty(type=PG_ImportedData)
     umi_valid_datatypes: bpy.props.BoolProperty(name="Valid Datatypes", default=False)

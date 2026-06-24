@@ -33,6 +33,7 @@ class LoggerProgress(Logger):
             blf.size(font_id, self.fontsize)
         else:
             blf.size(font_id, self.fontsize, 72)
+
         pos = 30
         line_width = self.fontsize + 3
 

@@ -231,6 +231,7 @@ class Preferences(bpy.types.AddonPreferences):
 
         elif self.tabs == "GENERAL":
             box.prop(self.umi_settings, "umi_window_width")
+            box.prop(self.umi_settings, "umi_font_size")
 
 
 classes = (Preferences,)
