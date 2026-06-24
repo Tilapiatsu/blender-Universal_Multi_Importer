@@ -1,5 +1,6 @@
 import platform
 from ...bversion import BVERSION
+from ...bversion.version import Version
 from ...preferences.formats.format import axis, Format, FormatOperators, FormatOperator, FormatImportSetting
 
 AS_GEOMETRY_NODES_DESCRIPTION = "Importing as Geometry Node create a dynamic link beetween the source file and the blend file. The file is NOT imported per say, and if the file on disk is changed, the change will be replicated automatically in the blend file it is linked to."
@@ -70,8 +71,19 @@ def gltf_operators() -> FormatOperators:
     f = FormatOperator(
         "default", "bpy.ops.import_scene.gltf", "3.6.27", addon_name="io_scene_gltf2", description=DEFAULT_DESCRIPTION
     )
+    # TODO : Fix Version comparison to make sure blender 5.1.1 support the proper version
+    print(BVERSION.as_float)
+    print(BVERSION == Version("5.1.1"))
+    print(Version(5.101).as_float)
+    print(Version(5.11).as_float)
+    print(BVERSION == 5.101)
+    print(BVERSION.version)
+    print(Version("5.1.1").version)
     if BVERSION >= 5.2:
         f.supported_version = "5.2.30"
+
+    elif BVERSION >= 5.101:
+        f.supported_version = "5.1.19"
 
     elif BVERSION >= 5.1:
         f.supported_version = "5.1.18"

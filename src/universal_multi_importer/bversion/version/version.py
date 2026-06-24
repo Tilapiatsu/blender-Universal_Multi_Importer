@@ -12,6 +12,7 @@ class Version:
     def __init__(self, version: Union[tuple[int, int, int], str, float]):
         self._version: tuple[int, int, int]
         if isinstance(version, float):
+            # TODO: Convertion from float to tuple look falty
             main, sec = str(version).split(".")
             sec = int(sec)
             sec, third = str(float(sec)).split(".")
