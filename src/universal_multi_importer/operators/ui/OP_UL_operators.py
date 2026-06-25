@@ -177,8 +177,10 @@ if not os.path.exists(COMMAND_BATCHER_PRESET_FOLDER):
 
 def get_operator(target_name, target_id_name):
     umi_settings = get_umi_settings()
-    target = eval(f"umi_settings.{target_name}")
-    idx = eval(f"umi_settings.{target_id_name}")
+    target = getattr(umi_settings, target_name, None)
+    idx = getattr(umi_settings, target_id_name, None)
+    assert target is not None
+    assert idx is not None
     operators = target
 
     active = operators[idx] if len(operators) else None
@@ -197,7 +199,8 @@ class UI_UMIMoveOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f"umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        return getattr(umi_settings, batcher_list, None)
 
     def execute(self, context):
         umi_settings = get_umi_settings()
@@ -401,4 +404,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-
