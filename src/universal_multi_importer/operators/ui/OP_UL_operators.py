@@ -229,7 +229,8 @@ class UI_UMIClearOperators(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f"umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        return getattr(umi_settings, batcher_list, None)
 
     def invoke(self, context, event):
         wm = context.window_manager
@@ -237,7 +238,9 @@ class UI_UMIClearOperators(bpy.types.Operator):
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
         target.clear()
 
         return {"FINISHED"}
@@ -254,7 +257,8 @@ class UI_UMIRemoveOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f"umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        return getattr(umi_settings, batcher_list, None)
 
     def invoke(self, context, event):
         wm = context.window_manager
@@ -264,7 +268,9 @@ class UI_UMIRemoveOperator(bpy.types.Operator):
         umi_settings = get_umi_settings()
 
         self.umi_settings = get_umi_settings()
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
 
         target.remove(self.id)
 
@@ -284,11 +290,15 @@ class UI_UMIDuplicateOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f"umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        return getattr(umi_settings, batcher_list, None)
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
+
         o = target.add()
         o.enabled = target[self.id].enabled
         o.operator = target[self.id].operator
@@ -312,8 +322,9 @@ class UI_UMIEditOperator(bpy.types.Operator):
 
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
-
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
 
         current_operator = target[self.id]
 
@@ -326,7 +337,9 @@ class UI_UMIEditOperator(bpy.types.Operator):
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
         o = target[self.id]
         o.operator = self.operator
         o.modifier_type = self.modifier_type
@@ -352,7 +365,9 @@ class UI_UMIAddOperator(bpy.types.Operator):
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
         o = target.add()
         o.operator = self.operator
         o.modifier_type = self.modifier_type
