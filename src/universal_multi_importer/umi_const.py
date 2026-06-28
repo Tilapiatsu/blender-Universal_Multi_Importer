@@ -50,6 +50,9 @@ def get_datalist():
         {"name": "worlds", "icon": "WORLD"},
     ]
 
+    # if BVERSION >= 5.2:
+    #     datatype_list.append({"name": "all_ids", "icon": "COLLAPSEMENU"})
+
     if BVERSION >= 4.1:
         datatype_list.append(
             {"name": "lightprobes", "icon": "LIGHTPROBE_SPHERE"},

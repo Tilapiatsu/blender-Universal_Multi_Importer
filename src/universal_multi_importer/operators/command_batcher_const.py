@@ -118,7 +118,7 @@ def get_command_batcher_output_string(
     data_type: str, global_item_index: int, item_index: int, item_name: str, item_data: str, object=None
 ) -> list[str]:
     objects = []
-    data = eval(item_data)
+    data = item_data
     if data_type == "modifiers":
         data_type = data_type.upper()
         objects.append(object)

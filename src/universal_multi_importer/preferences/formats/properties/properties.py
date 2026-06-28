@@ -126,8 +126,41 @@ class PG_Preset(bpy.types.PropertyGroup):
 
 class PG_ImportedData(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name="Name")
-    data: bpy.props.StringProperty(name="Data")
+    object_name: bpy.props.StringProperty(name="Object Name", default="")
     data_type: bpy.props.StringProperty(name="Data Type")
+
+    def get_data(self):
+        if self.data_type in ["modifiers"]:
+            if self.object_name not in bpy.data.objects:
+                return
+            obj = bpy.data.objects[self.object_name]
+
+            if self.name not in obj.modifiers:
+                return
+
+            data = obj.modifiers[self.name]
+            return data
+
+        data_category = getattr(bpy.data, self.data_type, None)
+
+        if data_category is None:
+            return
+
+        if self.name not in data_category:
+            return None
+
+        data = data_category[self.name]
+
+        return data
+
+    def get_obj(self):
+        if not len(self.object_name):
+            return None
+
+        if self.object_name not in bpy.data.objects:
+            return None
+
+        return bpy.data.objects[self.object_name]
 
 
 class PG_FilePathSelection(bpy.types.PropertyGroup):

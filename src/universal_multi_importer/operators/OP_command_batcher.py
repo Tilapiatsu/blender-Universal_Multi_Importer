@@ -1,8 +1,17 @@
 import bpy
 import time, math, re, itertools
+from typing import Optional, Any
+from dataclasses import dataclass
 from ..logger import LOG, LoggerColors
 from ..umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_current_item_index
 from ..operators.command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
+
+
+@dataclass
+class Command:
+    data_type: str
+    data: Any
+    obj: Optional[bpy.types.Object]
 
 
 def which_keywords(sentence: str, input_string: list[str], delimitator: tuple[str] = ("<", ">")) -> list[str]:
@@ -31,7 +40,7 @@ def which_keywords(sentence: str, input_string: list[str], delimitator: tuple[st
 
 def replace_keywords(
     sentence: str, input_string: list[str], output_string: list, delimitator: tuple[str] = ("<", ">")
-) -> str:
+) -> list[str]:
     result_sentence = [sentence for _ in range(len(output_string))]
 
     for i, o in enumerate(output_string):
@@ -194,19 +203,19 @@ class CommandBatcher(bpy.types.Operator):
                     for m in dd:
                         if d == "material_slots":
                             ddd = getattr(m, "material")
-                        elif d == "modifiers":
+                        else:
                             ddd = m
                         data = self.umi_settings.umi_imported_data.add()
-                        data.data = repr(ddd)
                         if d == "modifiers":
                             data.data_type = "modifiers"
                         else:
                             data.data_type = repr(ddd).replace("bpy.data.", "").split("[")[0]
 
                         data.name = getattr(ddd, "name", "")
+                        data.object_name = o.name
                 else:
                     data = self.umi_settings.umi_imported_data.add()
-                    data.data = repr(dd)
+                    data.object_name = o.name
                     data.data_type = repr(dd).replace("bpy.data.", "").split("[")[0]
                     data.name = getattr(dd, "name", "")
 
@@ -427,13 +436,17 @@ class CommandBatcher(bpy.types.Operator):
                 return {"PASS_THROUGH"}
 
             else:
+                assert self.current_command is not None
                 command = self.current_command.operator
                 try:  # Executing command
+                    assert self.current_element_to_process is not None
                     # if the current command is valid for the current data type
-                    if not getattr(self.current_command, f"{DATATYPE_PREFIX}_{self.current_element_to_process[0]}"):
+                    if not getattr(
+                        self.current_command, f"{DATATYPE_PREFIX}_{self.current_element_to_process.data_type}"
+                    ):
                         self.current_command = None
                         LOG.info(
-                            f"Skipping : command does NOT applied to this data type : {self.current_element_to_process[0]}",
+                            f"Skipping : command does NOT applied to this data type : {self.current_element_to_process.data_type}",
                             color=LoggerColors.COMMAND_WARNING_COLOR(),
                         )
                         return {"PASS_THROUGH"}
@@ -441,14 +454,14 @@ class CommandBatcher(bpy.types.Operator):
                     self.progress += 100 / self.number_of_operations_to_perform
 
                     ob = None
-                    if self.current_element_to_process[0] == "objects":
-                        ob = self.current_element_to_process[1]
-                    elif self.current_element_to_process[0] == "modifiers":
-                        ob = eval(self.current_element_to_process[2].split(".modifiers")[0])
-                        if self.current_element_to_process[1].type != self.current_command.modifier_type:
+                    if self.current_element_to_process.data_type == "objects":
+                        ob = self.current_element_to_process.obj
+                    elif self.current_element_to_process.data_type == "modifiers":
+                        ob = self.current_element_to_process.obj
+                        if self.current_element_to_process.data.type != self.current_command.modifier_type:
                             self.current_command = None
                             LOG.info(
-                                f"Skipping : command does NOT applied to this modifier type : {self.current_element_to_process[0]}",
+                                f"Skipping : command does NOT applied to this modifier type : {self.current_element_to_process.data_type}",
                                 color=LoggerColors.COMMAND_WARNING_COLOR(),
                             )
                             return {"PASS_THROUGH"}
@@ -456,12 +469,12 @@ class CommandBatcher(bpy.types.Operator):
                     # keywords = which_keywords(command, COMMAND_BATCHER_INPUT_STRING)
 
                     command_output_strings = get_command_batcher_output_string(
-                        self.current_element_to_process[0],
+                        self.current_element_to_process.data_type,
                         self.global_processed_elements,
-                        self.processed_elements[self.current_element_to_process[0]]
-                        + self.umi_settings.umi_current_item_index[self.current_element_to_process[0]].index,
+                        self.processed_elements[self.current_element_to_process.data_type]
+                        + self.umi_settings.umi_current_item_index[self.current_element_to_process.data_type].index,
                         self.current_element_name_to_process,
-                        self.current_element_to_process[2],
+                        self.current_element_to_process.data,
                         ob,
                     )
 
@@ -478,9 +491,9 @@ class CommandBatcher(bpy.types.Operator):
                         )
                         override = {}
                         if self.pre_process_done and not self.each_process_done:
-                            if self.current_element_to_process[0] == "objects":
+                            if self.current_element_to_process.data_type == "objects":
                                 override["selected_objects"] = [
-                                    bpy.data.objects[self.current_element_to_process[1].name]
+                                    bpy.data.objects[self.current_element_to_process.data.name]
                                 ]
                             elif len(command_output_strings[i][4]) > 0:
                                 override["selected_objects"] = [eval(command_output_strings[i][4], {"bpy": bpy})]
@@ -490,13 +503,13 @@ class CommandBatcher(bpy.types.Operator):
 
                         LOG.store_success("Command executed successfully")
 
-                    if not self.current_element_proccessed[self.current_element_to_process[0]]:
-                        self.current_element_proccessed[self.current_element_to_process[0]] = True
+                    if not self.current_element_proccessed[self.current_element_to_process.data_type]:
+                        self.current_element_proccessed[self.current_element_to_process.data_type] = True
 
                     self.process_succeeded.append(True)
 
                 except Exception as e:
-                    message = f'{self.current_element_to_process[0]} : Command "{command}" is not valid - \n{e}'
+                    message = f'{self.current_element_to_process.data_type} : Command "{command}" is not valid - \n{e}'
                     LOG.error(message)
                     LOG.store_failure(message)
                     self.process_succeeded.append(False)
@@ -520,26 +533,45 @@ class CommandBatcher(bpy.types.Operator):
         if not self.importer_mode:
             LOG.revert_parameters()
             init_current_item_index(self.umi_settings)
+            self.umi_settings.umi_imported_data.clear()
             self.feed_data_from_object_selection()
 
         self.objects_to_process = [o for o in bpy.context.selected_objects]
-        self.data_to_process = [eval(d.data) for d in self.umi_settings.umi_imported_data]
-        element_list = list(
-            zip(
-                ["objects" for _ in self.objects_to_process],
-                self.objects_to_process,
-                [f'bpy.data.objects["{o.name}"]' for o in self.objects_to_process],
-                [o.name for o in self.objects_to_process],
-            )
-        ) + list(
-            zip(
-                [d.data_type for d in self.umi_settings.umi_imported_data],
-                self.data_to_process,
-                [d.data for d in self.umi_settings.umi_imported_data],
-                [d.name for d in self.umi_settings.umi_imported_data],
-            )
-        )
+        # self.data_to_process = []
+        #
+        # for d in self.umi_settings.umi_imported_data:
+        #     data = d.get_data()
+        #
+        #     if data is None:
+        #         continue
+        #
+        #     self.data_to_process.append(data)
 
+        # TODO: For Data to process it look like the object have to be stored at index 2
+
+        object_commands = [Command(data_type="objects", data=o.data, obj=o) for o in self.objects_to_process]
+        self.data_to_process = [
+            Command(data_type=d.data_type, data=d.get_data(), obj=d.get_obj())
+            for d in self.umi_settings.umi_imported_data
+        ]
+
+        element_list = object_commands + self.data_to_process
+        # element_list = list(
+        #     zip(
+        #         ["objects" for _ in self.objects_to_process],
+        #         self.objects_to_process,
+        #         self.objects_to_process,
+        #         [o.name for o in self.objects_to_process],
+        #     )
+        # ) + list(
+        #     zip(
+        #         [d.data_type for d in self.umi_settings.umi_imported_data],
+        #         self.data_to_process.values(),
+        #         [bpy.data.objects[o] for o in self.data_to_process.keys() if o != "NONE"],
+        #         [d.name for d in self.umi_settings.umi_imported_data],
+        #     )
+        # )
+        #
         self.element_to_process_iter = iter(element_list)
 
         if self.execute_each_process and not (self.element_to_process_count + len(self.data_to_process)):
@@ -638,22 +670,22 @@ class CommandBatcher(bpy.types.Operator):
 
         # Remove data from umi_imported_data
         for i, d in enumerate(self.umi_settings.umi_imported_data):
-            if d.data == self.current_element_to_process[2]:
+            if d.get_data() == self.current_element_to_process.data:
                 self.umi_settings.umi_imported_data.remove(i)
                 break
 
         # increment processed element
-        if self.current_element_proccessed[self.current_element_to_process[0]]:
-            self.processed_elements[self.current_element_to_process[0]] += 1
+        if self.current_element_proccessed[self.current_element_to_process.data_type]:
+            self.processed_elements[self.current_element_to_process.data_type] += 1
 
         self.global_processed_elements += 1
-        self.current_element_name_to_process = self.current_element_to_process[3]
+        self.current_element_name_to_process = self.current_element_to_process.data.name
         self.current_element_number += 1
         self.element_progress = round(self.current_element_number * 100 / self.number_of_element_to_process, 2)
-        self.current_element_proccessed[self.current_element_to_process[0]] = False
+        self.current_element_proccessed[self.current_element_to_process.data_type] = False
 
         LOG.info(
-            f'Processing item {self.current_element_number}/{self.number_of_element_to_process} - {self.element_progress}% : "{self.current_element_to_process[1].name}" | {self.current_element_to_process[0]} type'
+            f'Processing item {self.current_element_number}/{self.number_of_element_to_process} - {self.element_progress}% : "{self.current_element_to_process.data.name}" | {self.current_element_to_process.data_type} type'
         )
         if not len(self.operators_to_process):
             self.fill_operator_to_process(each_only=True)
@@ -692,4 +724,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-

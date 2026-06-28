@@ -99,126 +99,12 @@ if BVERSION >= 4.1:
                     return found
 
 
-# Legacy Settings Drawing
-class UMI_OT_Settings(bpy.types.Operator):
-    bl_idname = "import_scene.tila_universal_multi_importer_settings"
-    bl_label = "Import Settings"
-    bl_options = {"REGISTER", "INTERNAL", "PRESET"}
-    bl_region_type = "UI"
-
-    import_format: bpy.props.StringProperty(
-        name="Import Format",
-        default="",
-        options={"HIDDEN"},
-    )
-
-    def unregister_annotations(self):
-        for a in self.registered_annotations:
-            del self.__class__.__annotations__[a]
-        UMI_OT_Settings.bl_idname = f"import_scene.tila_universal_multi_importer_settings"
-        bpy.utils.unregister_class(UMI_OT_Settings)
-        bpy.utils.register_class(UMI_OT_Settings)
-
-    def init_annotations(self):
-        to_delete = []
-        for a in self.__class__.__annotations__:
-            if a in ["import_format"]:
-                continue
-            to_delete.append(a)
-
-        for a in to_delete:
-            del self.__class__.__annotations__[a]
-
-    def populate_property(self, property_name, property_value):
-        self.__class__.__annotations__[property_name] = property_value
-
-    def execute(self, context):
-        self.umi_settings = get_umi_settings()
-        # set the scene setting equal to the setting set by the user
-        for k, v in self.__class__.__annotations__.items():
-            if getattr(v, "is_hidden", False) or getattr(v, "is_readonly", False):
-                continue
-            if k in dir(self.format_handler.format_settings):
-                try:
-                    setattr(self.format_handler.format_settings, k, getattr(self, k))
-                except AttributeError as e:
-                    LOG.error("{}".format(e))
-
-        if self.umi_settings.umi_last_setting_to_get:
-            self.umi_settings.umi_ready_to_import = True
-
-        self.umi_settings.umi_current_format_setting_imported = True
-        self.unregister_annotations()
-
-        return {"FINISHED"}
-
-    def invoke(self, context, event):
-        self.umi_settings = get_umi_settings()
-        self.init_annotations()
-
-        key_to_delete = []
-        self.registered_annotations = []
-        self.format_handler = eval(
-            f'FormatHandler(import_format="{self.import_format}", module_name="default" context=cont)',
-            {"self": self, "FormatHandler": FormatHandler, "cont": context},
-        )
-
-        for k, v in self.format_handler.format_annotations.items():
-            if getattr(v, "is_hidden", False) or getattr(v, "is_readonly", False):
-                key_to_delete.append(k)
-
-            if k in self.format_handler.format["ignore"]:
-                continue
-
-            if self.format_handler.format_is_imported:
-                if k in dir(self.format_handler.import_setting):
-                    value = getattr(self.format_handler.import_setting, k)
-                    self.populate_property(k, value)
-                self.format_handler.format_settings.__annotations__[k] = value
-                self.registered_annotations.append(k)
-            else:
-                self.populate_property(k, v)
-                self.format_handler.format_settings.__annotations__[k] = v
-                self.registered_annotations.append(k)
-
-        for k in key_to_delete:
-            del self.format_handler.format_annotations[k]
-
-        UMI_OT_Settings.bl_label = f"{self.format_handler.format_name.upper()} Import Settings"
-        UMI_OT_Settings.bl_idname = f"import_scene.tila_umi_{self.format_handler.format_name}_settings"
-
-        bpy.utils.unregister_class(UMI_OT_Settings)
-        bpy.utils.register_class(UMI_OT_Settings)
-
-        wm = context.window_manager
-        if len(self.format_handler.format_annotations) - 2 > 0:
-            return wm.invoke_props_dialog(self)
-        else:
-            return self.execute(context)
-
-    def draw(self, context):
-        layout = self.layout
-        layout.use_property_split = True
-        layout.use_property_decorate = False
-        col = layout.column()
-        if len(self.format_handler.format_annotations):
-            col.separator()
-            for k in self.__class__.__annotations__.keys():
-                if not k in ["name", "settings_imported", "import_format", "ui_tab", "addon_name", "supported_version"]:
-                    col.prop(self, k)
-
-    def cancel(self, context):
-        UMI_OT_Settings.bl_idname = f"import_scene.tila_universal_multi_importer_settings"
-        bpy.utils.unregister_class(UMI_OT_Settings)
-        bpy.utils.register_class(UMI_OT_Settings)
-        self.umi_settings.umi_current_format_setting_cancelled = True
-        return {"CANCELLED"}
-
-
 def register_import_format(self, context):
     for f in COMPATIBLE_FORMATS.formats:
-        exec("self.{}_format = {{ }}".format(f.name), {"self": self})
-        current_format = eval(f"self.{f.name}_format")
+        setattr(self, f"{f.name}_format", {})
+        current_format = getattr(self, f"{f.name}_format", None)
+        if current_format is None:
+            continue
         for _, name in enumerate(f.operators.operators.keys()):
             current_format[name] = FormatHandler(import_format=f"{f.name}", module_name=name, context=context)
 
@@ -493,19 +379,21 @@ class UMI_FileSelection(bpy.types.Operator):
         layout.use_property_split = True
         layout.use_property_decorate = False
         col = layout.column()
-        current_format = eval(f"self.{format_name}_format")
+        current_format = getattr(self, f"{format_name}_format", None)
+        assert current_format is not None
+        import_module = getattr(self.umi_settings.umi_format_import_settings, f"{format_name}_import_module", None)
+        assert import_module is not None
+
         if len(current_format.keys()) > 1:
             row = col.row()
             row.prop(
-                eval(f"self.umi_settings.umi_format_import_settings.{format_name}_import_module", {"self": self}),
+                import_module,
                 "name",
                 expand=True,
             )
             col.separator()
 
-        current_module = eval(
-            f"self.umi_settings.umi_format_import_settings.{format_name}_import_module", {"self": self}
-        ).name.lower()
+        current_module = import_module.name.lower()
         current_settings = current_format[current_module]
         COMPATIBLE_FORMATS.draw_format_settings(
             context, format_name, current_settings.format_settings, current_module, col
@@ -1134,14 +1022,14 @@ class UMI(bpy.types.Operator, ImportHelper):
                 if data.name in imported_data_type:
                     continue
 
-                imported_data.append({"data": repr(data), "data_type": d})
+                imported_data.append({"data_name": data.name, "data_type": d})
 
         return imported_data
 
     def capture_data_dict(self) -> dict:
         data_dict = {}
         for d in dir(bpy.data):
-            if d.startswith("_"):
+            if d.startswith("_") or d == "all_ids":
                 continue
 
             data_type = getattr(bpy.data, d)
@@ -1161,22 +1049,25 @@ class UMI(bpy.types.Operator, ImportHelper):
         ext = os.path.splitext(filepath)[1]
         format_name = COMPATIBLE_FORMATS.get_format_from_extension(ext).name
 
-        current_format = eval(f"self.{format_name}_format")
-        current_module = eval(
-            f"self.umi_settings.umi_format_import_settings.{format_name}_import_module", {"self": self}
-        ).name.lower()
-        import_objects = COMPATIBLE_FORMATS.is_import_objects(format_name, current_module)
-        import_data = COMPATIBLE_FORMATS.is_import_data(format_name, current_module)
+        current_format = getattr(self, f"{format_name}_format", None)
+        assert current_format is not None
+        current_module = getattr(self.umi_settings.umi_format_import_settings, f"{format_name}_import_module", None)
+        assert current_module is not None
+        current_module_name = current_module.name.lower()
+        import_objects = COMPATIBLE_FORMATS.is_import_objects(format_name, current_module_name)
+        import_data = COMPATIBLE_FORMATS.is_import_data(format_name, current_module_name)
         # format_settings = current_format[current_module].format_settings
 
         before_import_data = {}
         if import_data:
             before_import_data = self.capture_data_dict()
 
-        operators = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)[current_module].command
+        operator = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)
+        assert operator is not None
+        import_command = operator[current_module_name].command
 
         # Double \\ in the path causing error in the string
-        args = current_format[current_module].format_settings_dict
+        args = current_format[current_module_name].format_settings_dict
         raw_path = filepath.replace("\\\\", punctuation[23])
 
         # if format_name == 'image' and current_module in ['plane']:
@@ -1232,7 +1123,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
             arg_number -= 1
 
-        command = "{}({})".format(operators, args_as_string)
+        command = "{}({})".format(import_command, args_as_string)
         # Execute the import command
         try:
             LOG.debug(f"Running command : {command}")
@@ -1252,9 +1143,8 @@ class UMI(bpy.types.Operator, ImportHelper):
                     imported_data = self.get_imported_data(before_import_data)
                     for d in imported_data:
                         data = self.umi_settings.umi_imported_data.add()
-                        data.data = d["data"]
                         data.data_type = d["data_type"]
-                        data.name = eval(d["data"]).name
+                        data.name = d["data_name"]
 
         del before_import_data
 
@@ -1479,8 +1369,6 @@ class UMI(bpy.types.Operator, ImportHelper):
         LOG.clear_all()
 
     def init_importer(self, context):
-        bpy.utils.unregister_class(UMI_OT_Settings)
-        bpy.utils.register_class(UMI_OT_Settings)
         self._filepaths = None
         self.current_blend_file = bpy.data.filepath
         self.current_files_to_import = []
@@ -1707,7 +1595,7 @@ def menu_func_import(self, context):
     op.filter_svg = False
 
 
-classes = (UMI_OT_Settings, UMI_FileSelection, UMI, UMI_MD5Check)
+classes = (UMI_FileSelection, UMI, UMI_MD5Check)
 
 if BVERSION >= 4.1:
     classes = classes + (IMPORT_SCENE_FH_UMI_3DVIEW, IMPORT_SCENE_FH_UMI_OUTLINER, UMI_OT_Drop_In_Outliner)
