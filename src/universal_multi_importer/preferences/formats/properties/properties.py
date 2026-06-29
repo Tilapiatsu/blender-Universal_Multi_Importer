@@ -1,7 +1,7 @@
 import bpy
 from os import path
 from ....logger import LOG
-from ....umi_const import get_umi_settings, DATATYPE_PROPERTIES
+from ....umi_const import get_umi_settings, DATATYPE_PROPERTIES, SESSION
 from ....preferences.formats import COMPATIBLE_FORMATS
 
 
@@ -23,14 +23,8 @@ def update_file_stats(self, context):
     umi_settings.umi_file_stat_selected_count = len(selected_files)
     umi_settings.umi_file_stat_selected_size = sum(size)
     umi_settings.umi_file_stat_selected_formats = "( " + " | ".join(formats) + " )" if len(formats) else "no"
-    file_selected_format_items = {
-        (
-            COMPATIBLE_FORMATS.get_format_from_extension(f).name.upper(),
-            COMPATIBLE_FORMATS.get_format_from_extension(f).name.upper(),
-            "",
-        )
-        for f in formats
-    }
+    file_selected_format_items = [COMPATIBLE_FORMATS.get_format_from_extension(f).name.upper() for f in formats]
+    SESSION.set_file_selected_format_items(file_selected_format_items)
     umi_settings.umi_file_selected_format_items = str(list(file_selected_format_items))
     if len(formats):
         umi_settings.umi_file_extension_selection = formats[0]
@@ -57,20 +51,19 @@ def update_import_batch_settings(self, context):
 
 
 def get_file_selected_items(self, context):
-    return eval(get_umi_settings().umi_file_selected_format_items)
+    return SESSION.file_selected_format_items
 
 
 def update_file_extension_selection(self, context):
     umi_settings = get_umi_settings()
-    current_extensions = {
+    current_extensions = [
         e.ext.lower() for e in umi_settings.umi_file_selection if e.ext.lower() in COMPATIBLE_FORMATS.extensions
-    }
-    umi_settings.umi_file_extension_selection_items = str([(e, e, "") for e in current_extensions])
+    ]
+    SESSION.set_file_extension_selection_items(current_extensions)
 
 
 def get_file_extension_selection(self, context):
-    file_extensions_selection_items = get_umi_settings().umi_file_extension_selection_items
-    return eval(file_extensions_selection_items)
+    return SESSION.file_extension_selection_items
 
 
 def update_log_drawing(self, context):

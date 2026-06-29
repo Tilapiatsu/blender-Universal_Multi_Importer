@@ -3,6 +3,7 @@ from pathlib import Path
 import bpy
 from .bversion import BVERSION
 from .module_name.module_name import ModuleName
+from .umi_session import ImportSession
 
 ADDON_FOLDER_PATH = os.path.dirname(__file__)
 ADDON_PACKAGE = __package__
@@ -10,6 +11,7 @@ AUTOSAVE_PATH = os.path.join(Path(bpy.utils.script_path_user()).parent.absolute(
 WARNING_ICON = "ERROR" if BVERSION < 4.3 else "WARNING_LARGE"
 DATATYPE_PREFIX = "applies_to"
 MODIFIER_TYPES = [modifier.identifier for modifier in bpy.types.Modifier.bl_rna.properties["type"].enum_items]
+SESSION = ImportSession()
 
 
 def get_datalist():

@@ -24,10 +24,12 @@ class WM_MT_UMIFormatPresets(Menu):
     def preset_subdir(self):
         umi_settings = get_umi_settings()
         current_format = umi_settings.umi_file_format_current_settings.lower()
-        current_module = eval(
-            f"umi_settings.umi_format_import_settings.{current_format}_import_module", {"umi_settings": umi_settings}
-        ).name.lower()
-        return AddUMIFormatPreset.operator_path(current_format, current_module)
+        current_module = getattr(umi_settings.umi_format_import_settings, f"{current_format}_import_module", None)
+
+        assert current_module is not None
+
+        current_module_name = current_module.name.lower()
+        return AddUMIFormatPreset.operator_path(current_format, current_module_name)
 
 
 class AddUMIFormatPreset(AddPresetBase, Operator):
@@ -45,23 +47,27 @@ class AddUMIFormatPreset(AddPresetBase, Operator):
     def preset_subdir(self):
         umi_settings = get_umi_settings()
         current_format = umi_settings.umi_file_format_current_settings.lower()
-        current_module = eval(
-            f"umi_settings.umi_format_import_settings.{current_format}_import_module", {"umi_settings": umi_settings}
-        ).name.lower()
-        return AddUMIFormatPreset.operator_path(current_format, current_module)
+        current_module = getattr(umi_settings.umi_format_import_settings, f"{current_format}_import_module", None)
+
+        assert current_module is not None
+
+        current_module_name = current_module.name.lower()
+        return AddUMIFormatPreset.operator_path(current_format, current_module_name)
 
     @property
     def preset_values(self):
         properties_blacklist = Operator.bl_rna.properties.keys()
         umi_settings = get_umi_settings()
         current_format = umi_settings.umi_file_format_current_settings.lower()
-        current_module = eval(
-            f"umi_settings.umi_format_import_settings.{current_format}_import_module", {"umi_settings": umi_settings}
-        ).name.lower()
+        current_module = getattr(umi_settings.umi_format_import_settings, f"{current_format}_import_module", None)
+
+        assert current_module is not None
+
+        current_module_name = current_module.name.lower()
         from ...format_handler import FormatHandler
 
         settings = FormatHandler(
-            import_format=f"{current_format}", module_name=current_module, context=bpy.context
+            import_format=f"{current_format}", module_name=current_module_name, context=bpy.context
         ).format_settings
 
         ret = []
@@ -105,4 +111,3 @@ def unregister():
 
     for cls in reversed(classes):
         unregister_class(cls)
-
