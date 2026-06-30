@@ -289,7 +289,7 @@ class FormatClassCreator:
                 continue
             try:
                 bpy.utils.register_class(c)
-            except [ValueError, TypeError] as e:
+            except (ValueError, TypeError) as e:
                 print(e, c)
                 continue
 
