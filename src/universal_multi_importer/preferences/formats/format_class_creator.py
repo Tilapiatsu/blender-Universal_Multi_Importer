@@ -24,11 +24,11 @@ class FormatClassCreator:
     _incompatible_subclass = ["Operator", "bpy_struct", "object"]
 
     _property_type = {
-        "STRING": "bpy.props.StringProperty",
-        "ENUM": "bpy.props.EnumProperty",
-        "BOOLEAN": "bpy.props.BoolProperty",
-        "FLOAT": "bpy.props.FloatProperty",
-        "INT": "bpy.props.IntProperty",
+        "STRING": bpy.props.StringProperty,
+        "ENUM": bpy.props.EnumProperty,
+        "BOOLEAN": bpy.props.BoolProperty,
+        "FLOAT": bpy.props.FloatProperty,
+        "INT": bpy.props.IntProperty,
     }
 
     @property
@@ -146,42 +146,43 @@ class FormatClassCreator:
 
                 if p.type == "STRING":
                     command = self._property_type[p.type]
-                    command += self.get_property_command_string(p, default_values=f.default_values)
+                    args = self.get_property_args(p, default_values=f.default_values)
                 elif p.type == "ENUM":
+                    # TODO : Need to fix EnumProperty have double quotes on their values : like '"XYZ_LENGTH"'
                     command = self._property_type[p.type]
-                    command += self.get_property_command_string(
+                    args = self.get_property_args(
                         p,
                         additionnal_props={"items": self.get_enum_items(p.enum_items)},
                         default_values=f.default_values,
                     )
                 elif p.type == "BOOLEAN":
                     command = self._property_type[p.type]
-                    command += self.get_property_command_string(p, default_values=f.default_values)
+                    args = self.get_property_args(p, default_values=f.default_values)
                 elif p.type == "FLOAT":
                     is_array = getattr(p, "is_array", None)
                     if is_array:  # Vector field
-                        command = "bpy.props.FloatVectorProperty"
-                        command += self.get_property_command_string(
+                        command = bpy.props.FloatVectorProperty
+                        args = self.get_property_args(
                             p,
                             additionnal_props={
-                                "subtype": f'"{p.subtype}"',
+                                "subtype": p.subtype,
                                 "size": len(p.default_array),
                                 "min": p.soft_min,
                                 "max": p.soft_max,
-                                "unit": f'"{p.unit}"',
+                                "unit": p.unit,
                                 "precision": p.precision,
                             },
                             default_values=f.default_values,
                         )
                     else:
                         command = self._property_type[p.type]
-                        command += self.get_property_command_string(
+                        args = self.get_property_args(
                             p,
                             additionnal_props={
-                                "subtype": f'"{p.subtype}"',
+                                "subtype": p.subtype,
                                 "min": p.soft_min,
                                 "max": p.soft_max,
-                                "unit": f'"{p.unit}"',
+                                "unit": f"{p.unit}",
                                 "precision": p.precision,
                             },
                             default_values=f.default_values,
@@ -189,26 +190,26 @@ class FormatClassCreator:
                 elif p.type == "INT":
                     is_array = getattr(p, "is_array", None)
                     if is_array:  # Vector field
-                        command = "bpy.props.IntVectorProperty"
-                        command += self.get_property_command_string(
+                        command = bpy.props.IntVectorProperty
+                        args = self.get_property_args(
                             p,
                             additionnal_props={
-                                "subtype": f'"{p.subtype}"',
+                                "subtype": p.subtype,
                                 "size": len(p.default_array),
                                 "min": p.soft_min,
                                 "max": p.soft_max,
-                                "unit": f'"{p.unit}"',
+                                "unit": p.unit,
                             },
                             default_values=f.default_values,
                         )
                     else:
                         command = self._property_type[p.type]
-                        command += self.get_property_command_string(
+                        args = self.get_property_args(
                             p,
-                            additionnal_props={"subtype": f'"{p.subtype}"', "min": p.soft_min, "max": p.soft_max},
+                            additionnal_props={"subtype": p.subtype, "min": p.soft_min, "max": p.soft_max},
                             default_values=f.default_values,
                         )
-                format_class.__annotations__[p.identifier] = eval(command)
+                format_class.__annotations__[p.identifier] = command(**args)
         else:
             # TODO : create a pointer to a settings for each g[0]
             for s in f.import_settings.settings.values():
@@ -243,6 +244,29 @@ class FormatClassCreator:
             name="Forced Properties", default=f"{f.forced_properties}"
         )
         return format_class
+
+    def get_property_args(self, prop, additionnal_props: dict = {}, default_values: dict = {}) -> dict:
+        args = {"name": prop.name, "description": prop.description}
+        default_value = (
+            prop.default if prop.identifier not in default_values.keys() else default_values[prop.identifier]
+        )
+        if prop.type in ["ENUM", "STRING"]:
+            args.update({"default": default_value})
+        elif prop.type in ["FLOAT", "INT"]:
+            is_array = getattr(prop, "is_array", None)
+            if is_array:
+                if prop.name not in default_values.keys():
+                    default_value = list(prop.default_array)
+                args.update({"default": default_value})
+            else:
+                args.update({"default": default_value})
+        else:
+            args.update({"default": default_value})
+        if len(additionnal_props.keys()):
+            for k, v in additionnal_props.items():
+                args.update({k: v})
+
+        return args
 
     def get_property_command_string(self, prop, additionnal_props: dict = {}, default_values: dict = {}):
         command = f'(name="{prop.name}", description="{prop.description}"'
