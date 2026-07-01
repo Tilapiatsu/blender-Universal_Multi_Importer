@@ -148,7 +148,6 @@ class FormatClassCreator:
                     command = self._property_type[p.type]
                     args = self.get_property_args(p, default_values=f.default_values)
                 elif p.type == "ENUM":
-                    # TODO : Need to fix EnumProperty have double quotes on their values : like '"XYZ_LENGTH"'
                     command = self._property_type[p.type]
                     args = self.get_property_args(
                         p,
@@ -266,36 +265,6 @@ class FormatClassCreator:
                 args.update({k: v})
 
         return args
-
-    def get_property_command_string(self, prop, additionnal_props: dict = {}, default_values: dict = {}):
-        command = f'(name="{prop.name}", description="{prop.description}"'
-        default_value = (
-            prop.default if prop.identifier not in default_values.keys() else default_values[prop.identifier]
-        )
-        if prop.type in ["ENUM", "STRING"]:
-            command += f', default="{default_value}"'
-        elif prop.type in ["FLOAT", "INT"]:
-            is_array = getattr(prop, "is_array", None)
-            if is_array:
-                if prop.name not in default_values.keys():
-                    default_value = "["
-                    for i in range(len(prop.default_array)):
-                        if i == 0:
-                            default_value += f"{prop.default_array[i]}"
-                        else:
-                            default_value += f", {prop.default_array[i]}"
-                    default_value += "]"
-                command += f", default={default_value}"
-            else:
-                command += f", default={default_value}"
-        else:
-            command += f", default={default_value}"
-        if len(additionnal_props.keys()):
-            for k, v in additionnal_props.items():
-                command += f", {k}={v}"
-
-        command += ")"
-        return command
 
     def get_enum_items(self, enum):
         command = []

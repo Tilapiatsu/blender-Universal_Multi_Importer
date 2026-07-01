@@ -537,17 +537,6 @@ class CommandBatcher(bpy.types.Operator):
             self.feed_data_from_object_selection()
 
         self.objects_to_process = [o for o in bpy.context.selected_objects]
-        # self.data_to_process = []
-        #
-        # for d in self.umi_settings.umi_imported_data:
-        #     data = d.get_data()
-        #
-        #     if data is None:
-        #         continue
-        #
-        #     self.data_to_process.append(data)
-
-        # TODO: For Data to process it look like the object have to be stored at index 2
 
         object_commands = [Command(data_type="objects", data=o.data, obj=o) for o in self.objects_to_process]
         self.data_to_process = [
@@ -556,22 +545,7 @@ class CommandBatcher(bpy.types.Operator):
         ]
 
         element_list = object_commands + self.data_to_process
-        # element_list = list(
-        #     zip(
-        #         ["objects" for _ in self.objects_to_process],
-        #         self.objects_to_process,
-        #         self.objects_to_process,
-        #         [o.name for o in self.objects_to_process],
-        #     )
-        # ) + list(
-        #     zip(
-        #         [d.data_type for d in self.umi_settings.umi_imported_data],
-        #         self.data_to_process.values(),
-        #         [bpy.data.objects[o] for o in self.data_to_process.keys() if o != "NONE"],
-        #         [d.name for d in self.umi_settings.umi_imported_data],
-        #     )
-        # )
-        #
+
         self.element_to_process_iter = iter(element_list)
 
         if self.execute_each_process and not (self.element_to_process_count + len(self.data_to_process)):
