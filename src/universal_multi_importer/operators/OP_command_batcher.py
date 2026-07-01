@@ -493,10 +493,10 @@ class CommandBatcher(bpy.types.Operator):
                         if self.pre_process_done and not self.each_process_done:
                             if self.current_element_to_process.data_type == "objects":
                                 override["selected_objects"] = [
-                                    bpy.data.objects[self.current_element_to_process.data.name]
+                                    bpy.data.objects[self.current_element_to_process.obj.name]
                                 ]
-                            elif len(command_output_strings[i][4]) > 0:
-                                override["selected_objects"] = [eval(command_output_strings[i][4], {"bpy": bpy})]
+                            elif command_output_strings[i][4] is not None:
+                                override["selected_objects"] = [command_output_strings[i][4]]
 
                         with bpy.context.temp_override(**override):
                             exec(c, {"bpy": bpy})
@@ -587,7 +587,7 @@ class CommandBatcher(bpy.types.Operator):
         )
 
         if self.number_of_operations_to_perform == 0:
-            return {"FINISHED"}
+            self.finish(context)
 
         if not self.importer_mode:
             args = (context,)
@@ -618,7 +618,8 @@ class CommandBatcher(bpy.types.Operator):
         self.process_succeeded = []
         self.processed_elements = {t["name"]: 0 for t in DATATYPE_LIST}
         self.current_element_proccessed = {t["name"]: False for t in DATATYPE_LIST}
-        context.window_manager.event_timer_remove(self._timer)
+        if self._timer is not None:
+            context.window_manager.event_timer_remove(self._timer)
         if not self.importer_mode:
             LOG.clear_all()
             LOG.revert_parameters()

@@ -1,6 +1,6 @@
+import bpy
 import inspect
 from typing import Union, Optional, Dict
-import bpy
 import addon_utils
 from ...preferences.formats.format_definition import FormatDefinition
 from ...preferences.formats import FORMATS
@@ -201,11 +201,12 @@ class CompatibleFormats(object):
         return self._filter_glob
 
     @property
-    def all_formats(self) -> dict[str:Format]:
+    def all_formats(self) -> dict[str, Format]:
+
         return self._all_formats
 
     @property
-    def all_registered_formats(self) -> dict[str:Format]:
+    def all_registered_formats(self) -> dict[str, Format]:
         attributes = inspect.getmembers(CompatibleFormats, lambda a: not (inspect.isroutine(a)))
         formats = [
             a for a in attributes if (not (a[0].startswith("__") and a[0].endswith("__")) and isinstance(a[1], Format))
@@ -213,6 +214,17 @@ class CompatibleFormats(object):
 
         all_formats = {a[0]: a[1] for a in formats}
         return all_formats
+
+    def get_command_from_string(self, command_str: str):
+        command_list = command_str.split(".")[1:]
+        command = bpy
+        for c in command_list:
+            if command is None:
+                raise KeyError
+            command = getattr(command, c, None)
+
+        assert command is not None
+        return command
 
     def get_formats(self) -> list[Format]:
         valid_formats = []
@@ -224,7 +236,7 @@ class CompatibleFormats(object):
                 if o.module is None:
                     # Check Command
                     try:
-                        eval(o.command).__repr__()
+                        self.get_command_from_string(o.command).__repr__()
                     except:
                         assigned.append(False)
                         print(o.command, "not found")
@@ -306,7 +318,7 @@ class CompatibleFormats(object):
 
         for v in operators.values():
             try:
-                eval(v.command).__repr__()
+                self.get_command_from_string(v.command).__repr__()
                 return True
             except AttributeError:
                 continue
