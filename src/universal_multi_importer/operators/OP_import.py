@@ -876,6 +876,8 @@ class UMI(bpy.types.Operator, ImportHelper):
                     {"name": "operator", "operator": o.operator} for o in self.umi_settings.umi_each_operators
                 ]
 
+                print(self.operator_list)
+
                 self.umi_settings.umi_file_selection.clear()
                 self.umi_settings.umi_file_selection_started = False
                 self.pre_process()
@@ -1309,7 +1311,7 @@ class UMI(bpy.types.Operator, ImportHelper):
         if len(new_objects):
             for o in new_objects:
                 if not len(o.users_collection) or o.name in import_col.all_objects:
-                    print(f'skip linking "{o.name}" to collection')
+                    # print(f'skip linking "{o.name}" to collection {import_col.name}')
                     continue
                 previous_col = o.users_collection[0]
                 import_col.objects.link(o)

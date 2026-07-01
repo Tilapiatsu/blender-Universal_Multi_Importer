@@ -586,6 +586,9 @@ class CommandBatcher(bpy.types.Operator):
             + len(self.post_operators_to_process)
         )
 
+        if self.number_of_operations_to_perform == 0:
+            return {"FINISHED"}
+
         if not self.importer_mode:
             args = (context,)
             self._handle = bpy.types.SpaceView3D.draw_handler_add(LOG.draw_callback_px, args, "WINDOW", "POST_PIXEL")
@@ -653,13 +656,15 @@ class CommandBatcher(bpy.types.Operator):
             self.processed_elements[self.current_element_to_process.data_type] += 1
 
         self.global_processed_elements += 1
-        self.current_element_name_to_process = self.current_element_to_process.data.name
+        self.current_element_name_to_process = (
+            self.current_element_to_process.data.name if self.current_element_to_process.data is not None else "None"
+        )
         self.current_element_number += 1
         self.element_progress = round(self.current_element_number * 100 / self.number_of_element_to_process, 2)
         self.current_element_proccessed[self.current_element_to_process.data_type] = False
 
         LOG.info(
-            f'Processing item {self.current_element_number}/{self.number_of_element_to_process} - {self.element_progress}% : "{self.current_element_to_process.data.name}" | {self.current_element_to_process.data_type} type'
+            f'Processing item {self.current_element_number}/{self.number_of_element_to_process} - {self.element_progress}% : "{self.current_element_name_to_process}" | {self.current_element_to_process.data_type} type'
         )
         if not len(self.operators_to_process):
             self.fill_operator_to_process(each_only=True)
