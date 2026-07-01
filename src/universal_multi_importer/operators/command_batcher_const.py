@@ -146,9 +146,6 @@ def get_command_batcher_output_string(
                         continue
                     objects.append(o)
 
-            # elif data_type == "EMPTY":
-            #     objects.append(o)
-
             else:
                 if o.type != data_type:
                     continue
