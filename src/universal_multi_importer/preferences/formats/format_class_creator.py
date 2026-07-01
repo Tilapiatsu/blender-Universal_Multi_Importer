@@ -216,20 +216,19 @@ class FormatClassCreator:
                 if len(s.keys()) == 0:
                     continue
                 for k, v in s.items():
-                    command = f"{v['type']}(name={v['name']}, default={v['default']}"
+                    command = v["type"]
+                    args = {"name": v["name"], "default": v["default"]}
 
                     if "enum_items" in v.keys():
-                        command += f", items={v['enum_items']}"
+                        args.update({"items": v["enum_items"]})
                     if "min" in v.keys():
-                        command += f", min={v['min']}"
+                        args.update({"min": v["min"]})
                     if "max" in v.keys():
-                        command += f", max={v['max']}"
+                        args.update({"max": v["max"]})
                     if "options" in v.keys():
-                        command += f", options={v['options']}"
+                        args.update({"options": v["options"]})
 
-                    command += ")"
-
-                    format_class.__annotations__[k] = eval(command)
+                    format_class.__annotations__[k] = command(**args)
 
         format_class.__annotations__["settings_imported"] = bpy.props.BoolProperty(
             name="Settings imported", default=False, options={"HIDDEN"}

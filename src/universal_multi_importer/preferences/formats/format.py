@@ -1,3 +1,4 @@
+import bpy
 from typing import Union, Optional, Dict
 
 
@@ -31,7 +32,7 @@ class FormatImportSetting:
 
         return self.settings[name]
 
-    def add_set_settings(self, section_name: str, settings: Union[Dict[str, Dict]]) -> None:
+    def add_set_settings(self, section_name: str, settings: Dict[str, Dict]) -> None:
         """
         Add or replace a dict of setting in the given section
         """
@@ -51,8 +52,8 @@ class FormatImportSetting:
             section_name,
             {
                 name: {
-                    "type": "bpy.props.BoolProperty",
-                    "name": f'"{display_name}"',
+                    "type": bpy.props.BoolProperty,
+                    "name": display_name,
                     "default": default,
                     "options": options,
                 }
@@ -70,8 +71,8 @@ class FormatImportSetting:
             section_name,
             {
                 name: {
-                    "type": "bpy.props.FloatProperty",
-                    "name": f'"{display_name}"',
+                    "type": bpy.props.FloatProperty,
+                    "name": display_name,
                     "default": default,
                     "options": options,
                 }
@@ -89,8 +90,8 @@ class FormatImportSetting:
             section_name,
             {
                 name: {
-                    "type": "bpy.props.IntProperty",
-                    "name": f'"{display_name}"',
+                    "type": bpy.props.IntProperty,
+                    "name": display_name,
                     "default": default,
                     "options": options,
                 }
@@ -108,9 +109,9 @@ class FormatImportSetting:
             section_name,
             {
                 name: {
-                    "type": "bpy.props.StringProperty",
-                    "name": f'"{display_name}"',
-                    "default": f'"{default}"',
+                    "type": bpy.props.StringProperty,
+                    "name": display_name,
+                    "default": default,
                     "options": options,
                 }
             },
@@ -122,7 +123,7 @@ class FormatImportSetting:
         name: str,
         display_name: str,
         default: Union[str, set],
-        enum_items: tuple,
+        enum_items: list[tuple[str, str, str, Optional[int]]],
         options: Optional[set] = None,
     ) -> None:
 
@@ -133,9 +134,9 @@ class FormatImportSetting:
             section_name,
             {
                 name: {
-                    "type": "bpy.props.EnumProperty",
-                    "name": f'"{display_name}"',
-                    "default": default if isinstance(default, set) else f'"{default}"',
+                    "type": bpy.props.EnumProperty,
+                    "name": display_name,
+                    "default": default if isinstance(default, set) else default,
                     "enum_items": enum_items,
                     "options": options,
                 }
@@ -210,7 +211,7 @@ class FormatOperators:
         if isinstance(operator, FormatOperator):
             self.operators = {operator.name: operator}
 
-        elif isinstance(operator, dict[str:dict]):
+        elif isinstance(operator, dict):
             self.operators = {
                 operator[0]: FormatOperator(
                     operator[0],
@@ -243,7 +244,7 @@ class FormatOperators:
         if isinstance(operator, FormatOperator):
             self.operators[operator.name] = operator
 
-        elif isinstance(operator, dict[str:dict]):
+        elif isinstance(operator, dict):
             self.operators[operator[0]] = FormatOperator(
                 operator[0],
                 operator[1]["command"],
