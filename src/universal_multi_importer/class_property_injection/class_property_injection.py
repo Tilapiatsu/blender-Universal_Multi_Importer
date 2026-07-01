@@ -3,11 +3,11 @@ import bpy
 
 class ClassPropertyInjection:
     _property_type = {
-        "STRING": "bpy.props.StringProperty",
-        "ENUM": "bpy.props.EnumProperty",
-        "BOOLEAN": "bpy.props.BoolProperty",
-        "FLOAT": "bpy.props.FloatProperty",
-        "INT": "bpy.props.IntProperty",
+        "STRING": bpy.props.StringProperty,
+        "ENUM": bpy.props.EnumProperty,
+        "BOOLEAN": bpy.props.BoolProperty,
+        "FLOAT": bpy.props.FloatProperty,
+        "INT": bpy.props.IntProperty,
     }
 
     def __init__(self, classes: tuple, property_list: tuple[dict]):
@@ -43,16 +43,30 @@ class ClassPropertyInjection:
 
         return self._property_classes
 
-    def inject_property_class(self, property_class: type) -> None:
+    def inject_property_class(self, property_class: type):
         for prop in self._property_list:
             if prop["type"] == "ENUM":
-                command = f'{self._property_type[prop["type"]]}(items={prop["items"]}, name="{prop["name"]}", default="{prop["default"]}", description="{prop["description"]}", set=callable_set, get=callable_get)'
-            else:
-                command = f'{self._property_type[prop["type"]]}(name="{prop["name"]}", default={prop["default"]}, description="{prop["description"]}", set=callable_set, get=callable_get)'
+                command = self._property_type[prop["type"]]
+                args = {
+                    "items": prop["items"],
+                    "name": prop["name"],
+                    "default": prop["default"],
+                    "description": prop["description"],
+                    "set": prop["set"],
+                    "get": prop["get"],
+                }
 
-            property_class.__annotations__[f"{prop['property']}"] = eval(
-                command, {"callable_set": prop["set"], "callable_get": prop["get"], "bpy": bpy}
-            )
+            else:
+                command = self._property_type[prop["type"]]
+                args = {
+                    "name": prop["name"],
+                    "default": prop["default"],
+                    "description": prop["description"],
+                    "set": prop["set"],
+                    "get": prop["get"],
+                }
+
+            property_class.__annotations__[f"{prop['property']}"] = command(**args)
 
         return property_class
 
@@ -63,7 +77,7 @@ class ClassPropertyInjection:
                 continue
             try:
                 bpy.utils.register_class(c)
-            except [ValueError, TypeError] as e:
+            except (ValueError, TypeError) as e:
                 print(e, c)
                 continue
 
