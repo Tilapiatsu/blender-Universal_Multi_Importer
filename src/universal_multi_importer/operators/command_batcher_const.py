@@ -52,7 +52,7 @@ def revert_to_default(self, context):
 
     umi_settings.umi_updating_batcher_variable = True
     for v in COMMAND_BATCHER_VARIABLE.values():
-        exec(f"self.{v['property']} = {v['default']}", {"self": self})
+        setattr(self, v["property"], v["default"])
     umi_settings.umi_updating_batcher_variable = False
 
 

@@ -1129,6 +1129,7 @@ class UMI(bpy.types.Operator, ImportHelper):
         # Execute the import command
         try:
             LOG.debug(f"Running command : {command}")
+            # TODO : Use of exec
             exec(command, {"bpy": bpy})
         except Exception as e:
             LOG.error(e)

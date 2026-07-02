@@ -119,26 +119,24 @@ def draw_applies_to(self, layout):
 
 def read_applies_to(self, current_operator):
     for d in DATATYPE_PROPERTIES:
-        exec(
-            f"self.{d['property']} = current_operator.{d['property']}",
-            {"self": self, "current_operator": current_operator},
-        )
+        # TODO: Use of exec
+        op = getattr(current_operator, d["property"], None)
+        assert op is not None
+        setattr(self, d["property"], op)
 
 
 def set_applies_to(self, current_operator):
     for d in DATATYPE_PROPERTIES:
-        exec(
-            f"current_operator.{d['property']} = self.{d['property']}",
-            {"self": self, "current_operator": current_operator},
-        )
+        op = getattr(self, d["property"], None)
+        assert op is not None
+        setattr(current_operator, d["property"], op)
 
 
 def set_applies_to_from_duplicate(self, current_operator, reference_operator):
     for d in DATATYPE_PROPERTIES:
-        exec(
-            f"current_operator.{d['property']} = reference_operator.{d['property']}",
-            {"self": self, "current_operator": current_operator, "reference_operator": reference_operator},
-        )
+        op = getattr(reference_operator, d["property"], None)
+        assert op is not None
+        setattr(current_operator, d["property"], op)
 
 
 def draw_add_edit_operator(self, layout):

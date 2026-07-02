@@ -4,7 +4,7 @@ from typing import Union, Optional, Dict
 import addon_utils
 from ...preferences.formats.format_definition import FormatDefinition
 from ...preferences.formats import FORMATS
-from ...preferences.formats.format import Format
+from ...preferences.formats.format import Format, FormatImportSetting
 from ...logger import LOG
 from ...preferences.formats.panels import get_panels
 from ...preferences.formats.panels.presets import format_preset
@@ -16,7 +16,7 @@ class CompatibleFormats(object):
     def __init__(self):
         self._all_formats = {}
         for f in FORMATS:
-            exec(f'self._all_formats["{f}"] = Format', {"self": self, "Format": getattr(FormatDefinition, f)})
+            self._all_formats[f] = getattr(FormatDefinition, f)
         self._extensions = None
         self._extensions_string = None
         self._operators = None
@@ -26,7 +26,7 @@ class CompatibleFormats(object):
         self._filter_glob = None
         # automatically gather format
         self.formats = self.get_formats()
-        self.formats_dict: dict[str:Format] = {f.name: f for f in self.formats}
+        self.formats_dict: dict[str, Format] = {f.name: f for f in self.formats}
 
     def is_format_installed(self, addon_name):
         return addon_name in self.installed_addons

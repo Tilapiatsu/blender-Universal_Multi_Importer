@@ -499,6 +499,7 @@ class CommandBatcher(bpy.types.Operator):
                                 override["selected_objects"] = [command_output_strings[i][4]]
 
                         with bpy.context.temp_override(**override):
+                            # TODO: Use of exec
                             exec(c, {"bpy": bpy})
 
                         LOG.store_success("Command executed successfully")
