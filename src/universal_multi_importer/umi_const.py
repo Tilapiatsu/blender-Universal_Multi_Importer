@@ -4,6 +4,7 @@ import bpy
 from .bversion import BVERSION
 from .module_name.module_name import ModuleName
 from .umi_session import ImportSession
+from .logger import Logger
 
 ADDON_FOLDER_PATH = os.path.dirname(__file__)
 ADDON_PACKAGE = __package__
@@ -199,3 +200,10 @@ def init_current_item_index(umi_settings):
 EXTENSION_MODULE_NAME = ModuleName()
 
 GITHUB_NEW_ISSUE_URL = "https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/issues/new"
+
+
+def get_fontsize():
+    return get_umi_settings().umi_font_size
+
+
+LOG = Logger(get_colors=get_umi_colors, get_fontsize=get_fontsize, log_name="UMI")

@@ -1,7 +1,7 @@
 import bpy
 import re
 from pathlib import Path
-from ..logger import LOG
+from ..umi_const import LOG
 from mathutils import Vector
 
 
@@ -400,4 +400,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-

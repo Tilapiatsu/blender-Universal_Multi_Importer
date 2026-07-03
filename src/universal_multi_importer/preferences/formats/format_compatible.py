@@ -5,11 +5,11 @@ import addon_utils
 from ...preferences.formats.format_definition import FormatDefinition
 from ...preferences.formats import FORMATS
 from ...preferences.formats.format import Format, FormatImportSetting
-from ...logger import LOG
 from ...preferences.formats.panels import get_panels
 from ...preferences.formats.panels.presets import format_preset
 from ...bversion import AddonVersion
 from ...bversion.version.version import Version
+from ...umi_const import LOG
 
 
 class CompatibleFormats(object):

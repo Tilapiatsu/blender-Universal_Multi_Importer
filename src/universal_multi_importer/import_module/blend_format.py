@@ -1,7 +1,7 @@
 import bpy
 from os import path
 from ..unique_name.unique_name import UniqueName
-from ..logger import LOG
+from ..umi_const import LOG
 from ..bversion import BVERSION
 
 
@@ -643,4 +643,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-

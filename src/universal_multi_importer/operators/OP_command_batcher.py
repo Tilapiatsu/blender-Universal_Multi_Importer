@@ -2,8 +2,7 @@ import bpy
 import time, math, re, itertools
 from typing import Optional, Any
 from dataclasses import dataclass
-from ..logger import LOG, LoggerColors
-from ..umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_current_item_index
+from ..umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_current_item_index, LOG
 from ..operators.command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
 
 
@@ -245,14 +244,14 @@ class CommandBatcher(bpy.types.Operator):
     def log_end_text(self):
         LOG.info("-----------------------------------")
         if self.canceled:
-            LOG.info("Batch Process cancelled !", color=LoggerColors.CANCELLED_COLOR())
+            LOG.info("Batch Process cancelled !", color=LOG.logger_color.CANCELLED_COLOR())
         else:
             if False in self.process_succeeded:
-                LOG.info("Batch Process completed with errors !", color=LoggerColors.ERROR_COLOR())
+                LOG.info("Batch Process completed with errors !", color=LOG.logger_color.ERROR_COLOR())
                 LOG.esc_message = "[Esc] to Hide"
                 LOG.message_offset = 4
             else:
-                LOG.info("Batch Process completed successfully !", color=LoggerColors.SUCCESS_COLOR())
+                LOG.info("Batch Process completed successfully !", color=LOG.logger_color.SUCCESS_COLOR())
                 LOG.esc_message = "[Esc] to Hide"
                 LOG.message_offset = 4
         LOG.info("Click [ESC] to hide this text ...")
@@ -370,7 +369,7 @@ class CommandBatcher(bpy.types.Operator):
                 and not self.post_processing
             ):
                 if len(self.post_operators_to_process) and self.execute_post_process:
-                    LOG.info(f"Start Post-Processing commands", color=LoggerColors.DEFAULT_COLOR())
+                    LOG.info(f"Start Post-Processing commands", color=LOG.logger_color.DEFAULT_COLOR())
                     self.post_processing = True
                     self.each_process_done = True
                 else:
@@ -401,7 +400,7 @@ class CommandBatcher(bpy.types.Operator):
             # Pre-Process Done
             elif not self.pre_process_done and self.current_command is None and not len(self.pre_operators_to_process):
                 if not self.importer_mode:
-                    LOG.info(f"Start processing Each Element commands", color=LoggerColors.DEFAULT_COLOR())
+                    LOG.info(f"Start processing Each Element commands", color=LOG.logger_color.DEFAULT_COLOR())
                 self.pre_process_done = True
                 self.pre_processing = False
 
@@ -447,7 +446,7 @@ class CommandBatcher(bpy.types.Operator):
                         self.current_command = None
                         LOG.info(
                             f"Skipping : command does NOT applied to this data type : {self.current_element_to_process.data_type}",
-                            color=LoggerColors.COMMAND_WARNING_COLOR(),
+                            color=LOG.logger_color.COMMAND_WARNING_COLOR(),
                         )
                         return {"PASS_THROUGH"}
 
@@ -462,7 +461,7 @@ class CommandBatcher(bpy.types.Operator):
                             self.current_command = None
                             LOG.info(
                                 f"Skipping : command does NOT applied to this modifier type : {self.current_element_to_process.data_type}",
-                                color=LoggerColors.COMMAND_WARNING_COLOR(),
+                                color=LOG.logger_color.COMMAND_WARNING_COLOR(),
                             )
                             return {"PASS_THROUGH"}
 
@@ -487,7 +486,7 @@ class CommandBatcher(bpy.types.Operator):
                             continue
                         LOG.info(
                             f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress, 2)}% : "{c}"',
-                            color=LoggerColors.COMMAND_COLOR(),
+                            color=LOG.logger_color.COMMAND_COLOR(),
                         )
                         override = {}
                         if self.pre_process_done and not self.each_process_done:
@@ -596,7 +595,7 @@ class CommandBatcher(bpy.types.Operator):
 
         if len(self.pre_operators_to_process) and self.execute_pre_process:
             self.pre_processing = True
-            LOG.info(f"Start Pre-Processing commands", color=LoggerColors.DEFAULT_COLOR())
+            LOG.info(f"Start Pre-Processing commands", color=LOG.logger_color.DEFAULT_COLOR())
         else:
             self.pre_process_done = True
 

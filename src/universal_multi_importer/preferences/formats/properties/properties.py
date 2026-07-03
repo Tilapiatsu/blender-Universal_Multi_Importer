@@ -1,7 +1,6 @@
 import bpy
 from os import path
-from ....logger import LOG
-from ....umi_const import get_umi_settings, DATATYPE_PROPERTIES, SESSION
+from ....umi_const import get_umi_settings, DATATYPE_PROPERTIES, SESSION, LOG
 from ....preferences.formats import COMPATIBLE_FORMATS
 
 

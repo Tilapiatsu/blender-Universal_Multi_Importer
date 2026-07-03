@@ -1,11 +1,10 @@
 import bpy
 from ..bversion import BVERSION
 from ..bversion.version.version import Version
-from ..logger import LOG
 from ..preferences.formats.properties.properties import PG_UMISettings
 from ..preferences.colors.presets import color_preset
 from ..preferences.colors.colors import PG_UMIColors
-from ..umi_const import ADDON_PACKAGE
+from ..umi_const import ADDON_PACKAGE, LOG
 
 PREFERENCE_TABS = [("FORMATS", "Formats", ""), ("COLORS", "Colors", ""), ("GENERAL", "General", "")]
 
@@ -220,14 +219,14 @@ class Preferences(bpy.types.AddonPreferences):
             col = box.row(align=True)
             col.label(text="Theme", icon="IMAGE_BACKGROUND")
             color_preset.panel_func(col)
-            box.prop(self.umi_colors, "umi_info_color")
-            box.prop(self.umi_colors, "umi_success_color")
-            box.prop(self.umi_colors, "umi_cancelled_color")
-            box.prop(self.umi_colors, "umi_warning_color")
-            box.prop(self.umi_colors, "umi_error_color")
-            box.prop(self.umi_colors, "umi_command_color")
-            box.prop(self.umi_colors, "umi_command_warning_color")
-            box.prop(self.umi_colors, "umi_import_color")
+            box.prop(self.umi_colors, "info_color")
+            box.prop(self.umi_colors, "success_color")
+            box.prop(self.umi_colors, "cancelled_color")
+            box.prop(self.umi_colors, "warning_color")
+            box.prop(self.umi_colors, "error_color")
+            box.prop(self.umi_colors, "command_color")
+            box.prop(self.umi_colors, "command_warning_color")
+            box.prop(self.umi_colors, "import_color")
 
         elif self.tabs == "GENERAL":
             box.prop(self.umi_settings, "umi_window_width")

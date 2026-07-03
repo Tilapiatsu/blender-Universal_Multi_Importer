@@ -14,9 +14,8 @@ from ..preferences.formats.properties.properties import (
     update_file_extension_selection,
 )
 from ..operators.OP_command_batcher import draw_command_batcher
-from ..umi_const import get_umi_settings, AUTOSAVE_PATH, init_current_item_index
+from ..umi_const import get_umi_settings, AUTOSAVE_PATH, init_current_item_index, LOG
 from ..preferences.formats.panels.presets import import_preset
-from ..logger import LOG, LoggerColors
 from ..bversion import BVERSION
 from ..unique_name.unique_name import UniqueName
 
@@ -689,15 +688,15 @@ class UMI(bpy.types.Operator, ImportHelper):
         LOG.info("-----------------------------------")
         if self.import_complete:
             if False in self.files_succeeded:
-                LOG.info("Batch Import completed with errors !", color=LoggerColors.ERROR_COLOR())
+                LOG.info("Batch Import completed with errors !", color=LOG.logger_color.ERROR_COLOR())
                 LOG.esc_message = "[Esc] to Hide"
                 LOG.message_offset = 4
             else:
-                LOG.info("Batch Import completed successfully !", color=LoggerColors.SUCCESS_COLOR())
+                LOG.info("Batch Import completed successfully !", color=LOG.logger_color.SUCCESS_COLOR())
                 LOG.esc_message = "[Esc] to Hide"
                 LOG.message_offset = 4
         else:
-            LOG.info("Batch Import cancelled !", color=LoggerColors.CANCELLED_COLOR())
+            LOG.info("Batch Import cancelled !", color=LOG.logger_color.CANCELLED_COLOR())
 
         LOG.info("Click [ESC] to hide this text ...")
         LOG.info("-----------------------------------")
@@ -875,8 +874,6 @@ class UMI(bpy.types.Operator, ImportHelper):
                 self.operator_list = [
                     {"name": "operator", "operator": o.operator} for o in self.umi_settings.umi_each_operators
                 ]
-
-                print(self.operator_list)
 
                 self.umi_settings.umi_file_selection.clear()
                 self.umi_settings.umi_file_selection_started = False
@@ -1066,71 +1063,33 @@ class UMI(bpy.types.Operator, ImportHelper):
 
         operator = COMPATIBLE_FORMATS.get_operator_name_from_extension(ext)
         assert operator is not None
-        import_command = operator[current_module_name].command
+
+        command_str = operator[current_module_name].command
+        import_command = COMPATIBLE_FORMATS.get_command_from_string(command_str)
+        assert import_command is not None
 
         # Double \\ in the path causing error in the string
-        args = current_format[current_module_name].format_settings_dict
+        args = current_format[current_module_name].format_settings_dict.copy()
+
         raw_path = filepath.replace("\\\\", punctuation[23])
 
         # if format_name == 'image' and current_module in ['plane']:
         if "files" in args["forced_properties"]:
-            args["files"] = '[{"name":' + f'r"{raw_path}"' + "}]"
+            args["files"] = [{"name": raw_path}]
 
         if "directory" in args["forced_properties"]:
-            args["directory"] = f'r"{str(Path(raw_path).parent)}"'
+            args["directory"] = str(Path(raw_path).parent)
 
-        args["filepath"] = f'r"{raw_path}"'
+        args["filepath"] = raw_path
 
-        args_as_string = ""
-        arg_number = len(args.keys())
-        for k, v in args.items():
-            if k in [
-                "settings_imported",
-                "name",
-                "addon_name",
-                "supported_version",
-                "forced_properties",
-                "bl_system_properties_get",
-            ]:
-                arg_number -= 1
-                continue
-            if isinstance(v, bpy.types.bpy_prop_collection):
-                if not len(v):
-                    continue
+        args.pop("forced_properties", None)
+        args.pop("bl_system_properties_get", None)
 
-                col_as_string = ""
-                for i, f in enumerate(v):
-                    if i == 0:
-                        col_as_string += "["
-                    elif i < len(v) - 1:
-                        col_as_string += ","
-
-                    col_as_string += f'"{f}"'
-                col_as_string += "]"
-
-                args_as_string += f" {k}={col_as_string}"
-            elif isinstance(v, Vector) or isinstance(v, Euler) or isinstance(v, Color):
-                val = "["
-                for i in range(len(v)):
-                    if i == 0:
-                        val += f"{v[i]}"
-                    else:
-                        val += f", {v[i]}"
-                val += "]"
-                args_as_string += f" {k}={val}"
-            else:
-                args_as_string += f" {k}={v}"
-            if arg_number >= 2:
-                args_as_string += ","
-
-            arg_number -= 1
-
-        command = "{}({})".format(import_command, args_as_string)
-        # Execute the import command
         try:
-            LOG.debug(f"Running command : {command}")
-            # TODO : Use of exec
-            exec(command, {"bpy": bpy})
+            LOG.debug(
+                f"Running command : {command_str}({str([str(k) + ' = ' + str(v) for k, v in args.items()])[1:-1]})"
+            )
+            import_command(**args)
         except Exception as e:
             LOG.error(e)
             LOG.store_failure(e)
@@ -1192,7 +1151,7 @@ class UMI(bpy.types.Operator, ImportHelper):
 
         LOG.info(
             f"Importing file {len(self.imported_files) + 1}/{self.number_of_files} - {round(self.progress, 2)}% - {round(current_file_size, 2)}MB : {filename}",
-            color=LoggerColors.IMPORT_COLOR(),
+            color=LOG.logger_color.IMPORT_COLOR(),
         )
         self.current_backup_step += current_file_size
 

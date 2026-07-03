@@ -119,7 +119,6 @@ def draw_applies_to(self, layout):
 
 def read_applies_to(self, current_operator):
     for d in DATATYPE_PROPERTIES:
-        # TODO: Use of exec
         op = getattr(current_operator, d["property"], None)
         assert op is not None
         setattr(self, d["property"], op)

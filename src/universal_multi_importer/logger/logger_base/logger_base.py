@@ -5,6 +5,7 @@ from logging.handlers import RotatingFileHandler
 from os import path
 from mathutils import Color
 from .logger_const import LoggerColors, MessageType
+from collections.abc import Callable
 
 
 def get_log_file():
@@ -62,7 +63,7 @@ class MessageColored:
 
 
 class Logger:
-    def __init__(self, log_name="ROOT"):
+    def __init__(self, get_colors: Callable, get_fontsize: Callable, log_name="ROOT"):
         self.log_name = log_name
 
         self.logger = logging.getLogger(log_name)
@@ -77,12 +78,17 @@ class Logger:
         self.warnings = []
         self.messages = MessageColored()
         self.message_types = []
+        self.logger_color = LoggerColors(get_colors)
 
         self._pretty = "---------------------"
 
-        self.color = Color(LoggerColors.DEFAULT_COLOR())
-        self.fontsize = 12
+        self.color = Color(self.logger_color.DEFAULT_COLOR())
+        self.get_fontsize = get_fontsize
         self.display_debug = False
+
+    @property
+    def fontsize(self):
+        return self.get_fontsize()
 
     def revert_parameters(self):
         self.successes = []
@@ -92,7 +98,7 @@ class Logger:
         self.messages = MessageColored()
 
     def info(self, message, skip_prefix=False, color=None):
-        self.color = Color(LoggerColors.DEFAULT_COLOR())
+        self.color = Color(self.logger_color.DEFAULT_COLOR())
         message = str(message)
         if not skip_prefix:
             message = "{} : INFO - ".format(self.log_name) + message
@@ -100,7 +106,7 @@ class Logger:
         if color is not None:
             self.messages.append(message=message, color=Color(color))
         else:
-            self.messages.append(message=message, color=Color(LoggerColors.DEFAULT_COLOR()))
+            self.messages.append(message=message, color=Color(self.logger_color.DEFAULT_COLOR()))
 
         self.logger.info(message)
 
@@ -109,7 +115,7 @@ class Logger:
         if not skip_prefix:
             message = "{} : SUCCESS - ".format(self.log_name) + message
 
-        self.messages.append(message=message, color=Color(LoggerColors.SUCCESS_COLOR()))
+        self.messages.append(message=message, color=Color(self.logger_color.SUCCESS_COLOR()))
 
         if show_message:
             self.logger.info(message)
@@ -128,14 +134,14 @@ class Logger:
         message = str(message)
         if not skip_prefix:
             message = "{} : WARNING - ".format(self.log_name) + message
-        self.messages.append(message=message, color=Color(LoggerColors.WARNING_COLOR()))
+        self.messages.append(message=message, color=Color(self.logger_color.WARNING_COLOR()))
         self.logger.warning(message)
 
     def error(self, message, skip_prefix=False):
         message = str(message)
         if not skip_prefix:
             message = "{} : ERROR - ".format(self.log_name) + message
-        self.messages.append(message=message, color=Color(LoggerColors.ERROR_COLOR()))
+        self.messages.append(message=message, color=Color(self.logger_color.ERROR_COLOR()))
         self.logger.error(message)
 
     def set_basic_config(self):

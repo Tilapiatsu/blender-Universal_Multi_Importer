@@ -94,8 +94,6 @@ class FormatHandler:
                 d[k] = getattr(self.format_settings, k)
                 if k == "forced_properties":
                     d[k] = [p for p in d[k].replace("'", "")[1:-1].split(",")]
-                elif isinstance(d[k], str):
-                    d[k] = f'"{d[k]}"'
 
             self._format_settings_dict = d
 

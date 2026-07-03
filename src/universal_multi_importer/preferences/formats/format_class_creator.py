@@ -116,14 +116,7 @@ class FormatClassCreator:
 
         if f.import_settings is None:
             try:
-                command_list = f.command.split(".")[1:]
-                command = bpy
-                for c in command_list:
-                    if command is None:
-                        raise KeyError
-                    command = getattr(command, c, None)
-
-                assert command is not None
+                command = COMPATIBLE_FORMATS.get_command_from_string(f.command)
 
                 rna = command.get_rna_type()
                 properties = rna.properties
@@ -135,8 +128,12 @@ class FormatClassCreator:
                     name="Addon Name", default=f.addon_name if f.addon_name else ""
                 )
                 format_class.__annotations__["supported_version"] = bpy.props.StringProperty(
-                    name="Addon Name", default=f.supported_version
+                    name="Supported Version", default=f.supported_version
                 )
+                format_class.__annotations__["forced_properties"] = bpy.props.StringProperty(
+                    name="Addon Name", default="[]"
+                )
+
                 print(f"{f.addon_name} NOT imported properly")
                 return format_class
 
