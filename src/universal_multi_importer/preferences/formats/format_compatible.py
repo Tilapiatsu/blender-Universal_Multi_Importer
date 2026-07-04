@@ -1,10 +1,9 @@
 import bpy
 import inspect
-from typing import Union, Optional, Dict
 import addon_utils
 from ...preferences.formats.format_definition import FormatDefinition
 from ...preferences.formats import FORMATS
-from ...preferences.formats.format import Format, FormatImportSetting
+from ...preferences.formats.format import Format
 from ...preferences.formats.panels import get_panels
 from ...preferences.formats.panels.presets import format_preset
 from ...bversion import AddonVersion
@@ -16,7 +15,21 @@ class CompatibleFormats(object):
     def __init__(self):
         self._all_formats = {}
         for f in FORMATS:
-            self._all_formats[f] = getattr(FormatDefinition, f)
+            format = getattr(FormatDefinition, f, None)
+            assert format is not None
+            to_remove = []
+            for name, o in format.operators.items():
+                if o.invalid:
+                    to_remove.append(name)
+
+            for n in to_remove:
+                format.operators.remove(n)
+
+            if not len(format.operators):
+                continue
+
+            self._all_formats[f] = format
+
         self._extensions = None
         self._extensions_string = None
         self._operators = None

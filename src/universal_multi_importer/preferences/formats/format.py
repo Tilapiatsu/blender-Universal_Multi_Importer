@@ -164,6 +164,7 @@ class FormatOperator:
         import_data: Optional[bool] = True,
         import_settings: Optional[FormatImportSetting] = None,
         description: Optional[str] = "",
+        invalid: bool = False,
     ):
 
         self.name = name
@@ -180,6 +181,7 @@ class FormatOperator:
         self.default_values = default_values
         self.forced_properties = forced_properties
         self.description = description
+        self.invalid = invalid
 
     def as_dict(self) -> dict:
         """
@@ -202,6 +204,7 @@ class FormatOperator:
                 "default_values": self.default_values,
                 "forced_properties": self.forced_properties,
                 "description": self.description,
+                "invalid": self.invalid,
             }
         }
 
@@ -232,6 +235,7 @@ class FormatOperators:
                     if "import_settings" not in operator[1].keys()
                     else operator[1]["import_settings"],
                     description="" if "description" not in operator[1].keys() else operator[1]["description"],
+                    invalid=operator[1]["invalid"],
                 )
             }
 
@@ -260,12 +264,16 @@ class FormatOperators:
                 import_data=True if "import_data" not in operator[1].keys() else operator[1]["import_data"],
                 import_settings=None if "import_settings" not in operator[1].keys() else operator[1]["import_settings"],
                 description="" if "description" not in operator[1].keys() else operator[1]["description"],
+                invalid=operator[1]["invalid"],
             )
 
         else:
             raise ValueError(
                 f'operator parameters should NOT be of type "{type(operator)}" \n It should be either tuple[str, dict] or FormatOperator type'
             )
+
+    def remove(self, name: str):
+        self.operators.pop(name, None)
 
     def as_dict(self) -> dict:
         """
@@ -278,6 +286,24 @@ class FormatOperators:
             d.update(v.as_dict())
 
         return d
+
+    def __len__(self) -> int:
+        return len(self.operators.keys())
+
+    def __getitem__(self, key: str):
+        return self.operators[key]
+
+    def __setitem__(self, key: str, item):
+        self.operators[key] = item
+
+    def keys(self):
+        return self.operators.keys()
+
+    def values(self):
+        return self.operators.values()
+
+    def items(self):
+        return self.operators.items()
 
 
 class Format:
