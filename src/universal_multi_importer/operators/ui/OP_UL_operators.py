@@ -212,7 +212,11 @@ class UI_UMIMoveOperator(bpy.types.Operator):
             nextidx = min(idx + 1, len(operator) - 1)
 
         operator.move(idx, nextidx)
-        exec(f"umi_settings.{get_batcher_index_name()} = nextidx")
+
+        batcher_list = getattr(umi_settings, get_batcher_index_name(), None)
+        assert batcher_list is not None
+
+        setattr(umi_settings, get_batcher_index_name(), nextidx)
 
         return {"FINISHED"}
 
