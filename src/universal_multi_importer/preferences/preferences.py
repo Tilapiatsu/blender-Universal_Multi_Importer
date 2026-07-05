@@ -4,7 +4,7 @@ from ..bversion.version.version import Version
 from ..preferences.formats.properties.properties import PG_UMISettings
 from ..preferences.colors.presets import color_preset
 from ..preferences.colors.colors import PG_UMIColors
-from ..umi_const import ADDON_PACKAGE, LOG
+from ..umi_const import ADDON_PACKAGE, LOG, EXTENSION_SUPPORT, GITHUB_RELEASE_URL
 
 PREFERENCE_TABS = [("FORMATS", "Formats", ""), ("COLORS", "Colors", ""), ("GENERAL", "General", "")]
 
@@ -30,17 +30,26 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
     col.label(text="Installed Formats", icon="DOCUMENTS")
     col.ui_units_x = 4
 
+    if not EXTENSION_SUPPORT:
+        bbox = layout.box()
+        bbox.alert = True
+        bbox.label(text="A version of this addon supporting more import formats is available in github")
+        bbox.operator("wm.url_open", text="Open Release Page", icon="URL").url = GITHUB_RELEASE_URL
+
     bbox = layout.box()
     bbox.operator("preferences.umi_check_addon_dependency", icon="FILE_REFRESH")
+    # Addon not scanned
     if not len(addon_dependencies):
         bbox.alert = True
         bbox.label(text=f"Addon dependency status have to be refreshed", icon="FILE_REFRESH")
+    # Everything is installed and ready to use
     elif (
         umi_settings.umi_all_addon_dependencies_installed
         and umi_settings.umi_all_addon_dependencies_enabled
         and not umi_settings.umi_addon_dependency_need_reboot
     ):
         bbox.label(text=f"All formats are installed/enabled/updated properly", icon="CHECKMARK")
+    # Everything is installed, but reboot is needed
     elif (
         umi_settings.umi_all_addon_dependencies_installed
         and umi_settings.umi_all_addon_dependencies_enabled
@@ -55,6 +64,7 @@ def draw_addon_formats(context, layout, addon_dependencies, umi_settings):
         col.label(text=f"Disable Universal Multi Importer Addon", icon="RADIOBUT_ON")
         col.label(text=f"Restart Blender", icon="RADIOBUT_ON")
         col.label(text=f"Enable Universal Multi Importer Addon again", icon="RADIOBUT_ON")
+    # Some formats need to be installed / enable / update
     else:
         bbox.label(
             text=f"Some formats are currently not installed/enabled/updated. If you want to use them with this addon, you will have to :",

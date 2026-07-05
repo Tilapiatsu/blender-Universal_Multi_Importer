@@ -200,6 +200,7 @@ def init_current_item_index(umi_settings):
 EXTENSION_MODULE_NAME = ModuleName()
 
 GITHUB_NEW_ISSUE_URL = "https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/issues/new"
+GITHUB_RELEASE_URL = "https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/releases"
 
 
 def get_fontsize():
@@ -207,3 +208,5 @@ def get_fontsize():
 
 
 LOG = Logger(get_colors=get_umi_colors, get_fontsize=get_fontsize, log_name="UMI")
+
+EXTENSION_SUPPORT = (Path(__file__).parent / "preferences" / "formats" / "extensions").exists()
