@@ -22,7 +22,13 @@ def update_file_stats(self, context):
     umi_settings.umi_file_stat_selected_count = len(selected_files)
     umi_settings.umi_file_stat_selected_size = sum(size)
     umi_settings.umi_file_stat_selected_formats = "( " + " | ".join(formats) + " )" if len(formats) else "no"
-    file_selected_format_items = [COMPATIBLE_FORMATS.get_format_from_extension(f).name.upper() for f in formats]
+    file_selected_format_items = []
+    for f in formats:
+        f_name = COMPATIBLE_FORMATS.get_format_from_extension(f).name.upper()
+        if f_name in file_selected_format_items:
+            continue
+        file_selected_format_items.append(f_name)
+
     SESSION.set_file_selected_format_items(file_selected_format_items)
     umi_settings.umi_file_selected_format_items = str(list(file_selected_format_items))
     if len(formats):
