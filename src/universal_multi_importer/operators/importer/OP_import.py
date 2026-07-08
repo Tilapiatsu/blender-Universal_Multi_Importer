@@ -6,18 +6,24 @@ from os import path
 from pathlib import Path
 import math
 from string import punctuation
-from ..preferences.formats import COMPATIBLE_FORMATS
-from ..preferences.formats.format_handler import FormatHandler
-from ..preferences.formats.properties.properties import (
+from ...preferences.formats import COMPATIBLE_FORMATS
+from ...preferences.formats.format_handler import FormatHandler
+from ...preferences.formats.properties.properties import (
     update_file_stats,
     get_file_selected_items,
     update_file_extension_selection,
 )
-from ..operators.OP_command_batcher import draw_command_batcher
-from ..umi_const import get_umi_settings, AUTOSAVE_PATH, init_current_item_index, LOG
-from ..preferences.formats.panels.presets import import_preset
-from ..bversion import BVERSION
-from ..unique_name.unique_name import UniqueName
+from ...umi_const import get_umi_settings, AUTOSAVE_PATH, init_current_item_index, LOG
+from ...preferences.formats.panels.presets import import_preset
+from ...bversion import BVERSION
+from ...unique_name.unique_name import UniqueName
+
+try:
+    from ..batcher.OP_command_batcher import draw_command_batcher
+
+    BATCHER = True
+except ImportError:
+    BATCHER = False
 
 
 # From https://gist.github.com/laundmo/b224b1f4c8ef6ca5fe47e132c8deab56
@@ -370,7 +376,7 @@ class UMI_FileSelection(bpy.types.Operator):
                 col1.separator()
                 import_preset.panel_func(box)
                 self.draw_global_settings(context, box)
-            elif self.umi_settings.umi_import_batch_settings == "BATCHER":
+            elif BATCHER and self.umi_settings.umi_import_batch_settings == "BATCHER":
                 col1.separator()
                 draw_command_batcher(self, context, box)
 
@@ -713,6 +719,8 @@ class UMI(bpy.types.Operator, ImportHelper):
                 return found
 
     def pre_process(self):
+        if not BATCHER:
+            return
         bpy.ops.object.tila_umi_command_batcher(
             "INVOKE_DEFAULT",
             importer_mode=True,
@@ -722,6 +730,9 @@ class UMI(bpy.types.Operator, ImportHelper):
         )
 
     def post_process(self):
+        if not BATCHER:
+            return
+
         self.post_processing = True
         bpy.ops.object.tila_umi_command_batcher(
             "INVOKE_DEFAULT",
@@ -735,6 +746,10 @@ class UMI(bpy.types.Operator, ImportHelper):
         bpy.ops.object.select_all(action="DESELECT")
         for o in objects:
             bpy.data.objects[o.name].select_set(True)
+
+        if not BATCHER:
+            return
+
         bpy.ops.object.tila_umi_command_batcher(
             "INVOKE_DEFAULT",
             importer_mode=True,

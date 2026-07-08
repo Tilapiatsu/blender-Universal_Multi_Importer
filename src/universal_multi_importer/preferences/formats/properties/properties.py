@@ -1,6 +1,6 @@
 import bpy
 from os import path
-from ....umi_const import get_umi_settings, DATATYPE_PROPERTIES, SESSION, LOG
+from ....umi_const import get_umi_settings, DATATYPE_PROPERTIES, SESSION, LOG, BATCHER_SUPPORT
 from ....preferences.formats import COMPATIBLE_FORMATS
 
 
@@ -79,6 +79,13 @@ def update_log_drawing(self, context):
 def update_font_size(self, context):
     umi_settings = get_umi_settings()
     LOG.fontsize = umi_settings.umi_font_size
+
+
+def get_import_batch_settings_items(self, context):
+    items = [("IMPORT", "Format Settings", ""), ("GLOBAL", "Global Settings", "")]
+    if BATCHER_SUPPORT:
+        items.append(("BATCHER", "Command Batcher", ""))
+    return
 
 
 class PG_AddonDependency(bpy.types.PropertyGroup):
@@ -265,9 +272,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_global_import_settings: bpy.props.PointerProperty(type=PG_GlobalSettings)
     umi_skip_settings: bpy.props.BoolProperty(name="Skip Setting Windows", default=False)
     umi_file_extension_selection: bpy.props.EnumProperty(name="ext", items=get_file_extension_selection)
-    umi_import_batch_settings: bpy.props.EnumProperty(
-        items=[("IMPORT", "Format Settings", ""), ("GLOBAL", "Global Settings", ""), ("BATCHER", "Command Batcher", "")]
-    )
+    umi_import_batch_settings: bpy.props.EnumProperty(items=get_import_batch_settings_items)
     umi_command_batcher_settings: bpy.props.EnumProperty(
         items=[
             ("PRE_PROCESS", "Pre-Process", ""),

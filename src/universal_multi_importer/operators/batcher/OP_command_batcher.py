@@ -2,8 +2,8 @@ import bpy
 import time, math, re, itertools
 from typing import Optional, Any
 from dataclasses import dataclass
-from ..umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_current_item_index, LOG
-from ..operators.command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
+from ...umi_const import get_umi_settings, DATATYPE_PREFIX, DATATYPE_LIST, init_current_item_index, LOG
+from .command_batcher_const import COMMAND_BATCHER_INPUT_STRING, get_command_batcher_output_string
 
 
 @dataclass
@@ -498,7 +498,6 @@ class CommandBatcher(bpy.types.Operator):
                                 override["selected_objects"] = [command_output_strings[i][4]]
 
                         with bpy.context.temp_override(**override):
-                            # TODO: Use of exec
                             exec(c, {"bpy": bpy})
 
                         LOG.store_success("Command executed successfully")

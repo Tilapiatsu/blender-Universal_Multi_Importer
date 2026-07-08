@@ -2,7 +2,7 @@ from typing import Optional
 import bpy
 from mathutils import Vector
 import time
-from ..umi_const import get_umi_settings
+from ...umi_const import get_umi_settings
 
 COMMAND_BATCHER_INPUT_ITEMS = [
     (

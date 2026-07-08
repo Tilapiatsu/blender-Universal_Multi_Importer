@@ -210,3 +210,4 @@ def get_fontsize():
 LOG = Logger(get_colors=get_umi_colors, get_fontsize=get_fontsize, log_name="UMI")
 
 EXTENSION_SUPPORT = (Path(__file__).parent / "preferences" / "formats" / "extensions").exists()
+BATCHER_SUPPORT = (Path(__file__).parent / "operators" / "batcher").exists()
