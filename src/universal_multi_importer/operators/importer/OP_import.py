@@ -749,7 +749,6 @@ class UMI(bpy.types.Operator, ImportHelper):
             bpy.data.objects[o.name].select_set(True)
 
         if not BATCHER:
-            self.umi_settings.umi_batcher_is_processing = False
             return
 
         bpy.ops.object.tila_umi_command_batcher(
@@ -894,7 +893,8 @@ class UMI(bpy.types.Operator, ImportHelper):
 
                 self.umi_settings.umi_file_selection.clear()
                 self.umi_settings.umi_file_selection_started = False
-                self.pre_process()
+                if BATCHER:
+                    self.pre_process()
 
             # LEGACY : Loop through all import format settings
             if not self.umi_settings.umi_ready_to_import:
@@ -956,8 +956,9 @@ class UMI(bpy.types.Operator, ImportHelper):
                         self.next_batch()
                         self.log_next_batch()
 
-                    elif not self.post_processing:
+                    elif not self.post_processing and BATCHER:
                         self.post_process()
+
                     # All Batches are imported and processed : init ending
                     else:
                         if self.umi_settings.umi_global_import_settings.save_file_after_import:
