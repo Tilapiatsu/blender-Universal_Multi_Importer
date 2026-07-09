@@ -642,7 +642,8 @@ class UMI(bpy.types.Operator, ImportHelper):
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
         self.umi_settings.umi_batcher_is_processing = False
-        bpy.ops.scene.umi_load_preset_list()
+        if BATCHER:
+            bpy.ops.scene.umi_load_preset_list()
 
         # If one blend file is dropped, skip UMI to let blender handle it
         if len(self.files) == 1 and path.splitext(self.files[0].name)[1].lower() == ".blend":
@@ -748,6 +749,7 @@ class UMI(bpy.types.Operator, ImportHelper):
             bpy.data.objects[o.name].select_set(True)
 
         if not BATCHER:
+            self.umi_settings.umi_batcher_is_processing = False
             return
 
         bpy.ops.object.tila_umi_command_batcher(

@@ -1,7 +1,7 @@
 import bpy
 import os
 import math
-from ...umi_const import (
+from ....umi_const import (
     get_umi_settings,
     get_batcher_list_name,
     get_batcher_index_name,
@@ -12,9 +12,9 @@ from ...umi_const import (
     DATATYPE_LIST,
     DATATYPE_PROPERTIES_DICT,
 )
-from ...operators.ui.operators_const import COMMAND_BATCHER_PRESET_FOLDER
-from ...operators.command_batcher_const import COMMAND_BATCHER_ITEM_COUNT, COMMAND_BATCHER_VARIABLE
-from ...bversion import BVERSION
+from .operators_const import COMMAND_BATCHER_PRESET_FOLDER
+from ..command_batcher_const import COMMAND_BATCHER_ITEM_COUNT, COMMAND_BATCHER_VARIABLE
+from ....bversion import BVERSION
 
 
 datatype_col_count = math.ceil(len(DATATYPE_LIST) / 4)
@@ -400,13 +400,13 @@ def register():
         )
         cls.__annotations__["adding_datatype"] = bpy.props.BoolProperty(name="Adding Datatype", default=False)
 
-    from ... import class_property_injection
+    from .... import class_property_injection
 
     class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values()))
 
 
 def unregister():
-    from ... import class_property_injection
+    from .... import class_property_injection
 
     class_property_injection.unregister(
         datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values())

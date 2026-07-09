@@ -1,5 +1,4 @@
-from . import OP_command_batcher
-from . import ui
+from . import ui, OP_command_batcher
 
 modules = (ui, OP_command_batcher)
 

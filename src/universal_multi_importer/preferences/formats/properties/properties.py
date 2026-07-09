@@ -85,7 +85,7 @@ def get_import_batch_settings_items(self, context):
     items = [("IMPORT", "Format Settings", ""), ("GLOBAL", "Global Settings", "")]
     if BATCHER_SUPPORT:
         items.append(("BATCHER", "Command Batcher", ""))
-    return
+    return items
 
 
 class PG_AddonDependency(bpy.types.PropertyGroup):

@@ -438,6 +438,7 @@ class CommandBatcher(bpy.types.Operator):
                 assert self.current_command is not None
                 command = self.current_command.operator
                 try:  # Executing command
+                    # ISSUE : Execution of pre processing and post processing is raising error
                     assert self.current_element_to_process is not None
                     # if the current command is valid for the current data type
                     if not getattr(
@@ -508,7 +509,11 @@ class CommandBatcher(bpy.types.Operator):
                     self.process_succeeded.append(True)
 
                 except Exception as e:
-                    message = f'{self.current_element_to_process.data_type} : Command "{command}" is not valid - \n{e}'
+                    message = f'{
+                        self.current_element_to_process.data_type
+                        if self.current_element_to_process is not None
+                        else " Data"
+                    } : Command "{command}" is not valid - \n{e}'
                     LOG.error(message)
                     LOG.store_failure(message)
                     self.process_succeeded.append(False)
