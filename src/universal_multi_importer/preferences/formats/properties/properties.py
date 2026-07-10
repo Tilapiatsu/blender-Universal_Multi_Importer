@@ -117,6 +117,7 @@ class PG_ImportSettingsCreator(bpy.types.PropertyGroup):
 class PG_Operator(bpy.types.PropertyGroup):
     enabled: bpy.props.BoolProperty(name="Enabled", default=True)
     operator: bpy.props.StringProperty(name="Operator", default="")
+    each: bpy.props.BoolProperty(name="Each Operator", default=True)
 
 
 class PG_ItemIndex(bpy.types.PropertyGroup):
@@ -323,7 +324,9 @@ class UMI_UL_OperatorList(bpy.types.UIList):
         row = row.row(align=True)
         row.alignment = "RIGHT"
 
-        row.operator("scene.umi_edit_operator", text="", icon="GREASEPENCIL").id = index
+        op = row.operator("scene.umi_edit_operator", text="", icon="GREASEPENCIL")
+        op.id = index
+        op.each = item.each
         row.operator("scene.umi_duplicate_operator", text="", icon="PASTEDOWN").id = index
         row.separator()
         row.operator("scene.umi_remove_operator", text="", icon="PANEL_CLOSE").id = index

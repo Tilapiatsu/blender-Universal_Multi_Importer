@@ -71,7 +71,7 @@ def replace_keywords(
     return result_sentence
 
 
-def draw_operators(self, context, layout, operators, operator_name: str, operator_id_name: str) -> None:
+def draw_operators(self, context, layout, operators, operator_name: str, operator_id_name: str, each: bool) -> None:
     box = layout.box()
     row = box.row()
 
@@ -89,7 +89,8 @@ def draw_operators(self, context, layout, operators, operator_name: str, operato
 
     col2.separator()
 
-    col2.operator("scene.umi_add_operator", text="", icon="ADD")
+    op = col2.operator("scene.umi_add_operator", text="", icon="ADD")
+    op.each = each
     col2.separator()
     move = col2.operator("scene.umi_move_operator", text="", icon="TRIA_UP")
     move.direction = "UP"
@@ -109,17 +110,29 @@ def draw_command_batcher(self, context, layout):
     if self.umi_settings.umi_command_batcher_settings == "PRE_PROCESS":
         col2.label(text="These operators will be executed ONCE before importing/processing the selected elements")
         draw_operators(
-            self, context, col2, self.umi_settings.umi_pre_operators, "umi_pre_operators", "umi_pre_operator_idx"
+            self, context, col2, self.umi_settings.umi_pre_operators, "umi_pre_operators", "umi_pre_operator_idx", False
         )
     elif self.umi_settings.umi_command_batcher_settings == "EACH_ELEMENTS":
         col2.label(text="These operators will be executed on EACH imported/selected elements")
         draw_operators(
-            self, context, col2, self.umi_settings.umi_each_operators, "umi_each_operators", "umi_each_operator_idx"
+            self,
+            context,
+            col2,
+            self.umi_settings.umi_each_operators,
+            "umi_each_operators",
+            "umi_each_operator_idx",
+            True,
         )
     elif self.umi_settings.umi_command_batcher_settings == "POST_PROCESS":
         col2.label(text="These operators will be executed ONCE after all elements are imported/processed")
         draw_operators(
-            self, context, col2, self.umi_settings.umi_post_operators, "umi_post_operators", "umi_post_operator_idx"
+            self,
+            context,
+            col2,
+            self.umi_settings.umi_post_operators,
+            "umi_post_operators",
+            "umi_post_operator_idx",
+            False,
         )
 
     box = col.box()
@@ -437,86 +450,108 @@ class CommandBatcher(bpy.types.Operator):
             else:
                 assert self.current_command is not None
                 command = self.current_command.operator
-                try:  # Executing command
-                    # ISSUE : Execution of pre processing and post processing is raising error
-                    assert self.current_element_to_process is not None
-                    # if the current command is valid for the current data type
-                    if not getattr(
-                        self.current_command, f"{DATATYPE_PREFIX}_{self.current_element_to_process.data_type}"
-                    ):
-                        self.current_command = None
-                        LOG.info(
-                            f"Skipping : command does NOT applied to this data type : {self.current_element_to_process.data_type}",
-                            color=LOG.logger_color.COMMAND_WARNING_COLOR(),
-                        )
-                        return {"PASS_THROUGH"}
-
+                print(self.pre_process_done, self.each_process_done, self.post_process_done)
+                if (
+                    not self.pre_process_done
+                    and not self.each_process_done
+                    and not self.post_process_done
+                    or self.pre_process_done
+                    and self.each_process_done
+                    and not self.post_process_done
+                ):
+                    self.current_operation_number += 1
                     self.progress += 100 / self.number_of_operations_to_perform
+                    LOG.info(
+                        f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress, 2)}% : "{command}"',
+                        color=LOG.logger_color.COMMAND_COLOR(),
+                    )
+                    exec(command, {"bpy": bpy})
 
-                    ob = None
-                    if self.current_element_to_process.data_type == "objects":
-                        ob = self.current_element_to_process.obj
-                    elif self.current_element_to_process.data_type == "modifiers":
-                        ob = self.current_element_to_process.obj
-                        if self.current_element_to_process.data.type != self.current_command.modifier_type:
+                elif (
+                    self.pre_process_done and not self.each_process_done
+                    # or self.pre_process_done
+                    # and self.each_process_done
+                    # and not self.post_process_done
+                ):
+                    try:  # Executing command
+                        assert self.current_element_to_process is not None
+                        # if the current command is valid for the current data type
+                        if not getattr(
+                            self.current_command, f"{DATATYPE_PREFIX}_{self.current_element_to_process.data_type}"
+                        ):
                             self.current_command = None
                             LOG.info(
-                                f"Skipping : command does NOT applied to this modifier type : {self.current_element_to_process.data_type}",
+                                f"Skipping : command does NOT applied to this data type : {self.current_element_to_process.data_type}",
                                 color=LOG.logger_color.COMMAND_WARNING_COLOR(),
                             )
                             return {"PASS_THROUGH"}
 
-                    # keywords = which_keywords(command, COMMAND_BATCHER_INPUT_STRING)
+                        self.progress += 100 / self.number_of_operations_to_perform
 
-                    command_output_strings = get_command_batcher_output_string(
-                        self.current_element_to_process.data_type,
-                        self.global_processed_elements,
-                        self.processed_elements[self.current_element_to_process.data_type]
-                        + self.umi_settings.umi_current_item_index[self.current_element_to_process.data_type].index,
-                        self.current_element_name_to_process,
-                        self.current_element_to_process.data,
-                        ob,
-                    )
+                        ob = None
+                        if self.current_element_to_process.data_type == "objects":
+                            ob = self.current_element_to_process.obj
+                        elif self.current_element_to_process.data_type == "modifiers":
+                            ob = self.current_element_to_process.obj
+                            if self.current_element_to_process.data.type != self.current_command.modifier_type:
+                                self.current_command = None
+                                LOG.info(
+                                    f"Skipping : command does NOT applied to this modifier type : {self.current_element_to_process.data_type}",
+                                    color=LOG.logger_color.COMMAND_WARNING_COLOR(),
+                                )
+                                return {"PASS_THROUGH"}
 
-                    # Replace Keyword with Proper Value
-                    commands = replace_keywords(command, COMMAND_BATCHER_INPUT_STRING, command_output_strings)
+                        # keywords = which_keywords(command, COMMAND_BATCHER_INPUT_STRING)
 
-                    self.current_operation_number += 1
-                    for i, c in enumerate(commands):
-                        if c == "<PASS>":
-                            continue
-                        LOG.info(
-                            f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress, 2)}% : "{c}"',
-                            color=LOG.logger_color.COMMAND_COLOR(),
+                        command_output_strings = get_command_batcher_output_string(
+                            self.current_element_to_process.data_type,
+                            self.global_processed_elements,
+                            self.processed_elements[self.current_element_to_process.data_type]
+                            + self.umi_settings.umi_current_item_index[self.current_element_to_process.data_type].index,
+                            self.current_element_name_to_process,
+                            self.current_element_to_process.data,
+                            ob,
                         )
-                        override = {}
-                        if self.pre_process_done and not self.each_process_done:
-                            if self.current_element_to_process.data_type == "objects":
-                                override["selected_objects"] = [
-                                    bpy.data.objects[self.current_element_to_process.obj.name]
-                                ]
-                            elif command_output_strings[i][4] is not None:
-                                override["selected_objects"] = [command_output_strings[i][4]]
 
-                        with bpy.context.temp_override(**override):
-                            exec(c, {"bpy": bpy})
+                        # Replace Keyword with Proper Value
+                        commands = replace_keywords(command, COMMAND_BATCHER_INPUT_STRING, command_output_strings)
 
-                        LOG.store_success("Command executed successfully")
+                        self.current_operation_number += 1
+                        for i, c in enumerate(commands):
+                            if c == "<PASS>":
+                                continue
+                            LOG.info(
+                                f'Executing command {self.current_operation_number}/{self.number_of_operations_to_perform} - {round(self.progress, 2)}% : "{c}"',
+                                color=LOG.logger_color.COMMAND_COLOR(),
+                            )
+                            override = {}
+                            if self.pre_process_done and not self.each_process_done:
+                                if self.current_element_to_process.data_type == "objects":
+                                    override["selected_objects"] = [
+                                        bpy.data.objects[self.current_element_to_process.obj.name]
+                                    ]
+                                elif command_output_strings[i][4] is not None:
+                                    override["selected_objects"] = [command_output_strings[i][4]]
 
-                    if not self.current_element_proccessed[self.current_element_to_process.data_type]:
-                        self.current_element_proccessed[self.current_element_to_process.data_type] = True
+                            with bpy.context.temp_override(**override):
+                                exec(c, {"bpy": bpy})
 
-                    self.process_succeeded.append(True)
+                            LOG.store_success("Command executed successfully")
 
-                except Exception as e:
-                    message = f'{
-                        self.current_element_to_process.data_type
-                        if self.current_element_to_process is not None
-                        else " Data"
-                    } : Command "{command}" is not valid - \n{e}'
-                    LOG.error(message)
-                    LOG.store_failure(message)
-                    self.process_succeeded.append(False)
+                        if not self.current_element_proccessed[self.current_element_to_process.data_type]:
+                            self.current_element_proccessed[self.current_element_to_process.data_type] = True
+
+                        self.process_succeeded.append(True)
+
+                    except Exception as e:
+                        message = f'{
+                            self.current_element_to_process.data_type
+                            if self.current_element_to_process is not None
+                            else " Data"
+                        } : Command "{command}" is not valid - \n{e}'
+                        LOG.error(message)
+                        LOG.store_failure(message)
+                        self.process_succeeded.append(False)
 
                 if self.umi_settings.umi_global_import_settings.force_refresh_viewport_after_each_command:
                     bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)

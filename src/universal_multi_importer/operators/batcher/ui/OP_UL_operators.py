@@ -138,7 +138,7 @@ def set_applies_to_from_duplicate(self, current_operator, reference_operator):
         setattr(current_operator, d["property"], op)
 
 
-def draw_add_edit_operator(self, layout):
+def draw_add_edit_operator(self, layout, each: bool = True):
     col = layout.column()
     col.label(text="Command:")
     col.prop(self, "operator", text="")
@@ -146,25 +146,25 @@ def draw_add_edit_operator(self, layout):
 
     col.use_property_split = True
     col.use_property_decorate = False
+    if each:
+        if BVERSION >= 4.2:
+            header, panel = col.panel(idname="COMMAND_InjectVariable")
+            header.label(text="Inject Variable :", icon="SORTALPHA")
+        else:
+            panel = col.box()
+            header = panel.row(align=True)
+            header.label(text="Inject Variable :", icon="SORTALPHA")
 
-    if BVERSION >= 4.2:
-        header, panel = col.panel(idname="COMMAND_InjectVariable")
-        header.label(text="Inject Variable :", icon="SORTALPHA")
-    else:
-        panel = col.box()
-        header = panel.row(align=True)
-        header.label(text="Inject Variable :", icon="SORTALPHA")
+        if panel:
+            row = panel.row()
+            row.alignment = "EXPAND"
+            for i, c in enumerate(COMMAND_BATCHER_VARIABLE.values()):
+                if i % batcher_item_col_count == 0:
+                    sub_col = row.column(align=True)
 
-    if panel:
-        row = panel.row()
-        row.alignment = "EXPAND"
-        for i, c in enumerate(COMMAND_BATCHER_VARIABLE.values()):
-            if i % batcher_item_col_count == 0:
-                sub_col = row.column(align=True)
+                sub_col.prop(self, f"{c['property']}", text="")
 
-            sub_col.prop(self, f"{c['property']}", text="")
-
-    draw_applies_to(self, col)
+        draw_applies_to(self, col)
 
 
 if not os.path.exists(COMMAND_BATCHER_PRESET_FOLDER):
@@ -317,9 +317,10 @@ class UI_UMIEditOperator(bpy.types.Operator):
 
     id: bpy.props.IntProperty(name="Operator ID", default=0)
     operator: bpy.props.StringProperty(name="Operator Command", default="", search=operators)
+    each: bpy.props.BoolProperty(name="Each Operator", default=True)
 
     def draw(self, context):
-        draw_add_edit_operator(self, self.layout)
+        draw_add_edit_operator(self, self.layout, self.each)
 
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
@@ -355,9 +356,10 @@ class UI_UMIAddOperator(bpy.types.Operator):
     bl_description = "Add a new operator"
 
     operator: bpy.props.StringProperty(name="Operator Command", default="", search=operators)
+    each: bpy.props.BoolProperty(name="Each Operator", default=True)
 
     def draw(self, context):
-        draw_add_edit_operator(self, self.layout)
+        draw_add_edit_operator(self, self.layout, self.each)
 
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
@@ -372,6 +374,7 @@ class UI_UMIAddOperator(bpy.types.Operator):
         o = target.add()
         o.operator = self.operator
         o.modifier_type = self.modifier_type
+        o.each = self.each
         set_applies_to(self, o)
         return {"FINISHED"}
 
