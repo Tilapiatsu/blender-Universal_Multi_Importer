@@ -450,7 +450,6 @@ class CommandBatcher(bpy.types.Operator):
             else:
                 assert self.current_command is not None
                 command = self.current_command.operator
-                print(self.pre_process_done, self.each_process_done, self.post_process_done)
                 if (
                     not self.pre_process_done
                     and not self.each_process_done
