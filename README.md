@@ -22,6 +22,7 @@ This addon is adding batch import features to existing importers for blender. Th
 - [Atomic Blender PDB/XYZ](https://projects.blender.org/extensions/io_mesh_atomic) by Clemens Barth
 - [AutoCAD DXF](https://projects.blender.org/extensions/io_import_dxf) by Lukas Treyer, Manfred Moitzi, Vladimir Elistratov, Bastien Montagne, Remigiusz Fiedler
 - [Blender Embroidery](https://github.com/javl/blender-embroidery) by Jasper van Loenen
+- [Sketchup Importer](https://github.com/RedHaloStudio/Sketchup_Importer) by RedHaloStudio
 
 # Supported Formats
 
@@ -152,7 +153,11 @@ You can choose if the command has to be executed for a specific datatype or many
 
 # Changelog
 
-### v2.4.0 : support for Sketchup file (Windows Only)
+### v2.4.1 : Support for Blender 5.2.0
+
+### v2.4.1 : You can set viewport font size in preferences
+
+### v2.4.0 : Support for Sketchup file (Windows Only)
 
 ### v2.3.6 : Fix bug when recreating folder hierarchy in import folder mode
 

@@ -1,7 +1,7 @@
 import bpy
 import os, shutil
-from ...umi_const import get_umi_settings, get_batcher_list_name, DATATYPE_PREFIX, DATATYPE_LIST
-from ...operators.ui.operators_const import COMMAND_BATCHER_PRESET_FOLDER, UMIPRESET_EXTENSION, UMIPRESET_SPLITTER
+from ....umi_const import get_umi_settings, get_batcher_list_name, DATATYPE_PREFIX, DATATYPE_LIST
+from .operators_const import COMMAND_BATCHER_PRESET_FOLDER, UMIPRESET_EXTENSION, UMIPRESET_SPLITTER
 
 
 def get_presets(context):
@@ -271,7 +271,8 @@ class UI_SavePresetOperator(bpy.types.Operator):
         self.umi_settings = get_umi_settings()
         with open(self.filepath, "w") as f:
             lines = []
-            operators = eval(f"self.umi_settings.{get_batcher_list_name()}")
+            operators = getattr(self.umi_settings, get_batcher_list_name(), None)
+            assert operators is not None
             for i, o in enumerate(operators):
                 lines.append(o.operator.replace("\n", "") + f" {UMIPRESET_SPLITTER}")
                 for d in DATATYPE_LIST:
@@ -379,4 +380,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-

@@ -1,7 +1,6 @@
 import bpy
 from os import path
-from ....logger import LOG
-from ....umi_const import get_umi_settings, DATATYPE_PROPERTIES
+from ....umi_const import get_umi_settings, DATATYPE_PROPERTIES, SESSION, LOG, BATCHER_SUPPORT
 from ....preferences.formats import COMPATIBLE_FORMATS
 
 
@@ -23,14 +22,14 @@ def update_file_stats(self, context):
     umi_settings.umi_file_stat_selected_count = len(selected_files)
     umi_settings.umi_file_stat_selected_size = sum(size)
     umi_settings.umi_file_stat_selected_formats = "( " + " | ".join(formats) + " )" if len(formats) else "no"
-    file_selected_format_items = {
-        (
-            COMPATIBLE_FORMATS.get_format_from_extension(f).name.upper(),
-            COMPATIBLE_FORMATS.get_format_from_extension(f).name.upper(),
-            "",
-        )
-        for f in formats
-    }
+    file_selected_format_items = []
+    for f in formats:
+        f_name = COMPATIBLE_FORMATS.get_format_from_extension(f).name.upper()
+        if f_name in file_selected_format_items:
+            continue
+        file_selected_format_items.append(f_name)
+
+    SESSION.set_file_selected_format_items(file_selected_format_items)
     umi_settings.umi_file_selected_format_items = str(list(file_selected_format_items))
     if len(formats):
         umi_settings.umi_file_extension_selection = formats[0]
@@ -57,25 +56,36 @@ def update_import_batch_settings(self, context):
 
 
 def get_file_selected_items(self, context):
-    return eval(get_umi_settings().umi_file_selected_format_items)
+    return SESSION.file_selected_format_items
 
 
 def update_file_extension_selection(self, context):
     umi_settings = get_umi_settings()
-    current_extensions = {
+    current_extensions = [
         e.ext.lower() for e in umi_settings.umi_file_selection if e.ext.lower() in COMPATIBLE_FORMATS.extensions
-    }
-    umi_settings.umi_file_extension_selection_items = str([(e, e, "") for e in current_extensions])
+    ]
+    SESSION.set_file_extension_selection_items(current_extensions)
 
 
 def get_file_extension_selection(self, context):
-    file_extensions_selection_items = get_umi_settings().umi_file_extension_selection_items
-    return eval(file_extensions_selection_items)
+    return SESSION.file_extension_selection_items
 
 
 def update_log_drawing(self, context):
     umi_settings = get_umi_settings()
     LOG.show_log = umi_settings.umi_global_import_settings.show_log_on_3d_view
+
+
+def update_font_size(self, context):
+    umi_settings = get_umi_settings()
+    LOG.fontsize = umi_settings.umi_font_size
+
+
+def get_import_batch_settings_items(self, context):
+    items = [("IMPORT", "Format Settings", ""), ("GLOBAL", "Global Settings", "")]
+    if BATCHER_SUPPORT:
+        items.append(("BATCHER", "Command Batcher", ""))
+    return items
 
 
 class PG_AddonDependency(bpy.types.PropertyGroup):
@@ -107,6 +117,7 @@ class PG_ImportSettingsCreator(bpy.types.PropertyGroup):
 class PG_Operator(bpy.types.PropertyGroup):
     enabled: bpy.props.BoolProperty(name="Enabled", default=True)
     operator: bpy.props.StringProperty(name="Operator", default="")
+    each: bpy.props.BoolProperty(name="Each Operator", default=True)
 
 
 class PG_ItemIndex(bpy.types.PropertyGroup):
@@ -121,8 +132,41 @@ class PG_Preset(bpy.types.PropertyGroup):
 
 class PG_ImportedData(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name="Name")
-    data: bpy.props.StringProperty(name="Data")
+    object_name: bpy.props.StringProperty(name="Object Name", default="")
     data_type: bpy.props.StringProperty(name="Data Type")
+
+    def get_data(self):
+        if self.data_type in ["modifiers"]:
+            if self.object_name not in bpy.data.objects:
+                return
+            obj = bpy.data.objects[self.object_name]
+
+            if self.name not in obj.modifiers:
+                return
+
+            data = obj.modifiers[self.name]
+            return data
+
+        data_category = getattr(bpy.data, self.data_type, None)
+
+        if data_category is None:
+            return
+
+        if self.name not in data_category:
+            return None
+
+        data = data_category[self.name]
+
+        return data
+
+    def get_obj(self):
+        if not len(self.object_name):
+            return None
+
+        if self.object_name not in bpy.data.objects:
+            return None
+
+        return bpy.data.objects[self.object_name]
 
 
 class PG_FilePathSelection(bpy.types.PropertyGroup):
@@ -229,9 +273,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_global_import_settings: bpy.props.PointerProperty(type=PG_GlobalSettings)
     umi_skip_settings: bpy.props.BoolProperty(name="Skip Setting Windows", default=False)
     umi_file_extension_selection: bpy.props.EnumProperty(name="ext", items=get_file_extension_selection)
-    umi_import_batch_settings: bpy.props.EnumProperty(
-        items=[("IMPORT", "Format Settings", ""), ("GLOBAL", "Global Settings", ""), ("BATCHER", "Command Batcher", "")]
-    )
+    umi_import_batch_settings: bpy.props.EnumProperty(items=get_import_batch_settings_items)
     umi_command_batcher_settings: bpy.props.EnumProperty(
         items=[
             ("PRE_PROCESS", "Pre-Process", ""),
@@ -263,6 +305,7 @@ class PG_UMISettings(bpy.types.PropertyGroup):
     umi_settings_dialog_width: bpy.props.FloatProperty(name="Dialog Width", min=0.0, max=1.0, default=0.65)
     umi_import_directory: bpy.props.BoolProperty(name="Import Directory", default=False)
     umi_window_width: bpy.props.IntProperty(name="Window Width (px)", min=500, default=1300)
+    umi_font_size: bpy.props.IntProperty(name="Viewport Text Size (px)", default=12, update=update_font_size)
     umi_current_item_index: bpy.props.CollectionProperty(type=PG_ItemIndex)
     umi_imported_data: bpy.props.CollectionProperty(type=PG_ImportedData)
     umi_valid_datatypes: bpy.props.BoolProperty(name="Valid Datatypes", default=False)
@@ -281,7 +324,9 @@ class UMI_UL_OperatorList(bpy.types.UIList):
         row = row.row(align=True)
         row.alignment = "RIGHT"
 
-        row.operator("scene.umi_edit_operator", text="", icon="GREASEPENCIL").id = index
+        op = row.operator("scene.umi_edit_operator", text="", icon="GREASEPENCIL")
+        op.id = index
+        op.each = item.each
         row.operator("scene.umi_duplicate_operator", text="", icon="PASTEDOWN").id = index
         row.separator()
         row.operator("scene.umi_remove_operator", text="", icon="PANEL_CLOSE").id = index

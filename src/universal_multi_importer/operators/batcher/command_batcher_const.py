@@ -1,7 +1,8 @@
+from typing import Optional
 import bpy
 from mathutils import Vector
 import time
-from ..umi_const import get_umi_settings
+from ...umi_const import get_umi_settings
 
 COMMAND_BATCHER_INPUT_ITEMS = [
     (
@@ -51,7 +52,7 @@ def revert_to_default(self, context):
 
     umi_settings.umi_updating_batcher_variable = True
     for v in COMMAND_BATCHER_VARIABLE.values():
-        exec(f"self.{v['property']} = {v['default']}", {"self": self})
+        setattr(self, v["property"], v["default"])
     umi_settings.umi_updating_batcher_variable = False
 
 
@@ -116,17 +117,20 @@ def vector_to_string(v) -> str:
 
 def get_command_batcher_output_string(
     data_type: str, global_item_index: int, item_index: int, item_name: str, item_data: str, object=None
-) -> list[str]:
+) -> list[tuple[str, str, str, str, Optional[bpy.types.Object], str, str, str, str]]:
     objects = []
-    data = eval(item_data)
+    data = item_data
     if data_type == "modifiers":
         data_type = data_type.upper()
         objects.append(object)
     else:
-        data_type = data.id_type
+        if data is None:
+            data_type = "EMPTY"
+        else:
+            data_type = data.id_type
 
     # Get Object list from data
-    if data_type not in ["OBJECT", "MODIFIERS"]:
+    if data_type not in ["OBJECT", "MODIFIERS", "EMPTY"]:
         for o in bpy.data.objects:
             if data_type == "ACTION":
                 ad = getattr(o, "animation_data", None)
@@ -146,37 +150,38 @@ def get_command_batcher_output_string(
                 if o.type != data_type:
                     continue
                 if o.data == data:
+                    print(data)
                     objects.append(o)
 
     if not len(objects):
         return [
-            [
+            (
                 item_name,
                 str(global_item_index),
                 str(item_index),
                 str(item_data),
-                "",
+                None,
                 str((0, 0, 0)) if object is None else vector_to_string(get_bound_box_size(object)),
                 str(time.time()),
                 time.asctime(),
-                bpy.app.version_string,
-            ]
+                str(bpy.app.version_string),
+            )
         ]
     else:
         commands = []
         for o in objects:
             commands.append(
-                [
+                (
                     item_name,
                     str(global_item_index),
                     str(item_index),
                     str(item_data),
-                    f'bpy.data.objects["{o.name}"]',
+                    bpy.data.objects[f"{o.name}"],
                     str((0, 0, 0)) if object is None else vector_to_string(get_bound_box_size(object)),
                     str(time.time()),
                     time.asctime(),
                     bpy.app.version_string,
-                ]
+                )
             )
 
         return commands

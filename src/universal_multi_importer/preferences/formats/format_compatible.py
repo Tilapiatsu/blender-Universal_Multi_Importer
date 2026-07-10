@@ -1,22 +1,35 @@
-import inspect
-from typing import Union, Optional, Dict
 import bpy
+import inspect
 import addon_utils
 from ...preferences.formats.format_definition import FormatDefinition
 from ...preferences.formats import FORMATS
 from ...preferences.formats.format import Format
-from ...logger import LOG
 from ...preferences.formats.panels import get_panels
 from ...preferences.formats.panels.presets import format_preset
 from ...bversion import AddonVersion
 from ...bversion.version.version import Version
+from ...umi_const import LOG
 
 
 class CompatibleFormats(object):
     def __init__(self):
         self._all_formats = {}
         for f in FORMATS:
-            exec(f'self._all_formats["{f}"] = Format', {"self": self, "Format": getattr(FormatDefinition, f)})
+            format = getattr(FormatDefinition, f, None)
+            assert format is not None
+            to_remove = []
+            for name, o in format.operators.items():
+                if o.invalid:
+                    to_remove.append(name)
+
+            for n in to_remove:
+                format.operators.remove(n)
+
+            if not len(format.operators):
+                continue
+
+            self._all_formats[f] = format
+
         self._extensions = None
         self._extensions_string = None
         self._operators = None
@@ -26,7 +39,7 @@ class CompatibleFormats(object):
         self._filter_glob = None
         # automatically gather format
         self.formats = self.get_formats()
-        self.formats_dict: dict[str:Format] = {f.name: f for f in self.formats}
+        self.formats_dict: dict[str, Format] = {f.name: f for f in self.formats}
 
     def is_format_installed(self, addon_name):
         return addon_name in self.installed_addons
@@ -201,11 +214,12 @@ class CompatibleFormats(object):
         return self._filter_glob
 
     @property
-    def all_formats(self) -> dict[str:Format]:
+    def all_formats(self) -> dict[str, Format]:
+
         return self._all_formats
 
     @property
-    def all_registered_formats(self) -> dict[str:Format]:
+    def all_registered_formats(self) -> dict[str, Format]:
         attributes = inspect.getmembers(CompatibleFormats, lambda a: not (inspect.isroutine(a)))
         formats = [
             a for a in attributes if (not (a[0].startswith("__") and a[0].endswith("__")) and isinstance(a[1], Format))
@@ -213,6 +227,17 @@ class CompatibleFormats(object):
 
         all_formats = {a[0]: a[1] for a in formats}
         return all_formats
+
+    def get_command_from_string(self, command_str: str):
+        command_list = command_str.split(".")[1:]
+        command = bpy
+        for c in command_list:
+            if command is None:
+                raise KeyError
+            command = getattr(command, c, None)
+
+        assert command is not None
+        return command
 
     def get_formats(self) -> list[Format]:
         valid_formats = []
@@ -224,7 +249,7 @@ class CompatibleFormats(object):
                 if o.module is None:
                     # Check Command
                     try:
-                        eval(o.command).__repr__()
+                        self.get_command_from_string(o.command).__repr__()
                     except:
                         assigned.append(False)
                         print(o.command, "not found")
@@ -306,7 +331,7 @@ class CompatibleFormats(object):
 
         for v in operators.values():
             try:
-                eval(v.command).__repr__()
+                self.get_command_from_string(v.command).__repr__()
                 return True
             except AttributeError:
                 continue

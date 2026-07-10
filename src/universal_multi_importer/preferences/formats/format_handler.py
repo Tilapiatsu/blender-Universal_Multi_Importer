@@ -40,8 +40,12 @@ class FormatHandler:
     @property
     def format_class(self):
         if self._format_class is None:
-            eval(f"from . import UMI_{self.format_name}_{self.module_name}_settings")
-            self._format_class = eval(f"UMI_{self.format_name}_{self.module_name}_settings")
+            import importlib
+
+            module = importlib.import_module(f"UMI_{self.format_name}_{self.module_name}_settings")
+            assert module is not None
+
+            self._format_class = module
 
         return self._format_class
 
@@ -59,10 +63,13 @@ class FormatHandler:
     @property
     def format_settings(self):
         if self._format_settings is None:
-            self._format_settings = eval(
-                f"self.umi_settings.umi_format_import_settings.{self.format_name}_{self.module_name}_import_settings",
-                {"self": self},
+            format_settings = getattr(
+                self.umi_settings.umi_format_import_settings,
+                f"{self.format_name}_{self.module_name}_import_settings",
+                None,
             )
+
+            self._format_settings = format_settings
 
         return self._format_settings
 
@@ -86,9 +93,7 @@ class FormatHandler:
 
                 d[k] = getattr(self.format_settings, k)
                 if k == "forced_properties":
-                    d[k] = eval(d[k])
-                elif isinstance(d[k], str):
-                    d[k] = f'"{d[k]}"'
+                    d[k] = [p for p in d[k].replace("'", "")[1:-1].split(",")]
 
             self._format_settings_dict = d
 
@@ -96,4 +101,5 @@ class FormatHandler:
 
     @property
     def import_module(self):
-        return eval(f"self.umi_settings.umi_format_import_settings.{self.format_name}_import_module", {"self": self})
+        import_module = getattr(self.umi_settings.umi_format_import_settings, f"{self.format_name}_import_module", None)
+        return import_module

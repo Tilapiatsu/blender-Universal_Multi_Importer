@@ -1,7 +1,13 @@
-from . import OP_command_batcher, OP_import
-from . import ui
+from . import importer
 
-modules = (ui, OP_command_batcher, OP_import)
+modules = (importer,)
+
+try:
+    from . import batcher
+
+    modules = modules + (batcher,)
+except ImportError:
+    pass
 
 
 def register():
@@ -12,4 +18,3 @@ def register():
 def unregister():
     for m in reversed(modules):
         m.unregister()
-

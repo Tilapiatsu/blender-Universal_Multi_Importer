@@ -3,6 +3,8 @@ from pathlib import Path
 import bpy
 from .bversion import BVERSION
 from .module_name.module_name import ModuleName
+from .umi_session import ImportSession
+from .logger import Logger
 
 ADDON_FOLDER_PATH = os.path.dirname(__file__)
 ADDON_PACKAGE = __package__
@@ -10,6 +12,7 @@ AUTOSAVE_PATH = os.path.join(Path(bpy.utils.script_path_user()).parent.absolute(
 WARNING_ICON = "ERROR" if BVERSION < 4.3 else "WARNING_LARGE"
 DATATYPE_PREFIX = "applies_to"
 MODIFIER_TYPES = [modifier.identifier for modifier in bpy.types.Modifier.bl_rna.properties["type"].enum_items]
+SESSION = ImportSession()
 
 
 def get_datalist():
@@ -49,6 +52,9 @@ def get_datalist():
         {"name": "workspaces", "icon": "WORKSPACE"},
         {"name": "worlds", "icon": "WORLD"},
     ]
+
+    # if BVERSION >= 5.2:
+    #     datatype_list.append({"name": "all_ids", "icon": "COLLAPSEMENU"})
 
     if BVERSION >= 4.1:
         datatype_list.append(
@@ -194,3 +200,14 @@ def init_current_item_index(umi_settings):
 EXTENSION_MODULE_NAME = ModuleName()
 
 GITHUB_NEW_ISSUE_URL = "https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/issues/new"
+GITHUB_RELEASE_URL = "https://github.com/Tilapiatsu/blender-Universal_Multi_Importer/releases"
+
+
+def get_fontsize():
+    return get_umi_settings().umi_font_size
+
+
+LOG = Logger(get_colors=get_umi_colors, get_fontsize=get_fontsize, log_name="UMI")
+
+EXTENSION_SUPPORT = (Path(__file__).parent / "preferences" / "formats" / "extensions").exists()
+BATCHER_SUPPORT = (Path(__file__).parent / "operators" / "batcher").exists()

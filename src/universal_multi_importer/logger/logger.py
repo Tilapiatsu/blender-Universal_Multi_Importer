@@ -2,11 +2,12 @@ import bpy
 import blf
 from .logger_base import Logger, SCROLL_OFFSET_INCREMENT
 from ..bversion import BVERSION
+from collections.abc import Callable
 
 
 class LoggerProgress(Logger):
-    def __init__(self, log_name="ROOT"):
-        super(LoggerProgress, self).__init__(log_name)
+    def __init__(self, get_colors: Callable, get_fontsize: Callable, log_name="ROOT"):
+        super(LoggerProgress, self).__init__(get_colors=get_colors, get_fontsize=get_fontsize, log_name=log_name)
         self.esc_message = "[Esc] to Cancel"
         self.message_offset = 15
         self.scroll_offset = 0
@@ -33,6 +34,7 @@ class LoggerProgress(Logger):
             blf.size(font_id, self.fontsize)
         else:
             blf.size(font_id, self.fontsize, 72)
+
         pos = 30
         line_width = self.fontsize + 3
 

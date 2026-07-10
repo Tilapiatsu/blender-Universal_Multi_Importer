@@ -1,15 +1,16 @@
+import bpy
 from typing import Union, Optional, Dict
 
 
-def axis() -> list:
-    return [
+def axis() -> tuple:
+    return (
         ("X", "X", "X"),
         ("Y", "Y", "Y"),
         ("Z", "Z", "Z"),
         ("-X", "-X", "-X"),
         ("-Y", "-Y", "-Y"),
         ("-Z", "-Z", "-Z"),
-    ]
+    )
 
 
 class FormatImportSetting:
@@ -31,7 +32,7 @@ class FormatImportSetting:
 
         return self.settings[name]
 
-    def add_set_settings(self, section_name: str, settings: Union[Dict[str, Dict]]) -> None:
+    def add_set_settings(self, section_name: str, settings: Dict[str, Dict]) -> None:
         """
         Add or replace a dict of setting in the given section
         """
@@ -51,8 +52,8 @@ class FormatImportSetting:
             section_name,
             {
                 name: {
-                    "type": "bpy.props.BoolProperty",
-                    "name": f'"{display_name}"',
+                    "type": bpy.props.BoolProperty,
+                    "name": display_name,
                     "default": default,
                     "options": options,
                 }
@@ -70,8 +71,8 @@ class FormatImportSetting:
             section_name,
             {
                 name: {
-                    "type": "bpy.props.FloatProperty",
-                    "name": f'"{display_name}"',
+                    "type": bpy.props.FloatProperty,
+                    "name": display_name,
                     "default": default,
                     "options": options,
                 }
@@ -89,8 +90,8 @@ class FormatImportSetting:
             section_name,
             {
                 name: {
-                    "type": "bpy.props.IntProperty",
-                    "name": f'"{display_name}"',
+                    "type": bpy.props.IntProperty,
+                    "name": display_name,
                     "default": default,
                     "options": options,
                 }
@@ -108,9 +109,9 @@ class FormatImportSetting:
             section_name,
             {
                 name: {
-                    "type": "bpy.props.StringProperty",
-                    "name": f'"{display_name}"',
-                    "default": f'"{default}"',
+                    "type": bpy.props.StringProperty,
+                    "name": display_name,
+                    "default": default,
                     "options": options,
                 }
             },
@@ -122,7 +123,7 @@ class FormatImportSetting:
         name: str,
         display_name: str,
         default: Union[str, set],
-        enum_items: tuple,
+        enum_items: list[tuple[str, str, str, Optional[int]]],
         options: Optional[set] = None,
     ) -> None:
 
@@ -133,9 +134,9 @@ class FormatImportSetting:
             section_name,
             {
                 name: {
-                    "type": "bpy.props.EnumProperty",
-                    "name": f'"{display_name}"',
-                    "default": default if isinstance(default, set) else f'"{default}"',
+                    "type": bpy.props.EnumProperty,
+                    "name": display_name,
+                    "default": default if isinstance(default, set) else default,
                     "enum_items": enum_items,
                     "options": options,
                 }
@@ -163,6 +164,7 @@ class FormatOperator:
         import_data: Optional[bool] = True,
         import_settings: Optional[FormatImportSetting] = None,
         description: Optional[str] = "",
+        invalid: bool = False,
     ):
 
         self.name = name
@@ -179,6 +181,7 @@ class FormatOperator:
         self.default_values = default_values
         self.forced_properties = forced_properties
         self.description = description
+        self.invalid = invalid
 
     def as_dict(self) -> dict:
         """
@@ -201,6 +204,7 @@ class FormatOperator:
                 "default_values": self.default_values,
                 "forced_properties": self.forced_properties,
                 "description": self.description,
+                "invalid": self.invalid,
             }
         }
 
@@ -210,7 +214,7 @@ class FormatOperators:
         if isinstance(operator, FormatOperator):
             self.operators = {operator.name: operator}
 
-        elif isinstance(operator, dict[str:dict]):
+        elif isinstance(operator, dict):
             self.operators = {
                 operator[0]: FormatOperator(
                     operator[0],
@@ -231,6 +235,7 @@ class FormatOperators:
                     if "import_settings" not in operator[1].keys()
                     else operator[1]["import_settings"],
                     description="" if "description" not in operator[1].keys() else operator[1]["description"],
+                    invalid=operator[1]["invalid"],
                 )
             }
 
@@ -243,7 +248,7 @@ class FormatOperators:
         if isinstance(operator, FormatOperator):
             self.operators[operator.name] = operator
 
-        elif isinstance(operator, dict[str:dict]):
+        elif isinstance(operator, dict):
             self.operators[operator[0]] = FormatOperator(
                 operator[0],
                 operator[1]["command"],
@@ -259,12 +264,16 @@ class FormatOperators:
                 import_data=True if "import_data" not in operator[1].keys() else operator[1]["import_data"],
                 import_settings=None if "import_settings" not in operator[1].keys() else operator[1]["import_settings"],
                 description="" if "description" not in operator[1].keys() else operator[1]["description"],
+                invalid=operator[1]["invalid"],
             )
 
         else:
             raise ValueError(
                 f'operator parameters should NOT be of type "{type(operator)}" \n It should be either tuple[str, dict] or FormatOperator type'
             )
+
+    def remove(self, name: str):
+        self.operators.pop(name, None)
 
     def as_dict(self) -> dict:
         """
@@ -277,6 +286,24 @@ class FormatOperators:
             d.update(v.as_dict())
 
         return d
+
+    def __len__(self) -> int:
+        return len(self.operators.keys())
+
+    def __getitem__(self, key: str):
+        return self.operators[key]
+
+    def __setitem__(self, key: str, item):
+        self.operators[key] = item
+
+    def keys(self):
+        return self.operators.keys()
+
+    def values(self):
+        return self.operators.values()
+
+    def items(self):
+        return self.operators.items()
 
 
 class Format:

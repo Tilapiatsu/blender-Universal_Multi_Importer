@@ -1,7 +1,7 @@
 import bpy
 import os
 import math
-from ...umi_const import (
+from ....umi_const import (
     get_umi_settings,
     get_batcher_list_name,
     get_batcher_index_name,
@@ -12,9 +12,9 @@ from ...umi_const import (
     DATATYPE_LIST,
     DATATYPE_PROPERTIES_DICT,
 )
-from ...operators.ui.operators_const import COMMAND_BATCHER_PRESET_FOLDER
-from ...operators.command_batcher_const import COMMAND_BATCHER_ITEM_COUNT, COMMAND_BATCHER_VARIABLE
-from ...bversion import BVERSION
+from .operators_const import COMMAND_BATCHER_PRESET_FOLDER
+from ..command_batcher_const import COMMAND_BATCHER_ITEM_COUNT, COMMAND_BATCHER_VARIABLE
+from ....bversion import BVERSION
 
 
 datatype_col_count = math.ceil(len(DATATYPE_LIST) / 4)
@@ -119,29 +119,26 @@ def draw_applies_to(self, layout):
 
 def read_applies_to(self, current_operator):
     for d in DATATYPE_PROPERTIES:
-        exec(
-            f"self.{d['property']} = current_operator.{d['property']}",
-            {"self": self, "current_operator": current_operator},
-        )
+        op = getattr(current_operator, d["property"], None)
+        assert op is not None
+        setattr(self, d["property"], op)
 
 
 def set_applies_to(self, current_operator):
     for d in DATATYPE_PROPERTIES:
-        exec(
-            f"current_operator.{d['property']} = self.{d['property']}",
-            {"self": self, "current_operator": current_operator},
-        )
+        op = getattr(self, d["property"], None)
+        assert op is not None
+        setattr(current_operator, d["property"], op)
 
 
 def set_applies_to_from_duplicate(self, current_operator, reference_operator):
     for d in DATATYPE_PROPERTIES:
-        exec(
-            f"current_operator.{d['property']} = reference_operator.{d['property']}",
-            {"self": self, "current_operator": current_operator, "reference_operator": reference_operator},
-        )
+        op = getattr(reference_operator, d["property"], None)
+        assert op is not None
+        setattr(current_operator, d["property"], op)
 
 
-def draw_add_edit_operator(self, layout):
+def draw_add_edit_operator(self, layout, each: bool = True):
     col = layout.column()
     col.label(text="Command:")
     col.prop(self, "operator", text="")
@@ -149,25 +146,25 @@ def draw_add_edit_operator(self, layout):
 
     col.use_property_split = True
     col.use_property_decorate = False
+    if each:
+        if BVERSION >= 4.2:
+            header, panel = col.panel(idname="COMMAND_InjectVariable")
+            header.label(text="Inject Variable :", icon="SORTALPHA")
+        else:
+            panel = col.box()
+            header = panel.row(align=True)
+            header.label(text="Inject Variable :", icon="SORTALPHA")
 
-    if BVERSION >= 4.2:
-        header, panel = col.panel(idname="COMMAND_InjectVariable")
-        header.label(text="Inject Variable :", icon="SORTALPHA")
-    else:
-        panel = col.box()
-        header = panel.row(align=True)
-        header.label(text="Inject Variable :", icon="SORTALPHA")
+        if panel:
+            row = panel.row()
+            row.alignment = "EXPAND"
+            for i, c in enumerate(COMMAND_BATCHER_VARIABLE.values()):
+                if i % batcher_item_col_count == 0:
+                    sub_col = row.column(align=True)
 
-    if panel:
-        row = panel.row()
-        row.alignment = "EXPAND"
-        for i, c in enumerate(COMMAND_BATCHER_VARIABLE.values()):
-            if i % batcher_item_col_count == 0:
-                sub_col = row.column(align=True)
+                sub_col.prop(self, f"{c['property']}", text="")
 
-            sub_col.prop(self, f"{c['property']}", text="")
-
-    draw_applies_to(self, col)
+        draw_applies_to(self, col)
 
 
 if not os.path.exists(COMMAND_BATCHER_PRESET_FOLDER):
@@ -177,8 +174,10 @@ if not os.path.exists(COMMAND_BATCHER_PRESET_FOLDER):
 
 def get_operator(target_name, target_id_name):
     umi_settings = get_umi_settings()
-    target = eval(f"umi_settings.{target_name}")
-    idx = eval(f"umi_settings.{target_id_name}")
+    target = getattr(umi_settings, target_name, None)
+    idx = getattr(umi_settings, target_id_name, None)
+    assert target is not None
+    assert idx is not None
     operators = target
 
     active = operators[idx] if len(operators) else None
@@ -197,7 +196,8 @@ class UI_UMIMoveOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f"umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        return getattr(umi_settings, batcher_list, None)
 
     def execute(self, context):
         umi_settings = get_umi_settings()
@@ -212,7 +212,11 @@ class UI_UMIMoveOperator(bpy.types.Operator):
             nextidx = min(idx + 1, len(operator) - 1)
 
         operator.move(idx, nextidx)
-        exec(f"umi_settings.{get_batcher_index_name()} = nextidx")
+
+        batcher_list = getattr(umi_settings, get_batcher_index_name(), None)
+        assert batcher_list is not None
+
+        setattr(umi_settings, get_batcher_index_name(), nextidx)
 
         return {"FINISHED"}
 
@@ -226,7 +230,8 @@ class UI_UMIClearOperators(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f"umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        return getattr(umi_settings, batcher_list, None)
 
     def invoke(self, context, event):
         wm = context.window_manager
@@ -234,7 +239,9 @@ class UI_UMIClearOperators(bpy.types.Operator):
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
         target.clear()
 
         return {"FINISHED"}
@@ -251,7 +258,8 @@ class UI_UMIRemoveOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f"umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        return getattr(umi_settings, batcher_list, None)
 
     def invoke(self, context, event):
         wm = context.window_manager
@@ -261,7 +269,9 @@ class UI_UMIRemoveOperator(bpy.types.Operator):
         umi_settings = get_umi_settings()
 
         self.umi_settings = get_umi_settings()
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
 
         target.remove(self.id)
 
@@ -281,11 +291,15 @@ class UI_UMIDuplicateOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         umi_settings = get_umi_settings()
-        return eval(f"umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        return getattr(umi_settings, batcher_list, None)
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
+
         o = target.add()
         o.enabled = target[self.id].enabled
         o.operator = target[self.id].operator
@@ -303,14 +317,16 @@ class UI_UMIEditOperator(bpy.types.Operator):
 
     id: bpy.props.IntProperty(name="Operator ID", default=0)
     operator: bpy.props.StringProperty(name="Operator Command", default="", search=operators)
+    each: bpy.props.BoolProperty(name="Each Operator", default=True)
 
     def draw(self, context):
-        draw_add_edit_operator(self, self.layout)
+        draw_add_edit_operator(self, self.layout, self.each)
 
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
-
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
 
         current_operator = target[self.id]
 
@@ -323,7 +339,9 @@ class UI_UMIEditOperator(bpy.types.Operator):
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
         o = target[self.id]
         o.operator = self.operator
         o.modifier_type = self.modifier_type
@@ -338,9 +356,10 @@ class UI_UMIAddOperator(bpy.types.Operator):
     bl_description = "Add a new operator"
 
     operator: bpy.props.StringProperty(name="Operator Command", default="", search=operators)
+    each: bpy.props.BoolProperty(name="Each Operator", default=True)
 
     def draw(self, context):
-        draw_add_edit_operator(self, self.layout)
+        draw_add_edit_operator(self, self.layout, self.each)
 
     def invoke(self, context, event):
         self.umi_settings = get_umi_settings()
@@ -349,10 +368,13 @@ class UI_UMIAddOperator(bpy.types.Operator):
 
     def execute(self, context):
         self.umi_settings = get_umi_settings()
-        target = eval(f"self.umi_settings.{get_batcher_list_name()}")
+        batcher_list = get_batcher_list_name()
+        target = getattr(self.umi_settings, batcher_list, None)
+        assert target is not None
         o = target.add()
         o.operator = self.operator
         o.modifier_type = self.modifier_type
+        o.each = self.each
         set_applies_to(self, o)
         return {"FINISHED"}
 
@@ -381,13 +403,13 @@ def register():
         )
         cls.__annotations__["adding_datatype"] = bpy.props.BoolProperty(name="Adding Datatype", default=False)
 
-    from ... import class_property_injection
+    from .... import class_property_injection
 
     class_property_injection.register(datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values()))
 
 
 def unregister():
-    from ... import class_property_injection
+    from .... import class_property_injection
 
     class_property_injection.unregister(
         datatype_classes, DATATYPE_PROPERTIES + tuple(COMMAND_BATCHER_VARIABLE.values())
@@ -401,4 +423,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-
