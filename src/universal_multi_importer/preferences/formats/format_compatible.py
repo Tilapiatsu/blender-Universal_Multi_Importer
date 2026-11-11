@@ -1,35 +1,48 @@
-import bpy
+import copy
 import inspect
+
 import addon_utils
-from ...preferences.formats.format_definition import FormatDefinition
-from ...preferences.formats import FORMATS
-from ...preferences.formats.format import Format
-from ...preferences.formats.panels import get_panels
-from ...preferences.formats.panels.presets import format_preset
+import bpy
+
 from ...bversion import AddonVersion
 from ...bversion.version.version import Version
+from ...preferences.formats import FORMATS
+from ...preferences.formats.format import Format
+from ...preferences.formats.format_definition import FormatDefinition
+from ...preferences.formats.panels import get_panels
+from ...preferences.formats.panels.presets import format_preset
 from ...umi_const import LOG
 
 
 class CompatibleFormats(object):
-    def __init__(self):
+    def __init__(self, auto_discover=False):
+
         self._all_formats = {}
-        for f in FORMATS:
-            format = getattr(FormatDefinition, f, None)
-            assert format is not None
-            to_remove = []
-            for name, o in format.operators.items():
-                if o.invalid:
-                    to_remove.append(name)
 
-            for n in to_remove:
-                format.operators.remove(n)
+        for format_name in FORMATS:
+            source = getattr(FormatDefinition, format_name, None)
+            assert source is not None
 
-            if not len(format.operators):
+            operators = {name: operator for name, operator in source.operators.items() if not operator.invalid}
+
+            if not operators:
                 continue
 
-            self._all_formats[f] = format
+            format_copy = copy.copy(source)
+            format_copy.operators = copy.copy(source.operators)
+            format_copy.operators.operators = operators
 
+            self._all_formats[format_name] = format_copy
+
+        self.formats = []
+        self.formats_dict = {}
+
+        self._reset_caches()
+
+        if auto_discover:
+            self.refresh()
+
+    def _reset_caches(self):
         self._extensions = None
         self._extensions_string = None
         self._operators = None
@@ -37,9 +50,11 @@ class CompatibleFormats(object):
         self._filename_ext = None
         self._filter_glob_extensions = None
         self._filter_glob = None
-        # automatically gather format
-        self.formats = self.get_formats()
-        self.formats_dict: dict[str, Format] = {f.name: f for f in self.formats}
+
+    def refresh(self, available_operators=None):
+        self.formats = self.get_formats(available_operators=available_operators)
+        self.formats_dict = {f.name: f for f in self.formats}
+        self._reset_caches()
 
     def is_format_installed(self, addon_name):
         return addon_name in self.installed_addons
@@ -239,36 +254,44 @@ class CompatibleFormats(object):
         assert command is not None
         return command
 
-    def get_formats(self) -> list[Format]:
+    def get_formats(self, available_operators=None) -> list[Format]:
+
         valid_formats = []
-        for f in self.all_formats.values():
-            op = {}
-            new_f = f
-            assigned = []
-            for n, o in f.operators.operators.items():
-                if o.module is None:
-                    # Check Command
-                    try:
-                        self.get_command_from_string(o.command).__repr__()
-                    except:
-                        assigned.append(False)
-                        print(o.command, "not found")
-                        continue
 
-                    op[n] = f.operators.operators[n]
+        for format_name, format in self.all_formats.items():
+            operators = {}
+
+            for name, operator in format.operators.items():
+                key = (format_name, name)
+
+                if available_operators is not None:
+                    if key in available_operators:
+                        operators[name] = operator
+                    continue
+
+                # Backwards-compatible discovery.
+                if operator.module is not None:
+                    if operator.module in dir(bpy.types):
+                        operators[name] = operator
+
                 else:
-                    # Check Module
-                    if o.module not in dir(bpy.types):
-                        assigned.append(False)
-                        print(o.module, "not in bpy.types")
+                    try:
+                        command = self.get_command_from_string(operator.command)
+                        command.get_rna_type()
+                        operators[name] = operator
+
+                    except (KeyError, AttributeError, RuntimeError):
                         continue
 
-                    op[n] = f.operators.operators[n]
+            if not operators:
+                continue
 
-            # check if at least one module succeeded
-            if len(assigned) < len(f.operators.operators.keys()):
-                new_f.operators.operators = op
-                valid_formats.append(new_f)
+            # Never mutate the original FormatDefinition.
+            new_format = copy.copy(format)
+            new_format.operators = copy.copy(format.operators)
+            new_format.operators.operators = operators
+
+            valid_formats.append(new_format)
 
         return valid_formats
 
@@ -289,7 +312,7 @@ class CompatibleFormats(object):
         return self.all_formats[format_name].operators.operators[module_name].import_data
 
     def get_format_from_name(self, name: str) -> Format:
-        if name not in self.all_formats.keys():
+        if name not in self.all_formats:
             return None
         else:
             return self.all_formats[name]
@@ -324,7 +347,7 @@ class CompatibleFormats(object):
         return self.all_formats[format_name].operators.operators[module_name].default_values
 
     def is_format_valid(self, format):
-        if format not in self.formats_dict.keys():
+        if format not in self.formats_dict:
             return False
 
         operators = self.formats_dict[format].operators.operators

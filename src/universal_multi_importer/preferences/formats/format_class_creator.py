@@ -18,8 +18,9 @@ def ClassFactory(name, argnames, BaseClass=BaseClass):
 
 
 class FormatClassCreator:
-    def __init__(self):
+    def __init__(self, operator_metadata=None):
         self._classes = None
+        self.operator_metadata = operator_metadata or {}
 
     _incompatible_subclass = ["Operator", "bpy_struct", "object"]
 
@@ -51,9 +52,16 @@ class FormatClassCreator:
                     format_class = modules[f"{f.name}_{name}_settings"]
 
                     if operator.module is not None:
-                        format_class = self.create_format_class_from_module(operator, format_class)
+                        format_class = self.create_format_class_from_module(
+                            operator,
+                            format_class,
+                        )
                     else:
-                        format_class = self.create_format_class_from_operator(operator, format_class)
+                        format_class = self.create_format_class_from_operator(
+                            operator,
+                            format_class,
+                            self.operator_metadata.get((f.name, name)),
+                        )
 
                     self._classes["classes"].append(format_class)
 
@@ -111,32 +119,41 @@ class FormatClassCreator:
 
         return format_class
 
-    def create_format_class_from_operator(self, f: FormatOperator, format_class):
+    def create_format_class_from_operator(
+        self,
+        f: FormatOperator,
+        format_class,
+        operator_properties=None,
+    ):
         print(f"UMI : create class from operator {f.command}")
 
         if f.import_settings is None:
-            try:
+            properties = operator_properties
+            if properties is None:
                 command = COMPATIBLE_FORMATS.get_command_from_string(f.command)
-
-                rna = command.get_rna_type()
-                # ISSUE: DXF and XYZ Extension is not registered properly
-                properties = rna.properties
-            except KeyError:
-                format_class.__annotations__["settings_imported"] = bpy.props.BoolProperty(
-                    name="Settings imported", default=False, options={"HIDDEN"}
-                )
-                format_class.__annotations__["addon_name"] = bpy.props.StringProperty(
-                    name="Addon Name", default=f.addon_name if f.addon_name else ""
-                )
-                format_class.__annotations__["supported_version"] = bpy.props.StringProperty(
-                    name="Supported Version", default=f.supported_version
-                )
-                format_class.__annotations__["forced_properties"] = bpy.props.StringProperty(
-                    name="Addon Name", default="[]"
-                )
-
-                print(f"{f.addon_name} NOT imported properly")
-                return format_class
+                properties = command.get_rna_type().properties
+            # try:
+            #     command = COMPATIBLE_FORMATS.get_command_from_string(f.command)
+            #
+            #     rna = command.get_rna_type()
+            #     # ISSUE: DXF and XYZ Extension is not registered properly
+            #     properties = rna.properties
+            # except KeyError:
+            #     format_class.__annotations__["settings_imported"] = bpy.props.BoolProperty(
+            #         name="Settings imported", default=False, options={"HIDDEN"}
+            #     )
+            #     format_class.__annotations__["addon_name"] = bpy.props.StringProperty(
+            #         name="Addon Name", default=f.addon_name if f.addon_name else ""
+            #     )
+            #     format_class.__annotations__["supported_version"] = bpy.props.StringProperty(
+            #         name="Supported Version", default=f.supported_version
+            #     )
+            #     format_class.__annotations__["forced_properties"] = bpy.props.StringProperty(
+            #         name="Addon Name", default="[]"
+            #     )
+            #
+            #     print(f"{f.addon_name} NOT imported properly")
+            #     return format_class
 
             for p in properties:
                 if p.is_hidden or p.is_readonly:
