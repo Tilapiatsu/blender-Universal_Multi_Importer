@@ -132,28 +132,6 @@ class FormatClassCreator:
             if properties is None:
                 command = COMPATIBLE_FORMATS.get_command_from_string(f.command)
                 properties = command.get_rna_type().properties
-            # try:
-            #     command = COMPATIBLE_FORMATS.get_command_from_string(f.command)
-            #
-            #     rna = command.get_rna_type()
-            #     # ISSUE: DXF and XYZ Extension is not registered properly
-            #     properties = rna.properties
-            # except KeyError:
-            #     format_class.__annotations__["settings_imported"] = bpy.props.BoolProperty(
-            #         name="Settings imported", default=False, options={"HIDDEN"}
-            #     )
-            #     format_class.__annotations__["addon_name"] = bpy.props.StringProperty(
-            #         name="Addon Name", default=f.addon_name if f.addon_name else ""
-            #     )
-            #     format_class.__annotations__["supported_version"] = bpy.props.StringProperty(
-            #         name="Supported Version", default=f.supported_version
-            #     )
-            #     format_class.__annotations__["forced_properties"] = bpy.props.StringProperty(
-            #         name="Addon Name", default="[]"
-            #     )
-            #
-            #     print(f"{f.addon_name} NOT imported properly")
-            #     return format_class
 
             for p in properties:
                 if p.is_hidden or p.is_readonly:
