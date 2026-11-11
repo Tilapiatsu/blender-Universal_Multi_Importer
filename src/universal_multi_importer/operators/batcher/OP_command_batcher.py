@@ -543,11 +543,7 @@ class CommandBatcher(bpy.types.Operator):
                         self.process_succeeded.append(True)
 
                     except Exception as e:
-                        message = f'{
-                            self.current_element_to_process.data_type
-                            if self.current_element_to_process is not None
-                            else " Data"
-                        } : Command "{command}" is not valid - \n{e}'
+                        message = f'{self.current_element_to_process.data_type if self.current_element_to_process is not None else " Data"} : Command "{command}" is not valid - \n{e}'
                         LOG.error(message)
                         LOG.store_failure(message)
                         self.process_succeeded.append(False)

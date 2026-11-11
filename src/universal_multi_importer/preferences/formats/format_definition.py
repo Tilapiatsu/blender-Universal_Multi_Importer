@@ -84,7 +84,7 @@ def gltf_operators() -> FormatOperators:
         "default", "bpy.ops.import_scene.gltf", "3.6.27", addon_name="io_scene_gltf2", description=DEFAULT_DESCRIPTION
     )
     if BVERSION >= 5.3:
-        f.supported_version = "5.2.43"
+        f.supported_version = "5.3.43"
 
     elif BVERSION >= 5.2:
         f.supported_version = "5.2.39"
