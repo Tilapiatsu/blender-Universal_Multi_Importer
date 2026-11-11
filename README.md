@@ -50,7 +50,7 @@ This addon is adding batch import features to existing importers for blender. Th
 | dxf[:link:](https://projects.blender.org/extensions/io_import_dxf) ||||  inb          |              |              |
 | 3ds[:link:](https://projects.blender.org/extensions/io_scene_3ds)  ||||  new          |              |              |
 | skp[:link:](https://github.com/RedHaloStudio/Sketchup_Importer)             |               |               |                   |  pcd               |              |              |
-|              |               |               |                   |  pcm               |              |              |
+| spz          |               |               |                   |  pcm               |              |              |
 |              |               |               |                   |  pcq               |              |              |
 |              |               |               |                   |  pcs               |              |              |
 |              |               |               |                   |  phb               |              |              |
@@ -73,25 +73,25 @@ This addon is adding batch import features to existing importers for blender. Th
 
 ## File Count
 
-|  |  |
+| | |
 | ----------- | ----------- |
-| Max Simultaneously | Determine the max number of file to import simultaneously. Each group of files to be imported simultaneously is called a "Batch". Importing multiple file at the same time allow to reduce the import time for small file, but can cause screen freezing or memory issue for bigger file. To smartly balance this, you can check `Max batch size` and `Minimize batch number`|
+| Max Simultaneously | Determine the max number of file to import simultaneously. Each group of files to be imported simultaneously is called a "Batch". Importing multiple file at the same time allow to reduce the import time for small file, but can cause screen freezing or memory issue for bigger file. To smartly balance this, you can check `Max batch size` and `Minimize batch number` |
 | Max batch size | Determine the max batch file size to Import. If a file is a candidate to be include in the current batch, but his file size would make the batch bigger than `Max batch size`, then the file will be included in the next batch |
-| Minimize batch number | The importer will smartly group files in batches in order to be as close as possible to `Max batch size` for each batch without exceeding it and without exceeding `Max Import Simultaneously`|
-| Refresh Viewport After time (s) | The viewport will refresh after the X seconds. It help to control viewport interactivity. A value of 0 will disable it, and the viewport will refresh after each batch`|
+| Minimize batch number | The importer will smartly group files in batches in order to be as close as possible to `Max batch size` for each batch without exceeding it and without exceeding `Max Import Simultaneously` |
+| Refresh Viewport After time (s) | The viewport will refresh after the X seconds. It help to control viewport interactivity. A value of 0 will disable it, and the viewport will refresh after each batch` |
 
 ## Options
 
-|  |  |
+| | |
 | ----------- | ----------- |
 | Recreate folder structure as collections | ( `Import Folder` mode only ) Recreate the folder structure from the hard drive into blender collections |
 | Create collection per file | Each imported file will be placed in a new collection named like the file |
 | Skip already imported files | if a file have already been imported, the import is skipped for this file, this option is only available if "`Create collection per file`" is Enable |
-|||
+| | |
 
 ## Log Display
 
-|  |  |
+| | |
 | ----------- | ----------- |
 | Show Log on 3D View | Display the Log and Progress of the Importing files in the 3D viewport while importing |
 | Auto Hide Log When Finished | Automatic hide the log once the Import is Completed |
@@ -100,7 +100,7 @@ This addon is adding batch import features to existing importers for blender. Th
 
 ## Backup
 
-|  |  |
+| | |
 | ----------- | ----------- |
 | Save file after import | At the end of the import process, save the current file |
 | Backup file after each import | A backup file is saved after each "`Backup Step`" file is imported |
@@ -134,22 +134,22 @@ You can choose if the command has to be executed for a specific datatype or many
 
 ![UMI-Add-command.png](https://i.postimg.cc/zXQBLsxC/Blender-Add-Command.png)
 
-|  Variable |  Description  |
+| Variable | Description |
 | ----------- | ----------- |
-| <ITEM_NAME>           | (str) Name of the processed Item. |
-| <GLOBAL_ITEM_INDEX>   | (int) The global index of processed intm |
-| <DATA_ITEM_INDEX>     | (int) The index of the item per data type. Each Data type have it's own index, which help with processing item per type |
-| <ITEM_DATA>           | (str) A string when evaluated refers to the data of the processed item. eg: `bpy.data.objects['table']` or `bpy.data.sounds['beep']` |
-| \<OBJECTS>             | (list) Returns a list of objects using the given data. The Command will be executed for each objects in the list |
-| <OBJECT_BBOX>         | (vector3) Works for object data type only. Returns the bounding box size of the processed object. If you use this variable on other datatype, it will return `(0, 0, 0)` |
-| \<TIMEF>               | (float) Returns a value that represent the current time |
-| \<TIMESTR>             | (str) Returns a readable sentence the read the current date and time. eg : `Mon May 12 23:04:03 2025`|
-| \<BVERSION>            | (str) Returns the current blender version. eg: `4.4.0`|
+| <ITEM_NAME> | (str) Name of the processed Item. |
+| <GLOBAL_ITEM_INDEX> | (int) The global index of processed intm |
+| <DATA_ITEM_INDEX> | (int) The index of the item per data type. Each Data type have it's own index, which help with processing item per type |
+| <ITEM_DATA> | (str) A string when evaluated refers to the data of the processed item. eg: `bpy.data.objects['table']` or `bpy.data.sounds['beep']` |
+| \<OBJECTS> | (list) Returns a list of objects using the given data. The Command will be executed for each objects in the list |
+| <OBJECT_BBOX> | (vector3) Works for object data type only. Returns the bounding box size of the processed object. If you use this variable on other datatype, it will return `(0, 0, 0)` |
+| \<TIMEF> | (float) Returns a value that represent the current time |
+| \<TIMESTR> | (str) Returns a readable sentence the read the current date and time. eg : `Mon May 12 23:04:03 2025` |
+| \<BVERSION> | (str) Returns the current blender version. eg: `4.4.0` |
 
-| Other Settings |  |
+| Other Settings | |
 | ----------- | ----------- |
 | Ignore Command Batcher Errors | Batch Processing imported files can cause error. Enabling this will continue the import of the following files even if an error occurs. Otherwise, the import process will stop |
-| Presets | You can save any list of commands from `batch process Imported files` to a preset that will be saved on disk. Here you can manage the presets: <br>- Creating preset<br>- Loading Preset <br>- Removing Preset<br>- Renaming Preset|
+| Presets | You can save any list of commands from `batch process Imported files` to a preset that will be saved on disk. Here you can manage the presets: <br>- Creating preset<br>- Loading Preset <br>- Removing Preset<br>- Renaming Preset |
 
 # Changelog
 

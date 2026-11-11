@@ -532,6 +532,25 @@ def vdb_operators() -> FormatOperators:
     return operators
 
 
+def spz_operators() -> FormatOperators:
+    op = FormatOperator("default", "bpy.ops.wm.spz_import", "0.0.0", description=DEFAULT_DESCRIPTION)
+
+    operators = FormatOperators(op)
+
+    gn = FormatOperator(
+        "geometry_node",
+        "bpy.ops.import_scene.tila_import_as_geometry_node",
+        "0.0.0",
+        default_values={"import_module": "SPZ"},
+        description=AS_GEOMETRY_NODES_DESCRIPTION,
+    )
+
+    if BVERSION >= 5.3:
+        operators.add_operator(gn)
+
+    return operators
+
+
 class FormatDefinition:
     """
     Stores all information to support import formats
@@ -612,6 +631,9 @@ class FormatDefinition:
     )
 
     vdb = Format("vdb", [".vdb"], vdb_operators())
+
+    if BVERSION >= 5.3:
+        spz = Format("spz", [".spz"], spz_operators(), generate_filter_glob=True)
 
 
 if EXTENSION is not None:
