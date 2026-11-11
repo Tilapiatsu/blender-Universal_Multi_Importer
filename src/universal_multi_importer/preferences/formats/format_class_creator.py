@@ -119,6 +119,7 @@ class FormatClassCreator:
                 command = COMPATIBLE_FORMATS.get_command_from_string(f.command)
 
                 rna = command.get_rna_type()
+                # ISSUE: DXF and XYZ Extension is not registered properly
                 properties = rna.properties
             except KeyError:
                 format_class.__annotations__["settings_imported"] = bpy.props.BoolProperty(
