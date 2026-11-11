@@ -1,5 +1,4 @@
 import bpy
-from typing import Union, Optional, Dict
 
 
 def axis() -> tuple:
@@ -14,7 +13,7 @@ def axis() -> tuple:
 
 
 class FormatImportSetting:
-    def __init__(self, settings: Optional[Dict[str, Dict[str, Dict]]] = None) -> None:
+    def __init__(self, settings: dict[str, dict[str, dict]] | None = None) -> None:
         if settings is None:
             self.settings = {}
             return
@@ -32,7 +31,7 @@ class FormatImportSetting:
 
         return self.settings[name]
 
-    def add_set_settings(self, section_name: str, settings: Dict[str, Dict]) -> None:
+    def add_set_settings(self, section_name: str, settings: dict[str, dict]) -> None:
         """
         Add or replace a dict of setting in the given section
         """
@@ -42,7 +41,7 @@ class FormatImportSetting:
             section[k] = v
 
     def add_set_boolean_setting(
-        self, section_name: str, name: str, display_name: str, default: bool, options: Optional[set] = None
+        self, section_name: str, name: str, display_name: str, default: bool, options: set | None = None
     ) -> None:
 
         if options is None:
@@ -61,7 +60,7 @@ class FormatImportSetting:
         )
 
     def add_set_float_setting(
-        self, section_name: str, name: str, display_name: str, default: float, options: Optional[set] = None
+        self, section_name: str, name: str, display_name: str, default: float, options: set | None = None
     ) -> None:
 
         if options is None:
@@ -80,7 +79,7 @@ class FormatImportSetting:
         )
 
     def add_set_int_setting(
-        self, section_name: str, name: str, display_name: str, default: int, options: Optional[set] = None
+        self, section_name: str, name: str, display_name: str, default: int, options: set | None = None
     ) -> None:
 
         if options is None:
@@ -99,7 +98,7 @@ class FormatImportSetting:
         )
 
     def add_set_string_setting(
-        self, section_name: str, name: str, display_name: str, default: str, options: Optional[set] = None
+        self, section_name: str, name: str, display_name: str, default: str, options: set | None = None
     ) -> None:
 
         if options is None:
@@ -122,9 +121,9 @@ class FormatImportSetting:
         section_name: str,
         name: str,
         display_name: str,
-        default: Union[str, set],
-        enum_items: list[tuple[str, str, str, Optional[int]]],
-        options: Optional[set] = None,
+        default: str | set,
+        enum_items: list[tuple[str, str, str, int | None]],
+        options: set | None = None,
     ) -> None:
 
         if options is None:
@@ -153,17 +152,17 @@ class FormatOperator:
         name: str,
         command: str,
         supported_version: str,
-        module: Optional[str] = None,
-        addon_name: Optional[str] = None,
-        pkg_id: Optional[str] = None,
-        pkg_url: Optional[str] = None,
+        module: str | None = None,
+        addon_name: str | None = None,
+        pkg_id: str | None = None,
+        pkg_url: str | None = None,
         external_addon: bool = False,
         default_values: dict = {},
         forced_properties: list = [],
-        import_objects: Optional[bool] = True,
-        import_data: Optional[bool] = True,
-        import_settings: Optional[FormatImportSetting] = None,
-        description: Optional[str] = "",
+        import_objects: bool | None = True,
+        import_data: bool | None = True,
+        import_settings: FormatImportSetting | None = None,
+        description: str | None = "",
         invalid: bool = False,
     ):
 
@@ -210,7 +209,7 @@ class FormatOperator:
 
 
 class FormatOperators:
-    def __init__(self, operator: Union[FormatOperator, tuple[str, dict]]):
+    def __init__(self, operator: FormatOperator | tuple[str, dict]):
         if isinstance(operator, FormatOperator):
             self.operators = {operator.name: operator}
 
@@ -244,7 +243,7 @@ class FormatOperators:
                 f'operator parameters should NOT be of type "{type(operator)}" \n It should be either tuple[str, dict] or FormatOperator type'
             )
 
-    def add_operator(self, operator: Union[FormatOperator, tuple[str, dict]]):
+    def add_operator(self, operator: FormatOperator | tuple[str, dict]):
         if isinstance(operator, FormatOperator):
             self.operators[operator.name] = operator
 
@@ -316,7 +315,7 @@ class Format:
         name: str,
         ext: list[str],
         operators: FormatOperators,
-        ignore: Optional[list[str]] = None,
+        ignore: list[str] | None = None,
         generate_filter_glob: bool = False,
     ) -> None:
 

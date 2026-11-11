@@ -86,6 +86,9 @@ def gltf_operators() -> FormatOperators:
     if BVERSION >= 5.3:
         f.supported_version = "5.3.43"
 
+    elif BVERSION >= 5.204:
+        f.supported_version = "5.2.41"
+
     elif BVERSION >= 5.2:
         f.supported_version = "5.2.39"
 
