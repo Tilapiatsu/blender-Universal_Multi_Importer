@@ -6,3 +6,6 @@ docstring-code-format = true
 
 [tool.pyright]
 reportInvalidTypeForm = "none"
+
+[tool.ty.rules]
+invalid-type-form = "ignore"
