@@ -12,11 +12,12 @@ def x3d_operators(format_operator: FormatOperator) -> None:
         format_operator.addon_name = "bl_ext.blender_org.web3d_x3d_vrml2_format"
         format_operator.pkg_id = "web3d_x3d_vrml2_format"
         format_operator.pkg_url = "https://extensions.blender.org/add-ons/web3d-x3d-vrml2-format/"
-        format_operator.supported_version = "2.5.1"
+        format_operator.supported_version = "2.5.2"
         format_operator.description = EXTENSION_DESCRIPTION
 
 
 def dxf_operators(format_operator: FormatOperator) -> None:
+    # ISSUE: Investigate why DXF is not imported properly
     if BVERSION >= 4.2:
         format_operator.addon_name = "bl_ext.blender_org.import_autocad_dxf_format_dxf"
         format_operator.pkg_id = "import_autocad_dxf_format_dxf"
@@ -38,6 +39,7 @@ def pdb_operators(format_operator: FormatOperator) -> None:
 
 
 def xyz_operators(format_operator: FormatOperator) -> None:
+    # ISSUE: Investigate why DXF is not imported properly
     if BVERSION >= 4.2:
         format_operator.command = "bpy.ops.import_mesh.xyz"
         format_operator.addon_name = "bl_ext.blender_org.atomic_blender_pdb_xyz"
@@ -127,7 +129,7 @@ def max3ds_operators() -> FormatOperators:
         f.addon_name = "bl_ext.blender_org.autodesk_3ds_format"
         f.pkg_id = "autodesk_3ds_format"
         f.pkg_url = "https://extensions.blender.org/add-ons/autodesk-3ds-format/"
-        f.supported_version = "3.0.1"
+        f.supported_version = "3.0.2"
 
     elif BVERSION >= 4.1:
         f.supported_version = "2.4.9"
@@ -148,7 +150,7 @@ def max_operators() -> FormatOperators:
     f = FormatOperator(
         "default",
         "bpy.ops.import_scene.max",
-        "1.9.1",
+        "1.9.2",
         addon_name="bl_ext.blender_org.io_scene_max",
         pkg_id="io_scene_max",
         pkg_url="https://extensions.blender.org/add-ons/io-scene-max/",
@@ -227,6 +229,7 @@ def pes_operators() -> FormatOperators:
 
 
 def skp_operators() -> FormatOperators:
+    # ISSUE: Investigate why DXF is not imported properly
     f = FormatOperator(
         "default",
         "bpy.ops.import_scene.skp",

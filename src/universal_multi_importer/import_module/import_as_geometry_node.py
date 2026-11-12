@@ -12,6 +12,7 @@ NODE_IMPORT_MODULES = [
     ("TXT", "GeometryNodeImportText"),
     ("VDB", "GeometryNodeImportVDB"),
     ("PLY", "GeometryNodeImportPLY"),
+    ("SPZ", "GeometryNodeImportSPZ"),
 ]
 
 NODE_IMPORT_MODULES_ITEMS = [(m[0], m[0].lower(), "") for m in NODE_IMPORT_MODULES]
@@ -371,11 +372,11 @@ class IMPORT_SCENE_OT_tila_import_as_geometry_node(bpy.types.Operator):
 
         modifier.node_group = node_tree
 
-        modifier["Socket_0"] = filepath
-        modifier["Socket_2"] = self.import_mode == "SEQUENCE"
-        modifier["Socket_3"] = self.loop_sequence
-        modifier["Socket_4"][0] = frame_range[0]
-        modifier["Socket_4"][1] = frame_range[1]
+        modifier.properties.inputs.Socket_0.value = filepath
+        modifier.properties.inputs.Socket_2.value = self.import_mode == "SEQUENCE"
+        modifier.properties.inputs.Socket_3.value = self.loop_sequence
+        modifier.properties.inputs.Socket_4.value[0] = frame_range[0]
+        modifier.properties.inputs.Socket_4.value[1] = frame_range[1]
 
         return modifier
 
